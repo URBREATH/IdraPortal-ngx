@@ -1,8 +1,8 @@
-# IdraPortal - ngx-admin 
+# IdraPortal-ngx-admin 
 This repository contains IdraPortal UI Template. This template is built starting from [NGX-Admin](https://akveo.github.io/ngx-admin/), an open source dashboard based on [Angular](https://angular.io/), [Nebular](https://akveo.github.io/nebular/) with [Eva Design System](https://eva.design/).
 
 ## Table of Contents
-- [UI Template](#IdraPortal-ngx)
+- [UI Template](#IdraPortal-ngx-admin)
   - [Table of Contents](#table-of-contents)
   - [Requirements](#requirements)
   - [Install](#install)
@@ -14,7 +14,7 @@ This repository contains IdraPortal UI Template. This template is built starting
     - [Create a Component](#create-a-component)
     - [Create a Service](#create-a-service)
     - [Manage Routing](#manage-routing)
-      - [IdraPortal-ngx routing](#urbanite-ui-routing)
+      - [IdraPortal-ngx routing](#IdraPortal-ngx-routing)
       - [Module routing](#module-routing)
     - [Add Sidebar entry](#add-sidebar-entry)
     - [Run the template](#run-the-template)
@@ -131,7 +131,7 @@ Please, refer to the angular official [documentation](https://angular.io/guide/h
 
 To visualize the content for any new module the developer needs to manage routing.
 In the IdraPortal-ngx there are two levels of routing:
-- [IdraPortal-ngx routing](#urbanite-ui-routing)
+- [IdraPortal-ngx routing](#IdraPortal-ngx-routing)
 - [Module routing](#module-routing)
 
 Refer to the official [routing documentation](https://angular.io/guide/router) for additional details.
@@ -219,7 +219,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
 ```
 
 The **title** is the label that would be added to the sidebar.
-Replace in the **link** and in the **name** the value defined for the **path** variable on [IdraPortal-ngx routing](#urbanite-ui-routing).
+Replace in the **link** and in the **name** the value defined for the **path** variable on [IdraPortal-ngx routing](#IdraPortal-ngx-routing).
 About the icon, please select an icon among the [following](https://akveo.github.io/eva-icons/#/) and put its identifier.
 
 ### Run the template
