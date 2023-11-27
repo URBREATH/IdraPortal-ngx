@@ -1,8 +1,8 @@
 # IdraPortal - ngx-admin 
-This repository contains Urbanite UI Template. This template is built starting from [NGX-Admin](https://akveo.github.io/ngx-admin/), an open source dashboard based on [Angular](https://angular.io/), [Nebular](https://akveo.github.io/nebular/) with [Eva Design System](https://eva.design/).
+This repository contains IdraPortal UI Template. This template is built starting from [NGX-Admin](https://akveo.github.io/ngx-admin/), an open source dashboard based on [Angular](https://angular.io/), [Nebular](https://akveo.github.io/nebular/) with [Eva Design System](https://eva.design/).
 
 ## Table of Contents
-- [Urbanite UI Template](#urbanite-ui-template)
+- [UI Template](#IdraPortal-ngx)
   - [Table of Contents](#table-of-contents)
   - [Requirements](#requirements)
   - [Install](#install)
@@ -14,7 +14,7 @@ This repository contains Urbanite UI Template. This template is built starting f
     - [Create a Component](#create-a-component)
     - [Create a Service](#create-a-service)
     - [Manage Routing](#manage-routing)
-      - [URBANITE-UI routing](#urbanite-ui-routing)
+      - [IdraPortal-ngx routing](#urbanite-ui-routing)
       - [Module routing](#module-routing)
     - [Add Sidebar entry](#add-sidebar-entry)
     - [Run the template](#run-the-template)
@@ -30,8 +30,8 @@ To properly install and start the template, the following tools should be instal
 To properly install the template, follow these steps:
 
 ```bash
-$ git clone https://git.code.tecnalia.com/urbanite/wp5-integration-and-devops/urbanite-ui-template.git
-$ cd urbanite-ui-template
+$ git clone https://github.com/OPSILab/IdraPortal-ngx.git
+$ cd IdraPortal-ngx
 $ npm install
 ```
 
@@ -39,11 +39,11 @@ $ npm install
 To build and deploy the template, follow these steps:
 
 ```bash
-$ cd urbanite-ui-template
+$ cd IdraPortal-ngx
 $ ng build --prod
 ```
 
-This command generates a **dist** folder within the *urbanite-ui-template* folder.
+This command generates a **dist** folder within the *IdraPortal-ngx* folder.
 To properly deploy the application, the content of the **dist** folder should be placed within a server for instance: [Nginx](https://www.nginx.com/) or [Apache HTTP Server](https://httpd.apache.org/).
 
 Please, refer to the official documentation for furhter details:
@@ -55,15 +55,15 @@ Please, refer to the official documentation for furhter details:
 Build docker image:
 
 ```bash
-$ cd urbanite-ui-template
-$ docker build -t urbanite/urbanite-ui .
+$ cd IdraPortal-ngx
+$ docker build -t <repo>/<imageName> .
 ```
 
 Run docker image:
 
 ```bash
-$ cd urbanite-ui-template
-$ docker run -it -p 80:80 urbanite/urbanite-ui
+$ cd IdraPortal-ngx
+$ docker run -it -p 80:80 <repo>/<imageName>
 ```
 
 ### Docker-compose
@@ -73,13 +73,13 @@ The provided **docker-compose.yml** build and deploy the application with an ins
 Run the following command to use the docker-compose:
 
 ```bash
-$ cd urbanite-ui-template
+$ cd IdraPortal-ngx
 $ docker-compose up
 ```
 
 ## Development
 
-This section summarizes the basic commands and configurations needed to integrate a new tool into the URBANITE-UI.
+This section summarizes the basic commands and configurations needed to integrate a new tool into the IdraPortal-ngx.
 
 It is suggested to fork the repository or to create a specific branch for any new tool to be integrated.
 
@@ -89,7 +89,7 @@ An [Angular module](https://angular.io/guide/architecture-modules) should be cre
 To properly create a new module, execute the following command:
 
 ```bash
-$ cd urbanite-ui-template
+$ cd IdraPortal-ngx
 $ ng generate module pages/<MODULE_NAME> --routing
 ```
 
@@ -105,7 +105,7 @@ At least a component should be created for any new tool to be integrated.
 To create a new component, execute the following command:
 
 ```bash
-$ cd urbanite-ui-template
+$ cd IdraPortal-ngx
 $ ng generate component pages/<MODULE_FOLDER>/<COMPONENT_NAME>
 ```
 Replace *<MODULE_FOLDER>* with the path of the folder to the new module.
@@ -118,7 +118,7 @@ An [Angular service](https://angular.io/guide/architecture-services) is used, fo
 To create a new service, execute the following command:
 
 ```bash
-$ cd urbanite-ui-template
+$ cd IdraPortal-ngx
 $ ng generate service pages/<MODULE_FOLDER>/<SERVICE_NAME>
 ```
 
@@ -130,15 +130,15 @@ Please, refer to the angular official [documentation](https://angular.io/guide/h
 ### Manage Routing
 
 To visualize the content for any new module the developer needs to manage routing.
-In the urbanite-ui-template there are two levels of routing:
-- [URBANITE-UI routing](#urbanite-ui-routing)
+In the IdraPortal-ngx there are two levels of routing:
+- [IdraPortal-ngx routing](#urbanite-ui-routing)
 - [Module routing](#module-routing)
 
 Refer to the official [routing documentation](https://angular.io/guide/router) for additional details.
 
-#### URBANITE-UI routing
+#### IdraPortal-ngx routing
 
-To allow the a module to be accessed, the developer should open the ***urbanite-ui-template/src/app/pages/pages-routing.module.ts*** file with the configured IDE and add the following entry:
+To allow the a module to be accessed, the developer should open the ***IdraPortal-ngx/src/app/pages/pages-routing.module.ts*** file with the configured IDE and add the following entry:
 
 ```typescript
 const routes: Routes = [{
@@ -165,7 +165,7 @@ Replace *<MODULE_FOLDER>* and *<MODULE_NAME>* with the specific values.
 
 #### Module routing
 
-To allow to access the components defined within each module, the developer should open and edit the ***urbanite-ui-template/src/app/pages/<MODULE_FOLDER>/<MODULE_ROUTING>.module.ts***
+To allow to access the components defined within each module, the developer should open and edit the ***IdraPortal-ngx/src/app/pages/<MODULE_FOLDER>/<MODULE_ROUTING>.module.ts***
 
 Please, replace *<MODULE_FOLDER>* and *<MODULE_ROUTING>* with the corresponding paths.
 
@@ -190,7 +190,7 @@ The **component** is the component name created within the module.
 
 ### Add Sidebar entry
 
-To add a sidebar entry, the developer should open and edit the ***urbanite-ui-template/src/app/pages/pages-menu.ts*** and add the following entry:
+To add a sidebar entry, the developer should open and edit the ***IdraPortal-ngx/src/app/pages/pages-menu.ts*** and add the following entry:
 
 ```typescript
 export const MENU_ITEMS: NbMenuItem[] = [
@@ -219,14 +219,14 @@ export const MENU_ITEMS: NbMenuItem[] = [
 ```
 
 The **title** is the label that would be added to the sidebar.
-Replace in the **link** and in the **name** the value defined for the **path** variable on [URBANITE-UI routing](#urbanite-ui-routing).
+Replace in the **link** and in the **name** the value defined for the **path** variable on [IdraPortal-ngx routing](#urbanite-ui-routing).
 About the icon, please select an icon among the [following](https://akveo.github.io/eva-icons/#/) and put its identifier.
 
 ### Run the template
 
 To start the application, follow these steps:
 ```
-cd urbanite-ui-template
+cd IdraPortal-ngx
 ng serve
 ```
 The application will be available at http://localhost:4200
