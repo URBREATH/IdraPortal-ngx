@@ -1,0 +1,23 @@
+.no-border{
+    border: none;
+    :first-child{
+        border: none;
+    }
+}
+
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.content-truncated {
+    width:100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.minicard{
+    height:unset;
+}

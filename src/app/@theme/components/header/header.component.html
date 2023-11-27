@@ -1,0 +1,37 @@
+<div class="header-container">
+  <div class="logo-container">
+    <a
+      href="#"
+      class="sidebar-toggle"
+      matRipple
+      [matRippleUnbounded]="true"
+      [matRippleCentered]="true"
+      (click)="toggleSidebar()"
+    >
+      <nb-icon [icon]="(materialTheme$ | async) ? 'menu-outline' : 'menu-2-outline'"></nb-icon>
+    </a>
+    <a class="logo" href="#" (click)="navigateHome()"><img class="mr-1" src="assets\images\idra_logo.png"></a>
+  </div>
+</div>
+
+<div class="header-container">
+
+<!-- *nbIsGranted="['view', 'user']" -> sta cosa disabilitava la vista del menù da studiare -->
+
+  <nb-actions size="small" *ngIf="authenticationEnabled">
+    <nb-action
+      class="user-action"
+      
+      matRipple
+      [matRippleUnbounded]="true"
+      [matRippleCentered]="true">
+      <nb-user [nbContextMenu]="userMenu"
+               nbContextMenuTag="user-menu"
+               [onlyPicture]="userPictureOnly"
+               [name]="(user?.name!=undefined)?user?.name:user?.preferred_username"
+               [title]="user?.roles.join(' | ')"
+               [picture]="'assets/images/default_user.png'">
+      </nb-user>
+    </nb-action>
+  </nb-actions>
+</div>

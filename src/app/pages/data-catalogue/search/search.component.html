@@ -1,0 +1,74 @@
+<div [nbSpinner]="loading" nbSpinnerSize="giant" nbSpinnerStatus="primary">
+    <div class="col-row">
+        <nb-card class="minicard">
+            <nb-card-body class="d-flex flex-column align-items-center justify-content-center">
+              <h2 class="jumbotron-heading"> Search over {{totalDatasets}} dataset from
+                    {{cataloguesInfos.length}} catalogues! </h2>
+                  <nb-tag-list (tagRemove)="onTagRemove($event)" >
+                    <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
+                    <input type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth>
+                  </nb-tag-list>
+            </nb-card-body>
+        </nb-card>
+    </div>
+
+    <div class="d-flex flex-column align-items-center justify-content-center" *ngIf="searchResponse.count==0">
+      <h3 class="jumbotron-heading"> No dataset found! </h3>
+    </div>
+    <div class="row" *ngIf="searchResponse.count>0">
+
+        <div class="col-3">
+            <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
+                <nb-card-header class="d-flex justify-content-between">
+                  {{facet.displayName}}
+                  <span *ngIf="facet.values.length>10" class="d-flex flex-row-reverse">
+                    <nb-icon *ngIf="getFacetsLimit(facet.displayName.toLowerCase())==10" icon="arrowhead-down-outline" (click)="setFacetsLimit(facet.displayName.toLowerCase(),facet.values.length)"
+                      nbTooltip="Show all"></nb-icon> 
+                    <nb-icon *ngIf="getFacetsLimit(facet.displayName.toLowerCase())>10" icon="arrowhead-up-outline" (click)="setFacetsLimit(facet.displayName.toLowerCase(),10)"
+                      nbTooltip="Show top 10"></nb-icon> 
+                  </span>
+                </nb-card-header>
+                <nb-card-body>
+                    <nb-list class="no-border">
+                        <nb-list-item *ngFor="let item of filterFacets(facet.search_parameter,facet.values) | slice:0:getFacetsLimit(facet.displayName.toLowerCase())" class="p-1 no-border">
+                            <a href="javascript:void(0)" (click)="getDatasetByFacet(facet.search_parameter,item.search_value)">{{item.facet}}</a>
+                        </nb-list-item>
+                      </nb-list>
+                </nb-card-body>
+            </nb-card>
+        </div>
+        <div class="col-9">
+          <div class="row m-1">
+            <pagination-controls  (pageChange)="pageChanged($event)">
+            </pagination-controls>
+          </div>
+          <div class="row m-1">
+            <nb-tag-list (tagRemove)="onFilterRemove($event)" >
+              <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
+            </nb-tag-list>
+          </div>
+            <!-- results -->
+            <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: searchRequest.rows, currentPage: page, totalItems: searchResponse.count }" class="minicard">
+                <nb-card-header>
+                 <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
+                </nb-card-header>
+                <nb-card-body class="content-truncated">
+                    <span class="truncated">{{dataset.description}}</span>
+                </nb-card-body>
+                <nb-card-footer>
+                    <nb-tag-list size="small">
+                        <nb-tag *ngFor="let tmp of dataset.distributionFormats" text="{{tmp.format}} ({{tmp.count}})" size="tiny" [style.background]="getColor(tmp.format)">
+                        </nb-tag>
+                      </nb-tag-list>
+                </nb-card-footer>
+            </nb-card>
+
+            <div class="row m-1">
+              <pagination-controls  (pageChange)="pageChanged($event)">
+              </pagination-controls>
+            </div>
+        </div>
+    </div>
+
+
+</div>

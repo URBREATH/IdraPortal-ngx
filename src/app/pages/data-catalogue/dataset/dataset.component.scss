@@ -1,0 +1,19 @@
+.truncate {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.content-truncated {
+    width:100%;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+nb-list-item {
+    border: none !important;
+    align-items: flex-start;
+    padding-left:0;
+    padding-top:0;
+}

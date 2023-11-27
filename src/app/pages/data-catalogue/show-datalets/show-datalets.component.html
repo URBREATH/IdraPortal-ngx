@@ -1,0 +1,11 @@
+<nb-card>
+    <nb-card-header>
+        Datalets
+    </nb-card-header>
+    <nb-card-body class="d-flex flex-column">
+        <nb-select class="mb-2" size="small" placeholder="Select Showcase" [(selected)]="selected">
+            <nb-option *ngFor="let datalet of datalets" [value]='datalet'>{{datalet.title}}</nb-option>
+        </nb-select>
+       <div [innerHTML]="selected.datalet_html | safeHtml"></div>
+    </nb-card-body>
+</nb-card>

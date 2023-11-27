@@ -1,0 +1,20 @@
+@import '~@angular/material/theming';
+
+@mixin angular-material() {
+  @include mat-core();
+
+  @include nb-for-theme(material-dark) {
+    $custom-dark-theme: mat-dark-theme(mat-palette($mat-pink), mat-palette($mat-blue-grey));
+    @include angular-material-theme($custom-dark-theme);
+  }
+
+  @include nb-for-theme(material-light) {
+    $custom-light-theme: mat-light-theme(mat-palette($mat-indigo), mat-palette($mat-pink));
+    @include angular-material-theme($custom-light-theme);
+  }
+
+  @include nb-for-theme(material-urbanite) {
+    $custom-urbanite-theme: mat-light-theme(mat-palette($mat-light-green), mat-palette($mat-grey));
+    @include angular-material-theme($custom-urbanite-theme);
+  }
+}

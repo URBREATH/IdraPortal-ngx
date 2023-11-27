@@ -1,0 +1,92 @@
+<nb-card >
+    <nb-card-header >
+        {{distribution.title}}
+    </nb-card-header>
+    <nb-card-body class="content-truncated">
+        
+        <span *ngIf="distribution.description!=''" class="d-flex flex-column mb-2">
+            <label class="label">Description:</label>
+            <p class="truncated">{{distribution.description}}</p>
+        </span>
+
+        <span *ngIf="distribution.format!=''" class="d-flex flex-column mb-2">
+            <label class="label">Format:</label>
+            <p class="truncated">{{distribution.format}}</p>
+        </span>
+
+        <span *ngIf="distribution.accessURL!=''" class="d-flex flex-column mb-2">
+            <label class="label">Access URL:</label>
+            <p class="truncated">
+                <a [href]="distribution.accessURL" target="_blank">{{distribution.accessURL}}</a>
+            </p>
+        </span>
+
+        <span *ngIf="distribution.downloadURL!=''" class="d-flex flex-column mb-2">
+            <label class="label">Download URL:</label>
+            <p class="truncated">
+                <a [href]="distribution.downloadURL" target="_blank">{{distribution.downloadURL}}</a>
+            </p>
+        </span>
+
+        <span *ngIf="distribution.mediaType!=''" class="d-flex flex-column mb-2">
+            <label class="label">Media Type:</label>
+            <p class="truncated">{{distribution.mediaType}}</p>
+        </span>
+
+        <span *ngIf="distribution.license.name!='' || distribution.license.uri!=''" class="d-flex flex-column mb-2">
+            <label class="label">License:</label>
+            <p class="truncated"><a [href]="distribution.license.uri" target="_blank">
+                {{distribution.license.name || distribution.license.uri}}</a></p>
+        </span>
+
+        <span *ngIf="distribution.releaseDate!='' && showDate(distribution.releaseDate)" class="d-flex flex-column mb-2">
+            <label class="label">Release Date:</label>
+            <p class="truncated">{{distribution.releaseDate |  date}}</p>
+        </span>
+
+        <span *ngIf="distribution.updateDate!='' && showDate(distribution.updateDate)" class="d-flex flex-column mb-2">
+            <label class="label">Update Date:</label>
+            <p class="truncated">{{distribution.updateDate |  date}}</p>
+        </span>
+        
+        <span *ngIf="distribution.language!=undefined && (distribution.language.length>1 || (distribution.language.length==1 && distribution.language[0]!='' && distribution.language[0]!=undefined ))" class="d-flex flex-column mb-2">
+            <label class="label">Languages:</label>
+            <p class="truncated">{{distribution.language.join(',')}}</p>
+        </span>
+
+        <span *ngIf="distribution.linkedSchemas!=undefined && (distribution.linkedSchemas.length>1 || (distribution.linkedSchemas.length==1 && distribution.linkedSchemas[0]!=undefined && distribution.linkedSchemas[0].title!='' ))" class="d-flex flex-column mb-2">
+            <label class="label">Linked Schemas:</label>
+            <p class="truncated">{{printStandard(distribution.linkedSchemas)}}</p>
+        </span>
+        
+        <span *ngIf="distribution.rights!=''" class="d-flex flex-column mb-2">
+            <label class="label">Rights:</label>
+            <p class="truncated">{{distribution.rights}}</p>
+        </span>
+        
+        <span *ngIf="distribution.status!=undefined" class="d-flex flex-column mb-2">
+            <label class="label">Status:</label>
+            <p class="truncated">{{printConcepts(distribution.status)}}</p>
+        </span>
+
+        <span *ngIf="distribution.byteSize!='' && distribution.byteSize!='0'" class="d-flex flex-column mb-2">
+            <label class="label">Byte Size:</label>
+            <p class="truncated">{{distribution.byteSize}} B</p>
+        </span>
+
+        <span *ngIf="distribution.checksum!=undefined && distribution.checksum.algorithm!=''" class="d-flex flex-column mb-2">
+            <label class="label">Checksum Algorithm:</label>
+            <p class="truncated">{{distribution.checksum.algorithm}}</p>
+        </span>
+
+        <span *ngIf="distribution.checksum!=undefined && distribution.checksum.checksumValue!=''" class="d-flex flex-column mb-2">
+            <label class="label">Checksum Value:</label>
+            <p class="truncated">{{distribution.checksum.checksumValue}}</p>
+        </span>
+
+        <span *ngIf="distribution.documentation!=undefined && (distribution.documentation.length>1 || (distribution.documentation.length==1 && distribution.documentation[0]!='' && distribution.documentation[0]!=undefined ))" class="d-flex flex-column mb-2">
+            <label class="label">Documentation:</label>
+            <p class="truncated">{{distribution.documentation.join(',')}}</p>
+        </span>
+    </nb-card-body>
+</nb-card>

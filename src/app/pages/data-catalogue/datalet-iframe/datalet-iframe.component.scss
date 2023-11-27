@@ -1,0 +1,33 @@
+nb-card {
+    /**
+     * This is the max-width value of the Bootstrap giant modal
+     * Using it here ensures the modal will properly adjust it's width to the content
+     */
+    max-width: 100vw;
+    min-width: 95vw;
+    /**
+     * This is the height value of NbComponentSize 'giant'
+     * By setting max-height of the modal card to this value, we ensure the modal will properly adjust it's height
+     * to the content
+     */
+    max-height: 100vh;
+    min-height: 95vh;
+  }
+
+  .container-iframe {
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    padding-top: 56.25%; /* 16:9 Aspect Ratio (divide 9 by 16 = 0.5625) */
+  }
+  
+  /* Then style the iframe to fit in the container div with full height and width */
+  .responsive-iframe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    height: 100%;
+  }

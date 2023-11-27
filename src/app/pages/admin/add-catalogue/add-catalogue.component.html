@@ -1,0 +1,127 @@
+ 
+     <nb-card class="minicard">
+            <nb-card-body class="d-flex flex-column align-items-left justify-content-left" (messageEvent)="receiveMode($event)">
+			  <label>{{receivedMode}}</label>
+              <h4 class="jumbotron-heading" *ngIf="true" >Add Catalogue</h4>
+            </nb-card-body>
+        </nb-card>
+
+
+<div class="row show-grid">
+   <div class="col-md-5">
+	  <nb-card class="minicard">
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+ 		<h6 class="jumbotron-heading">Image:</h6>
+      </nb-card-body>
+	</nb-card>
+   </div>
+
+
+
+
+
+   <div class="col-md-7">
+      <nb-card class="minicard">
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+ 		<h6 class="jumbotron-heading">Name:</h6>
+        <input type="text" nbInput fullWidth status="success" [(ngModel)]="node.name" placeholder="Name">
+      </nb-card-body>
+
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Publisher Name:</h6>
+		<input type="text" nbInput fullWidth status="success" [(ngModel)]="node.publisherName" placeholder="Publisher Name">
+      </nb-card-body>
+		
+	<div class="row show-grid">	
+	<div class="col-md-6">
+	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Country:</h6>	
+			    <nb-select placeholder="Country" (selectedChange)="changedCountryHandler($event)">
+					<nb-option *ngFor="let country of countries" [value]="country.name"> {{ country.name }}</nb-option>
+					<!-- <country-select></country-select> -->
+
+
+			    </nb-select>
+      </nb-card-body>
+	</div>
+	
+	<div class="col-md-6">
+	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Category:</h6>	
+			   
+           <nb-select placeholder="Category" (selectedChange)="changedCategoryHandler($event)">
+				<nb-option *ngFor="let category of ODMSCategories" [value]="category.value"> {{ category.value }}</nb-option>
+			    </nb-select>
+      </nb-card-body>
+	  </div>
+    </div>
+<!--
+ng-options="option.value as (option.text | translate) for option in ODMSCategories">
+<nb-select id="theme" [selected]="currentTheme" (selectedChange)="changeTheme($event)" status="primary">
+        <nb-select-label [innerHtml]="selectedTheme"></nb-select-label>
+        <nb-option langg *ngFor="let theme of themes" [value]="theme.value"> {{ theme.name | langg }}</nb-option>
+      </nb-select>
+-->
+
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Description:</h6>
+		<input type="text" nbInput fullWidth status="success" placeholder="Description" [(ngModel)]="node.description">
+      </nb-card-body>
+
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Homepage:</h6>
+		<input type="text" nbInput fullWidth status="success" placeholder="Homepage" [(ngModel)]="node.homepage">
+      </nb-card-body>
+
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">API Endopoint:</h6>
+		<input type="text" nbInput fullWidth status="success" placeholder="API Endopoint" [(ngModel)]="node.host">
+      </nb-card-body>
+
+	<div class="row show-grid">	
+	<div class="col-md-4">
+	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Type:</h6>	
+			    <nb-select placeholder="Type" (selectedChange)="changedTypeHandler($event)">
+					<nb-option *ngFor="let type of nodeType" [value]="type.value"> {{ type.value }}</nb-option>
+			    </nb-select>
+      </nb-card-body>
+	</div>
+	
+	<div class="col-md-4">
+	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Active:</h6>	
+			    <nb-select placeholder="Active" (selectedChange)="changedActiveHandler($event)">
+					<nb-option *ngFor="let mode of activeMode" [value]="mode.text"> {{ mode.text }}</nb-option>
+			    </nb-select>
+      </nb-card-body>
+	  </div>
+
+	<div class="col-md-4">
+	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+		<h6 class="jumbotron-heading">Refresh:</h6>	
+			    <nb-select placeholder="Refresh" (selectedChange)="changedRefreshHandler($event)">
+					<nb-option *ngFor="let period of updatePeriods" [value]="period.text"> {{ period.text }}</nb-option>
+			    </nb-select>
+      </nb-card-body>
+	  </div>
+     
+    </div>
+
+<div class="row show-grid" style = "padding-top: 50px">	
+<div class="col-md-4">
+	<button routerLink="../" nbButton fullWidth outline status="success" (click)="add()">Back</button>
+</div>
+<div class="col-md-4">
+	<button nbButton fullWidth outline status="success">Reset</button>
+</div>
+<div class="col-md-4">
+	<button nbButton fullWidth hero status="success" [disabled]='node.nodeType==""' (click)="createNode()">Create</button>
+
+</div>
+</div>
+
+    </nb-card>
+
+	</div>
+
