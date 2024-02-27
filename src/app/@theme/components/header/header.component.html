@@ -34,4 +34,10 @@
       </nb-user>
     </nb-action>
   </nb-actions>
+  <div class="login-container">
+    <ng-template #login>
+      <button nbButton (click)="logIn()">Login</button>
+    </ng-template>
+    <button nbButton (click)="logOut()" *ngIf="authenticated; else login">Logout</button>
+  </div>
 </div>

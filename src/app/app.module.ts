@@ -14,6 +14,9 @@ import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+// import { NgxAuthRoutingModule } from './auth-routing.module_old';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   NbDatepickerModule,
   NbDialogModule,
@@ -21,15 +24,19 @@ import {
   NbSidebarModule,
   NbToastrModule,
   NbWindowModule,
+  NbAlertModule,
+  NbButtonModule,
+  NbCheckboxModule,
+  NbInputModule,
+  NbSidebarService
 } from '@nebular/theme';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
-import { TokenInterceptor } from './auth/services/token.interceptor';
-import { AuthGuard } from './auth/services/auth.guard';
-import { AuthLogoutComponent } from './auth/logout/auth-logout.component';
+// import { NbPasswordAuthStrategy, NbAuthModule } from '@nebular/auth';
 import { MarkdownModule } from 'ngx-markdown';
-
 import { RouterModule } from '@angular/router';
+import { NbAuthModule } from './@theme/components/auth/auth.module';
+import { NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 
 
 export function configFactory(http: HttpClient): ConfigLoader {
@@ -41,8 +48,20 @@ export function createTranslateLoader(http: HttpClient) {
 }
 
 @NgModule({
-  declarations: [AppComponent, AuthLogoutComponent],
+  declarations: [AppComponent, 
+    // AuthLogoutComponent
+  ],
   imports: [
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    NbAlertModule,
+    NbInputModule,
+    NbButtonModule,
+    NbCheckboxModule,
+    // NgxAuthRoutingModule,
+
+    NbAuthModule,
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
@@ -83,15 +102,83 @@ export function createTranslateLoader(http: HttpClient) {
       },
     }),
 
+    NbAuthModule.forRoot({
+      strategies: [
+        NbPasswordAuthStrategy.setup({
+          name: 'email',
+          baseEndpoint: 'http://localhost:8080/Idra/api/v1/administration',
+          login: {
+            alwaysFail: false,
+            endpoint: '/login',
+            method: 'post',
+            redirect: {
+              success: '/',
+              failure: null,
+            },
+            defaultErrors: ['Username/password combination is not correct, please try again.'],
+            defaultMessages: ['You have been successfully logged in.'],
+          },
+          logout: {
+            // ...
+            alwaysFail: false,
+            endpoint: '/logout',
+            method: 'post',
+            redirect: {
+              success: '/',
+              failure: null,
+            },
+          },
+        }),
+      ],
+      forms: {
+        login: {
+          redirectDelay: 500, // delay before redirect after a successful login, while success message is shown to the user
+          strategy: 'email',  // strategy id key.
+          rememberMe: true,   // whether to show or not the `rememberMe` checkbox
+          showMessages: {     // show/not show success/error messages
+            success: true,
+            error: true,
+          },
+        },
+        requestPassword: {
+          redirectDelay: 500,
+          strategy: 'email',
+          showMessages: {
+            success: true,
+            error: true,
+          },
+        },
+        logout: {
+          redirectDelay: 500,
+          strategy: 'email',
+        },
+        validation: {
+          password: {
+            required: true,
+            minLength: 4,
+            maxLength: 50,
+          },
+          email: {
+            required: true,
+          },
+          fullName: {
+            required: false,
+            minLength: 4,
+            maxLength: 50,
+          },
+        },
+      },
+    }),
   ],
-  providers: [
-    AuthGuard,
-    {
-      provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true
-    }
-  ],
+  // providers: [
+  //   AuthGuard,
+  //   {
+  //     provide: HTTP_INTERCEPTORS,
+  //     useClass: TokenInterceptor,
+  //     multi: true
+  //   }
+  // ],
+  providers: [NbSidebarService],
   bootstrap: [AppComponent],
 })
 export class AppModule {

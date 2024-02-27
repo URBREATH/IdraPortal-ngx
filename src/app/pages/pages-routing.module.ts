@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 
 import { PagesComponent } from './pages.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
+import { NbAuthComponent, NbLoginComponent, NbLogoutComponent } from '../@theme/components/auth/public_api';
+
 
 const routes: Routes = [{
   path: '',
@@ -55,8 +57,26 @@ const routes: Routes = [{
       loadChildren: () => import('./admin/admin-module.module')
         .then(m => m.AdminModule),
     },
-// ---------------------
     {
+      path: 'auth',
+      component: NbAuthComponent,
+      children: [
+        {
+          path: 'login',
+          component: NbLoginComponent,
+          // loadChildren: () => import('./auth/login/login.module')
+          //   .then(m => m.NgxLoginModule),
+        },
+        {
+          path: 'logout',
+          component: NbLogoutComponent,
+          // loadChildren: () => import('./auth/login/login.module')
+          //   .then(m => m.NgxLoginModule),
+        },
+    ],
+    },
+// ---------------------
+    { 
       path: '',
       redirectTo: 'home',
       pathMatch: 'full',
