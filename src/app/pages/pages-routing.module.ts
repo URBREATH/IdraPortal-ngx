@@ -58,20 +58,21 @@ const routes: Routes = [{
         .then(m => m.AdminModule),
     },
     {
+      path: 'mqa',
+      loadChildren: () => import('./mqa/mqa.module')
+      .then(m => m.MqaModule),
+    },
+    {
       path: 'auth',
       component: NbAuthComponent,
       children: [
         {
           path: 'login',
           component: NbLoginComponent,
-          // loadChildren: () => import('./auth/login/login.module')
-          //   .then(m => m.NgxLoginModule),
         },
         {
           path: 'logout',
           component: NbLogoutComponent,
-          // loadChildren: () => import('./auth/login/login.module')
-          //   .then(m => m.NgxLoginModule),
         },
     ],
     },

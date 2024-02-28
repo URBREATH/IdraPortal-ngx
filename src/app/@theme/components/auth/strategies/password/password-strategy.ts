@@ -161,32 +161,15 @@ export class NbPasswordAuthStrategy extends NbAuthStrategy {
     
     return this.http.request(method, url, {body: {username: data.username, password: Md5.hashStr(data.password) }, observe: 'response', responseType: "text"})
       .pipe(
-        // (res) => {
-        //   if (this.getOption(`${module}.alwaysFail`)) {
-        //     throw this.createFailResponse(data);
-        //   }
-        //   return res;
-        // },
         map((res) => {
-          console.log('res', res);
           if (this.getOption(`${module}.alwaysFail`)) {
             throw this.createFailResponse(data);
           }
           return res;
         }),
-        // (res): any => {
-        //   return new NbAuthResult(
-        //     true,
-        //     res,
-        //     this.getOption(`${module}.redirect.success`),
-        //     [],
-        //     this.getOption('messages.getter')(module, res, this.options),
-        //     this.createToken(this.getOption('token.getter')(module, {body: {data: {token: res}}}, this.options), requireValidToken));
-        // },
         map((res) => {
           const modifiedBody = { data: { token: res.body } };
           const modifiedResponse = { ...res, body: modifiedBody };
-          console.log('res2', modifiedResponse);
           return new NbAuthResult(
             true,
             modifiedResponse,
@@ -197,8 +180,6 @@ export class NbPasswordAuthStrategy extends NbAuthStrategy {
           );
         }),
         catchError((err, res) => {
-          console.log('catch', err);
-          console.log('catch', res);
           return this.handleResponseError(res, module);
         }),
       );

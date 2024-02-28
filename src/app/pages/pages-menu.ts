@@ -41,6 +41,14 @@ export const MENU_ITEMS: NbMenuItem[] = [
     }
   },
   {
+    title: 'Mqa Scoring',
+    icon: 'bar-chart-outline',
+    link: "/pages/mqa",
+    data:{
+      name:"mqa"
+    }
+  },
+  {
     title: 'Administration',
     icon: 'settings-2-outline',
     children: [
