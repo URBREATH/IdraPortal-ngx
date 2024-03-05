@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { ConfigService } from '@ngx-config/core';
 import { Observable } from 'rxjs';
 import { Datalet } from '../data-catalogue/model/datalet';
@@ -11,6 +11,7 @@ import { ODMSCatalogueInfo } from '../data-catalogue/model/odmscatalogue-info';
 import { ODMSCatalogueResponse } from '../data-catalogue/model/odmscatalogue-response';
 import { SearchRequest } from '../data-catalogue/model/search-request';
 import { SearchResult } from '../data-catalogue/model/search-result';
+import { NbGlobalPhysicalPosition, NbToastRef, NbToastrService } from '@nebular/theme';
 
 @Injectable({
   providedIn: 'root'
@@ -19,7 +20,8 @@ export class CataloguesServiceService {
 
   private apiEndpoint;
 
-  constructor(private config:ConfigService,private http:HttpClient) { 
+  constructor(private config:ConfigService,private http:HttpClient,
+    private toastr: NbToastrService) { 
     this.apiEndpoint=this.config.getSettings("idra_base_url");
   }
 
@@ -74,7 +76,41 @@ export class CataloguesServiceService {
     return this.http.get<any>(`http://localhost/catalogue.json`);
   }
 	//downloadDump
-  getDump(url:string):void{
+  async getDump(url:string):Promise<void>{
     window.open(`${this.apiEndpoint}${url}`, "_blank");
+  }
+  
+  async submitAnalisysJSON(id: String): Promise<any> {
+    console.log("2")
+    
+    const token = localStorage.getItem('token');
+
+    let json = {
+      "file_url": "http://172.26.0.3:8080/Idra/api/v1/administration/dcat-ap/dump/"+id,
+      "token": token
+    }
+    return new Promise((resolve,reject)=>{
+      this.http.post('http://localhost:8000/submit/auth', json, {
+        headers: {
+          'Content-Type':  'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'POST',
+        },
+      },
+      
+      )
+      .subscribe((data: any) => {
+        this.toastr.show('Analisys submitted', 'Success', { status: 'success', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+        
+        resolve(data)
+        return data
+      }, error => {
+        this.toastr.show("There was an error", 'Error', { status: 'danger', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+        
+        reject(error)
+        return error
+      })
+    })
   }
 }

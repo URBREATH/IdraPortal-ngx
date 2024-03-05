@@ -36,7 +36,7 @@ import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
 import { MarkdownModule } from 'ngx-markdown';
 import { RouterModule } from '@angular/router';
 import { NbAuthModule } from './@theme/components/auth/auth.module';
-import { NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
+import { NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 
 
 export function configFactory(http: HttpClient): ConfigLoader {
@@ -170,15 +170,13 @@ export function createTranslateLoader(http: HttpClient) {
       },
     }),
   ],
-  // providers: [
-  //   AuthGuard,
-  //   {
-  //     provide: HTTP_INTERCEPTORS,
-  //     useClass: TokenInterceptor,
-  //     multi: true
-  //   }
-  // ],
-  providers: [NbSidebarService],
+  providers: [NbSidebarService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: NbAuthSimpleInterceptor,
+      multi: true,
+    }
+  ],
   bootstrap: [AppComponent],
 })
 export class AppModule {

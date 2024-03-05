@@ -142,6 +142,8 @@ export class NbAuthService {
           if (result.isSuccess()) {
             this.tokenService.clear()
               .pipe(map(() => result));
+              localStorage.removeItem('token');
+              localStorage.removeItem('username');
           }
           return observableOf(result);
         }),

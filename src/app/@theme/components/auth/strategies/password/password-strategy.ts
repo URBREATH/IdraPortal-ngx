@@ -289,9 +289,9 @@ export class NbPasswordAuthStrategy extends NbAuthStrategy {
           const httpOptions = {
             headers: new HttpHeaders({
               'Content-Type': 'application/json',
-              'Authorization': `Bearer ${token}`,
+              // 'Authorization': `Bearer ${token}`,
               // 'Access-Control-Allow-Origin': '*',
-              'Cookie': 'loggedin='+token+';username='+username
+              // 'Cookie': 'loggedin='+token+';username='+username
             }),
             body: {username: username, token: token},
             observe: 'response' as 'response'

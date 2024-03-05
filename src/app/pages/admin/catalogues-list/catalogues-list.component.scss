@@ -4,7 +4,13 @@ button[nbTreeGridRowToggle] {
   padding: 0;
   
 }
-
+.rotate_icon{
+  animation: rotate 2s linear infinite;
+}
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
 .nb-tree-grid-header-cell{
     //background-color: #139973;
     background-color: #00b4ff;

@@ -26,6 +26,7 @@ interface FSEntry {
   UpdatePeriod: string;
   LastUpdate: string;
   id: string;
+  index: number;
 }
 
 
@@ -72,7 +73,7 @@ export class CataloguesListComponent implements OnInit {
 		
 		      console.log("NUM CATALOGHI: "+this.cataloguesInfos[i].name);
 			  console.log("ID CAT: "+this.id);
-		
+				this.loadingMqa.push({id: this.id, loading: false});
 		      //this.searchRequest.nodes = infos.map(x=>x.id)
 		      //this.searchDataset(true)    
 		
@@ -95,7 +96,7 @@ let level = this.getLevel(infos2.nodeType);
 
 let data2 = [
 	    {
-      data: { Name: infos2.name, Country: infos2.country, Type: infos2.nodeType, Level: level, Status: infos2.isActive, Datasets: infos2.datasetCount, UpdatePeriod: '1 week', LastUpdate: infos2.lastUpdateDate, id: infos2.id},
+      data: { Name: infos2.name, Country: infos2.country, Type: infos2.nodeType, Level: level, Status: infos2.isActive, Datasets: infos2.datasetCount, UpdatePeriod: '1 week', LastUpdate: infos2.lastUpdateDate, id: infos2.id, index: i},
     }
   ];
 
@@ -103,7 +104,7 @@ if(this.data.length==0){
 	
 	this.data = [
 	    {
-      data: { Name: infos2.name, Country: infos2.country, Type: infos2.nodeType, Level: level, Status: infos2.isActive, Datasets: infos2.datasetCount, UpdatePeriod: '1 week', LastUpdate: infos2.lastUpdateDate, id: infos2.id},
+      data: { Name: infos2.name, Country: infos2.country, Type: infos2.nodeType, Level: level, Status: infos2.isActive, Datasets: infos2.datasetCount, UpdatePeriod: '1 week', LastUpdate: infos2.lastUpdateDate, id: infos2.id, index: i},
     }
   ];
 }
@@ -135,6 +136,7 @@ this.dataSource = this.dataSourceBuilder.create(this.data);
 
 
   }
+
 
 
 setMode(){
@@ -249,4 +251,22 @@ getLevel(nodeType: string): string {
 	};
   //-------------------------------------------------------------
   
+  loadingMqa = [];
+  async sendMqaAnalisysCatalogue(id : String) : Promise<void>{
+	let index = -1;
+	for(let i = 0; i < this.loadingMqa.length; i++){
+		if(this.loadingMqa[i].id == id){
+			this.loadingMqa[i].loading = true;
+			index = i;
+		}
+	}
+	
+    await this.restApi.submitAnalisysJSON(id)
+	.then((res) => {
+		if(index != -1){
+			this.loadingMqa[index] = false;
+		}
+		console.log("res:",res)
+	})
+  }
 }
