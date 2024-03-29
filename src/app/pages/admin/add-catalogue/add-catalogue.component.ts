@@ -1,12 +1,13 @@
-import { Component, OnInit } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 import { Input, Output, EventEmitter} from '@angular/core';
 
 
 //)import { CataloguesListComponent } from '../catalogues-list/catalogues-list.component';
 import { CataloguesServiceService } from '../catalogues-service.service';
-
+import { SharedService } from '../../services/shared.service';
+import { DomSanitizer, SafeResourceUrl, SafeUrl} from '@angular/platform-browser';
 
 export interface Node {
   id : string ;
@@ -134,10 +135,10 @@ export class AddCatalogueComponent implements OnInit {
     { code: "CR", code3: "CRI", name: "Costa Rica", number: "188" },
     { code: "HR", code3: "HRV", name: "Croatia", number: "191" },
     { code: "CU", code3: "CUB", name: "Cuba", number: "192" },
-    { code: "CW", code3: "CUW", name: "Curaçao", number: "531" },
+    { code: "CW", code3: "CUW", name: "Curaï¿½ao", number: "531" },
     { code: "CY", code3: "CYP", name: "Cyprus", number: "196" },
     { code: "CZ", code3: "CZE", name: "Czechia", number: "203" },
-    { code: "CI", code3: "CIV", name: "Côte d'Ivoire", number: "384" },
+    { code: "CI", code3: "CIV", name: "Cï¿½te d'Ivoire", number: "384" },
     { code: "DK", code3: "DNK", name: "Denmark", number: "208" },
     { code: "DJ", code3: "DJI", name: "Djibouti", number: "262" },
     { code: "DM", code3: "DMA", name: "Dominica", number: "212" },
@@ -262,8 +263,8 @@ export class AddCatalogueComponent implements OnInit {
     { code: "RO", code3: "ROU", name: "Romania", number: "642" },
     { code: "RU", code3: "RUS", name: "Russian Federation (the)", number: "643" },
     { code: "RW", code3: "RWA", name: "Rwanda", number: "646" },
-    { code: "RE", code3: "REU", name: "Réunion", number: "638" },
-    { code: "BL", code3: "BLM", name: "Saint Barthélemy", number: "652" },
+    { code: "RE", code3: "REU", name: "Rï¿½union", number: "638" },
+    { code: "BL", code3: "BLM", name: "Saint Barthï¿½lemy", number: "652" },
     { code: "SH", code3: "SHN", name: "Saint Helena, Ascension and Tristan da Cunha", number: "654" },
     { code: "KN", code3: "KNA", name: "Saint Kitts and Nevis", number: "659" },
     { code: "LC", code3: "LCA", name: "Saint Lucia", number: "662" },
@@ -327,7 +328,7 @@ export class AddCatalogueComponent implements OnInit {
     { code: "YE", code3: "YEM", name: "Yemen", number: "887" },
     { code: "ZM", code3: "ZMB", name: "Zambia", number: "894" },
     { code: "ZW", code3: "ZWE", name: "Zimbabwe", number: "716" },
-    { code: "AX", code3: "ALA", name: "Åland Islands", number: "248" }
+    { code: "AX", code3: "ALA", name: "ï¿½land Islands", number: "248" }
 ];
      FEDERATION_LEVEL = "LEVEL_0,LEVEL_1,LEVEL_2,LEVEL_3,LEVEL_4";
 	 grades=this.FEDERATION_LEVEL.split(',');
@@ -431,19 +432,45 @@ export class AddCatalogueComponent implements OnInit {
 			}
 			
 */
-      constructor(private router: Router, private restApi:CataloguesServiceService) { }
+      constructor(private router: Router, private restApi:CataloguesServiceService, private route: ActivatedRoute, private sharedService: SharedService, private sanitizer: DomSanitizer) { }
 
 	  receivedMode : string = "";
+	  modifyId : string = "";
 
       ngOnInit(): void {
-	
+			this.route.queryParams
+			  .subscribe(params => {
+				console.log(params.modifyId); 
+				if(params.modifyId != null && params.modifyId != undefined && params.modifyId != '')
+					this.modifyId = params.modifyId;
+					this.restApi.getODMSNode(Number(this.modifyId)).subscribe(data => {
+						console.log(data)
+						// this.node.image.imageData = data.image.imageData;
+						this.imageUrl = data.image.imageData;
+						this.node = data;
+						// let countryFinder = this.countries.find(x => x.code === data.country);
+						// this.node.country = countryFinder.name;
 
+						// let categoryFinder = this.ODMSCategories.find(x => x.value === data.category);
+						// this.node.category = categoryFinder.text;
+
+						if(data.refreshPeriod != null && data.refreshPeriod != undefined && data.refreshPeriod != '')
+						{
+							let refreshPeriodFinder = this.updatePeriods.find(x => x.value === data.refreshPeriod);
+							this.node.refreshPeriod = refreshPeriodFinder.text;
+						} else {
+							this.node.refreshPeriod = '-';
+						}
+						console.log(this.node.refreshPeriod);
+					});
+				}
+			);
      }
 
 	public receiveMode($event){
 		console.log("\nIN SETMODE: "+$event);
 		this.receivedMode = $event; 
-		console.log("\nSEI IN MODAlità "+this.receivedMode);
+		console.log("\nSEI IN MODAlitï¿½ "+this.receivedMode);
 	}
 
     public changedTypeHandler($event){
@@ -478,7 +505,7 @@ export class AddCatalogueComponent implements OnInit {
 		this.node.refreshPeriod = $event;
 	}
 	
-	public createNode(){
+	public async createNode(){
 		
 		if(this.node.name==''){
 			this.node.nameInvalid=true;
@@ -510,7 +537,6 @@ export class AddCatalogueComponent implements OnInit {
 		}
 
 		if(this.node.nameInvalid || this.node.pubNameInvalid || this.node.hostInvalid) return;
-
 
 
 /*
@@ -568,7 +594,6 @@ export class AddCatalogueComponent implements OnInit {
 				}
 			}
 */
-			this.node.refreshPeriod="0";
 			/*
 			if(this.node.nodeType == 'WEB'){
 				if(angular.equals({}, node.sitemap)){
@@ -635,56 +660,126 @@ export class AddCatalogueComponent implements OnInit {
 				fd.append("dump",'');
 			//}
 
-			fd.append("node",JSON.stringify(this.node));
+			// fd.append("image", this.fileToUpload);
 
-				this.node.synchLock = 'FIRST';
-				this.node.nodeState = "OFFLINE";
-				this.node.datasetCount = 0;
-				this.node.registerDate = new Date();
-				this.node.lastUpdateDate = new Date();
-				this.node.inserted=false; 
 				
-				//$rootScope.nodeCreated.push(node);
-           this.restApi.addODMSNode(fd).subscribe(infos =>{
-				console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
-/*				
-				ODMSNodesAPI.addODMSNode(fd).then(function(){
-					$rootScope.getNodes();
-				}, function(value){
+			this.route.queryParams
+			.subscribe(params => {
+			  // console.log(params.modifyId);
+				if(params.modifyId){
 
-					if(value.status==401){
-						$rootScope.token=undefined;
-						dialogs.error(this.authenticationFailed,this.authenticationFailedMex);
+					this.node.lastUpdateDate = new Date();
+					this.node.inserted=false;
+	
+					// let countryFinder = this.countries.find(x => x.name === this.node.country);
+					// this.node.country = countryFinder.code;
+	
+					// let categoryFinder = this.ODMSCategories.find(x => x.text === this.node.category);
+					// this.node.category = categoryFinder.value;
+	
+	
+					let refreshPeriodFinder = this.updatePeriods.find(x => x.text === this.node.refreshPeriod);
+					console.log("ref",refreshPeriodFinder);
+					if(refreshPeriodFinder == null || refreshPeriodFinder == undefined){
+						refreshPeriodFinder.value = "0";
+					} else {
+						this.node.refreshPeriod = refreshPeriodFinder.value;
 					}
-
-					if(value.status!=502){
-						dialogs.error(this.registrationFailed,value.data.userMessage);
-						$rootScope.getNodes();
-					}
+					fd.append("node",JSON.stringify(this.node));
+					//$rootScope.nodeCreated.push(node);
+					this.restApi.modODMSNode(fd, params.modifyId).subscribe(infos =>{
+						console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
 					
-				});
-				$rootScope.startSpin();
-				$timeout(function(){
-					$rootScope.stopSpin();
-					$window.location.assign("#/catalogues");
-				},500);		
-*/
-		//}else{
-		//	this.node.hostInvalid=true;
-		//	this.showMessageUrl = true;
-		//	this.messageUrl =this.catalogueValidUrl;
-		//}
+					},err=>{
+					console.log(err);
+					})
 		
+				} else {
+
+					this.node.synchLock = 'FIRST';
+					this.node.nodeState = "OFFLINE";
+					this.node.datasetCount = 0;
+					this.node.registerDate = new Date();
+					this.node.lastUpdateDate = new Date();
+					this.node.inserted=false;
 	
-	},err=>{
-      console.log(err);
-     //this.loading=false;
-    })
+					let refreshPeriodFinder = this.updatePeriods.find(x => x.text === this.node.refreshPeriod);
+					console.log("ref",refreshPeriodFinder);
+					if(refreshPeriodFinder == null || refreshPeriodFinder == undefined){
+						refreshPeriodFinder.value = "0";
+					} else {
+						this.node.refreshPeriod = refreshPeriodFinder.value;
+					}
+					// let countryFinder = this.countries.find(x => x.name === this.node.country);
+					// this.node.country = countryFinder.code;
 	
+					// let categoryFinder = this.ODMSCategories.find(x => x.text === this.node.category);
+					// this.node.country = categoryFinder.value;
 	
-}
+					
+					// let refreshPeriodFinder = this.updatePeriods.find(x => x.text === this.node.refreshPeriod);
+					// if(refreshPeriodFinder == null || refreshPeriodFinder == undefined){
+					// 	refreshPeriodFinder.value = "0";
+					// }
+					fd.append("node",JSON.stringify(this.node));
+					//$rootScope.nodeCreated.push(node);
+					this.restApi.addODMSNode(fd).subscribe(infos =>{
+						console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
+						// redirect to the catalogue list
+						this.router.navigate(['/catalogues']);
+	/*					
+						ODMSNodesAPI.addODMSNode(fd).then(function(){
+							$rootScope.getNodes();
+						}, function(value){
+
+							if(value.status==401){
+								$rootScope.token=undefined;
+								dialogs.error(this.authenticationFailed,this.authenticationFailedMex);
+							}
+
+							if(value.status!=502){
+								dialogs.error(this.registrationFailed,value.data.userMessage);
+								$rootScope.getNodes();
+							}
+							
+						});
+						$rootScope.startSpin();
+						$timeout(function(){
+							$rootScope.stopSpin();
+							$window.location.assign("#/catalogues");
+						},500);		
+				*/
+						//}else{
+						//	this.node.hostInvalid=true;
+						//	this.showMessageUrl = true;
+						//	this.messageUrl =this.catalogueValidUrl;
+						//}
+						
+					
+					},err=>{
+					console.log(err);
+					//this.loading=false;
+					})
+					
+				}
+			});
+	}
 
 
+	imageUrl: string = "data:image/png;base64,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";
 
+	onFileChange(file: any) {
+		
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+		let url = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+		this.updateImage(url);
+		reader.onload = () => {
+			this.node.image.imageData = reader.result.toString();
+		};
+	}
 
+	updateImage(url : any){
+		this.imageUrl = url;
+	}
 }

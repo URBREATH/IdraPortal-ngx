@@ -12,6 +12,13 @@
 	  <nb-card class="minicard">
       <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
  		<h6 class="jumbotron-heading">Image:</h6>
+		 <div class="custom-file">
+		   <input #XML_sub_local nbInput type="file" class="custom-file-input" multiple id="importFile" (change)="onFileChange($event.target.files[0])">
+						 <label class="custom-file-label" #labelImport for="importFile">Choose file</label>
+		 </div>
+		 <div  style="height: fit-content;">
+			<img id="image" [src]="imageUrl" alt="" style="margin-top: 1rem; height: 120px;width: auto;">
+		 </div>
       </nb-card-body>
 	</nb-card>
    </div>
@@ -36,10 +43,9 @@
 	<div class="col-md-6">
 	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 		<h6 class="jumbotron-heading">Country:</h6>	
-			    <nb-select placeholder="Country" (selectedChange)="changedCountryHandler($event)">
-					<nb-option *ngFor="let country of countries" [value]="country.name"> {{ country.name }}</nb-option>
+			    <nb-select placeholder="Country" (selectedChange)="changedCountryHandler($event)" [selected]="node.country">
+					<nb-option *ngFor="let country of countries" [value]="country.name" >{{ country.name }}</nb-option>
 					<!-- <country-select></country-select> -->
-
 
 			    </nb-select>
       </nb-card-body>
@@ -49,7 +55,7 @@
 	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 		<h6 class="jumbotron-heading">Category:</h6>	
 			   
-           <nb-select placeholder="Category" (selectedChange)="changedCategoryHandler($event)">
+           <nb-select placeholder="Category" (selectedChange)="changedCategoryHandler($event)" [selected]="node.category">
 				<nb-option *ngFor="let category of ODMSCategories" [value]="category.value"> {{ category.value }}</nb-option>
 			    </nb-select>
       </nb-card-body>
@@ -82,7 +88,7 @@ ng-options="option.value as (option.text | translate) for option in ODMSCategori
 	<div class="col-md-4">
 	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 		<h6 class="jumbotron-heading">Type:</h6>	
-			    <nb-select placeholder="Type" (selectedChange)="changedTypeHandler($event)">
+			    <nb-select placeholder="Type" (selectedChange)="changedTypeHandler($event)" [selected]="node.nodeType">
 					<nb-option *ngFor="let type of nodeType" [value]="type.value"> {{ type.value }}</nb-option>
 			    </nb-select>
       </nb-card-body>
@@ -91,7 +97,7 @@ ng-options="option.value as (option.text | translate) for option in ODMSCategori
 	<div class="col-md-4">
 	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 		<h6 class="jumbotron-heading">Active:</h6>	
-			    <nb-select placeholder="Active" (selectedChange)="changedActiveHandler($event)">
+			    <nb-select placeholder="Active" (selectedChange)="changedActiveHandler($event)" [selected]="node.isActive ? 'Yes' : 'No'">
 					<nb-option *ngFor="let mode of activeMode" [value]="mode.text"> {{ mode.text }}</nb-option>
 			    </nb-select>
       </nb-card-body>
@@ -100,7 +106,7 @@ ng-options="option.value as (option.text | translate) for option in ODMSCategori
 	<div class="col-md-4">
 	  <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 		<h6 class="jumbotron-heading">Refresh:</h6>	
-			    <nb-select placeholder="Refresh" (selectedChange)="changedRefreshHandler($event)">
+			    <nb-select placeholder="Refresh" (selectedChange)="changedRefreshHandler($event)" [selected]="node.refreshPeriod">
 					<nb-option *ngFor="let period of updatePeriods" [value]="period.text"> {{ period.text }}</nb-option>
 			    </nb-select>
       </nb-card-body>
@@ -116,7 +122,10 @@ ng-options="option.value as (option.text | translate) for option in ODMSCategori
 	<button nbButton fullWidth outline status="success">Reset</button>
 </div>
 <div class="col-md-4">
-	<button nbButton fullWidth hero status="success" [disabled]='node.nodeType==""' (click)="createNode()">Create</button>
+	<button nbButton fullWidth hero status="success" [disabled]='node.nodeType==""' (click)="createNode()" *ngIf="!modifyId; else modify">Create</button>
+	<ng-template #modify>
+		<button nbButton fullWidth hero status="success" [disabled]='node.nodeType==""' (click)="createNode()" >Modify</button>
+	</ng-template>
 
 </div>
 </div>

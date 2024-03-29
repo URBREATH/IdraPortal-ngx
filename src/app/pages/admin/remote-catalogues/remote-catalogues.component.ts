@@ -4,6 +4,7 @@ import { CataloguesServiceService } from '../catalogues-service.service';
 import { ODMSCatalogueInfo } from '../../data-catalogue/model/odmscatalogue-info';
 import { ODMSCatalogue } from '../../data-catalogue/model/odmscatalogue';
 
+import * as remoteCatalogueData from './catalogues.json';
 
 
 interface TreeNode<T> {
@@ -38,8 +39,8 @@ export class RemoteCataloguesComponent implements OnInit {
 
    activeMode = [{text:'',value:true},{text:'',value:false}];
    allRemCat = []
-   allRemCatJson = [];
- 
+//    allRemCatJson = [];
+   allRemCatJson: any = remoteCatalogueData
 
   constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService) { }
 
@@ -53,132 +54,40 @@ export class RemoteCataloguesComponent implements OnInit {
 	
 	},err=>{
       console.log(err);
-     //this.loading=false;
     })
-
-	this.restApi.getRemoteNodesJson().subscribe(infos2 =>{
-				console.log("\nCHIAMATA API GET ALL REM CAT JSON. infos2: "+infos2.length);
-				this.allRemCatJson = infos2;
+	this.allRemCatJson = this.allRemCatJson.default
+	console.log("\nREM CAT 1: "+this.allRemCatJson[0].name);
+		for (let k = 0; k < this.allRemCatJson.length; k++) {
 				
-				
-				console.log("\nREM CAT 1: "+this.allRemCatJson[0].name);
-// /*	
-				 for (let k = 0; k < this.allRemCatJson.length; k++) {
-							
-					console.log("\nLOCATION: "+this.allRemCatJson[k].host);
-					//let nameHost = "<a href=\""+infos2.host+"\\\">"+infos2.name+"<a/>";
-					
-					let level = this.getLevel(this.allRemCatJson[k].nodeType);
-					
-					
-					let data2 = [
-						    {
-					       data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host},
-						}
-					  ];
-					
-					if(this.data.length==0){
-						
-						this.data = [
-						    {
-					      data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host},
-					    }
-					  ];
-					}
-					else{
-						this.data = this.data.concat(data2);
-						
-					}
-					
-					//costrutisco la tabella
-					this.dataSource = this.dataSourceBuilder.create(this.data);
-					
-					}
-
-//*/
-
-
-	
-	},err=>{
-      console.log(err);
-     //this.loading=false;
-    })
-	
-	
-	
-	
-	
-	/*
-	
-	    this.loading=true
-
-    this.restApi.getCataloguesInfo().subscribe(infos =>{
-    console.log("PRIMA API");
-	
-      this.cataloguesInfos = infos;
-      this.totalCatalogues = this.cataloguesInfos.length;
-      for (let i = 0; i < this.cataloguesInfos.length; i++) {
-
-			  this.id=this.cataloguesInfos[i].id;
+		console.log("\nLOCATION: "+this.allRemCatJson[k].host);
+		//let nameHost = "<a href=\""+infos2.host+"\\\">"+infos2.name+"<a/>";
 		
-		      console.log("NUM CATALOGHI: "+this.cataloguesInfos[i].name);
-			  console.log("ID CAT: "+this.id);
+		let level = this.getLevel(this.allRemCatJson[k].nodeType);
 		
-		      //this.searchRequest.nodes = infos.map(x=>x.id)
-		      //this.searchDataset(true)    
 		
-		   
-		      this.restApi.getCatalogue(this.id).subscribe(infos2 =>{
-			  console.log("\nSECONDA API, ID: "+this.id);
+		let data2 = [
+				{
+				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host},
+			}
+			];
 		
-		      this.cataloguesMoreInfos = infos2;
-			 // this.loading=false
-		      //this.searchDataset(true)    
-console.log("\nLOCATION: "+infos2.host);
-//let nameHost = "<a href=\""+infos2.host+"\\\">"+infos2.name+"<a/>";
-
-let level = this.getLevel(infos2.nodeType);
-
-
-let data2 = [
-	    {
-       data: { Name: infos2.name, Country: infos2.country, Type: infos2.nodeType, Level: level, Host: infos2.host},
-	}
-  ];
-
-if(this.data.length==0){
-	
-	this.data = [
-	    {
-      data: { Name: infos2.name, Country: infos2.country, Type: infos2.nodeType, Level: level, Host: infos2.host},
-    }
-  ];
-}
-else{
-	this.data = this.data.concat(data2);
-	
-}
-
-//costrutisco la tabella
-this.dataSource = this.dataSourceBuilder.create(this.data);
-
-
-		    },err=>{
-		      console.log(err);
-		     // this.loading=false;
-		    })
- 
-  this.loading=false
-
-
-
-    } // fine FOR
-
-    },err=>{
-      console.log(err);
-     this.loading=false;
-    })
-	*/
+		if(this.data.length==0){
+			
+			this.data = [
+				{
+				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host},
+			}
+			];
+		}
+		else{
+			this.data = this.data.concat(data2);
+			
+		}
+		
+		//costrutisco la tabella
+		this.dataSource = this.dataSourceBuilder.create(this.data);
+		
+		}
   }
 
 getLevel(nodeType: string): string {

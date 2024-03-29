@@ -12,6 +12,9 @@ import { ODMSCatalogueResponse } from '../data-catalogue/model/odmscatalogue-res
 import { SearchRequest } from '../data-catalogue/model/search-request';
 import { SearchResult } from '../data-catalogue/model/search-result';
 import { NbGlobalPhysicalPosition, NbToastRef, NbToastrService } from '@nebular/theme';
+import * as FileSaver from 'file-saver';
+import { ODMSCatalogueComplete } from '../data-catalogue/model/odmscataloguecomplete';
+import { ODMSCatalogueNode } from '../data-catalogue/model/odmscatalogue-node';
 
 @Injectable({
   providedIn: 'root'
@@ -67,6 +70,15 @@ export class CataloguesServiceService {
     return this.http.post<SearchResult>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues`,data);
   }
 
+  //modODMSNode
+  modODMSNode(data:FormData, id: string):Observable<SearchResult>{
+    return this.http.put<SearchResult>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/`+id,data);
+  }
+  //modODMSNode
+  getODMSNode(catalogueId:number):Observable<ODMSCatalogueNode>{
+    return this.http.get<ODMSCatalogueNode>(`${this.apiEndpoint}/Idra/api/v1/client/catalogues/${catalogueId}`);
+  }
+
   //getAllRemCat
    getAllRemCat():Observable<any>{
     return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue`);
@@ -75,18 +87,83 @@ export class CataloguesServiceService {
   getRemoteNodesJson():Observable<any>{
     return this.http.get<any>(`http://localhost/catalogue.json`);
   }
+
+
+
+
+
+  getAllCataloguesInfo():Observable<Array<ODMSCatalogueComplete>>{
+    return this.http.get<Array<ODMSCatalogueComplete>>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues?withImage=false`);
+  }
+
+  activeCatalogue(id:string):Promise<any>{
+    return new Promise((resolve,reject)=>{
+      this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}/activate`, null)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+
+  deactiveCatalogue(id:string, keepDatasets:boolean):Promise<any>{
+    return new Promise((resolve,reject)=>{
+      this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}/deactivate?keepDatasets=`+keepDatasets, null)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+
+  deleteCatalogue(id:string):Promise<any>{
+    return new Promise((resolve,reject)=>{
+      this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}`)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+  
 	//downloadDump
-  async getDump(url:string):Promise<void>{
-    window.open(`${this.apiEndpoint}${url}`, "_blank");
+  async getDump(url:string, name : string):Promise<void>{
+    // window.open(`${this.apiEndpoint}${url}`, "_blank");
+    this.http.get(`${this.apiEndpoint}${url}`, { responseType: 'blob' })
+      .subscribe((resp: any) => {
+          FileSaver.saveAs(resp, 'Dump_'+name+ '.rdf')
+      });
+  }
+
+  syncRemoteCatalogue(id:string):Promise<any>{
+    
+    return new Promise((resolve,reject)=>{
+      this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}/synchronize`,null)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
   }
   
   async submitAnalisysJSON(id: String): Promise<any> {
-    console.log("2")
     
     const token = localStorage.getItem('token');
 
     let json = {
-      "file_url": "http://172.26.0.3:8080/Idra/api/v1/administration/dcat-ap/dump/"+id,
+      "file_url": `${this.apiEndpoint}/Idra/api/v1/administration/dcat-ap/dump/`+id,  //da cambiare
       "token": token
     }
     return new Promise((resolve,reject)=>{

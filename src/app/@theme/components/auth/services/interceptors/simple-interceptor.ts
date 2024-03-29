@@ -8,13 +8,15 @@ import { NB_AUTH_INTERCEPTOR_HEADER, NB_AUTH_OPTIONS } from '../../auth.options'
 import { NbAuthJWTToken } from '../token/token';
 import { NbTokenService } from '../token/token.service';
 import { NbAuthResult } from '../auth-result';
+import { Router } from '@angular/router';
 
 @Injectable()
 export class NbAuthSimpleInterceptor implements HttpInterceptor {
 
   constructor(protected tokenService: NbTokenService,
     @Inject(NB_AUTH_OPTIONS) protected options = {},private injector: Injector,
-              @Inject(NB_AUTH_INTERCEPTOR_HEADER) protected headerName: string = 'Authorization') {
+              @Inject(NB_AUTH_INTERCEPTOR_HEADER) protected headerName: string = 'Authorization',
+              private router: Router,) {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -29,7 +31,7 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
             req = req.clone({
               withCredentials: false,
               headers: new HttpHeaders({
-                'Content-Type': 'application/json',
+                // 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Authorization': `Bearer ${token_}`,
                 'Cookie': 'loggedin='+token+';username='+username,
@@ -47,6 +49,7 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
                   localStorage.removeItem('token');
                   localStorage.removeItem('username');
                   this.tokenService.clear();
+                  this.router.navigate(['/pages/auth/login']);
                 }
                 return throwError(err);
               }

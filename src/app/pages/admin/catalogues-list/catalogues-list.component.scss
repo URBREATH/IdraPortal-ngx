@@ -4,8 +4,14 @@ button[nbTreeGridRowToggle] {
   padding: 0;
   
 }
+.disabled{
+  pointer-events: none;
+  cursor: not-allowed;
+  background-color: rgba(81, 83, 83, 0.178) !important;
+}
 .rotate_icon{
   animation: rotate 2s linear infinite;
+  color: #ff0000;
 }
 @keyframes rotate {
   from { transform: rotate(0deg); }
