@@ -10,5 +10,11 @@ export class SharedService {
 
   constructor() { }
 
-
+  // private addCatalogueIsLoaded = new BehaviorSubject<boolean>(false);
+  // addCatalogueIsLoaded$ = this.addCatalogueIsLoaded.asObservable();
+ 
+ 
+  // propagateCatalogueIsLoaded(newVal: boolean) {
+  //   this.addCatalogueIsLoaded.next(newVal)
+  // }
 }

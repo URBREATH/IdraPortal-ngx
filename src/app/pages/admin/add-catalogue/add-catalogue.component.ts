@@ -35,7 +35,7 @@ export interface Node {
 	hostInvalid : boolean,
 	homepage : string,
 	homepageInvalid : boolean,
-	refreshPeriod : string ,
+	refreshPeriod : number ,
 	description : string ,
 	APIKey : string ,
 	location : string,
@@ -75,7 +75,7 @@ export class AddCatalogueComponent implements OnInit {
   
 
   ODMSCategories = [{text:'Municipality',value:'Municipality'},{text:'Province',value:'Province'},{text:'Private Institution',value:'Private Institution'},{text:'Public Body',value:'Public Body'},{text:'Region',value:'Region'}];
-  updatePeriods=[{text:'-',value:'0'},{text:'1 hour',value:'3600'},{text:'1 day',value:'86400'},{text:'1 week',value:'604800'}];    
+  updatePeriods=[{text:'-',value:"0"},{text:'1 hour',value:"3600"},{text:'1 day',value:"86400"},{text:'1 week',value:"604800"}];    
   activeMode = [{text:'Yes',value:true},{text:'No',value:false}];
   nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'}];
   
@@ -437,40 +437,52 @@ export class AddCatalogueComponent implements OnInit {
 	  receivedMode : string = "";
 	  modifyId : string = "";
 
-      ngOnInit(): void {
-			this.route.queryParams
-			  .subscribe(params => {
-				console.log(params.modifyId); 
-				if(params.modifyId != null && params.modifyId != undefined && params.modifyId != '')
-					this.modifyId = params.modifyId;
-					this.restApi.getODMSNode(Number(this.modifyId)).subscribe(data => {
-						console.log(data)
-						// this.node.image.imageData = data.image.imageData;
-						this.imageUrl = data.image.imageData;
-						this.node = data;
-						// let countryFinder = this.countries.find(x => x.code === data.country);
-						// this.node.country = countryFinder.name;
+    ngOnInit(): void {
+		if(sessionStorage.getItem('activePage') == 'false' || sessionStorage.getItem('activePage') == null){
+			sessionStorage.setItem('activePage', 'true');
+			document.location.reload();
+		}
+		console.log(sessionStorage.getItem('activePage'));
+		this.route.queryParams
+			.subscribe(params => {
+			if(params.modifyId != null && params.modifyId != undefined && params.modifyId != ''){
+				this.modifyId = params.modifyId;
+				this.restApi.getODMSNode(Number(this.modifyId)).subscribe(data => {
+					console.log(data)
+					// this.node.image.imageData = data.image.imageData;
+					this.imageUrl = data.image.imageData;
+					this.node = data;
+					let countryFinder = this.countries.find(x => x.code === data.country);
+					this.node.country = countryFinder.name;
 
-						// let categoryFinder = this.ODMSCategories.find(x => x.value === data.category);
-						// this.node.category = categoryFinder.text;
+					// let categoryFinder = this.ODMSCategories.find(x => x.value === data.category);
+					// this.node.category = categoryFinder.text;
 
-						if(data.refreshPeriod != null && data.refreshPeriod != undefined && data.refreshPeriod != '')
-						{
-							let refreshPeriodFinder = this.updatePeriods.find(x => x.value === data.refreshPeriod);
-							this.node.refreshPeriod = refreshPeriodFinder.text;
-						} else {
-							this.node.refreshPeriod = '-';
-						}
-						console.log(this.node.refreshPeriod);
-					});
-				}
-			);
-     }
-
+					let refreshPeriodFinder = this.updatePeriods.find(x => x.value === data.refreshPeriod.toString());
+					this.node.refreshPeriod = refreshPeriodFinder.text;
+				});
+			}
+		});		
+    }
 	public receiveMode($event){
 		console.log("\nIN SETMODE: "+$event);
 		this.receivedMode = $event; 
 		console.log("\nSEI IN MODAlit� "+this.receivedMode);
+	}
+
+	public updateDcatProfile($event){
+		console.log("\nDCATPROFILE: "+$event);
+		this.node.dcatProfile = $event; 
+	}
+
+	public updateFederationLevel($event){
+		console.log("\nDCATPROFILE: "+$event);
+		this.node.federationLevel = $event; 
+	}
+
+	public updateOrionAPI($event){
+		console.log("\nDCATPROFILE: "+$event);
+		this.node.additionalConfig.ngsild = $event; 
 	}
 
     public changedTypeHandler($event){
@@ -662,7 +674,6 @@ export class AddCatalogueComponent implements OnInit {
 
 			// fd.append("image", this.fileToUpload);
 
-				
 			this.route.queryParams
 			.subscribe(params => {
 			  // console.log(params.modifyId);
@@ -671,17 +682,18 @@ export class AddCatalogueComponent implements OnInit {
 					this.node.lastUpdateDate = new Date();
 					this.node.inserted=false;
 	
-					// let countryFinder = this.countries.find(x => x.name === this.node.country);
-					// this.node.country = countryFinder.code;
+					let countryFinder = this.countries.find(x => x.name === this.node.country);
+					this.node.country = countryFinder.code;
 	
 					// let categoryFinder = this.ODMSCategories.find(x => x.text === this.node.category);
 					// this.node.category = categoryFinder.value;
 	
 	
 					let refreshPeriodFinder = this.updatePeriods.find(x => x.text === this.node.refreshPeriod);
-					console.log("ref",refreshPeriodFinder);
+					// console.log("ref",refreshPeriodFinder);
 					if(refreshPeriodFinder == null || refreshPeriodFinder == undefined){
-						refreshPeriodFinder.value = "0";
+						refreshPeriodFinder = { value: "0", text: "-"}
+						this.node.refreshPeriod = "0";
 					} else {
 						this.node.refreshPeriod = refreshPeriodFinder.value;
 					}
@@ -690,6 +702,10 @@ export class AddCatalogueComponent implements OnInit {
 					this.restApi.modODMSNode(fd, params.modifyId).subscribe(infos =>{
 						console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
 					
+						let refreshPeriodFinder = this.updatePeriods.find(x => x.value === this.node.refreshPeriod);
+						this.node.refreshPeriod = refreshPeriodFinder.text;
+						let countryFinder = this.countries.find(x => x.code === this.node.country);
+						this.node.country = countryFinder.name;
 					},err=>{
 					console.log(err);
 					})
@@ -704,9 +720,10 @@ export class AddCatalogueComponent implements OnInit {
 					this.node.inserted=false;
 	
 					let refreshPeriodFinder = this.updatePeriods.find(x => x.text === this.node.refreshPeriod);
-					console.log("ref",refreshPeriodFinder);
+					// console.log("ref",refreshPeriodFinder);
 					if(refreshPeriodFinder == null || refreshPeriodFinder == undefined){
-						refreshPeriodFinder.value = "0";
+						refreshPeriodFinder = { value: "0", text: "-"}
+						this.node.refreshPeriod = "0";
 					} else {
 						this.node.refreshPeriod = refreshPeriodFinder.value;
 					}
@@ -722,7 +739,7 @@ export class AddCatalogueComponent implements OnInit {
 					// 	refreshPeriodFinder.value = "0";
 					// }
 					fd.append("node",JSON.stringify(this.node));
-					//$rootScope.nodeCreated.push(node);
+					//$rootScope.nodeCreated.push(node); 
 					this.restApi.addODMSNode(fd).subscribe(infos =>{
 						console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
 						// redirect to the catalogue list
@@ -764,19 +781,46 @@ export class AddCatalogueComponent implements OnInit {
 				}
 			});
 	}
-
+	
 
 	imageUrl: string = "data:image/png;base64,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";
 
-	onFileChange(file: any) {
-		
+	onFileChange(file: any, caseFile: number) {
 		const reader = new FileReader();
-		reader.readAsDataURL(file);
-		let url = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
-		this.updateImage(url);
-		reader.onload = () => {
-			this.node.image.imageData = reader.result.toString();
-		};
+		switch(caseFile){
+			case 0:
+				let url = this.sanitizer.bypassSecurityTrustUrl(URL.createObjectURL(file));
+				this.updateImage(url);
+				reader.onload = () => {
+					this.node.image.imageData = reader.result.toString();
+				}
+				break;
+			case 1:
+				reader.readAsText(file);
+				reader.onload = () => {
+					this.node.dumpString = reader.result.toString();
+				}
+				break;
+			case 2:
+				reader.readAsText(file);
+				reader.onload = () => {
+					this.node.additionalConfig.orionDatasetDumpString = JSON.parse(reader.result.toString());
+				}
+				break;
+			case 3:
+				reader.readAsText(file);
+				reader.onload = () => {
+					this.node.additionalConfig.sparqlDatasetDumpString = JSON.parse(reader.result.toString());
+				}
+				break;
+			case 4:
+				reader.readAsText(file);
+				reader.onload = () => {
+					this.node.sitemap = JSON.parse(reader.result.toString());
+				}
+				break;
+		}
+		document.getElementsByClassName('custom-file-label')[caseFile].innerHTML = file.name;
 	}
 
 	updateImage(url : any){

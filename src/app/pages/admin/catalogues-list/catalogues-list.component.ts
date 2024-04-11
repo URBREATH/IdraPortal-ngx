@@ -70,9 +70,9 @@ export class CataloguesListComponent implements OnInit {
 		this.loadCatalogue();
 	}
 
-	async loadCatalogue(){
+	loadCatalogue(){
 		this.data = [];
-		this.dataSource = this.dataSourceBuilder.create(this.data);
+		// this.dataSource = this.dataSourceBuilder.create(this.data);
 		this.loading=true
 
 		this.restApi.getAllCataloguesInfo().subscribe(infos =>{

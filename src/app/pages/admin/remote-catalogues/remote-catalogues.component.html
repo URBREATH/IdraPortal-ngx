@@ -79,6 +79,13 @@
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[4]]}}</td>
           </ng-container>
 
+          <ng-container [nbTreeGridColumnDef]="iconColumn" >
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>Actions</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row" >
+              <nb-icon icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-icon>
+            </td>
+          </ng-container>
+
 
 <!--   
         <ng-container>

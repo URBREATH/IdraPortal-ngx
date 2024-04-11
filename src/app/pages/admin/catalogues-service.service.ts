@@ -76,7 +76,7 @@ export class CataloguesServiceService {
   }
   //modODMSNode
   getODMSNode(catalogueId:number):Observable<ODMSCatalogueNode>{
-    return this.http.get<ODMSCatalogueNode>(`${this.apiEndpoint}/Idra/api/v1/client/catalogues/${catalogueId}`);
+    return this.http.get<ODMSCatalogueNode>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${catalogueId}?withImage=true`);
   }
 
   //getAllRemCat

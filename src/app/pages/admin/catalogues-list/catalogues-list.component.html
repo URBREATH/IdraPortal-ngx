@@ -110,7 +110,7 @@
 	  <!-- ICONS -->
       <ng-container [nbTreeGridColumnDef]="iconColumn" >
         <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 120px">
-         	<nb-icon icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue" (click)="setMode()"></nb-icon>
+         	<nb-icon icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue" ></nb-icon>
          	<nb-icon icon="list-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./remoteCatalogues"></nb-icon>
          	<nb-icon icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump()"></nb-icon>
         </th>

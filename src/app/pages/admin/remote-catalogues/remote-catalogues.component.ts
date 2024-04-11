@@ -5,6 +5,7 @@ import { ODMSCatalogueInfo } from '../../data-catalogue/model/odmscatalogue-info
 import { ODMSCatalogue } from '../../data-catalogue/model/odmscatalogue';
 
 import * as remoteCatalogueData from './catalogues.json';
+import { Router } from '@angular/router';
 
 
 interface TreeNode<T> {
@@ -19,6 +20,7 @@ interface FSEntry {
   Type: string;
   Level: string;
   Host: string;
+  index: number;
 }
 
 
@@ -42,19 +44,19 @@ export class RemoteCataloguesComponent implements OnInit {
 //    allRemCatJson = [];
    allRemCatJson: any = remoteCatalogueData
 
-  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService) { }
+  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService, private router: Router) { }
 
   ngOnInit(): void {
 	
 	
 	// GET REM CATALOGUES LIST
-	this.restApi.getAllRemCat().subscribe(infos =>{
-				console.log("\nCHIAMATA API GET ALL REM CAT. infos: "+infos[0].URL);
-				this.allRemCat = infos;
+	// this.restApi.getRemoteNodesJson().subscribe(infos =>{
+	// 			console.log("\nCHIAMATA API GET ALL REM CAT. infos: "+infos[0].URL);
+	// 			this.allRemCat = infos;
 	
-	},err=>{
-      console.log(err);
-    })
+	// },err=>{
+    //   console.log(err);
+    // })
 	this.allRemCatJson = this.allRemCatJson.default
 	console.log("\nREM CAT 1: "+this.allRemCatJson[0].name);
 		for (let k = 0; k < this.allRemCatJson.length; k++) {
@@ -67,7 +69,7 @@ export class RemoteCataloguesComponent implements OnInit {
 		
 		let data2 = [
 				{
-				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host},
+				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host, index: k}
 			}
 			];
 		
@@ -75,7 +77,7 @@ export class RemoteCataloguesComponent implements OnInit {
 			
 			this.data = [
 				{
-				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host},
+				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host, index: k}
 			}
 			];
 		}
@@ -133,7 +135,8 @@ getLevel(nodeType: string): string {
 }
 
   // ------------------------- TABLE
-  defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Host'];
+  iconColumn = 'Actions';
+  defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Host', 'Actions'];
   allColumns = [ ...this.defaultColumns ];
 
   dataSource: NbTreeGridDataSource<FSEntry>;
@@ -154,7 +157,22 @@ getLevel(nodeType: string): string {
     return NbSortDirection.NONE;
   }
 
-
+  addRemoteCatalogue(index: number){
+	
+	var fd = new FormData();   
+	fd.append("dump",'');
+	// remove attribute image.imageId from json
+	let object = this.allRemCatJson[index];
+	delete object.image.imageId;
+	object.isActive = false;
+	fd.append("node",JSON.stringify(object));
+	this.restApi.addODMSNode(fd).subscribe(infos =>{
+		console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
+		this.router.navigate(['/catalogues']);
+	},err=>{
+	console.log(err);
+	})
+  }
 
   getShowOn(index: number) {
     const minWithForMultipleColumns = 400;
