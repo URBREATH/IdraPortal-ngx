@@ -5,6 +5,7 @@ import { CataloguesListComponent } from './catalogues-list/catalogues-list.compo
 import { AddCatalogueComponent } from './add-catalogue/add-catalogue.component';
 import { RemoteCataloguesComponent } from './remote-catalogues/remote-catalogues.component';
 import { DataletsManagementComponent } from './datalets-management/datalets-management.component';
+import { AdminConfigurationsComponent } from './admin-configurations/admin-configurations.component';
 
 const routes: Routes = [
 {
@@ -22,6 +23,10 @@ const routes: Routes = [
 {
   path:'adminCatalogues/remoteCatalogues',
   component: RemoteCataloguesComponent
+},
+{
+  path:'configuration',
+  component: AdminConfigurationsComponent
 }
 ];
 

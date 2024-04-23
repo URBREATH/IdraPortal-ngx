@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { CataloguesServiceService } from '../catalogues-service.service';
 
 interface TreeNode<T> {
   data: T;
@@ -8,11 +9,16 @@ interface TreeNode<T> {
 }
 
 interface FSEntry {
-  Name: string;
-  Country: string;
-  Type: string;
-  Level: string;
-  Host: string;
+  id: string;
+  nodeID: string;
+  datasetID: string;
+  distributionID: string;
+  datalet_html: string;
+  title: string;
+  customTitle: boolean;
+  registerDate: string;
+  lastSeenDate: string;
+  views: number;
 }
 
 @Component({
@@ -25,18 +31,28 @@ export class DataletsManagementComponent implements OnInit {
   data: TreeNode<FSEntry>[] = [];
 
 
-  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,) { }
+  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,
+		private restApi:CataloguesServiceService, ) { }
 
   ngOnInit(): void {
 	
+    this.restApi.listDatalets().subscribe((data: any) => {
+      console.log(data);
+      data.forEach(element => {
+        this.data.push({ data: element });
+      });
+      // this.data = data;
+      this.dataSource = this.dataSourceBuilder.create(data);
+    });
 	//costruisco la tabella
-	this.dataSource = this.dataSourceBuilder.create(this.data);
 	
   }
 
   // ------------------------- TABLE
-  defaultColumns = [ 'Title', 'Catalogue', 'Dataset', 'Distribution', 'Registerd', 'Views', 'Last Seen'];
-  allColumns = [ ...this.defaultColumns ];
+  // defaultColumns = [ 'Title', 'Catalogue', 'Dataset', 'Distribution', 'Registerd', 'Views', 'Last Seen'];
+  defaultColumns = [ 'title', 'nodeID', 'datasetID', 'distributionID', 'registerDate', 'views', 'lastSeenDate'];
+	iconColumn = ' ';
+	allColumns = [ ...this.defaultColumns ];
 
   dataSource: NbTreeGridDataSource<FSEntry>;
 

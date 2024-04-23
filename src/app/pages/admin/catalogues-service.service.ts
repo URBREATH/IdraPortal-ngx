@@ -15,6 +15,9 @@ import { NbGlobalPhysicalPosition, NbToastRef, NbToastrService } from '@nebular/
 import * as FileSaver from 'file-saver';
 import { ODMSCatalogueComplete } from '../data-catalogue/model/odmscataloguecomplete';
 import { ODMSCatalogueNode } from '../data-catalogue/model/odmscatalogue-node';
+import { ConfigurationManagement } from '../data-catalogue/model/configurations';
+import { Prefixes } from '../data-catalogue/model/prefixes';
+import { RemoteCatalogues } from '../data-catalogue/model/remote-catalogues';
 
 @Injectable({
   providedIn: 'root'
@@ -94,6 +97,11 @@ export class CataloguesServiceService {
 
   getAllCataloguesInfo():Observable<Array<ODMSCatalogueComplete>>{
     return this.http.get<Array<ODMSCatalogueComplete>>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues?withImage=false`);
+  }
+
+  
+  getConfigurationManagement():Observable<Array<ConfigurationManagement>>{
+    return this.http.get<Array<ConfigurationManagement>>(`${this.apiEndpoint}/Idra/api/v1/administration/configuration`);
   }
 
   activeCatalogue(id:string):Promise<any>{
@@ -189,5 +197,49 @@ export class CataloguesServiceService {
         return error
       })
     })
+  }
+
+  updateConfiguration(json: any): Observable<any> {
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/configuration`, json);  
+  }
+
+  updatePassword(json: any): Observable<any> {
+    return this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/updatePassword`, json);
+  }
+
+  listPrefixes(): Observable<Prefixes> {
+    return this.http.get<Prefixes>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes`);
+  }
+
+  createPrefix(json: any): Observable<any> {
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes`, json);
+  }
+
+  deletePrefix(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes/${id}`);
+  }
+
+  modifyPrefix(json: any, id: string): Observable<any> {
+    return this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes/${id}`, json);
+  }
+
+  listRemoteCatalogues(): Observable<RemoteCatalogues> {
+    return this.http.get<RemoteCatalogues>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue`);
+  }
+
+  createRemoteCatalogue(json: any): Observable<any> {
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue`, json);
+  }
+
+  modifyRemoteCatalogue(json: any, id: string): Observable<any> {
+    return this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue/${id}`, json);
+  }
+
+  deleteRemoteCatalogue(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue/${id}`);
+  }
+
+  listDatalets(): Observable<Datalet> {
+    return this.http.get<Datalet>(`${this.apiEndpoint}/Idra/api/v1/administration/datalets`);
   }
 }

@@ -438,11 +438,11 @@ export class AddCatalogueComponent implements OnInit {
 	  modifyId : string = "";
 
     ngOnInit(): void {
-		if(sessionStorage.getItem('activePage') == 'false' || sessionStorage.getItem('activePage') == null){
-			sessionStorage.setItem('activePage', 'true');
-			document.location.reload();
-		}
-		console.log(sessionStorage.getItem('activePage'));
+		// if(sessionStorage.getItem('activePage') == 'false' || sessionStorage.getItem('activePage') == null){
+		// 	sessionStorage.setItem('activePage', 'true');
+		// 	document.location.reload();
+		// }
+		// console.log(sessionStorage.getItem('activePage'));
 		this.route.queryParams
 			.subscribe(params => {
 			if(params.modifyId != null && params.modifyId != undefined && params.modifyId != ''){

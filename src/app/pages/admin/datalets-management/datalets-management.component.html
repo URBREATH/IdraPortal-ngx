@@ -14,28 +14,43 @@
     	<button routerLink="../adminCatalogues" nbButton outline status="success" >Back</button>
 	</div>
 
-    <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
+    <!-- <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
       <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
       <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
 
-
-
-
-	  <!-- RESULTS -->
-<!--
-      <ng-container *ngFor="let column of defaultColumns; let index = index"
-                    [nbTreeGridColumnDef]="column"
-                    [showOn]="getShowOn(index)">
-        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>{{column}}</th>
-
-        <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column]}}</td>
-      </ng-container>
--->
           <ng-container *ngFor="let column of defaultColumns" [nbTreeGridColumnDef]="column">
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{column}}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column]}}</td>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row['title']}}</td>
           </ng-container>
 
+    </table> -->
+    <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
+      <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+      <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns">
+      </tr>
+  
+      <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
+        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{defaultColumns[0]}}</th>
+        <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[0]]}}</td>
+      </ng-container>
+  
+      <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
+        <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{defaultColumns[1]}}</th>
+        <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[1]]}}</td>
+      </ng-container>
+  
+  
+      <!-- <ng-container [nbTreeGridColumnDef]="iconColumn" >
+        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 120px">
+          Actions
+        </th>
+        <td nbTreeGridCell *nbTreeGridCellDef="let row" >
+          <nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon>
+          <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon>
+        </td>
+      </ng-container> -->
+  
+  
     </table>
 
   </nb-card-body>
