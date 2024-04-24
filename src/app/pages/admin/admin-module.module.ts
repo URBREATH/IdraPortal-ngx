@@ -18,11 +18,12 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { AdminConfigurationsComponent } from './admin-configurations/admin-configurations.component';
 import { PrefixDialogComponent } from './admin-configurations/dialog/prefix-dialog/prefix-dialog.component';
 import { RemoteCatalogueDialogComponent } from './admin-configurations/dialog/remoteCatalogue-dialog/remoteCatalogue-dialog.component';
+import { DataletDialogComponent } from './datalets-management/dialog/datalet-dialog.component';
 
 
 
 @NgModule({
-  declarations: [CataloguesListComponent, AddCatalogueComponent, RemoteCataloguesComponent, DataletsManagementComponent, ShowcaseDialogComponent, AdminConfigurationsComponent, PrefixDialogComponent, RemoteCatalogueDialogComponent],
+  declarations: [CataloguesListComponent, AddCatalogueComponent, RemoteCataloguesComponent, DataletsManagementComponent, ShowcaseDialogComponent, AdminConfigurationsComponent, PrefixDialogComponent, RemoteCatalogueDialogComponent, DataletDialogComponent],
   
 imports: [
     CommonModule,

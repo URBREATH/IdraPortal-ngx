@@ -4,7 +4,7 @@ import { CataloguesServiceService } from '../catalogues-service.service';
 import { ODMSCatalogueInfo } from '../../data-catalogue/model/odmscatalogue-info';
 import { ODMSCatalogue } from '../../data-catalogue/model/odmscatalogue';
 
-import * as remoteCatalogueData from './catalogues.json';
+import * as remoteCatalogueData from '../../../../assets/remoteCatalogues.json';
 import { Router } from '@angular/router';
 
 

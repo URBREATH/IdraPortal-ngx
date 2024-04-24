@@ -242,4 +242,8 @@ export class CataloguesServiceService {
   listDatalets(): Observable<Datalet> {
     return this.http.get<Datalet>(`${this.apiEndpoint}/Idra/api/v1/administration/datalets`);
   }
+
+  deleteDatalet(id: string, nodeID: string, datasetID: string, distributionID: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${nodeID}/dataset/${datasetID}/distribution/${distributionID}/deleteDatalet/${id}`);
+  }
 }
