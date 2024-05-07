@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { ConfigService } from '@ngx-config/core';
 import { Observable } from 'rxjs';
@@ -58,5 +58,13 @@ export class DataCataglogueAPIService {
 
   getDatalets(catalogueId:string, datasetId:string, ditributionId:string):Observable<Array<Datalet>>{
     return this.http.get<Array<Datalet>>(`${this.apiEndpoint}/Idra/api/v1/client/catalogues/${catalogueId}/dataset/${datasetId}/distribution/${ditributionId}/datalets`);
+  }
+
+  downloadGeoJSONFromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=GeoJSON&id=${distribution.id}`); 
+  }
+
+  downloadKMLFromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=KML&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/xml'}), responseType: 'text' as 'json'}); 
   }
 }

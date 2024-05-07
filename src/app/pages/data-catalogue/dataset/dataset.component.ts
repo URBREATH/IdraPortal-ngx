@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfigService } from '@ngx-config/core';
@@ -10,6 +10,8 @@ import { SKOSConcept } from '../model/skosconcept';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
 import { ShowDataletsComponent } from '../show-datalets/show-datalets.component';
 import * as URLParse from 'url-parse';
+import { PreviewDialogComponent } from './preview-dialog/preview-dialog.component';
+import { GeoJsonDialogComponent } from './geojson-dialog/geojson-dialog.component';
 
 @Component({
   selector: 'ngx-dataset',
@@ -199,13 +201,50 @@ export class DatasetComponent implements OnInit {
   }
 
   openExistingDatalet(distribution:DCATDistribution){
-    this.dialogService.open(ShowDataletsComponent, {
-      context: {
-        distributionID: distribution.id,
-        datasetID:this.dataset.id,
-        nodeID:this.dataset.nodeID
-      }
-    });
+    if(this.checkDistributionFormat(distribution.format)){
+      this.dialogService.open(ShowDataletsComponent, {
+        context: {
+          distributionID: distribution.id,
+          datasetID:this.dataset.id,
+          nodeID:this.dataset.nodeID
+        }
+      });
+    }
   }
 
+
+	handlePreviewFileOpenModal(distribution: DCATDistribution) {
+    // check if the distribution format is one of the following: CSV,JSON,XML,GEOJSON,RDF,KML,PDF
+    if(distribution.format == "GEOJSON" || distribution.format == "KML"){
+      this.dialogService.open(GeoJsonDialogComponent, {
+        context: {
+          title: distribution.title,
+          distribution: distribution,
+        },
+      })
+      return;
+    }
+    else{
+      if(this.checkDistributionFormat(distribution.format)){
+        this.dialogService.open(PreviewDialogComponent, {
+          context: {
+            title: distribution.title,
+            url: distribution.accessURL,
+          },
+          })
+      }
+    }
+	}
+
+  checkDistributionFormat(format:string){
+    if(format == "CSV" || format == "JSON" || format == "XML" || format == "GEOJSON" || format == "RDF" || format == "KML" || format == "PDF")
+      return true;
+    else
+      return false;
+    }
+
+
 }
+
+
+

@@ -12,8 +12,10 @@ import { DistributionComponent } from './distribution/distribution.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DataletIframeComponent } from './datalet-iframe/datalet-iframe.component';
 import { ShowDataletsComponent } from './show-datalets/show-datalets.component';
+import { PreviewDialogComponent } from './dataset/preview-dialog/preview-dialog.component';
+import { GeoJsonDialogComponent } from './dataset/geojson-dialog/geojson-dialog.component';
 @NgModule({
-  declarations: [DataCatalogueComponent, SearchComponent, DatasetComponent, DistributionComponent, DataletIframeComponent, ShowDataletsComponent],
+  declarations: [DataCatalogueComponent, SearchComponent, DatasetComponent, DistributionComponent, DataletIframeComponent, ShowDataletsComponent, PreviewDialogComponent, GeoJsonDialogComponent],
   imports: [
     ThemeModule,
     NbFormFieldModule,
