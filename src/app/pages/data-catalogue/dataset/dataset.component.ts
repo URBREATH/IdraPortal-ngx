@@ -220,6 +220,7 @@ export class DatasetComponent implements OnInit {
         context: {
           title: distribution.title,
           distribution: distribution,
+          type: distribution.format == "GEOJSON" ? true : false,
         },
       })
       return;

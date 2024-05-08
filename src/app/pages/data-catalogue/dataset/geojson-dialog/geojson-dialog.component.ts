@@ -4,7 +4,7 @@ import { DCATDistribution } from '../../model/dcatdistribution';
 import { DataCataglogueAPIService } from '../../services/data-cataglogue-api.service';
 import "leaflet";
 declare let L;
-import { toGeoJSON } from "togeojson";
+import * as toGeoJson from 'togeojson';
 
 @Component({
   selector: 'ngx-remoteCatalogue-dialog',
@@ -16,6 +16,7 @@ export class GeoJsonDialogComponent {
   @Input() title: string;
   distribution: DCATDistribution;
   loading: boolean;
+  type: boolean; // true = GeoJSON, false = KML
 
   constructor(protected ref: NbDialogRef<GeoJsonDialogComponent>,
     private restApi: DataCataglogueAPIService,
@@ -50,17 +51,27 @@ export class GeoJsonDialogComponent {
   }
   
   openMap(distribution:DCATDistribution){
-    this.restApi.downloadKMLFromUrl(distribution).subscribe(
-      res => {
-        console.log(res)
-        let data = toGeoJSON.parse(res);
-        console.log(data)
-        this.loadGeoJson(data);
-      },
-      err => {
-        console.log(err)
-        this.toastrService.danger("Could not load the GeoJSON file", "Error");
-      }
-    )
+    if(this.type){
+      this.restApi.downloadGeoJSONFromUrl(distribution).subscribe(
+        (res : string) => {
+          this.loadGeoJson(JSON.stringify(res));
+        },
+        err => {
+          console.log(err)
+          this.toastrService.danger("Could not load the GeoJSON file", "Error");
+        }
+      )
+    } else {
+      this.restApi.downloadKMLFromUrl(distribution).subscribe(
+        (res : string) => {
+          var kml = new DOMParser().parseFromString(res, 'text/xml');
+          let data = toGeoJson.kml(kml);
+          this.loadGeoJson(JSON.stringify(data));
+        },
+        err => {
+          this.toastrService.danger("Could not load the file", "Error");
+        }
+      )
+    }
   }
 }

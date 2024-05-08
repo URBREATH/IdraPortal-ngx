@@ -1,5 +1,4 @@
 import { Component, Input } from '@angular/core';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { NbDialogRef } from '@nebular/theme';
 
 @Component({
@@ -11,15 +10,13 @@ export class PreviewDialogComponent {
 
   @Input() title: string;
   url: string;
-  iFrameUrl: SafeUrl;
   loading: boolean;
 
-  constructor(protected ref: NbDialogRef<PreviewDialogComponent>, private sanitizer: DomSanitizer) {}
+  constructor(protected ref: NbDialogRef<PreviewDialogComponent>) {}
 
   ngOnInit() {
     this.loading = true;
     let url = 'https://docs.google.com/gview?url='+this.url+'&embedded=true';
-    this.iFrameUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
     let iframe = document.createElement('iframe');
     iframe.setAttribute('style','height: 70vh;width: 80vw;');
     iframe.src = url;
