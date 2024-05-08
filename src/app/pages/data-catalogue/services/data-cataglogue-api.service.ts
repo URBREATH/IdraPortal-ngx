@@ -67,4 +67,8 @@ export class DataCataglogueAPIService {
   downloadKMLFromUrl(distribution:DCATDistribution):Observable<any>{
     return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=KML&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/xml'}), responseType: 'text' as 'json'}); 
   }
+
+  downloadRDFfromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=RDF&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/xml'}), responseType: 'text' as 'json'}); 
+  }
 }

@@ -51,7 +51,6 @@ export class DatasetComponent implements OnInit {
   ngOnInit(): void {
 
     let dataletOrigin = new URLParse(this.dataletBaseUrl);
-    //console.log(dataletOrigin.origin)
     if(location.origin==dataletOrigin.origin){
       this.samedomain=true;
     }
@@ -180,7 +179,6 @@ export class DatasetComponent implements OnInit {
 
         },
         err => {
-          console.log(err)
           this.loading = false;
           this.toastrService.danger("File with url " + distribution.downloadURL + " returned " + err.status + "!", "Unable to create Datalet");
         }
@@ -192,7 +190,6 @@ export class DatasetComponent implements OnInit {
           window.open(`${this.dataletBaseUrl}?ln=en&format=${parameter}&nodeID=${this.dataset.nodeID}&distributionID=${distribution.id}&datasetID=${this.dataset.id}&url=${encodeURIComponent(distribution.downloadURL)}`)
         },
         err => {
-          console.log(err)
           this.loading = false;
           this.toastrService.danger("File with url " + distribution.downloadURL + " returned " + err.status + "!", "Unable to create Datalet");
         }
@@ -227,12 +224,28 @@ export class DatasetComponent implements OnInit {
     }
     else{
       if(this.checkDistributionFormat(distribution.format)){
-        this.dialogService.open(PreviewDialogComponent, {
-          context: {
-            title: distribution.title,
-            url: distribution.accessURL,
-          },
+        if(distribution.format == "RDF"){
+          this.restApi.downloadRDFfromUrl(distribution).subscribe(
+            (res : string) => {
+              this.dialogService.open(PreviewDialogComponent, {
+                context: {
+                  title: distribution.title,
+                  text: res,
+                },
+              })
+            },
+            err => {
+              this.toastrService.danger("Could not load the file", "Error");
+            }
+          )
+        } else {
+          this.dialogService.open(PreviewDialogComponent, {
+            context: {
+              title: distribution.title,
+              url: distribution.accessURL,
+            },
           })
+        }
       }
     }
 	}
