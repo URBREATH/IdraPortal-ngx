@@ -7,6 +7,7 @@ import { SearchFilter } from '../model/search-filter';
 import { SearchRequest } from '../model/search-request';
 import { SearchResult } from '../model/search-result';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'ngx-search',
@@ -21,7 +22,9 @@ export class SearchComponent implements OnInit {
 
   cataloguesInfos: Array<ODMSCatalogueInfo>=[]
 
-  constructor(private restApi:DataCataglogueAPIService) { }
+  constructor(private restApi:DataCataglogueAPIService,
+    public router: Router,
+  ) { }
 
   loading=false;
 
@@ -44,6 +47,11 @@ export class SearchComponent implements OnInit {
       console.log(err);
       this.loading=false;
     })
+    // log params
+    console.log(this.router.routerState.snapshot.root.queryParams)
+    let tag = this.router.routerState.snapshot.root.queryParams
+    // this.getDatasetByFacet(tag.search_value,tag.name)
+    this.onTagAdd({value:tag.name,input:undefined})
   }
 
   pageChanged($event:number){
@@ -97,9 +105,11 @@ export class SearchComponent implements OnInit {
   }
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    
+    console.log(value)
+    console.log(input)
     //added timeout since comma doesn't desapear from input
     setTimeout(()=>{
+      if(input != undefined )
       input.nativeElement.value = ''
       if (value) {
         this.filters.push(value);

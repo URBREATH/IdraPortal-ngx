@@ -1,43 +1,14 @@
 <section class="jumbotron text-center">
-    <div class="container">
+    <div class="container mb-4">
         <h2 class="jumbotron-heading"> Search over {{totalDatasets}} dataset from
               {{cataloguesInfos.length}} catalogues! </h2>
     </div>
     <div class="display-flex">
         <div class="cloud-container">
             <ul id="tags" class="cloud" role="navigation" aria-label="Webdev tag cloud">
-                <!-- <li *ngFor="let tag of tags">
-                    <a >{{tag.name}}</a> -->
-                <li><a data-weight="4" href="/tag/http">inquinamento</a></li>
-                <li><a data-weight="2" href="/tag/ember">classe veicoli</a></li>
-                <li><a data-weight="5" href="/tag/sass">reutilizazión</a></li>
-                <li><a data-weight="8" href="/tag/html">paniere_locale_fvg</a></li>
-                <li><a data-weight="6" href="/tag/flexbox">pra</a></li>
-                <li><a data-weight="4" href="/tag/api">liste</a></li>
-                <li><a data-weight="5" href="/tag/vuejs">arrivi</a></li>
-                <li><a data-weight="6" href="/tag/grid">arpa</a></li>
-                <li><a data-weight="3" href="/tag/rest">veicoli</a></li>
-                <li><a data-weight="11" href="/tag/javascript">comunali</a></li>
-                <li><a data-weight="3" href="/tag/animation">fvg</a></li>
-                <li><a data-weight="7" href="/tag/react">presenze</a></li>
-                <li><a data-weight="9" href="/tag/css">elezioni</a></li>
-                <li><a data-weight="1" href="/tag/cache">aci</a></li>
-                <li><a data-weight="3" href="/tag/less">gis</a></li>
-                <li><a data-weight="4" href="/tag/http">statistica</a></li>
-                <li><a data-weight="2" href="/tag/ember">affluenza</a></li>
-                <li><a data-weight="5" href="/tag/sass">2016</a></li>
-                <li><a data-weight="8" href="/tag/html">elezioni</a></li>
-                <li><a data-weight="6" href="/tag/flexbox">turismo</a></li>
-                <li><a data-weight="4" href="/tag/api">regione</a></li>
-                <li><a data-weight="5" href="/tag/vuejs">voti</a></li>
-                <li><a data-weight="6" href="/tag/grid">2017</a></li>
-                <li><a data-weight="3" href="/tag/rest">2015</a></li>
-                <li><a data-weight="9" href="/tag/javascript">ambiente</a></li>
-                <li><a data-weight="3" href="/tag/animation">territorio</a></li>
-                <li><a data-weight="10" href="/tag/react">flussi turistici</a></li>
-                <li><a data-weight="8" href="/tag/css">mobilità</a></li>
-                <li><a data-weight="1" href="/tag/cache">ballottagio</a></li>
-                <li><a data-weight="3" href="/tag/less">sindaco</a></li>
+                <li *ngFor="let tag of tags; index as i">
+                    <div [ngClass]="getClass(i)" (click)="searchTag(i)">{{tag.name}}</div>
+                </li>
               </ul>
         </div>
     </div>
