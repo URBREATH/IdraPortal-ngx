@@ -96,6 +96,19 @@ export class DatasetComponent implements OnInit {
     });
   }
 
+  downloadUrl(distribution:DCATDistribution){
+    let url = distribution.downloadURL;
+    if((distribution.downloadURL==undefined || distribution.downloadURL=='') && (distribution.accessURL!=undefined && distribution.accessURL!='')){
+      url = distribution.accessURL;
+    }
+    // download file
+    if(url!=undefined && url!=''){
+      window.open(url);
+    } else {
+      this.toastrService.danger("No download URL found for this distribution","Error")
+    }
+  }
+
   printConcepts(themes: SKOSConcept[]){
     let ar=[];
     themes.map(x=> x.prefLabel.map( y =>{ if(y.value!='') ar.push(y.value) } ) );

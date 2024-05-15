@@ -3,6 +3,12 @@
     justify-content: center;
     align-items: center;
 }
+
+.justify-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
   
 .cloud-container {
   display: flex;
@@ -77,3 +83,11 @@ ul.cloud li:nth-child(6n+1) div { color: rgb(113, 51, 170); }
 ul.cloud li:nth-child(7n+1) div { color: rgb(204, 51, 51); }
 ul.cloud li:nth-child(8n+1) div { color: rgb(204, 201, 51); }
 ul.cloud li:nth-child(9n+1) div { color: rgb(126, 78, 15); }
+
+.category-img{
+    width: 22px;
+    height: 100%;
+    object-fit: cover;
+    margin-right: 0.75rem;
+    // border-radius: 10px;
+}

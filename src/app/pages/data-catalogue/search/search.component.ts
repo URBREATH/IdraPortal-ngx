@@ -36,22 +36,28 @@ export class SearchComponent implements OnInit {
   filters: Array<string> = [];
   filtersTags: Array<string>= [];
 
-  ngOnInit(): void {
+  ngOnInit(): void { 
     this.loading=true
     this.restApi.getCataloguesInfo().subscribe(infos =>{
       this.cataloguesInfos = infos;
       this.searchRequest.nodes = infos.map(x=>x.id)
       this.loading=false
-      this.searchDataset(true)    
+      this.searchDataset(true)  
+      console.log(this.router.routerState.snapshot.root.queryParams)
+      let searchParam = this.router.routerState.snapshot.root.queryParams
+      // this.getDatasetByFacet(tag.search_value,tag.name)
+      if(searchParam['name']!=undefined){
+        setTimeout(()=>{this.getDatasetByFacet(searchParam.search_value,searchParam.name)},100)
+        // this.onTagAdd({value:searchParam.name,input:undefined})
+      }
+      if(searchParam['text']!=undefined){
+        setTimeout(()=>{this.getDatasetByFacet('datasetThemes',searchParam.value)},100)
+        // this.getDatasetByFacet('datasetThemes',searchParam.value)
+      }
     },err=>{
       console.log(err);
       this.loading=false;
     })
-    // log params
-    console.log(this.router.routerState.snapshot.root.queryParams)
-    let tag = this.router.routerState.snapshot.root.queryParams
-    // this.getDatasetByFacet(tag.search_value,tag.name)
-    this.onTagAdd({value:tag.name,input:undefined})
   }
 
   pageChanged($event:number){
@@ -221,6 +227,8 @@ export class SearchComponent implements OnInit {
   }
 
   getDatasetByFacet(search_parameter,newValue){
+    console.log(search_parameter)
+    console.log(newValue)
     this.page=1;
     this.searchRequest.start=0;
     let index = this.searchRequest.filters.findIndex(x=> x.field===search_parameter);

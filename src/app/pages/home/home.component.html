@@ -3,13 +3,39 @@
         <h2 class="jumbotron-heading"> Search over {{totalDatasets}} dataset from
               {{cataloguesInfos.length}} catalogues! </h2>
     </div>
-    <div class="display-flex">
-        <div class="cloud-container">
-            <ul id="tags" class="cloud" role="navigation" aria-label="Webdev tag cloud">
-                <li *ngFor="let tag of tags; index as i">
-                    <div [ngClass]="getClass(i)" (click)="searchTag(i)">{{tag.name}}</div>
-                </li>
-              </ul>
-        </div>
-    </div>
+    <nb-tabset fullWidth>
+        <nb-tab tabTitle="Tags">
+            <div class="display-flex">
+                <div class="cloud-container">
+                    <ul id="tags" class="cloud" role="navigation" aria-label="Webdev tag cloud">
+                        <li *ngFor="let tag of tags; index as i">
+                            <div [ngClass]="getClass(i)" (click)="searchTag(i)">{{tag.name}}</div>
+                        </li>
+                      </ul>
+                </div>
+            </div>
+        </nb-tab>
+        <nb-tab tabTitle="Categories">
+            <div class="display-flex">
+                <div class="justify-center">
+                    <div class="row">
+                        <div class="col-6">
+                            <nb-list>
+                                <nb-list-item *ngFor="let category of dcatThemes | slice:0:6">
+                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
+                                </nb-list-item>
+                            </nb-list>
+                        </div>
+                        <div class="col-6">
+                            <nb-list>
+                                <nb-list-item *ngFor="let category of dcatThemes | slice:6:13">
+                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
+                                </nb-list-item>
+                            </nb-list>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nb-tab>
+    </nb-tabset>
 </section>

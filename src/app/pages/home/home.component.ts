@@ -24,6 +24,21 @@ export class HomeComponent implements OnInit {
   searchResponse:SearchResult=new SearchResult();
   searchRequest:SearchRequest=new SearchRequest();
 
+	dcatThemes=[{value:"AGRI",icon:"agri",text:"Agriculture"},
+		{value:"ECON",icon:"econ",text:"Economy"},
+		{value:"EDUC",icon:"educ",text:"Education"},
+		{value:"ENER",icon:"ener",text:"Energy"},
+		{value:"ENVI",icon:"envi",text:"Environment"},
+		{value:"GOVE",icon:"gove",text:"Government"},
+		{value:"HEAL",icon:"heal",text:"Health"},
+		{value:"INTR",icon:"intr",text:"International"},
+		{value:"JUST",icon:"just",text:"Justice"},
+		{value:"REGI",icon:"regi",text:"Regions"},
+		{value:"SOCI",icon:"soci",text:"Population"},
+		{value:"TECH",icon:"tech",text:"Technology"},
+		{value:"TRAN",icon:"tran",text:"Transport"}];
+
+    
   ngOnInit(): void {
     this.restApi.getCataloguesInfo().subscribe(infos =>{
       this.cataloguesInfos = infos;
@@ -68,5 +83,9 @@ export class HomeComponent implements OnInit {
     console.log(i)
     let search_parameter = this.tags[i]
     this.router.navigate(['/pages/datasets'], {queryParams:{search_value: search_parameter.search_value, name: this.tags[i].name}})
+  }
+
+  searchCategory(category:any){
+    this.router.navigate(['/pages/datasets'], {queryParams:category})
   }
 }
