@@ -19,16 +19,23 @@
             <div class="display-flex">
                 <div class="justify-center">
                     <div class="row">
-                        <div class="col-6">
+                        <div class="col-4">
                             <nb-list>
-                                <nb-list-item *ngFor="let category of dcatThemes | slice:0:6">
+                                <nb-list-item *ngFor="let category of dcatThemes | slice:0:4">
                                     <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
                                 </nb-list-item>
                             </nb-list>
                         </div>
-                        <div class="col-6">
+                        <div class="col-4">
                             <nb-list>
-                                <nb-list-item *ngFor="let category of dcatThemes | slice:6:13">
+                                <nb-list-item *ngFor="let category of dcatThemes | slice:4:8">
+                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
+                                </nb-list-item>
+                            </nb-list>
+                        </div>
+                        <div class="col-4">
+                            <nb-list>
+                                <nb-list-item *ngFor="let category of dcatThemes | slice:8:13">
                                     <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
                                 </nb-list-item>
                             </nb-list>

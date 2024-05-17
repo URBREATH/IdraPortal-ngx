@@ -25,7 +25,7 @@
 <div class="col-md-1">
 			    <nb-select placeholder="Json catalogue" style = "padding-top: 50px">
 					<!-- <nb-option *ngFor="let mode of activeMode" [value]="mode.text"> {{ mode.text }}</nb-option> -->
-					<nb-option *ngFor="let cat of allRemCat" [value]="cat.catalogueName"> {{ cat.catalogueName }}</nb-option>
+					  <nb-option *ngFor="let cat of allRemCat" [value]="cat.catalogueName"> {{ cat.catalogueName }}</nb-option>
 			    </nb-select>
 </div>
 </div>
@@ -82,7 +82,7 @@
           <ng-container [nbTreeGridColumnDef]="iconColumn" >
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>Actions</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row" >
-              <nb-icon icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-icon>
+              <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-action>
             </td>
           </ng-container>
 

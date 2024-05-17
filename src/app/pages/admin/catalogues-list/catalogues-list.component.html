@@ -79,10 +79,14 @@
           <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{defaultColumns[4]}}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <ng-template #loads>
-                <nb-icon class="rotate_icon" icon="loader-outline"></nb-icon>
+              <ng-template #online>
+                <nb-icon  icon="checkmark-outline" style="color: #64B728;"></nb-icon>
               </ng-template>
-              <nb-icon *ngIf="row.data[defaultColumns[4]] === true; else loads" icon="checkmark-outline" style="color: #64B728;"></nb-icon>
+                <nb-icon *ngIf="row.data['synchLock'] == 'PERIODIC' || row.data[defaultColumns[4]] == 'LOADING'; else offline" class="rotate_icon" icon="loader-outline"></nb-icon>
+              
+              <ng-template #offline>
+                <nb-icon *ngIf="row.data[defaultColumns[4]] === 'OFFLINE'; else online"  icon="close-outline" style="color: crimson;"></nb-icon>
+              </ng-template>
             </td>
           </ng-container>
 

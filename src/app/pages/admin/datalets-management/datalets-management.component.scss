@@ -4,7 +4,14 @@ button[nbTreeGridRowToggle] {
   padding: 0;
   
 }
+.container{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 
+}
 .nb-tree-grid-header-cell{
     //background-color: #139973;
     background-color: #00b4ff;

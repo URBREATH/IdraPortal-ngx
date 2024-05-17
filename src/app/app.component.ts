@@ -10,6 +10,7 @@ import { SeoService } from './@core/utils/seo.service';
 import { v4 as uuidv4 } from 'uuid';
 import { NbAuthJWTToken, NbAuthOAuth2JWTToken, NbAuthOAuth2Token, NbAuthService, NbAuthStrategy, NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2ResponseType } from '@nebular/auth';
 import { ConfigService } from '@ngx-config/core';
+import { HttpClient } from '@angular/common/http';
 // import { OidcJWTToken } from './auth/oidc/oidc';
 
 @Component({
@@ -25,8 +26,10 @@ export class AppComponent implements OnInit {
     //  private configService: ConfigService,
     // authService: NbAuthService, // force construction of the auth service
     // oauthStrategy: NbOAuth2AuthStrategy
+    private http : HttpClient,
+    private config:ConfigService,
     ) {
-
+      this.apiEndpoint=this.config.getSettings("idra_base_url");
     // oauthStrategy.setOptions({
     //   name: configService.getSettings("authProfile"),
     //   clientId: configService.getSettings("client_id"),
@@ -57,7 +60,10 @@ export class AppComponent implements OnInit {
     // })
   }
 
+  private apiEndpoint;
   ngOnInit(): void {
+    // send request to get the token
+    this.http.get(`${this.apiEndpoint}/Idra/api/v1/administration/verifyToken`)
     // this.analytics.trackPageViews();
     // this.seoService.trackCanonicalChanges();
   }

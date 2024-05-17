@@ -16,12 +16,12 @@
 								<nb-option value="604800" >1 week</nb-option>
 							</nb-select>
 
-							<div class="d-flex align-content-center mt-1">
+							<div class="d-flex align-content-center mt-3">
 								<h6 class="jumbotron-heading align-self-center">Enable RDF controls:</h6>
 								<nb-checkbox class="align-self-center ml-1" status="primary"  [(ngModel)]="rdfControls"></nb-checkbox>
 							</div>
 
-							<div class="d-flex align-content-center mt-1" *ngIf="rdfControls == true">
+							<div class="d-flex align-content-center mt-3" *ngIf="rdfControls == true">
 								<h6 class="jumbotron-heading align-self-center">Enable RDF max size check:</h6>
 								<nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfMaxSize"></nb-checkbox>
 							</div>
@@ -96,11 +96,11 @@
 					<nb-card class="minicard">
 						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 							<h6 class="jumbotron-heading">Old Password:</h6>
-						   <input type="text" nbInput fullWidth status="primary" placeholder="Old Password" [(ngModel)]="oldPassword">
-						   <h6 class="jumbotron-heading">New Password:</h6>
-						  <input type="text" nbInput fullWidth status="primary" placeholder="New Password" [(ngModel)]="newPassword">
-						  <h6 class="jumbotron-heading">Confirm Password:</h6>
-						 <input type="text" nbInput fullWidth status="primary" placeholder="Confirm Password" [(ngModel)]="confirmPassword">
+							<input type="text" nbInput fullWidth status="primary" placeholder="Old Password" [(ngModel)]="oldPassword">
+							<h6 class="jumbotron-heading mt-3">New Password:</h6>
+							<input type="text" nbInput fullWidth status="primary" placeholder="New Password" [(ngModel)]="newPassword">
+							<h6 class="jumbotron-heading mt-3">Confirm Password:</h6>
+							<input type="text" nbInput fullWidth status="primary" placeholder="Confirm Password" [(ngModel)]="confirmPassword">
 						</nb-card-body>
 					</nb-card>
 				</div>

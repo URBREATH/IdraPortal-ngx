@@ -8,6 +8,7 @@ import { SearchRequest } from '../model/search-request';
 import { SearchResult } from '../model/search-result';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
 import { Router } from '@angular/router';
+import { Observable } from 'rxjs';
 
 @Component({
   selector: 'ngx-search',
@@ -37,23 +38,34 @@ export class SearchComponent implements OnInit {
   filtersTags: Array<string>= [];
 
   ngOnInit(): void { 
+    this.searchResponse.facets = [];
     this.loading=true
     this.restApi.getCataloguesInfo().subscribe(infos =>{
       this.cataloguesInfos = infos;
       this.searchRequest.nodes = infos.map(x=>x.id)
       this.loading=false
-      this.searchDataset(true)  
-      console.log(this.router.routerState.snapshot.root.queryParams)
-      let searchParam = this.router.routerState.snapshot.root.queryParams
-      // this.getDatasetByFacet(tag.search_value,tag.name)
-      if(searchParam['name']!=undefined){
-        setTimeout(()=>{this.getDatasetByFacet(searchParam.search_value,searchParam.name)},100)
-        // this.onTagAdd({value:searchParam.name,input:undefined})
-      }
-      if(searchParam['text']!=undefined){
-        setTimeout(()=>{this.getDatasetByFacet('datasetThemes',searchParam.value)},100)
-        // this.getDatasetByFacet('datasetThemes',searchParam.value)
-      }
+      this.searchDataset(true).subscribe(res=>{
+        console.log(this.router.routerState.snapshot.root.queryParams)
+        let searchParam = this.router.routerState.snapshot.root.queryParams
+        // this.getDatasetByFacet(tag.search_value,tag.name)
+        if(searchParam['name']!=undefined){
+          this.getDatasetByFacet(searchParam.search_value,searchParam.name)
+        }
+        if(searchParam['text']!=undefined){
+          this.getDatasetByFacet('datasetThemes',searchParam.value)
+        }
+      })
+      // // console.log(this.router.routerState.snapshot.root.queryParams)
+      // let searchParam = this.router.routerState.snapshot.root.queryParams
+      // // this.getDatasetByFacet(tag.search_value,tag.name)
+      // if(searchParam['name']!=undefined){
+      //   setTimeout(()=>{this.getDatasetByFacet(searchParam.search_value,searchParam.name)},100)
+      //   // this.onTagAdd({value:searchParam.name,input:undefined})
+      // }
+      // if(searchParam['text']!=undefined){
+      //   setTimeout(()=>{this.getDatasetByFacet('datasetThemes',searchParam.value)},100)
+      //   // this.getDatasetByFacet('datasetThemes',searchParam.value)
+      // }
     },err=>{
       console.log(err);
       this.loading=false;
@@ -66,7 +78,7 @@ export class SearchComponent implements OnInit {
     this.searchDataset()
   }
 
-  searchDataset(isFirst=false){
+  searchDataset(isFirst=false) : Observable<SearchResult>{
     this.loading=true
     this.filtersTags=[];
 
@@ -94,6 +106,12 @@ export class SearchComponent implements OnInit {
       err=>{
         console.log(err);
         this.loading=false;
+      });
+// create an observable of this.searchResponse
+
+      return new Observable<SearchResult>(observer => {
+        observer.next(this.searchResponse);
+        observer.complete();
       });
   }
 

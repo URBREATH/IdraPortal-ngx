@@ -117,6 +117,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/charts/d3',
       },
     ],
+    hidden: true
   },
   {
     title: 'Additional Applications',
@@ -135,6 +136,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       //   link: '/pages/external-app/iframes',
       // }
     ],
+    hidden: true
   },
   {
     title: 'Urbanite Project',
@@ -171,6 +173,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
         link: '/pages/ui-features/typography',
       }
     ],
+    hidden: true
   },
   
 ];

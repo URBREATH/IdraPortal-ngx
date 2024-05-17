@@ -22,13 +22,14 @@ interface FSEntry {
   Country: string;
   Type: string;
   Level: string;
-  Status: boolean;
+  Status: string;
   Datasets: number;
   UpdatePeriod: string;
   LastUpdate: string;
   id: string;
   index: number;
   isActive: boolean;
+  synchLock: string;
 }
 
 
@@ -85,7 +86,7 @@ export class CataloguesListComponent implements OnInit {
 				let level = this.getLevel(infos[i].nodeType);
 				console.log("data: ",infos[i])
 				this.data.push({
-					data: { Name: infos[i].name, Country: infos[i].country, Type: infos[i].nodeType, Level: level, Status: true, Datasets: infos[i].datasetCount, UpdatePeriod: '1 week', LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, isActive: infos[i].isActive},
+					data: { Name: infos[i].name, Country: infos[i].country, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, Datasets: infos[i].datasetCount, UpdatePeriod: '1 week', LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, isActive: infos[i].isActive, synchLock: infos[i].synchLock},
 				});
 				this.dataSource = this.dataSourceBuilder.create(this.data);
 			}
@@ -188,12 +189,12 @@ export class CataloguesListComponent implements OnInit {
   //-------------------------------------------------------------
 
 	disableOnLoading(index : number) {
-		this.data[index].data.Status = false;
+		this.data[index].data.Status = "LOADING";
 	}
 
 	enableOnFinish(index : number) {
 		setTimeout(() => {
-			this.data[index].data.Status = true;
+			this.data[index].data.Status = "ONLINE";
 		}, 1000);
 	}
 
@@ -240,7 +241,6 @@ export class CataloguesListComponent implements OnInit {
 							this.loadCatalogue();
 						}, 1000);
 					})
-				this.data[index].data.Status = true;
 				return
 			  });
 			return

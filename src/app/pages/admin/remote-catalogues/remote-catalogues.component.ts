@@ -21,6 +21,7 @@ interface FSEntry {
   Level: string;
   Host: string;
   index: number;
+  alreadyLoaded: boolean;
 }
 
 
@@ -50,26 +51,37 @@ export class RemoteCataloguesComponent implements OnInit {
 	
 	
 	// GET REM CATALOGUES LIST
-	// this.restApi.getRemoteNodesJson().subscribe(infos =>{
-	// 			console.log("\nCHIAMATA API GET ALL REM CAT. infos: "+infos[0].URL);
-	// 			this.allRemCat = infos;
+	this.restApi.getAllRemCat().subscribe(infos =>{
+				console.log("\nCHIAMATA API GET ALL REM CAT. infos: "+infos[0].URL);
+				this.allRemCat = infos;
 	
-	// },err=>{
-    //   console.log(err);
-    // })
+	},err=>{
+      console.log(err);
+    })
 	this.allRemCatJson = this.allRemCatJson.default
-	console.log("\nREM CAT 1: "+this.allRemCatJson[0].name);
+	// console.log("\nREM CAT 1: "+this.allRemCatJson[0].name);
+
+	let allCatalogues = [];
+	this.restApi.getAllCataloguesInfo().subscribe(infos =>{
+		allCatalogues = infos;
 		for (let k = 0; k < this.allRemCatJson.length; k++) {
 				
-		console.log("\nLOCATION: "+this.allRemCatJson[k].host);
+		// console.log("\nLOCATION: "+this.allRemCatJson[k].host);
 		//let nameHost = "<a href=\""+infos2.host+"\\\">"+infos2.name+"<a/>";
 		
 		let level = this.getLevel(this.allRemCatJson[k].nodeType);
 		
+		let  alreadyLoaded = false;
+		for (let i = 0; i < allCatalogues.length; i++) {
+			if(allCatalogues[i].host == this.allRemCatJson[k].host){
+				alreadyLoaded = true;
+				break;
+			}
+		}
 		
 		let data2 = [
 				{
-				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host, index: k}
+				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host, index: k, alreadyLoaded: alreadyLoaded}
 			}
 			];
 		
@@ -77,7 +89,7 @@ export class RemoteCataloguesComponent implements OnInit {
 			
 			this.data = [
 				{
-				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host, index: k}
+				data: { Name: this.allRemCatJson[k].name, Country: this.allRemCatJson[k].country, Type: this.allRemCatJson[k].nodeType, Level: level, Host: this.allRemCatJson[k].host, index: k, alreadyLoaded: alreadyLoaded}
 			}
 			];
 		}
@@ -90,6 +102,7 @@ export class RemoteCataloguesComponent implements OnInit {
 		this.dataSource = this.dataSourceBuilder.create(this.data);
 		
 		}
+	})
   }
 
 getLevel(nodeType: string): string {
