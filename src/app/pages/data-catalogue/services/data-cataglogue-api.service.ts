@@ -71,4 +71,12 @@ export class DataCataglogueAPIService {
   downloadRDFfromUrl(distribution:DCATDistribution):Observable<any>{
     return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=RDF&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/xml'}), responseType: 'text' as 'json'}); 
   }
+
+  downloadZipFromUrl(distribution:DCATDistribution):Observable<Blob>{
+    return this.http.get<Blob>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=ZIP&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/zip'}), responseType: 'blob' as 'json'}); 
+  }
+
+  downloadShapefileFromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=SHP&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'x-gis/x-shapefile'}), responseType: 'text' as 'json'}); 
+  }
 }

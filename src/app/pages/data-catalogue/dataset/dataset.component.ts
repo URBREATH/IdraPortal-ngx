@@ -12,6 +12,7 @@ import { ShowDataletsComponent } from '../show-datalets/show-datalets.component'
 import * as URLParse from 'url-parse';
 import { PreviewDialogComponent } from './preview-dialog/preview-dialog.component';
 import { GeoJsonDialogComponent } from './geojson-dialog/geojson-dialog.component';
+import { format } from 'path';
 
 @Component({
   selector: 'ngx-dataset',
@@ -225,21 +226,23 @@ export class DatasetComponent implements OnInit {
 
 	handlePreviewFileOpenModal(distribution: DCATDistribution) {
     // check if the distribution format is one of the following: CSV,JSON,XML,GEOJSON,RDF,KML,PDF
-    if(distribution.format == "GEOJSON" || distribution.format == "KML"){
+    let formatLower = distribution.format.replace(/\s/g, "").toLowerCase();
+    if(formatLower == "geojson" || formatLower == "kml"  || formatLower == "shp"){
       this.dialogService.open(GeoJsonDialogComponent, {
         context: {
           title: distribution.title,
           distribution: distribution,
-          type: distribution.format == "GEOJSON" ? true : false,
+          type: formatLower,
         },
       })
       return;
     }
     else{
       if(this.checkDistributionFormat(distribution.format)){
-        if(distribution.format == "RDF"){
+        if(formatLower == "rdf"){
           this.restApi.downloadRDFfromUrl(distribution).subscribe(
             (res : string) => {
+              console.log(res);
               this.dialogService.open(PreviewDialogComponent, {
                 context: {
                   title: distribution.title,
@@ -264,7 +267,9 @@ export class DatasetComponent implements OnInit {
 	}
 
   checkDistributionFormat(format:string){
-    if(format == "CSV" || format == "JSON" || format == "XML" || format == "GEOJSON" || format == "RDF" || format == "KML" || format == "PDF")
+    // remove white spaces and convert to lower case
+    let formatLower = format.replace(/\s/g, "").toLowerCase();
+    if(formatLower == "csv" || formatLower == "json" || formatLower == "xml" || formatLower == "geojson" || formatLower == "rdf" || formatLower == "kml" || formatLower == "pdf" || formatLower == "shp")
       return true;
     else
       return false;

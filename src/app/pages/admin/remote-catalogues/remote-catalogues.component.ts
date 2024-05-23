@@ -181,7 +181,7 @@ getLevel(nodeType: string): string {
 	fd.append("node",JSON.stringify(object));
 	this.restApi.addODMSNode(fd).subscribe(infos =>{
 		console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
-		this.router.navigate(['/catalogues']);
+		this.router.navigate(['/pages/administration/adminCatalogues']);
 	},err=>{
 	console.log(err);
 	})
