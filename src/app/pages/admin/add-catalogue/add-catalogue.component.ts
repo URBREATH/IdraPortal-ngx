@@ -8,6 +8,7 @@ import { Input, Output, EventEmitter} from '@angular/core';
 import { CataloguesServiceService } from '../catalogues-service.service';
 import { SharedService } from '../../services/shared.service';
 import { DomSanitizer, SafeResourceUrl, SafeUrl} from '@angular/platform-browser';
+import { NbToastrService } from '@nebular/theme';
 
 export interface Node {
   id : string ;
@@ -432,7 +433,7 @@ export class AddCatalogueComponent implements OnInit {
 			}
 			
 */
-      constructor(private router: Router, private restApi:CataloguesServiceService, private route: ActivatedRoute, private sharedService: SharedService, private sanitizer: DomSanitizer) { }
+      constructor(private router: Router, private restApi:CataloguesServiceService, private route: ActivatedRoute, private sharedService: SharedService, private sanitizer: DomSanitizer, private toastrService: NbToastrService) {}
 
 	  receivedMode : string = "";
 	  modifyId : string = "";
@@ -775,6 +776,7 @@ export class AddCatalogueComponent implements OnInit {
 					
 					},err=>{
 					console.log(err);
+					this.toastrService.danger('Could not create catalogue','Error');
 					//this.loading=false;
 					})
 					
