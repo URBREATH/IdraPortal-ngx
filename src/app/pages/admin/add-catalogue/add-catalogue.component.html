@@ -7,7 +7,7 @@
 </nb-card>
 
 
-<div class="row show-grid">
+<div class="row show-grid"  [nbSpinner]="loading" nbSpinnerStatus="primary">
    <div class="col-md-5">
 	  <nb-card class="minicard">
       <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
@@ -108,7 +108,7 @@
 	<input type="text" nbInput fullWidth status="primary" placeholder="API Endopoint" [(ngModel)]="node.host">
 	</nb-card-body>
 
-	<div class="row show-grid">	
+	<div class="row show-grid" >	
 		<div class="col-md-4">
 		<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 			<h6 class="jumbotron-heading">Type:</h6>	

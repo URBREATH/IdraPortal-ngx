@@ -437,6 +437,7 @@ export class AddCatalogueComponent implements OnInit {
 
 	  receivedMode : string = "";
 	  modifyId : string = "";
+	  loading: boolean = false;
 
     ngOnInit(): void {
 		// if(sessionStorage.getItem('activePage') == 'false' || sessionStorage.getItem('activePage') == null){
@@ -519,7 +520,7 @@ export class AddCatalogueComponent implements OnInit {
 	}
 	
 	public async createNode(){
-		
+		this.loading = true;
 		if(this.node.name==''){
 			this.node.nameInvalid=true;
 			//))this.messageName=this.catalogueNameReq;
@@ -772,7 +773,7 @@ export class AddCatalogueComponent implements OnInit {
 						//	this.showMessageUrl = true;
 						//	this.messageUrl =this.catalogueValidUrl;
 						//}
-						
+						this.loading = false;
 					
 					},err=>{
 					console.log(err);
