@@ -1,20 +1,26 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { NbGlobalPhysicalPosition, NbToastRef, NbToastrService } from '@nebular/theme';
+import { ConfigService } from '@ngx-config/core';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MqaService {
 
+  private mqaEndpoint;
+
   constructor(
     private http: HttpClient,
-    private toastr: NbToastrService
-  ) { }
+    private toastr: NbToastrService,
+    private config:ConfigService
+  ) {
+    this.mqaEndpoint=this.config.getSettings("mqa_base_url");
+  }
 
   getOne(id: String): any {
     return new Promise((resolve,reject)=>{
-      this.http.get('http://localhost:8000/get/analisys/'+id, {
+      this.http.get(`${this.mqaEndpoint}/get/analisys/`+id, {
         headers: {
           'Content-Type':  'application/json',
           'Access-Control-Allow-Origin': '*',
@@ -43,7 +49,7 @@ export class MqaService {
 
   deleteOne(id: String): any {
     return new Promise((resolve,reject)=>{
-      this.http.delete('http://localhost:8000/delete/element/'+id, {
+      this.http.delete(`${this.mqaEndpoint}/delete/element/`+id, {
         headers: {
           'Content-Type':  'application/json',
           'Access-Control-Allow-Origin': '*',
@@ -69,7 +75,7 @@ export class MqaService {
     
     getFiltered(id: String, jsonData : Object): any {
       return new Promise((resolve,reject)=>{
-        this.http.post('http://localhost:8000/get/analisys/'+id, jsonData, {
+        this.http.post(`${this.mqaEndpoint}/get/analisys/`+id, jsonData, {
           headers: {
             'Content-Type':  'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -93,7 +99,7 @@ export class MqaService {
 
     getAll(): any {
       return new Promise((resolve,reject)=>{
-        this.http.get('http://localhost:8000/get/all', {
+        this.http.get(`${this.mqaEndpoint}/get/all`, {
           headers: {
             'Content-Type':  'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -121,7 +127,7 @@ export class MqaService {
         "file_url": xml,
       }
       return new Promise((resolve,reject)=>{
-        this.http.post('http://localhost:8000/submit', json, {
+        this.http.post(`${this.mqaEndpoint}/submit`, json, {
           headers: {
             'Content-Type':  'application/json',
             'Access-Control-Allow-Origin': '*',
@@ -150,7 +156,7 @@ export class MqaService {
       fd.append("file", rdf);
       
       return new Promise((resolve,reject)=>{
-        this.http.post('http://localhost:8000/submit/file', fd, {
+        this.http.post(`${this.mqaEndpoint}/submit/file`, fd, {
         },
         
         )

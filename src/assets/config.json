@@ -12,6 +12,8 @@
     "idra_portal_base_href":"IdraPortal",
     "enable_datalet":true,
     "datalet_base_url":"http://localhost/deep/deep-components/creator.html",
+    "mqa_base_url": "http://localhost:8000",
+    "mqa_docker_url": "http://mqa-score:27020",
     "external-application-cards":[
         {
             "url": "http://forum.urbanite-project.eu/",

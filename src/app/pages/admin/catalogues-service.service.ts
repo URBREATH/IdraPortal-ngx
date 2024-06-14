@@ -25,10 +25,14 @@ import { RemoteCatalogues } from '../data-catalogue/model/remote-catalogues';
 export class CataloguesServiceService {
 
   private apiEndpoint;
+  private mqaEndpoint;
+  private mqaDockerEndpoint;
 
   constructor(private config:ConfigService,private http:HttpClient,
     private toastr: NbToastrService) { 
-    this.apiEndpoint=this.config.getSettings("idra_base_url");
+      this.apiEndpoint=this.config.getSettings("idra_base_url");
+      this.mqaEndpoint=this.config.getSettings("mqa_base_url");
+      this.mqaDockerEndpoint=this.config.getSettings("mqa_docker_url");
   }
 
   getDatasetById(id:string):Observable<DCATDataset>{
@@ -175,7 +179,7 @@ export class CataloguesServiceService {
       "token": token
     }
     return new Promise((resolve,reject)=>{
-      this.http.post('http://localhost:8000/submit/auth', json, {
+      this.http.post(`${this.mqaDockerEndpoint}/submit/auth`, json, {
         headers: {
           'Content-Type':  'application/json',
           'Access-Control-Allow-Origin': '*',

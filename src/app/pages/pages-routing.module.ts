@@ -17,34 +17,9 @@ const routes: Routes = [{
         .then(m => m.HomeModule),
     },
     {
-      path: 'tecnalia',
-      loadChildren: () => import('./tecnalia-module/tecnalia-module.module')
-        .then(m => m.TecnaliaModuleModule),
-    },
-    {
-      path: 'external-app',
-      loadChildren: () => import('./external-app/external-app.module')
-        .then(m => m.ExternalAppModule),
-    },
-    {
       path: 'about',
       loadChildren: () => import('./about/about.module')
         .then(m => m.AboutModule),
-    },
-    {
-      path: 'ui-features',
-      loadChildren: () => import('./ui-features/ui-features.module')
-        .then(m => m.UiFeaturesModule),
-    },
-    {
-      path: 'maps',
-      loadChildren: () => import('./maps/maps.module')
-        .then(m => m.MapsModule),
-    },
-    {
-      path: 'charts',
-      loadChildren: () => import('./charts/charts.module')
-        .then(m => m.ChartsModule),
     },
     {
       path: 'datasets',

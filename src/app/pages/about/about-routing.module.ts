@@ -1,6 +1,5 @@
 import { NgModule } from '@angular/core';
 import { Routes, RouterModule } from '@angular/router';
-import { ExternalAppComponent } from '../external-app/external-app.component';
 import { AboutComponent } from './about.component';
 import { InfoComponent } from './info/info.component';
 import { SiteComponent } from './site/site.component';

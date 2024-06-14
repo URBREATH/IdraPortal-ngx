@@ -94,10 +94,10 @@ export function createTranslateLoader(http: HttpClient) {
           view: '*'
         },
         MANAGER: {
-          view: ['external-app', 'maps', 'home', 'about', 'charts', 'lorem-ipsum']
+          view: ['external-app', 'maps', 'home', 'about']
         },
         CITIZEN: {
-          view: ['home', 'about', 'ui-features','catalogues']
+          view: ['home', 'about','catalogues']
         }
       },
     }),

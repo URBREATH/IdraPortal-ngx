@@ -75,7 +75,7 @@ export class GeoJsonDialogComponent {
 
     L.geoJSON(geoJsonData, {
       onEachFeature: this.onEachFeature
-  }).addTo(this.map);
+    }).addTo(this.map);
     this.loading = false;
   }
   
@@ -343,7 +343,7 @@ export class GeoJsonDialogComponent {
       popupContent += "</p>";
       layer.bindPopup(popupContent);
     }
-}
+  }
   async extractAndDecodeShapefiles(file: Blob): Promise<any> {
     const zip = new JSZip();
     const zipContent = await zip.loadAsync(file);
