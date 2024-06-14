@@ -32,7 +32,7 @@ export class CataloguesServiceService {
     private toastr: NbToastrService) { 
       this.apiEndpoint=this.config.getSettings("idra_base_url");
       this.mqaEndpoint=this.config.getSettings("mqa_base_url");
-      this.mqaDockerEndpoint=this.config.getSettings("mqa_docker_url");
+      this.mqaDockerEndpoint=this.config.getSettings("idra_docker_url");
   }
 
   getDatasetById(id:string):Observable<DCATDataset>{
@@ -175,11 +175,11 @@ export class CataloguesServiceService {
     const token = localStorage.getItem('token');
 
     let json = {
-      "file_url": `${this.apiEndpoint}/Idra/api/v1/administration/dcat-ap/dump/`+id,  //da cambiare
+      "file_url": `${this.mqaDockerEndpoint}/Idra/api/v1/administration/dcat-ap/dump/`+id,  //da cambiare
       "token": token
     }
     return new Promise((resolve,reject)=>{
-      this.http.post(`${this.mqaDockerEndpoint}/submit/auth`, json, {
+      this.http.post(`${this.mqaEndpoint}/submit/auth`, json, {
         headers: {
           'Content-Type':  'application/json',
           'Access-Control-Allow-Origin': '*',

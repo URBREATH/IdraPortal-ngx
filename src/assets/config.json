@@ -13,7 +13,7 @@
     "enable_datalet":true,
     "datalet_base_url":"http://localhost/deep/deep-components/creator.html",
     "mqa_base_url": "http://localhost:8000",
-    "mqa_docker_url": "http://mqa-score:27020",
+    "idra_docker_url": "http://docker-idra-1:8080",
     "external-application-cards":[
         {
             "url": "http://forum.urbanite-project.eu/",
