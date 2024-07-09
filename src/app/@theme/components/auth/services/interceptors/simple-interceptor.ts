@@ -9,9 +9,11 @@ import { NbAuthJWTToken } from '../token/token';
 import { NbTokenService } from '../token/token.service';
 import { NbAuthResult } from '../auth-result';
 import { Router } from '@angular/router';
+import { MENU_ITEMS } from '../../../../../pages/pages-menu';
 
 @Injectable()
 export class NbAuthSimpleInterceptor implements HttpInterceptor {
+  menu: any;
 
   constructor(protected tokenService: NbTokenService,
     @Inject(NB_AUTH_OPTIONS) protected options = {},private injector: Injector,
@@ -22,6 +24,8 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token_ = localStorage.getItem('token');
     const username = localStorage.getItem('username');
+
+    this.menu = MENU_ITEMS;
 
 
     return this.authService.getToken()
@@ -38,13 +42,20 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
                 'observe': 'response',
               }),
             });
+            this.menu.map(item => {
+              if (item.hidden) {
+                this.authService.isAuthenticated().subscribe(auth => {
+                  item.hidden = !auth;
+                });
+              }
+            });
           }
           // check the response, if the response code is 401, remove the token and redirect to login page
           return next.handle(req)
           .pipe(
             catchError(err => {
               if (err instanceof HttpErrorResponse) {
-      
+
                 if (err.status === 401) {
                   localStorage.removeItem('token');
                   localStorage.removeItem('username');

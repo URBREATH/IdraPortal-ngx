@@ -27,7 +27,8 @@ export const MENU_ITEMS: NbMenuItem[] = [
     link: "/pages/mqa",
     data:{
       name:"mqa"
-    }
+    },
+    hidden: true,
   },
   {
     title: 'Administration',
@@ -50,7 +51,8 @@ export const MENU_ITEMS: NbMenuItem[] = [
     ],
     data:{
       name:'administration'
-    }
+    },
+    hidden: true,
   },
-  
+
 ];
