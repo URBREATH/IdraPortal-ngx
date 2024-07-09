@@ -8,7 +8,7 @@ COPY package-lock.json /app
  
 RUN npm install
 COPY . /app
-RUN npm run build -- --prod --aot --base-href /IdraPortal/
+RUN npm run build:prod --aot --base-href $BASE_HREF
  
 FROM nginx
 EXPOSE 80

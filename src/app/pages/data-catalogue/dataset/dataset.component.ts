@@ -13,6 +13,7 @@ import * as URLParse from 'url-parse';
 import { PreviewDialogComponent } from './preview-dialog/preview-dialog.component';
 import { GeoJsonDialogComponent } from './geojson-dialog/geojson-dialog.component';
 import { format } from 'path';
+import { RefreshService } from '../../services/refresh.service';
 
 @Component({
   selector: 'ngx-dataset',
@@ -41,7 +42,8 @@ export class DatasetComponent implements OnInit {
     private restApi: DataCataglogueAPIService,
     private toastrService: NbToastrService,
     private dialogService: NbDialogService,
-    private configService: ConfigService
+    private configService: ConfigService,
+    private refreshService: RefreshService,
     ) { 
       this.dataletBaseUrl = configService.getSettings("datalet_base_url");
       this.enableDatalet = configService.getSettings("enable_datalet");
@@ -50,6 +52,7 @@ export class DatasetComponent implements OnInit {
 
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
 
     let dataletOrigin = new URLParse(this.dataletBaseUrl);
     if(location.origin==dataletOrigin.origin){

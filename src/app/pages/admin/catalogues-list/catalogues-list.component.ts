@@ -9,6 +9,7 @@ import { ShowcaseDialogComponent } from './dialog/showcase-dialog/showcase-dialo
 import { Router } from '@angular/router';
 import { SharedService } from '../../services/shared.service';
 import { ODMSCatalogueComplete } from '../../data-catalogue/model/odmscataloguecomplete';
+import { RefreshService } from '../../services/refresh.service';
 
 
 interface TreeNode<T> {
@@ -61,12 +62,14 @@ export class CataloguesListComponent implements OnInit {
 		private restApi:CataloguesServiceService,
 		private dialogService: NbDialogService,
 		private router: Router,
-		private sharedService: SharedService) {
+		private sharedService: SharedService,
+		private refreshService: RefreshService) {
 		
 	}
 
 
 	ngOnInit(): void {
+		this.refreshService.refreshPageOnce('admin-configuration');
 
 		this.loadCatalogue();
 	}

@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { NbDialogService, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { CataloguesServiceService } from '../catalogues-service.service';
 import { DataletDialogComponent } from './dialog/datalet-dialog.component';
+import { RefreshService } from '../../services/refresh.service';
 
 interface TreeNode<T> {
   data: T;
@@ -32,7 +33,8 @@ export class DataletsManagementComponent implements OnInit {
 	
   constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,
 		private restApi:CataloguesServiceService,
-		private dialogService: NbDialogService ) { }
+		private dialogService: NbDialogService,
+    private refreshService: RefreshService, ) { }
 
     data: TreeNode<FSEntry>[] = [];
 
@@ -46,6 +48,7 @@ export class DataletsManagementComponent implements OnInit {
     sortDirection: NbSortDirection = NbSortDirection.NONE;
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
     this.listDatalets();
   }
 
