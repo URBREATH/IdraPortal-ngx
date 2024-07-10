@@ -3,6 +3,7 @@ import { MqaService } from '../services/mqa.service';
 import { NbSortDirection, NbSortRequest, NbThemeService, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
 import { delay } from 'rxjs/operators';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
+import { RefreshService } from '../services/refresh.service';
 interface TreeNode<T> {
   data: T;
   children?: TreeNode<T>[];
@@ -45,6 +46,7 @@ export class MqaComponent implements OnInit {
   constructor(
     private mqaService : MqaService,
     private theme: NbThemeService,
+    private refreshService: RefreshService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, //table catalogue score
     private dataSourceBuilder_dat: NbTreeGridDataSourceBuilder<FSEntryDataset>, //table dataset score
     private dataSourceBuilder_list: NbTreeGridDataSourceBuilder<FSEntryListCat> //table list of catalogues and datasets
@@ -59,6 +61,7 @@ export class MqaComponent implements OnInit {
 
   file: File | null = null;
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
     this.loadList();
   }
 
