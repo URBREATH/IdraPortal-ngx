@@ -5,7 +5,7 @@ import { delay, shareReplay, debounceTime } from 'rxjs/operators';
 @Injectable()
 export class LayoutService {
 
-  protected layoutSize$ = new Subject();
+  protected layoutSize$ = new Subject<void>(); 
   protected layoutSizeChange$ = this.layoutSize$.pipe(
     shareReplay({ refCount: true }),
   );
@@ -14,11 +14,11 @@ export class LayoutService {
     this.layoutSize$.next();
   }
 
-  onChangeLayoutSize(): Observable<any> {
+  onChangeLayoutSize(): Observable<void> {
     return this.layoutSizeChange$.pipe(delay(1));
   }
 
-  onSafeChangeLayoutSize(): Observable<any> {
+  onSafeChangeLayoutSize(): Observable<void> {
     return this.layoutSizeChange$.pipe(
       debounceTime(350),
     );

@@ -9,7 +9,7 @@ import { SeoService } from './@core/utils/seo.service';
 
 import { v4 as uuidv4 } from 'uuid';
 import { NbAuthJWTToken, NbAuthOAuth2JWTToken, NbAuthOAuth2Token, NbAuthService, NbAuthStrategy, NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2ResponseType } from '@nebular/auth';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { HttpClient } from '@angular/common/http';
 // import { OidcJWTToken } from './auth/oidc/oidc';
 
@@ -27,9 +27,9 @@ export class AppComponent implements OnInit {
     // authService: NbAuthService, // force construction of the auth service
     // oauthStrategy: NbOAuth2AuthStrategy
     private http : HttpClient,
-    private config:ConfigService,
+    private config:ConfigService<Record<string, any>>,
     ) {
-      this.apiEndpoint=this.config.getSettings("idra_base_url");
+      this.apiEndpoint=this.config["idra_base_url"];
     // oauthStrategy.setOptions({
     //   name: configService.getSettings("authProfile"),
     //   clientId: configService.getSettings("client_id"),

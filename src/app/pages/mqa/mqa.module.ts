@@ -6,9 +6,10 @@ import { NbButtonModule, NbCardModule, NbIconModule, NbUserModule, NbFormFieldMo
 import { NgxEchartsModule } from 'ngx-echarts';
 import { FsIconComponent, FsIconComponentCat } from './mqa.component';
 import { ThemeModule } from '../../@theme/theme.module';
-import { Ng2SmartTableModule } from 'ng2-smart-table';
+import { CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA } from '@angular/core';
 
 @NgModule({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA],
   declarations: [MqaComponent, FsIconComponent, FsIconComponentCat],
   imports: [
     MqaRoutingModule,
@@ -24,7 +25,6 @@ import { Ng2SmartTableModule } from 'ng2-smart-table';
     NbTreeGridModule,
     NbTableModule,
     ThemeModule,
-    Ng2SmartTableModule,
     NbToastrModule.forRoot(),
     NbDialogModule.forRoot()
   ]

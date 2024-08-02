@@ -7,8 +7,7 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ConfigModule, ConfigLoader } from '@ngx-config/core';
-import { ConfigHttpLoader } from '@ngx-config/http-loader';
+import { ConfigModule } from 'ngx-config-json';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
@@ -39,8 +38,8 @@ import { NbAuthModule } from './@theme/components/auth/auth.module';
 import { NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 
 
-export function configFactory(http: HttpClient): ConfigLoader {
-  return new ConfigHttpLoader(http, './assets/config.json');
+class GenericConfig<T> {
+  constructor(public config: T) {}
 }
 
 export function createTranslateLoader(http: HttpClient) {
@@ -76,9 +75,8 @@ export function createTranslateLoader(http: HttpClient) {
     ThemeModule.forRoot(),
     MarkdownModule.forRoot(),
     ConfigModule.forRoot({
-      provide: ConfigLoader,
-      useFactory: configFactory,
-      deps: [HttpClient]
+      pathToConfig: 'assets/config.json',
+      configType: GenericConfig
     }),
     TranslateModule.forRoot({
       loader: {

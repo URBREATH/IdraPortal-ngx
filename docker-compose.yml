@@ -1,12 +1,55 @@
-version: "3.1"
- 
+version: '3'
 services:
- 
-  beopen-dashboard:
-    image: idraopendata/idra-portal:v1.1.0
-    restart: always
+  urbanite-ui:
+    image: urbanite/urbanite-ui:latest
+    build:
+      context: .
+      args:
+        BASE_HREF: /
     ports:
-      - '127.0.0.1:4200:80'
+      - '80:80'
     volumes:
-      - ./config.json:/usr/share/nginx/html/assets/config.json
+      - ./src/assets/config.json:/usr/share/nginx/html/assets/config.json
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - urbanite-network
+  
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    volumes:
+      - ./keycloak-realm:/opt/jboss/keycloak/imports
+    environment:
+      KEYCLOAK_IMPORT: /opt/jboss/keycloak/imports/realm-export.json -Dkeycloak.profile.feature.upload_scripts=enabled
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_SCHEMA: public
+      DB_PASSWORD: password
+      KEYCLOAK_USER: admin
+      KEYCLOAK_PASSWORD: Pa55w0rd
+    ports:
+      - 8080:8080
+    depends_on:
+      - postgres
+    networks:
+      - urbanite-network
+  
+  postgres:
+      image: postgres
+      volumes:
+       - postgres_data:/var/lib/postgresql/data
+      environment:
+        POSTGRES_DB: keycloak
+        POSTGRES_USER: keycloak
+        POSTGRES_PASSWORD: password
+      networks:
+        -  urbanite-network
+
+volumes:
+  postgres_data:
+      driver: local
+      
+networks:
+  urbanite-network:
+    driver: bridge

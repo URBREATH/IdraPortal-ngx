@@ -14,7 +14,6 @@ import { FormsModule } from '@angular/forms';
 import { ShowcaseDialogComponent } from './catalogues-list/dialog/showcase-dialog/showcase-dialog.component';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { ThemeModule } from '../../@theme/theme.module';
-import { Ng2SmartTableModule } from 'ng2-smart-table';
 import { AdminConfigurationsComponent } from './admin-configurations/admin-configurations.component';
 import { PrefixDialogComponent } from './admin-configurations/dialog/prefix-dialog/prefix-dialog.component';
 import { RemoteCatalogueDialogComponent } from './admin-configurations/dialog/remoteCatalogue-dialog/remoteCatalogue-dialog.component';
@@ -54,8 +53,7 @@ imports: [
     NbUserModule,
     NgxEchartsModule,
     NbTableModule,
-    ThemeModule,
-    Ng2SmartTableModule,
+    ThemeModule
   ]
 })
 export class AdminModule { 

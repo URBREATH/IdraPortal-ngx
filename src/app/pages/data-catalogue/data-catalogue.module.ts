@@ -7,7 +7,6 @@ import { SearchComponent } from './search/search.component';
 import { DatasetComponent } from './dataset/dataset.component';
 import { DataCatalogueComponent } from './data-catalogue.component';
 import { NbAccordionModule, NbActionsModule, NbCardModule, NbDialogModule, NbFormFieldModule, NbIconModule, NbInputModule, NbListModule, NbSelectModule, NbSpinnerModule, NbTagModule, NbToastrModule, NbTooltipModule } from '@nebular/theme';
-import { NgxPaginationModule } from 'ngx-pagination';
 import { DistributionComponent } from './distribution/distribution.component';
 import { MarkdownModule } from 'ngx-markdown';
 import { DataletIframeComponent } from './datalet-iframe/datalet-iframe.component';
@@ -26,7 +25,6 @@ import { GeoJsonDialogComponent } from './dataset/geojson-dialog/geojson-dialog.
     NbListModule,
     NbCardModule,
     NbTooltipModule,
-    NgxPaginationModule,
     NbToastrModule,
     NbAccordionModule,
     NbDialogModule.forChild(),

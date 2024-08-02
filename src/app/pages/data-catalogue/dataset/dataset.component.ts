@@ -1,7 +1,7 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { DataletIframeComponent } from '../datalet-iframe/datalet-iframe.component';
 import { DistributionComponent } from '../distribution/distribution.component';
 import { DCATDataset } from '../model/dcatdataset';
@@ -42,11 +42,11 @@ export class DatasetComponent implements OnInit {
     private restApi: DataCataglogueAPIService,
     private toastrService: NbToastrService,
     private dialogService: NbDialogService,
-    private configService: ConfigService,
+    private configService: ConfigService<Record<string, any>>,
     private refreshService: RefreshService,
     ) { 
-      this.dataletBaseUrl = configService.getSettings("datalet_base_url");
-      this.enableDatalet = configService.getSettings("enable_datalet");
+      this.dataletBaseUrl = configService["datalet_base_url"];
+      this.enableDatalet = configService["enable_datalet"];
     }
 
 

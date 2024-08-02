@@ -6,7 +6,7 @@ import { filter, map, takeUntil } from 'rxjs/operators';
 import { Subject, Observable } from 'rxjs';
 import { RippleService } from '../../../@core/utils/ripple.service';
 import { Router } from '@angular/router';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { NbAuthJWTToken, NbAuthService } from '../auth/public_api';
 
 @Component({
@@ -36,7 +36,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     private layoutService: LayoutService,
     private breakpointService: NbMediaBreakpointsService,
     private rippleService: RippleService,
-    private configService: ConfigService,
+    private configService: ConfigService<Record<string, any>>,
     @Inject(NB_WINDOW) private window,
     private authService: NbAuthService
   ) {
@@ -64,12 +64,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
 
     this.userMenu = [
-      { title: 'Keycloak Profile', url: `${this.configService.getSettings('idmBaseURL')}/auth/realms/${this.configService.getSettings('idmRealmName')}/account`,target:'_blank' }, 
+      { title: 'Keycloak Profile', url: `${this.configService['idmBaseURL']}/auth/realms/${this.configService['idmRealmName']}/account`,target:'_blank' }, 
       { title: 'Log out', data: { tag: "logout" } }
     ]
 
     this.currentTheme = this.themeService.currentTheme;
-    this.authenticationEnabled=this.configService.getSettings("enableAuthentication")
+    this.authenticationEnabled=this.configService["enableAuthentication"]
 
     const { xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()

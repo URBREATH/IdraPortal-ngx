@@ -4,6 +4,8 @@ import { NbSortDirection, NbSortRequest, NbThemeService, NbTreeGridDataSource, N
 import { delay } from 'rxjs/operators';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import { RefreshService } from '../services/refresh.service';
+import * as echarts from 'echarts';
+
 interface TreeNode<T> {
   data: T;
   children?: TreeNode<T>[];

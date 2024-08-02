@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { HttpClient, HttpHeaders } from '@angular/common/http';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { Observable } from 'rxjs';
 import { Datalet } from '../data-catalogue/model/datalet';
 import { DCATDataset } from '../data-catalogue/model/dcatdataset';
@@ -28,11 +28,11 @@ export class CataloguesServiceService {
   private mqaEndpoint;
   private mqaDockerEndpoint;
 
-  constructor(private config:ConfigService,private http:HttpClient,
+  constructor(private config:ConfigService<Record<string, any>> ,private http:HttpClient,
     private toastr: NbToastrService) { 
-      this.apiEndpoint=this.config.getSettings("idra_base_url");
-      this.mqaEndpoint=this.config.getSettings("mqa_base_url");
-      this.mqaDockerEndpoint=this.config.getSettings("idra_docker_url");
+      this.apiEndpoint=this.config["idra_base_url"];
+      this.mqaEndpoint=this.config["mqa_base_url"];
+      this.mqaDockerEndpoint=this.config["idra_docker_url"];
   }
 
   getDatasetById(id:string):Observable<DCATDataset>{
