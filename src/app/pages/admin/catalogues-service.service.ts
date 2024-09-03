@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient } from '@angular/common/http';
 import { ConfigService } from 'ngx-config-json';
 import { Observable } from 'rxjs';
 import { Datalet } from '../data-catalogue/model/datalet';
@@ -11,7 +11,7 @@ import { ODMSCatalogueInfo } from '../data-catalogue/model/odmscatalogue-info';
 import { ODMSCatalogueResponse } from '../data-catalogue/model/odmscatalogue-response';
 import { SearchRequest } from '../data-catalogue/model/search-request';
 import { SearchResult } from '../data-catalogue/model/search-result';
-import { NbGlobalPhysicalPosition, NbToastRef, NbToastrService } from '@nebular/theme';
+import { NbGlobalPhysicalPosition, NbToastrService } from '@nebular/theme';
 import * as FileSaver from 'file-saver';
 import { ODMSCatalogueComplete } from '../data-catalogue/model/odmscataloguecomplete';
 import { ODMSCatalogueNode } from '../data-catalogue/model/odmscatalogue-node';
@@ -30,9 +30,9 @@ export class CataloguesServiceService {
 
   constructor(private config:ConfigService<Record<string, any>> ,private http:HttpClient,
     private toastr: NbToastrService) { 
-      this.apiEndpoint=this.config["idra_base_url"];
-      this.mqaEndpoint=this.config["mqa_base_url"];
-      this.mqaDockerEndpoint=this.config["idra_docker_url"];
+      this.apiEndpoint=this.config.config["idra_base_url"];
+      this.mqaEndpoint=this.config.config["mqa_base_url"];
+      this.mqaDockerEndpoint=this.config.config["idra_docker_url"];
   }
 
   getDatasetById(id:string):Observable<DCATDataset>{

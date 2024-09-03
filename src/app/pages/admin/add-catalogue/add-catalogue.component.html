@@ -13,8 +13,8 @@
       <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
  		<h6 class="jumbotron-heading">Image:</h6>
 		 <div class="custom-file">
-		   <input nbInput type="file" class="custom-file-input" multiple id="importFile" (change)="onFileChange($event.target.files[0],0)">
-						 <label class="custom-file-label" for="importFile">Choose file</label>
+		   <input nbInput type="file" class="custom-file-input" id="importFile" (change)="onFileChange($event.target.files[0],0)">
+						 <label id="fileName" class="custom-file-label" for="importFile">Choose file</label>
 		 </div>
 		 <div  style="height: fit-content;">
 			<img id="image" [src]="imageUrl" alt="" style="margin-top: 1rem; height: 120px;width: auto;">
@@ -297,7 +297,7 @@
 				<button routerLink="../" nbButton fullWidth outline status="primary" (click)="add()">Back</button>
 			</div>
 			<div class="col-md-4">
-				<button nbButton fullWidth outline status="primary">Reset</button>
+				<button nbButton fullWidth outline status="primary" (click)="resetNode()" >Reset</button>
 			</div>
 			<div class="col-md-4">
 				<button nbButton fullWidth hero status="primary" [disabled]='node.nodeType==""' (click)="createNode()" *ngIf="!modifyId; else modify">Create</button>

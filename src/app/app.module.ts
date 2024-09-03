@@ -36,6 +36,7 @@ import { MarkdownModule } from 'ngx-markdown';
 import { RouterModule } from '@angular/router';
 import { NbAuthModule } from './@theme/components/auth/auth.module';
 import { NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 
 class GenericConfig<T> {
@@ -51,6 +52,10 @@ export function createTranslateLoader(http: HttpClient) {
     // AuthLogoutComponent
   ],
   imports: [
+  
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    }),
     CommonModule,
     FormsModule,
     RouterModule,

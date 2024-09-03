@@ -48,7 +48,7 @@
             </nb-tag-list>
           </div>
             <!-- results -->
-            <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: searchRequest.rows, currentPage: page, totalItems: searchResponse.count }" class="minicard">
+            <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: 10, currentPage: 1, totalItems: 100 }" class="minicard">
                 <nb-card-header>
                  <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
                 </nb-card-header>

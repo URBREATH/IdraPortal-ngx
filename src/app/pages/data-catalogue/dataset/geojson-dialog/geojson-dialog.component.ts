@@ -2,8 +2,8 @@ import { Component, ElementRef, Input, ViewChild } from '@angular/core';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import { DCATDistribution } from '../../model/dcatdistribution';
 import { DataCataglogueAPIService } from '../../services/data-cataglogue-api.service';
-import "leaflet";
-declare let L;
+import * as L from "leaflet";
+// declare let L;
 import * as shp from "shpjs";
 import * as toGeoJson from 'togeojson';
 import JSZip from 'jszip';
@@ -67,7 +67,7 @@ export class GeoJsonDialogComponent {
       latLng[0] += geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)].length/2)][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)].length/2)].length/2)][1];
       latLng[1] += geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)].length/2)][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'][Math.floor(geoJsonData['features'][featuresLenght]['geometry']['coordinates'].length/2)].length/2)].length/2)][0];
     }
-    this.map = L.map(this.geoJsonMap.nativeElement).setView(latLng, 9);
+    this.map = L.map(this.geoJsonMap.nativeElement).setView(L.latLng(latLng[0], latLng[1]), 9);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -300,7 +300,7 @@ export class GeoJsonDialogComponent {
       latLng[1] += geoJsonData['geometry']['coordinates'][Math.floor(geoJsonData['geometry']['coordinates'].length/2)][Math.floor(geoJsonData['geometry']['coordinates'][Math.floor(geoJsonData['geometry']['coordinates'].length/2)].length/2)][Math.floor(geoJsonData['geometry']['coordinates'][Math.floor(geoJsonData['geometry']['coordinates'].length/2)][Math.floor(geoJsonData['geometry']['coordinates'][Math.floor(geoJsonData['geometry']['coordinates'].length/2)].length/2)].length/2)][0];
     }
     
-    this.map = L.map(this.geoJsonMap.nativeElement).setView(latLng, 9);
+    this.map = L.map(this.geoJsonMap.nativeElement).setView(L.latLng(latLng[0], latLng[1]), 9);
 
     // if (this.addToBucket.active) {
     //   this.map = L.map(this.geoJsonMap.nativeElement).setView([0, 0], 2);

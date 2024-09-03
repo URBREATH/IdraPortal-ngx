@@ -39,7 +39,8 @@
               "node_modules/pace-js/templates/pace-theme-flash.tmpl.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.carousel.min.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css",
-              "src/app/@theme/styles/styles.scss"
+              "src/app/@theme/styles/styles.scss",
+              "node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": [
               "node_modules/pace-js/pace.min.js",
@@ -88,24 +89,34 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "development": {
+              "optimization": {
+                "scripts": true,
+                "styles": false
+              },
+              "sourceMap": true
             }
           }
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
-            "buildTarget": "ngx-admin-demo:build"
+            "browserTarget": "ngx-admin-demo:build"
           },
           "configurations": {
             "production": {
-              "buildTarget": "ngx-admin-demo:build:production"
+              "browserTarget": "ngx-admin-demo:build:production"
+            },
+            "development": {
+              "browserTarget": "ngx-admin-demo:build:development"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "buildTarget": "ngx-admin-demo:build"
+            "browserTarget": "ngx-admin-demo:build"
           }
         },
         "test": {
