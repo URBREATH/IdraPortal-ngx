@@ -35,7 +35,7 @@
     </div>
     
     <div class="row justify-content-center align-items-center">
-      <div class="col-6">
+      <div class="col-12">
           <div class="row align-items-center ml-1">
             <h5>Catalogue & Datasets</h5>
           </div>
@@ -43,8 +43,8 @@
               <nb-card-body  style="max-height: 60vh; overflow-y: scroll">
             
                 <label class="search-label" for="search_list">Search:</label>
-                <input nbInput [nbFilterInput]="dataSource" id="search_list" class="search-input">
-                <button (click)="loadList()"><nb-icon icon="refresh-outline"></nb-icon></button>
+                <input nbInput fieldSize="small" [nbFilterInput]="dataSource" id="search_list" class="search-input">
+                <button size="small" style="margin-left: 0.5rem;" nbButton (click)="loadList()"><nb-icon icon="refresh-outline"></nb-icon></button>
                 <table [nbTreeGrid]="dataSource_list" [nbSort]="dataSource_list" (sort)="updateSort($event)" >
             
                   <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns_list"></tr>
@@ -67,12 +67,14 @@
                       {{column}}
                     </th>
                     <td nbTreeGridCell *nbTreeGridCellDef="let row" >
-                      <div *ngIf="column !== 'Action'; else isLastColumn">{{row.data[column] || '-'}}</div>
-                      <ng-template #isLastColumn>
-                        <button [hidden]="row.data['Type'] == 'dataset'" (click)="getCatalogue(row.data['Action'])">Show Score</button>
-                        <button [hidden]="row.data['Type'] == 'catalogue'" (click)="getDataset(row.data['Action'])">Show Metrics</button>
-                        <button (click)="alertConfirm(row.data['Action'])"><nb-icon icon="trash-2-outline"></nb-icon></button>
-                      </ng-template>
+                      <div class="buttonContainer">
+                        <div *ngIf="column !== 'Action'; else isLastColumn">{{row.data[column] || '-'}}</div>
+                        <ng-template #isLastColumn>
+                          <button size="small" nbButton [hidden]="row.data['Type'] == 'dataset'" (click)="getCatalogue(row.data['Action'])">Show Score</button>
+                          <button size="small" nbButton [hidden]="row.data['Type'] == 'catalogue'" (click)="getDataset(row.data['Action'])">Show Metrics</button>
+                          <button size="small" nbButton (click)="alertConfirm(row.data['Action'])"><nb-icon icon="trash-2-outline"></nb-icon></button>
+                        </ng-template>
+                      </div>
                     </td>
                   </ng-container>
             
@@ -82,7 +84,7 @@
             </nb-card>
             
       </div>
-      <div class="col-6">
+      <div class="col-12">
         <!-- <div class="row justify-content-center align-items-center">
           <h4>Type: <span id="response-type">-</span></h4>
         </div> -->
@@ -98,7 +100,7 @@
       </div>
     </div>
     <div class="row justify-content-center align-items-center">
-      <div class="col-6">
+      <div class="col-12">
         <div class="row align-items-center ml-1">
           <h5>Dataset metrics</h5>
         </div>
@@ -138,7 +140,7 @@
           </nb-card>
           
       </div>
-      <div class="col-6">
+      <div class="col-12">
         <div class="row align-items-center ml-1">
           <h5>Catalogue score</h5>
         </div>

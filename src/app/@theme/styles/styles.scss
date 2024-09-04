@@ -8,6 +8,11 @@
 @import '@nebular/theme/styles/globals';
 @import '@nebular/auth/styles/globals';
 
+@import 'bootstrap/scss/functions';
+@import 'bootstrap/scss/variables';
+@import 'bootstrap/scss/mixins';
+@import 'bootstrap/scss/grid';
+
 @import './material/angular-material';
 
 // loading progress bar theme
