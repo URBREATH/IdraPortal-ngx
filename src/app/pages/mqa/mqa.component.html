@@ -1,10 +1,17 @@
 
 
 <div class="container">
-    <h3>Mqa scoring API demo page</h3>
-    <br>
-    <hr>
-    
+  <h3>Metadata Quality Validator</h3>
+  <br />
+  <label
+    >Select a Catalog or a Dataset by uploading it as RDF file or by entering the URL that identifies it and obtain the score or evaluation metrics relating to it, according to the &nbsp;<b>DCAT-AP standard</b
+    >&nbsp;   to ensure that the Catalogue or Dataset is valid for its submission in the  &nbsp;
+    <b>European Data Portal - </b
+    >&nbsp;<a  href="https://data.europa.eu/"
+      ><b>https://data.europa.eu/</b></a
+    ></label
+  >
+  <hr style="color: white" />
     <div class="row justify-content-center align-items-center">
       <div class="col-6">
           <h3>Submit with file</h3> 
@@ -70,9 +77,9 @@
                       <div class="buttonContainer">
                         <div *ngIf="column !== 'Action'; else isLastColumn">{{row.data[column] || '-'}}</div>
                         <ng-template #isLastColumn>
-                          <button size="small" nbButton [hidden]="row.data['Type'] == 'dataset'" (click)="getCatalogue(row.data['Action'])">Show Score</button>
-                          <button size="small" nbButton [hidden]="row.data['Type'] == 'catalogue'" (click)="getDataset(row.data['Action'])">Show Metrics</button>
-                          <button size="small" nbButton (click)="alertConfirm(row.data['Action'])"><nb-icon icon="trash-2-outline"></nb-icon></button>
+                          <button size="small" outline nbButton status="primary" [hidden]="row.data['Type'] == 'dataset'" (click)="getCatalogue(row.data['Action'])">Show Score</button>
+                          <button size="small" outline nbButton status="primary" [hidden]="row.data['Type'] == 'catalogue'" (click)="getDataset(row.data['Action'])">Show Metrics</button>
+                          <button size="small" outline nbButton status="danger" (click)="alertConfirm(row.data['Action'])"><nb-icon icon="trash-2-outline"></nb-icon></button>
                         </ng-template>
                       </div>
                     </td>
@@ -108,7 +115,7 @@
             <nb-card-body>
           
               <label class="search-label" for="search">Search:</label>
-              <input nbInput [nbFilterInput]="dataSource_dat" id="search" class="search-input">
+              <input nbInput fieldSize="small" [nbFilterInput]="dataSource_dat" id="search" class="search-input">
           
               <table [nbTreeGrid]="dataSource_dat" [nbSort]="dataSource_dat" (sort)="updateSort($event)">
           
@@ -148,7 +155,7 @@
             <nb-card-body>
           
               <label class="search-label" for="search">Search:</label>
-              <input nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
+              <input nbInput fieldSize="small" [nbFilterInput]="dataSource" id="search" class="search-input">
           
               <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
           
