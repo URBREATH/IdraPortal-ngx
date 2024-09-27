@@ -109,7 +109,7 @@ export function createTranslateLoader(http: HttpClient) {
       strategies: [
         NbPasswordAuthStrategy.setup({
           name: 'email',
-          baseEndpoint: 'http://localhost:8080/Idra/api/v1/administration',
+          baseEndpoint: '',
           login: {
             alwaysFail: false,
             endpoint: '/login',
