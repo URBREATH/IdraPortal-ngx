@@ -7,13 +7,15 @@ import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NgModule } from '@angular/core';
 import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ConfigModule, ConfigLoader } from '@ngx-config/core';
-import { ConfigHttpLoader } from '@ngx-config/http-loader';
+import { ConfigModule } from 'ngx-config-json';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
+// import { NgxAuthRoutingModule } from './auth-routing.module_old';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   NbDatepickerModule,
   NbDialogModule,
@@ -21,19 +23,24 @@ import {
   NbSidebarModule,
   NbToastrModule,
   NbWindowModule,
+  NbAlertModule,
+  NbButtonModule,
+  NbCheckboxModule,
+  NbInputModule,
+  NbSidebarService
 } from '@nebular/theme';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
-import { TokenInterceptor } from './auth/services/token.interceptor';
-import { AuthGuard } from './auth/services/auth.guard';
-import { AuthLogoutComponent } from './auth/logout/auth-logout.component';
+// import { NbPasswordAuthStrategy, NbAuthModule } from '@nebular/auth';
 import { MarkdownModule } from 'ngx-markdown';
-
 import { RouterModule } from '@angular/router';
+import { NbAuthModule } from './@theme/components/auth/auth.module';
+import { NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
+import { NgxEchartsModule } from 'ngx-echarts';
 
 
-export function configFactory(http: HttpClient): ConfigLoader {
-  return new ConfigHttpLoader(http, './assets/config.json');
+class GenericConfig<T> {
+  constructor(public config: T) {}
 }
 
 export function createTranslateLoader(http: HttpClient) {
@@ -41,8 +48,24 @@ export function createTranslateLoader(http: HttpClient) {
 }
 
 @NgModule({
-  declarations: [AppComponent, AuthLogoutComponent],
+  declarations: [AppComponent, 
+    // AuthLogoutComponent
+  ],
   imports: [
+  
+    NgxEchartsModule.forRoot({
+      echarts: () => import('echarts')
+    }),
+    CommonModule,
+    FormsModule,
+    RouterModule,
+    NbAlertModule,
+    NbInputModule,
+    NbButtonModule,
+    NbCheckboxModule,
+    // NgxAuthRoutingModule,
+
+    NbAuthModule,
     BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
@@ -57,9 +80,8 @@ export function createTranslateLoader(http: HttpClient) {
     ThemeModule.forRoot(),
     MarkdownModule.forRoot(),
     ConfigModule.forRoot({
-      provide: ConfigLoader,
-      useFactory: configFactory,
-      deps: [HttpClient]
+      pathToConfig: 'assets/config.json',
+      configType: GenericConfig
     }),
     TranslateModule.forRoot({
       loader: {
@@ -75,21 +97,87 @@ export function createTranslateLoader(http: HttpClient) {
           view: '*'
         },
         MANAGER: {
-          view: ['external-app', 'maps', 'home', 'about', 'charts', 'lorem-ipsum']
+          view: ['external-app', 'maps', 'home', 'about']
         },
         CITIZEN: {
-          view: ['home', 'about', 'ui-features','catalogues']
+          view: ['home', 'about','catalogues']
         }
       },
     }),
 
+    NbAuthModule.forRoot({
+      strategies: [
+        NbPasswordAuthStrategy.setup({
+          name: 'email',
+          baseEndpoint: '',
+          login: {
+            alwaysFail: false,
+            endpoint: '/login',
+            method: 'post',
+            redirect: {
+              success: '/',
+              failure: null,
+            },
+            defaultErrors: ['Username/password combination is not correct, please try again.'],
+            defaultMessages: ['You have been successfully logged in.'],
+          },
+          logout: {
+            // ...
+            alwaysFail: false,
+            endpoint: '/logout',
+            method: 'post',
+            redirect: {
+              success: '/',
+              failure: null,
+            },
+          },
+        }),
+      ],
+      forms: {
+        login: {
+          redirectDelay: 500, // delay before redirect after a successful login, while success message is shown to the user
+          strategy: 'email',  // strategy id key.
+          rememberMe: true,   // whether to show or not the `rememberMe` checkbox
+          showMessages: {     // show/not show success/error messages
+            success: true,
+            error: true,
+          },
+        },
+        requestPassword: {
+          redirectDelay: 500,
+          strategy: 'email',
+          showMessages: {
+            success: true,
+            error: true,
+          },
+        },
+        logout: {
+          redirectDelay: 500,
+          strategy: 'email',
+        },
+        validation: {
+          password: {
+            required: true,
+            minLength: 4,
+            maxLength: 50,
+          },
+          email: {
+            required: true,
+          },
+          fullName: {
+            required: false,
+            minLength: 4,
+            maxLength: 50,
+          },
+        },
+      },
+    }),
   ],
-  providers: [
-    AuthGuard,
+  providers: [NbSidebarService,
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: TokenInterceptor,
-      multi: true
+      useClass: NbAuthSimpleInterceptor,
+      multi: true,
     }
   ],
   bootstrap: [AppComponent],

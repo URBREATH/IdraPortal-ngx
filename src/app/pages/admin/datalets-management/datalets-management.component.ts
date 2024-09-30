@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { NbDialogService, NbSortDirection, NbSortRequest, NbTreeGridDataSource, NbTreeGridDataSourceBuilder } from '@nebular/theme';
+import { CataloguesServiceService } from '../catalogues-service.service';
+import { DataletDialogComponent } from './dialog/datalet-dialog.component';
+import { RefreshService } from '../../services/refresh.service';
 
 interface TreeNode<T> {
   data: T;
@@ -8,12 +11,18 @@ interface TreeNode<T> {
 }
 
 interface FSEntry {
-  Name: string;
-  Country: string;
-  Type: string;
-  Level: string;
-  Host: string;
-}
+  id: string;
+  nodeID: string;
+  datasetID: string;
+  distributionID: string;
+  datalet_html: string;
+  title: string;
+  customTitle: boolean;
+  registerDate: string;
+  lastSeenDate: string;
+  views: number;
+  }
+  
 
 @Component({
   selector: 'ngx-datalets-management',
@@ -22,26 +31,38 @@ interface FSEntry {
 })
 export class DataletsManagementComponent implements OnInit {
 	
-  data: TreeNode<FSEntry>[] = [];
+  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,
+		private restApi:CataloguesServiceService,
+		private dialogService: NbDialogService,
+    private refreshService: RefreshService, ) { }
 
+    data: TreeNode<FSEntry>[] = [];
 
-  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,) { }
+    defaultColumns = [ 'title', 'nodeID', 'datasetID', 'distributionID', 'registerDate', 'views', 'lastSeenDate'];
+    iconColumn = ' ';
+    allColumns = [ ...this.defaultColumns, ...this.iconColumn ];
+  
+    dataSource: NbTreeGridDataSource<FSEntry>;
+  
+    sortColumn: string;
+    sortDirection: NbSortDirection = NbSortDirection.NONE;
 
   ngOnInit(): void {
-	
-	//costruisco la tabella
-	this.dataSource = this.dataSourceBuilder.create(this.data);
-	
+    this.refreshService.refreshPageOnce('admin-configuration');
+    this.listDatalets();
   }
 
-  // ------------------------- TABLE
-  defaultColumns = [ 'Title', 'Catalogue', 'Dataset', 'Distribution', 'Registerd', 'Views', 'Last Seen'];
-  allColumns = [ ...this.defaultColumns ];
+  listDatalets(){
+		this.data = [];
 
-  dataSource: NbTreeGridDataSource<FSEntry>;
-
-  sortColumn: string;
-  sortDirection: NbSortDirection = NbSortDirection.NONE;
+		this.restApi.listDatalets().subscribe((data: any) => {
+      console.log(data);
+			data.forEach(element => {
+				this.data.push({ data: element });
+			});
+			this.dataSource = this.dataSourceBuilder.create(this.data);
+		})
+  }
 
 
   updateSort(sortRequest: NbSortRequest): void {
@@ -56,8 +77,6 @@ export class DataletsManagementComponent implements OnInit {
     return NbSortDirection.NONE;
   }
 
-
-
   getShowOn(index: number) {
     const minWithForMultipleColumns = 400;
     const nextColumnStep = 100;
@@ -65,7 +84,23 @@ export class DataletsManagementComponent implements OnInit {
   }
   //-------------------------------------------------------------
 
+  deleteDatalet(id: string, nodeID: string, datasetID: string, distributionID: string){
+    if(confirm("Are you sure to delete this datalet?")) {
+      this.restApi.deleteDatalet(id, nodeID, datasetID, distributionID).subscribe((data: any) => {
+        this.listDatalets();
+      });
+    }
+  }
 
+	handleIFrameDataletOpenModal(datalet) {
+		
+		this.dialogService.open(DataletDialogComponent, {
+      context: {
+        title: 'Create new prefix',
+        datalet: datalet
+      },
+    })
+	}
 
 
 }

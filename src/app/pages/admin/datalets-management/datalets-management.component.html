@@ -14,29 +14,59 @@
     	<button routerLink="../adminCatalogues" nbButton outline status="success" >Back</button>
 	</div>
 
-    <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
-      <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-      <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+  <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
+    <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns">
+    </tr>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[0]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[0]]}}</td>
+    </ng-container>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[1]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[1]]}}</td>
+    </ng-container>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[2]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[2]]}}</td>
+    </ng-container>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[3]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[3]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[3]]}}</td>
+    </ng-container>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[4]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[4]]}}</td>
+    </ng-container>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[5]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[5]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[5]]}}</td>
+    </ng-container>
+
+    <ng-container [nbTreeGridColumnDef]="defaultColumns[6]">
+      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[6]}}</th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[6]]}}</td>
+    </ng-container>
 
 
+    <ng-container [nbTreeGridColumnDef]="iconColumn" >
+      <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef >
+        Actions
+      </th>
+      <td nbTreeGridCell *nbTreeGridCellDef="let row" >
+        <nb-icon icon="eye-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleIFrameDataletOpenModal(row.data.datalet_html)"></nb-icon>
+        <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteDatalet(row.data.id, row.data.nodeID, row.data.datasetID, row.data.distributionID)" ></nb-icon>
+      </td>
+    </ng-container>
 
 
-	  <!-- RESULTS -->
-<!--
-      <ng-container *ngFor="let column of defaultColumns; let index = index"
-                    [nbTreeGridColumnDef]="column"
-                    [showOn]="getShowOn(index)">
-        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>{{column}}</th>
-
-        <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column]}}</td>
-      </ng-container>
--->
-          <ng-container *ngFor="let column of defaultColumns" [nbTreeGridColumnDef]="column">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{column}}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column]}}</td>
-          </ng-container>
-
-    </table>
+  </table>
 
   </nb-card-body>
 </nb-card>
@@ -52,8 +82,8 @@
     </div>
 -->
 <!-- *ngIf="searchResponse.count>0" -->
-    <div class="row">
-        <div class="col-9">
+    <!-- <div class="row">
+        <div class="col-9"> -->
 
 <!--
           <div class="row m-1">
@@ -88,8 +118,8 @@
               </pagination-controls>
             </div>
 		-->
-        </div>
-    </div>
+        <!-- </div>
+    </div> -->
 
 
 </div>

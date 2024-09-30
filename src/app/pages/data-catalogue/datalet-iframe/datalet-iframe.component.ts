@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { DCATDistribution } from '../model/dcatdistribution';
 
 @Component({
@@ -22,9 +22,9 @@ export class DataletIframeComponent implements OnInit {
 
   constructor(
     protected dialogRef: NbDialogRef<DataletIframeComponent>,
-    private configService: ConfigService
+    private configService: ConfigService<Record<string, any>>
     ) {
-      this.dataletBaseUrl = configService.getSettings("datalet_base_url");
+      this.dataletBaseUrl = configService["datalet_base_url"];
      }
 
   ngOnInit(): void {

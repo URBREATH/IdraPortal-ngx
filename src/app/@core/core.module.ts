@@ -17,8 +17,8 @@ import { VisitorsAnalyticsService } from './mock/visitors-analytics.service';
 import { MockDataModule } from './mock/mock-data.module';
 import { RippleService } from './utils/ripple.service';
 import { NbRoleProvider } from '@nebular/security';
-import { OidcUserInformationService } from '../auth/services/oidc-user-information.service';
-import { OidcJWTToken } from '../auth/oidc/oidc';
+// import { OidcUserInformationService } from '../auth/services/oidc-user-information.service';
+// import { OidcJWTToken } from '../auth/oidc/oidc';
 import { NbAuthModule, NbAuthOAuth2JWTToken, NbOAuth2AuthStrategy } from '@nebular/auth';
 
 const socialLinks = [
@@ -37,18 +37,18 @@ export const NB_CORE_PROVIDERS = [
   LayoutService,
   SeoService,
   StateService,
-  ...NbAuthModule.forRoot({
-    strategies: [
-      NbOAuth2AuthStrategy.setup({
-        name: 'oidc',
-        clientId: '',
-        token: {
-          class: OidcJWTToken
-        }
-      }),
-    ],
-  }).providers,
-  { provide: NbRoleProvider, useClass: OidcUserInformationService },
+  // ...NbAuthModule.forRoot({
+  //   strategies: [
+  //     NbOAuth2AuthStrategy.setup({
+  //       name: 'oidc',
+  //       clientId: '',
+  //       token: {
+  //         class: OidcJWTToken
+  //       }
+  //     }),
+  //   ],
+  // }).providers,
+  // { provide: NbRoleProvider, useClass: OidcUserInformationService },
 ];
 
 @NgModule({

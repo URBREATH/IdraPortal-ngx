@@ -1,5 +1,5 @@
-@import '~bootstrap/scss/mixins/breakpoints';
-@import '~@nebular/theme/styles/global/breakpoints';
+@import 'bootstrap/scss/mixins/breakpoints';
+@import '@nebular/theme/styles/global/breakpoints';
 @import '../../styles/themes';
 
 @include nb-install-component() {
@@ -11,6 +11,13 @@
     display: flex;
     align-items: center;
     width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
+  }
+
+  .login-container {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    justify-content: flex-end;
   }
 
   nb-action {

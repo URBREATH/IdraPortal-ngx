@@ -1,0 +1,13 @@
+<nb-card>
+  <nb-card-header>{{ title }}</nb-card-header>
+  <nb-card-body>
+    {{ body }}
+  </nb-card-body>
+  <nb-card-footer>
+    <div style="display: flex;justify-content: space-between;">
+      <button nbButton status="primary" (click)="dismiss(0)">DELETE ALL</button>
+      <button nbButton status="primary" (click)="dismiss(1)">KEEP DATASETS</button>
+      <button nbButton status="primary" (click)="dismiss(-1)">BACK</button>
+    </div>
+  </nb-card-footer>
+</nb-card>

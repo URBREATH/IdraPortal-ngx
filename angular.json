@@ -37,10 +37,10 @@
               "node_modules/socicon/css/socicon.css",
               "node_modules/nebular-icons/scss/nebular-icons.scss",
               "node_modules/pace-js/templates/pace-theme-flash.tmpl.css",
-              "node_modules/leaflet/dist/leaflet.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.carousel.min.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css",
-              "src/app/@theme/styles/styles.scss"
+              "src/app/@theme/styles/styles.scss",
+              "node_modules/leaflet/dist/leaflet.css"
             ],
             "scripts": [
               "node_modules/pace-js/pace.min.js",
@@ -60,7 +60,12 @@
               "zrender/lib/svg/svg",
               "zrender/lib/vml/vml",
               "style-loader!leaflet/dist/leaflet.css"
-            ]
+            ],
+            "stylePreprocessorOptions": {
+              "includePaths": [
+                "node_modules"
+              ]
+            }
           },
           "configurations": {
             "production": {
@@ -84,6 +89,13 @@
                   "with": "src/environments/environment.prod.ts"
                 }
               ]
+            },
+            "development": {
+              "optimization": {
+                "scripts": true,
+                "styles": false
+              },
+              "sourceMap": true
             }
           }
         },
@@ -95,6 +107,9 @@
           "configurations": {
             "production": {
               "browserTarget": "ngx-admin-demo:build:production"
+            },
+            "development": {
+              "browserTarget": "ngx-admin-demo:build:development"
             }
           }
         },
@@ -183,7 +198,6 @@
       }
     }
   },
-  "defaultProject": "ngx-admin-demo",
   "schematics": {
     "@schematics/angular:component": {
       "prefix": "ngx",
@@ -191,6 +205,12 @@
     },
     "@schematics/angular:directive": {
       "prefix": "ngx"
+    }
+  },
+  "cli": {
+    "analytics": "fc325b74-f1f3-4889-8939-32707f50491d",
+    "cache": {
+      "enabled": false
     }
   }
 }

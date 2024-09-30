@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 
 import { HttpClient } from '@angular/common/http';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { Observable } from 'rxjs';
 import { Datalet } from '../data-catalogue/model/datalet';
 import { DCATDataset } from '../data-catalogue/model/dcatdataset';
@@ -11,6 +11,13 @@ import { ODMSCatalogueInfo } from '../data-catalogue/model/odmscatalogue-info';
 import { ODMSCatalogueResponse } from '../data-catalogue/model/odmscatalogue-response';
 import { SearchRequest } from '../data-catalogue/model/search-request';
 import { SearchResult } from '../data-catalogue/model/search-result';
+import { NbGlobalPhysicalPosition, NbToastrService } from '@nebular/theme';
+import * as FileSaver from 'file-saver';
+import { ODMSCatalogueComplete } from '../data-catalogue/model/odmscataloguecomplete';
+import { ODMSCatalogueNode } from '../data-catalogue/model/odmscatalogue-node';
+import { ConfigurationManagement } from '../data-catalogue/model/configurations';
+import { Prefixes } from '../data-catalogue/model/prefixes';
+import { RemoteCatalogues } from '../data-catalogue/model/remote-catalogues';
 
 @Injectable({
   providedIn: 'root'
@@ -18,9 +25,14 @@ import { SearchResult } from '../data-catalogue/model/search-result';
 export class CataloguesServiceService {
 
   private apiEndpoint;
+  private mqaEndpoint;
+  private mqaDockerEndpoint;
 
-  constructor(private config:ConfigService,private http:HttpClient) { 
-    this.apiEndpoint=this.config.getSettings("idra_base_url");
+  constructor(private config:ConfigService<Record<string, any>> ,private http:HttpClient,
+    private toastr: NbToastrService) { 
+      this.apiEndpoint=this.config.config["idra_base_url"];
+      this.mqaEndpoint=this.config.config["mqa_base_url"];
+      this.mqaDockerEndpoint=this.config.config["idra_docker_url"];
   }
 
   getDatasetById(id:string):Observable<DCATDataset>{
@@ -65,6 +77,15 @@ export class CataloguesServiceService {
     return this.http.post<SearchResult>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues`,data);
   }
 
+  //modODMSNode
+  modODMSNode(data:FormData, id: string):Observable<SearchResult>{
+    return this.http.put<SearchResult>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/`+id,data);
+  }
+  //modODMSNode
+  getODMSNode(catalogueId:number):Observable<ODMSCatalogueNode>{
+    return this.http.get<ODMSCatalogueNode>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${catalogueId}?withImage=true`);
+  }
+
   //getAllRemCat
    getAllRemCat():Observable<any>{
     return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue`);
@@ -73,8 +94,160 @@ export class CataloguesServiceService {
   getRemoteNodesJson():Observable<any>{
     return this.http.get<any>(`http://localhost/catalogue.json`);
   }
+
+
+
+
+
+  getAllCataloguesInfo():Observable<Array<ODMSCatalogueComplete>>{
+    return this.http.get<Array<ODMSCatalogueComplete>>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues?withImage=false`);
+  }
+
+  
+  getConfigurationManagement():Observable<Array<ConfigurationManagement>>{
+    return this.http.get<Array<ConfigurationManagement>>(`${this.apiEndpoint}/Idra/api/v1/administration/configuration`);
+  }
+
+  activeCatalogue(id:string):Promise<any>{
+    return new Promise((resolve,reject)=>{
+      this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}/activate`, null)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+
+  deactiveCatalogue(id:string, keepDatasets:boolean):Promise<any>{
+    return new Promise((resolve,reject)=>{
+      this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}/deactivate?keepDatasets=`+keepDatasets, null)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+
+  deleteCatalogue(id:string):Promise<any>{
+    return new Promise((resolve,reject)=>{
+      this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}`)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+  
 	//downloadDump
-  getDump(url:string):void{
-    window.open(`${this.apiEndpoint}${url}`, "_blank");
+  async getDump(url:string, name : string):Promise<void>{
+    // window.open(`${this.apiEndpoint}${url}`, "_blank");
+    this.http.get(`${this.apiEndpoint}${url}`, { responseType: 'blob' })
+      .subscribe((resp: any) => {
+          FileSaver.saveAs(resp, 'Dump_'+name+ '.rdf')
+      });
+  }
+
+  syncRemoteCatalogue(id:string):Promise<any>{
+    
+    return new Promise((resolve,reject)=>{
+      this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${id}/synchronize`,null)
+      .subscribe((data: any) => {
+        resolve(data)
+        return data
+      }, error => {
+        reject(error)
+        return error
+      })
+    })
+  }
+  
+  async submitAnalisysJSON(id: String): Promise<any> {
+    
+    const token = localStorage.getItem('token');
+
+    let json = {
+      "file_url": `${this.mqaDockerEndpoint}/Idra/api/v1/administration/dcat-ap/dump/`+id,  //da cambiare
+      "token": token
+    }
+    return new Promise((resolve,reject)=>{
+      this.http.post(`${this.mqaEndpoint}/submit/auth`, json, {
+        headers: {
+          'Content-Type':  'application/json',
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Headers': 'Content-Type',
+          'Access-Control-Allow-Methods': 'POST',
+        },
+      },
+      
+      )
+      .subscribe((data: any) => {
+        this.toastr.show('Analisys submitted', 'Success', { status: 'success', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+        
+        resolve(data)
+        return data
+      }, error => {
+        this.toastr.show("There was an error", 'Error', { status: 'danger', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+        
+        reject(error)
+        return error
+      })
+    })
+  }
+
+  updateConfiguration(json: any): Observable<any> {
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/configuration`, json);  
+  }
+
+  updatePassword(json: any): Observable<any> {
+    return this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/updatePassword`, json);
+  }
+
+  listPrefixes(): Observable<Prefixes> {
+    return this.http.get<Prefixes>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes`);
+  }
+
+  createPrefix(json: any): Observable<any> {
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes`, json);
+  }
+
+  deletePrefix(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes/${id}`);
+  }
+
+  modifyPrefix(json: any, id: string): Observable<any> {
+    return this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/prefixes/${id}`, json);
+  }
+
+  listRemoteCatalogues(): Observable<RemoteCatalogues> {
+    return this.http.get<RemoteCatalogues>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue`);
+  }
+
+  createRemoteCatalogue(json: any): Observable<any> {
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue`, json);
+  }
+
+  modifyRemoteCatalogue(json: any, id: string): Observable<any> {
+    return this.http.put<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue/${id}`, json);
+  }
+
+  deleteRemoteCatalogue(id: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue/${id}`);
+  }
+
+  listDatalets(): Observable<Datalet> {
+    return this.http.get<Datalet>(`${this.apiEndpoint}/Idra/api/v1/administration/datalets`);
+  }
+
+  deleteDatalet(id: string, nodeID: string, datasetID: string, distributionID: string): Observable<any> {
+    return this.http.delete<any>(`${this.apiEndpoint}/Idra/api/v1/administration/catalogues/${nodeID}/dataset/${datasetID}/distribution/${distributionID}/deleteDatalet/${id}`);
   }
 }

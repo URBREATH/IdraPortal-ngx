@@ -14,31 +14,21 @@ export const MENU_ITEMS: NbMenuItem[] = [
     }
   },
   {
-    title: 'Data Analysis',
-    icon: 'bar-chart-2-outline',
-    link: "/pages/tecnalia",
-    data:{
-      name:"tecnalia"
-    },
-    children: [
-      {
-        title: 'Traffic Prediction',
-        link: '/pages/tecnalia/traffic',
-      },
-      {
-        title: 'Bike Analysis',
-        link: '/pages/tecnalia/bike',
-      }
-    ],
-    hidden: true
-  },
-  {
     title: 'Data Catalogue',
     icon: 'search-outline',
     link: "/pages/datasets",
     data:{
       name:"catalogues"
     }
+  },
+  {
+    title: 'Mqa Scoring',
+    icon: 'bar-chart-outline',
+    link: "/pages/mqa",
+    data:{
+      name:"mqa"
+    },
+    hidden: true,
   },
   {
     title: 'Administration',
@@ -58,111 +48,11 @@ export const MENU_ITEMS: NbMenuItem[] = [
         title: 'Configurations Administration',
 		link: "/pages/administration/configuration",
       },
-      {
-        title: 'IDM Administration',
-        url: '',
-        target: '_blank',
-        data:{
-          name:'idm-administration'
-        }
-      }
     ],
     data:{
       name:'administration'
-    }
-  },
-  {
-    title: 'Maps',
-    icon: 'map-outline',
-    data:{
-      name:"maps"
     },
-    children: [
-      {
-        title: 'Amsterdam Tram Maps',
-        link: '/pages/maps/leaflet',
-      },
-      {
-        title: 'Amsterdam Tram Compare',
-        link: '/pages/maps/single-map',
-      }
-    ],
-    hidden: true
+    hidden: true,
   },
-  {
-    title: 'Charts',
-    icon: 'pie-chart-outline',
-    data:{
-      name:"charts"
-    },
-    children: [
-      {
-        title: 'Echarts',
-        link: '/pages/charts/echarts',
-      },
-      {
-        title: 'Charts.js',
-        link: '/pages/charts/chartjs',
-      },
-      {
-        title: 'D3',
-        link: '/pages/charts/d3',
-      },
-    ],
-  },
-  {
-    title: 'Additional Applications',
-    icon: 'external-link-outline',
-    link: '/pages/external-app',
-    data:{
-      name:"external-app"
-    },
-    children: [
-      {
-        title: 'Card Links',
-        link: '/pages/external-app/card-links',
-      }
-      // {
-      //   title: 'Iframes',
-      //   link: '/pages/external-app/iframes',
-      // }
-    ],
-  },
-  {
-    title: 'Urbanite Project',
-    icon: 'info-outline',
-    link: '/pages/about',
-    data:{
-      name:"about"
-    },
-    children: [{
-      title:"About Urbanite",
-      link:"/pages/about/info"
-    }
-  ],
-  hidden: true
-  },
-  {
-    title: 'UI Features',
-    icon: 'keypad-outline',
-    link: '/pages/ui-features',
-    data:{
-      name:"ui-features"
-    },
-    children: [
-      {
-        title: 'Grid',
-        link: '/pages/ui-features/grid',
-      },
-      {
-        title: 'Icons',
-        link: '/pages/ui-features/icons',
-      },
-      {
-        title: 'Typography',
-        link: '/pages/ui-features/typography',
-      }
-    ],
-  },
-  
+
 ];

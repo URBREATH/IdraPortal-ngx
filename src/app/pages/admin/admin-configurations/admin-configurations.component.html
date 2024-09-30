@@ -1,0 +1,187 @@
+ 
+<div class="row show-grid">
+		<div class="col-md-12">
+	<nb-accordion>
+		<nb-accordion-item>
+		 <nb-accordion-item-header>Catalogues</nb-accordion-item-header>
+		 <nb-accordion-item-body>
+			<div class="row show-grid">	
+				<div class="col-md-12">
+					<nb-card class="minicard">
+						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+							<h6 class="jumbotron-heading">Default Catalogues Refresh Period:</h6>
+							<nb-select placeholder="-" [(ngModel)]="refreshPeriod" [selected]="refreshPeriod">
+								<nb-option value="3600" >1 hour</nb-option>
+								<nb-option value="86400" >1 day</nb-option>
+								<nb-option value="604800" >1 week</nb-option>
+							</nb-select>
+
+							<div class="d-flex align-content-center mt-3">
+								<h6 class="jumbotron-heading align-self-center">Enable RDF controls:</h6>
+								<nb-checkbox class="align-self-center ml-1" status="primary"  [(ngModel)]="rdfControls"></nb-checkbox>
+							</div>
+
+							<div class="d-flex align-content-center mt-3" *ngIf="rdfControls == true">
+								<h6 class="jumbotron-heading align-self-center">Enable RDF max size check:</h6>
+								<nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfMaxSize"></nb-checkbox>
+							</div>
+
+							<h6 class="jumbotron-heading" *ngIf="rdfControls == true">RDF max:</h6>
+							<input type="number" nbInput status="primary" placeholder="RDF max" *ngIf="rdfControls == true" [(ngModel)]="rdfMaxNumber" >
+							
+						</nb-card-body>
+					</nb-card>
+				</div>
+				<div class="col-md-2">
+					<button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleClickCatalogues()">UPDATE</button>
+				</div>
+			</div>
+		 </nb-accordion-item-body>
+		</nb-accordion-item>
+		<nb-accordion-item>
+		 <nb-accordion-item-header>Sparql Prefixes</nb-accordion-item-header>
+		 <nb-accordion-item-body>
+			<div class="row show-grid">	
+				<div class="col-md-12">  
+					<nb-card>
+					  <nb-card-body>
+						<div style = "padding-bottom: 20px">
+							<label class="search-label" for="search">Search:</label>
+							<input nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; padding-bottom: 10px">
+						</div>
+					
+						<table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
+						  <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+						  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns">
+						  </tr>
+					
+							<ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
+								<th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{defaultColumns[0]}}</th>
+								<td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[0]]}}</td>
+							</ng-container>
+					
+							<ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
+								<th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{defaultColumns[1]}}</th>
+								<td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[1]]}}</td>
+							</ng-container>
+					
+					
+							<ng-container [nbTreeGridColumnDef]="iconColumn" >
+								<th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 120px">
+									Actions
+								</th>
+								<td nbTreeGridCell *nbTreeGridCellDef="let row" >
+									<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixEdit(row.data.id,row.data[defaultColumns[0]],row.data[defaultColumns[1]])"></nb-icon>
+									<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixDelete(row.data.id)"></nb-icon>
+								</td>
+							</ng-container>
+					
+					
+						</table>
+					
+					  </nb-card-body>
+					</nb-card>
+				</div>
+				<div class="col-md-2">
+					<button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleSparqlPrefixOpenModal()">ADD PREFIX</button>
+				</div>
+			</div>
+		 </nb-accordion-item-body>
+		</nb-accordion-item>
+		<nb-accordion-item>
+		 <nb-accordion-item-header>Update Passwords</nb-accordion-item-header>
+		 <nb-accordion-item-body>
+			<div class="row show-grid">	
+				<div class="col-md-12">
+					<nb-card class="minicard">
+						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+							<h6 class="jumbotron-heading">Old Password:</h6>
+							<input type="text" nbInput fullWidth status="primary" placeholder="Old Password" [(ngModel)]="oldPassword">
+							<h6 class="jumbotron-heading mt-3">New Password:</h6>
+							<input type="text" nbInput fullWidth status="primary" placeholder="New Password" [(ngModel)]="newPassword">
+							<h6 class="jumbotron-heading mt-3">Confirm Password:</h6>
+							<input type="text" nbInput fullWidth status="primary" placeholder="Confirm Password" [(ngModel)]="confirmPassword">
+						</nb-card-body>
+					</nb-card>
+				</div>
+				<div class="col-md-2">
+					<button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleUpdatePassword()">UPDATE</button>
+				</div>
+			</div>
+		 </nb-accordion-item-body>
+		</nb-accordion-item>
+		<nb-accordion-item>
+		 <nb-accordion-item-header>Remote Catalogues</nb-accordion-item-header>
+		 <nb-accordion-item-body>
+			<div class="row show-grid">	
+				<div class="col-md-12">
+					<nb-card>
+					  <nb-card-body>
+						<div style = "padding-bottom: 20px">
+							<label class="search-label" for="search">Search:</label>
+							<input nbInput [nbFilterInput]="dataSourceCat" id="search" class="search-input" style="width: 200px; height: 30px; padding-bottom: 10px">
+						</div>
+					
+						<table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)">
+						  <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsCat"></tr>
+						  <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsCat">
+						  </tr>
+					
+							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[0]">
+								<th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{defaultColumnsCat[0]}}</th>
+								<td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumnsCat[0]]}}</td>
+							</ng-container>
+					
+							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[1]">
+								<th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{defaultColumnsCat[1]}}</th>
+								<td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumnsCat[1]]}}</td>
+							</ng-container>
+					
+					
+							<ng-container [nbTreeGridColumnDef]="iconColumnCat" >
+								<th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef style="width: 120px">
+									Actions
+								</th>
+								<td nbTreeGridCell *nbTreeGridCellDef="let row" >
+									<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleEditRemoteCatalogueOpenModal(row.data)"></nb-icon>
+									<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleRemoteCataloguDelete(row.data.id, row.data.index)"></nb-icon>
+								</td>
+							</ng-container>
+					
+					
+						</table>
+					
+					  </nb-card-body>
+					</nb-card>
+				</div>
+				<div class="col-md-2">
+					<button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleRemoteCatalogueOpenModal()">ADD CATALOGUE</button>
+				</div>
+			</div>
+		 </nb-accordion-item-body>
+		</nb-accordion-item>
+		<nb-accordion-item>
+		 <nb-accordion-item-header>Context Broker</nb-accordion-item-header>
+		 <nb-accordion-item-body>
+			<div class="row show-grid">	
+				<div class="col-md-12">
+					<nb-card class="minicard">
+						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+							<div class="d-flex align-content-center">
+									<h6 class="jumbotron-heading align-self-center">Enable Context Broker federation:</h6>
+									<nb-checkbox class="align-self-center ml-1" status="primary" [checked]="contextBrokerFederation" [(ngModel)]="contextBrokerFederation" (checkedChange)="handleContextBrokerFederation()"></nb-checkbox>
+							</div>
+							<h6 class="jumbotron-heading" *ngIf="contextBrokerFederation == true">Context Broker URL:</h6>
+						   <input type="text" nbInput status="primary" fullWidth placeholder="Context Broker URL" [(ngModel)]="contextBrokerUrl" *ngIf="contextBrokerFederation == true" >
+						</nb-card-body>
+					</nb-card>
+				</div>
+				<div class="col-md-2">
+					<button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleClickCatalogues()">UPDATE</button>
+				</div>
+			</div>
+		 </nb-accordion-item-body>
+		</nb-accordion-item>
+	   </nb-accordion>
+	</div>
+</div>

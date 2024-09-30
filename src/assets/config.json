@@ -1,35 +1,12 @@
 {   
-    "dashboardBaseURL":"http://localhost:4200",
     "enableAuthentication":false,
-    "authProfile": "oidc",
     "idmBaseURL":"http://localhost:8081",
     "idmRealmName":"urbanite",
     "client_id":"urbanite",
     "client_secret": "",
-    "traffic_prediction_api_base_url":"http://localhost:8000/urbanite_traffic",
-    "bike_analysis_api_base_url":"http://localhost:8000/bikeAnalysis",
     "idra_base_url":"http://localhost:8080",
-    "idra_portal_base_href":"IdraPortal",
     "enable_datalet":true,
     "datalet_base_url":"http://localhost/deep/deep-components/creator.html",
-    "external-application-cards":[
-        {
-            "url": "http://forum.urbanite-project.eu/",
-            "title": "Virtual SoPoLab",
-            "subtitle":"The collaboration environment where you can be an active user.",
-            "avatar": "/assets/images/urbanite_logo.png", 
-            "image": "/assets/images/vsopolab.png",
-            "description": "The Virtual SoPoLab is a social co-creation environment where needs, ideas and possible solutions can be matched and asked for implementation, in order to support citizens, civil servants and public authorities to work together",
-            "responsible_partner":"ENG"
-        },
-        {
-            "url": "https://idra.opsi-lab.it",
-            "title": "Idra",
-            "subtitle":"Open Data Federation Platform",
-            "avatar": "/assets/images/idra_D_v6_black.svg", 
-            "image": "/assets/images/userhomepage.png",
-            "description": "Idra is a web application able to federate existing Open Data Management Systems (ODMS) based on different technologies providing a unique access point to search and discover open datasets coming from heterogeneous sources. Idra uniforms representation of collected open datasets, thanks to the adoption of international standards (DCAT-AP) and provides a set of RESTful APIs to be used by third party applications.",
-            "responsible_partner":"ENG"
-        }
-    ]
+    "mqa_base_url": "http://localhost:8000",
+    "idra_docker_url": "http://docker-idra-1:8080"
 }

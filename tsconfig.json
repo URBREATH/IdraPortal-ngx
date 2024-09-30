@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "types": ["google.maps"],
     "importHelpers": true,
     "module": "es2020",
     "outDir": "./dist/out-tsc",
@@ -11,16 +12,20 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true, 
     "esModuleInterop": true,
-    "target": "es2015",
+    "target": "ES2022",
     "typeRoots": [
       "node_modules/@types"
     ],
     "lib": [
-      "es2017",
+      "ES2022",
       "dom"
     ],
     "plugins": [
       { "name": "tslint-language-service"}
     ]
+    
+  },
+  "angularCompilerOptions": {
+    "enableIvy": false
   }
 }

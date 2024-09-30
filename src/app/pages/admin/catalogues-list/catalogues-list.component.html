@@ -16,10 +16,11 @@
 
     <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
       <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-      <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+      <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [ngClass]="{'disabled' : row.data[defaultColumns[4]] == 'LOADING' || row.data['synchLock'] == 'PERIODIC'} ">
+      </tr>
 
-      <ng-container [nbTreeGridColumnDef]="customColumn">
-        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn)" *nbTreeGridHeaderCellDef style="width: 75px">
+      <ng-container [nbTreeGridColumnDef]="customColumn" >
+        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn)" *nbTreeGridHeaderCellDef style="width: 75px" >
           {{customColumn}} 
         </th>
 
@@ -27,10 +28,10 @@
         <!-- nbTreeGridCell *nbTreeGridCellDef="let row" -->
         <td nbTreeGridCell *nbTreeGridCellDef="let row">
          <!-- <nb-fs-icon [kind]="row.data.kind" [expanded]="row.expanded"></nb-fs-icon> -->
-          {{row.data[customColumn]}}
+          <!-- {{row.data[customColumn]}} -->
 
           <!-- ACTIVE -->
-          <nb-toggle [checked]="true" status="success"></nb-toggle>
+          <nb-toggle [checked]="row.data[customColumn]" status="success" (click)="activeCatalogue(row.data[defaultColumns[8]], row.data.index, row.data[customColumn])"></nb-toggle>
         </td>
 
 
@@ -77,7 +78,16 @@
 
           <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{defaultColumns[4]}}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[4]]}}</td>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">
+              <ng-template #online>
+                <nb-icon  icon="checkmark-outline" style="color: #64B728;"></nb-icon>
+              </ng-template>
+                <nb-icon *ngIf="row.data['synchLock'] == 'PERIODIC' || row.data[defaultColumns[4]] == 'LOADING'; else offline" class="rotate_icon" icon="loader-outline"></nb-icon>
+              
+              <ng-template #offline>
+                <nb-icon *ngIf="row.data[defaultColumns[4]] === 'OFFLINE'; else online"  icon="close-outline" style="color: crimson;"></nb-icon>
+              </ng-template>
+            </td>
           </ng-container>
 
           <ng-container [nbTreeGridColumnDef]="defaultColumns[5]">
@@ -96,28 +106,27 @@
           </ng-container>
 
           <ng-container [nbTreeGridColumnDef]="defaultColumns[8]" >
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid">{{defaultColumns[8]}}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid" style="width: 50px">{{defaultColumns[8]}}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row" class="hid">{{row.data[defaultColumns[8]]}}</td>
           </ng-container>
 
 
 	  <!-- ICONS -->
-      <ng-container [nbTreeGridColumnDef]="iconColumn">
-        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 150px">
-         	<nb-icon icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue" (click)="setMode()"></nb-icon>
+      <ng-container [nbTreeGridColumnDef]="iconColumn" >
+        <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 120px">
+         	<nb-icon icon="plus-circle-outline"  [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue" ></nb-icon>
          	<nb-icon icon="list-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./remoteCatalogues"></nb-icon>
          	<nb-icon icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump()"></nb-icon>
         </th>
         <!-- nbTreeGridCell *nbTreeGridCellDef="let row" -->
-        <td nbTreeGridCell *nbTreeGridCellDef="let row">
-         <!-- <nb-fs-icon [kind]="row.data.kind" [expanded]="row.expanded"></nb-fs-icon> -->
-         	<nb-icon icon="sync-outline"  [options]="{ animation: { type: 'zoom' } }"></nb-icon>
-         	<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue"></nb-icon>
-			<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon>
+        <td nbTreeGridCell *nbTreeGridCellDef="let row" >
+          <nb-icon icon="bar-chart-outline"  [options]="{ animation: { type: 'zoom' } }" (click)="sendMqaAnalisysCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
+         	<nb-icon icon="sync-outline"  [options]="{ animation: { type: 'zoom' } }" (click)="syncCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
+         	<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data[defaultColumns[8]])"></nb-icon>
+			    <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
          	<nb-icon icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump(row.data[defaultColumns[0]],row.data[defaultColumns[8]])"></nb-icon>
         </td>
       </ng-container>
-
 
 
     </table>

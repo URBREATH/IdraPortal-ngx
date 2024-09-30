@@ -1,7 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { DataletIframeComponent } from '../datalet-iframe/datalet-iframe.component';
 import { DistributionComponent } from '../distribution/distribution.component';
 import { DCATDataset } from '../model/dcatdataset';
@@ -10,6 +10,10 @@ import { SKOSConcept } from '../model/skosconcept';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
 import { ShowDataletsComponent } from '../show-datalets/show-datalets.component';
 import * as URLParse from 'url-parse';
+import { PreviewDialogComponent } from './preview-dialog/preview-dialog.component';
+import { GeoJsonDialogComponent } from './geojson-dialog/geojson-dialog.component';
+import { format } from 'path';
+import { RefreshService } from '../../services/refresh.service';
 
 @Component({
   selector: 'ngx-dataset',
@@ -38,18 +42,19 @@ export class DatasetComponent implements OnInit {
     private restApi: DataCataglogueAPIService,
     private toastrService: NbToastrService,
     private dialogService: NbDialogService,
-    private configService: ConfigService
+    private configService: ConfigService<Record<string, any>>,
+    private refreshService: RefreshService,
     ) { 
-      this.dataletBaseUrl = configService.getSettings("datalet_base_url");
-      this.enableDatalet = configService.getSettings("enable_datalet");
+      this.dataletBaseUrl = configService["datalet_base_url"];
+      this.enableDatalet = configService["enable_datalet"];
     }
 
 
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
 
     let dataletOrigin = new URLParse(this.dataletBaseUrl);
-    //console.log(dataletOrigin.origin)
     if(location.origin==dataletOrigin.origin){
       this.samedomain=true;
     }
@@ -93,6 +98,19 @@ export class DatasetComponent implements OnInit {
         distribution: distribution
       },
     });
+  }
+
+  downloadUrl(distribution:DCATDistribution){
+    let url = distribution.downloadURL;
+    if((distribution.downloadURL==undefined || distribution.downloadURL=='') && (distribution.accessURL!=undefined && distribution.accessURL!='')){
+      url = distribution.accessURL;
+    }
+    // download file
+    if(url!=undefined && url!=''){
+      window.open(url);
+    } else {
+      this.toastrService.danger("No download URL found for this distribution","Error")
+    }
   }
 
   printConcepts(themes: SKOSConcept[]){
@@ -178,7 +196,6 @@ export class DatasetComponent implements OnInit {
 
         },
         err => {
-          console.log(err)
           this.loading = false;
           this.toastrService.danger("File with url " + distribution.downloadURL + " returned " + err.status + "!", "Unable to create Datalet");
         }
@@ -190,7 +207,6 @@ export class DatasetComponent implements OnInit {
           window.open(`${this.dataletBaseUrl}?ln=en&format=${parameter}&nodeID=${this.dataset.nodeID}&distributionID=${distribution.id}&datasetID=${this.dataset.id}&url=${encodeURIComponent(distribution.downloadURL)}`)
         },
         err => {
-          console.log(err)
           this.loading = false;
           this.toastrService.danger("File with url " + distribution.downloadURL + " returned " + err.status + "!", "Unable to create Datalet");
         }
@@ -199,13 +215,71 @@ export class DatasetComponent implements OnInit {
   }
 
   openExistingDatalet(distribution:DCATDistribution){
-    this.dialogService.open(ShowDataletsComponent, {
-      context: {
-        distributionID: distribution.id,
-        datasetID:this.dataset.id,
-        nodeID:this.dataset.nodeID
-      }
-    });
+    if(this.checkDistributionFormat(distribution.format)){
+      this.dialogService.open(ShowDataletsComponent, {
+        context: {
+          distributionID: distribution.id,
+          datasetID:this.dataset.id,
+          nodeID:this.dataset.nodeID
+        }
+      });
+    }
   }
 
+
+	handlePreviewFileOpenModal(distribution: DCATDistribution) {
+    // check if the distribution format is one of the following: CSV,JSON,XML,GEOJSON,RDF,KML,PDF
+    let formatLower = distribution.format.replace(/\s/g, "").toLowerCase();
+    if(formatLower == "geojson" || formatLower == "kml"  || formatLower == "shp"){
+      this.dialogService.open(GeoJsonDialogComponent, {
+        context: {
+          title: distribution.title,
+          distribution: distribution,
+          type: formatLower,
+        },
+      })
+      return;
+    }
+    else{
+      if(this.checkDistributionFormat(distribution.format)){
+        if(formatLower == "rdf"){
+          this.restApi.downloadRDFfromUrl(distribution).subscribe(
+            (res : string) => {
+              console.log(res);
+              this.dialogService.open(PreviewDialogComponent, {
+                context: {
+                  title: distribution.title,
+                  text: res,
+                },
+              })
+            },
+            err => {
+              this.toastrService.danger("Could not load the file", "Error");
+            }
+          )
+        } else {
+          this.dialogService.open(PreviewDialogComponent, {
+            context: {
+              title: distribution.title,
+              url: distribution.accessURL,
+            },
+          })
+        }
+      }
+    }
+	}
+
+  checkDistributionFormat(format:string){
+    // remove white spaces and convert to lower case
+    let formatLower = format.replace(/\s/g, "").toLowerCase();
+    if(formatLower == "csv" || formatLower == "json" || formatLower == "xml" || formatLower == "geojson" || formatLower == "rdf" || formatLower == "kml" || formatLower == "pdf" || formatLower == "shp")
+      return true;
+    else
+      return false;
+    }
+
+
 }
+
+
+

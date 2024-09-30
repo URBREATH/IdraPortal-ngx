@@ -1,0 +1,23 @@
+.white-text {
+    color: white;
+}
+
+.no-white {
+    color: black;
+}
+
+label {
+    color: #222b45;
+}
+
+span {
+    color: #222b45;
+}
+
+.buttonContainer{
+    // buttons should be in the same line
+    display: flex;
+    // justify-content: space-between;
+    gap: 0.5rem;
+
+}

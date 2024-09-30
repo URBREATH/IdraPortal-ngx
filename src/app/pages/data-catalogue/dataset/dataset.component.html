@@ -30,8 +30,10 @@
                     <nb-card-header class="d-flex justify-content-between">
                         <span>{{distribution.title}}&nbsp;<span *ngIf="distribution.format!=undefined && distribution.format!='undefined'">({{distribution.format}})</span></span>
                         <nb-actions size="small">
-                            <nb-action icon="eye" nbTooltip="View Datalet" [disabled]="!distribution.hasDatalets"  (click)="openExistingDatalet(distribution)"></nb-action>
+                            <nb-action icon="eye" nbTooltip="Preview File" [disabled]="!checkDistributionFormat(distribution.format)"  (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
+                            <nb-action icon="bar-chart-outline" nbTooltip="View Datalet" [disabled]="!checkDistributionFormat(distribution.format)"  (click)="openExistingDatalet(distribution)"></nb-action>
                             <nb-action icon="pie-chart" *ngIf="enableDatalet" nbTooltip="Create Datalet" [disabled]="!checkDistributionDatalet(distribution)"  (click)="dataletCreate(distribution)"></nb-action>
+                            <nb-action icon="download-outline" nbTooltip="Dowload" (click)="downloadUrl(distribution)"></nb-action>
                             <nb-action icon="info" nbTooltip="Details" (click)="openDistributionDetails(distribution)"></nb-action>
                           </nb-actions>
                     </nb-card-header>

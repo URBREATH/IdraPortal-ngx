@@ -1,6 +1,6 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { ConfigService } from '@ngx-config/core';
+import { ConfigService } from 'ngx-config-json';
 import { Observable } from 'rxjs';
 import { Datalet } from '../model/datalet';
 import { DCATDataset } from '../model/dcatdataset';
@@ -19,8 +19,8 @@ export class DataCataglogueAPIService {
 
   private apiEndpoint;
 
-  constructor(private config:ConfigService,private http:HttpClient) { 
-    this.apiEndpoint=this.config.getSettings("idra_base_url");
+  constructor(private config:ConfigService<Record<string, any>>,private http:HttpClient) { 
+    this.apiEndpoint=this.config.config["idra_base_url"];
   }
 
   getDatasetById(id:string):Observable<DCATDataset>{
@@ -58,5 +58,25 @@ export class DataCataglogueAPIService {
 
   getDatalets(catalogueId:string, datasetId:string, ditributionId:string):Observable<Array<Datalet>>{
     return this.http.get<Array<Datalet>>(`${this.apiEndpoint}/Idra/api/v1/client/catalogues/${catalogueId}/dataset/${datasetId}/distribution/${ditributionId}/datalets`);
+  }
+
+  downloadGeoJSONFromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=GeoJSON&id=${distribution.id}`); 
+  }
+
+  downloadKMLFromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=KML&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/xml'}), responseType: 'text' as 'json'}); 
+  }
+
+  downloadRDFfromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=RDF&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/xml'}), responseType: 'text' as 'json'}); 
+  }
+
+  downloadZipFromUrl(distribution:DCATDistribution):Observable<Blob>{
+    return this.http.get<Blob>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=ZIP&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'application/zip'}), responseType: 'blob' as 'json'}); 
+  }
+
+  downloadShapefileFromUrl(distribution:DCATDistribution):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/client/downloadFromUri?url=${encodeURIComponent(distribution.downloadURL)}&method=export&format=SHP&id=${distribution.id}`, {headers: new HttpHeaders({'Accept': 'x-gis/x-shapefile'}), responseType: 'text' as 'json'}); 
   }
 }

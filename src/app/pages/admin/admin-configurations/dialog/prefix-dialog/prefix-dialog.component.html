@@ -1,0 +1,15 @@
+<nb-card>
+  <nb-card-header>{{ title }}</nb-card-header>
+  <nb-card-body>
+    <h6 class="jumbotron-heading">Prefix:</h6>
+     <input type="text" nbInput fullWidth status="primary" placeholder="Insert Prefix" [(ngModel)]="prefix">
+     <h6 class="jumbotron-heading">Namespace:</h6>
+    <input type="text" nbInput fullWidth status="primary" placeholder="Insert namespace url>" [(ngModel)]="namespace">
+  </nb-card-body>
+  <nb-card-footer>
+    <div style="display: flex;justify-content: space-between;">
+      <button nbButton status="primary" (click)="dismiss(0,0)">CLOSE</button>
+      <button nbButton status="primary" (click)="dismiss(prefix, namespace)">{{action}}</button>
+    </div>
+  </nb-card-footer>
+</nb-card>
