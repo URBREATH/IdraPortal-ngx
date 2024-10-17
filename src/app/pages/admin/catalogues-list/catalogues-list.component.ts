@@ -24,12 +24,13 @@ interface FSEntry {
   Type: string;
   Level: string;
   Status: string;
+  CB: boolean;
   Datasets: number;
   UpdatePeriod: string;
   LastUpdate: string;
   id: string;
   index: number;
-  isActive: boolean;
+  Active: boolean;
   synchLock: string;
 }
 
@@ -72,6 +73,9 @@ export class CataloguesListComponent implements OnInit {
 		this.refreshService.refreshPageOnce('admin-configuration');
 
 		this.loadCatalogue();
+		setInterval(() => {
+			this.loadCatalogue();
+		}, 60000);
 	}
 
 	loadCatalogue(){
@@ -89,7 +93,7 @@ export class CataloguesListComponent implements OnInit {
 				let level = this.getLevel(infos[i].nodeType);
 				console.log("data: ",infos[i])
 				this.data.push({
-					data: { Name: infos[i].name, Country: infos[i].country, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, Datasets: infos[i].datasetCount, UpdatePeriod: '1 week', LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, isActive: infos[i].isActive, synchLock: infos[i].synchLock},
+					data: { Name: infos[i].name, Country: infos[i].country, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: '1 week', LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
 				});
 				this.dataSource = this.dataSourceBuilder.create(this.data);
 			}
@@ -150,8 +154,8 @@ export class CataloguesListComponent implements OnInit {
 	}
 
 	// ------------------------- TABLE
-	customColumn = 'isActive';
-	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
+	customColumn = 'Active';
+	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'CB', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
 	iconColumn = ' ';
 	allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
 

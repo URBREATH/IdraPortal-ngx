@@ -47,7 +47,7 @@
 					  <nb-card-body>
 						<div style = "padding-bottom: 20px">
 							<label class="search-label" for="search">Search:</label>
-							<input nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; padding-bottom: 10px">
+							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
 						</div>
 					
 						<table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
@@ -119,7 +119,7 @@
 					  <nb-card-body>
 						<div style = "padding-bottom: 20px">
 							<label class="search-label" for="search">Search:</label>
-							<input nbInput [nbFilterInput]="dataSourceCat" id="search" class="search-input" style="width: 200px; height: 30px; padding-bottom: 10px">
+							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
 						</div>
 					
 						<table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)">

@@ -78,7 +78,7 @@ export class AddCatalogueComponent implements OnInit {
   ODMSCategories = [{text:'Municipality',value:'Municipality'},{text:'Province',value:'Province'},{text:'Private Institution',value:'Private Institution'},{text:'Public Body',value:'Public Body'},{text:'Region',value:'Region'}];
   updatePeriods=[{text:'-',value:"0"},{text:'1 hour',value:"3600"},{text:'1 day',value:"86400"},{text:'1 week',value:"604800"}];    
   activeMode = [{text:'Yes',value:true},{text:'No',value:false}];
-  nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'}];
+  nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'NGSILD_CB',value:'NGSILD_CB'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'}];
   
   countries = [
     { code: "AF", code3: "AFG", name: "Afghanistan", number: "004" },
@@ -642,6 +642,9 @@ export class AddCatalogueComponent implements OnInit {
 				break;
 			case 'ORION':
 				this.node.federationLevel='LEVEL_4';
+				break;
+			case 'NGSILD_CB':
+				this.node.federationLevel='LEVEL_2';
 				break;
 			case 'SPARQL':
 				this.node.federationLevel='LEVEL_4';

@@ -97,10 +97,10 @@ export function createTranslateLoader(http: HttpClient) {
           view: '*'
         },
         MANAGER: {
-          view: ['external-app', 'maps', 'home', 'about']
+          view: ['home', 'mqa', 'statistics', 'datasets', 'administration']	
         },
         CITIZEN: {
-          view: ['home', 'about','catalogues']
+          view: ['home','datasets', 'mqa', 'statistics']
         }
       },
     }),

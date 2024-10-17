@@ -38,6 +38,11 @@ const routes: Routes = [{
       .then(m => m.MqaModule),
     },
     {
+      path: 'statistics',
+      loadChildren: () => import('./statistics/statistics.module')
+      .then(m => m.StatisticsModule),
+    },
+    {
       path: 'auth',
       component: NbAuthComponent,
       children: [

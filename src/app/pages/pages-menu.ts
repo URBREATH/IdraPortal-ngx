@@ -22,6 +22,14 @@ export const MENU_ITEMS: NbMenuItem[] = [
     }
   },
   {
+    title: 'Statistics',
+    icon: 'pie-chart-outline',
+    link: "/pages/statistics",
+    data:{
+      name:"statistics"
+    }
+  },
+  {
     title: 'Mqa Scoring',
     icon: 'bar-chart-outline',
     link: "/pages/mqa",

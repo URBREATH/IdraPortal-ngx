@@ -167,6 +167,7 @@
 						>
 						{{ period.text }}
 					</option>
+					<option *ngIf="node.nodeType == 'NGSILD_CB'" value="1">Auto-update</option>
 				</select>
 				<!-- <nb-select placeholder="Refresh" (selectedChange)="changedRefreshHandler($event)" [selected]="node.refreshPeriod">
 					<nb-option *ngFor="let period of updatePeriods" [value]="period.text"> {{ period.text }}</nb-option>

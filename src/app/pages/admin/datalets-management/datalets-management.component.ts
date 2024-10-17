@@ -93,6 +93,7 @@ export class DataletsManagementComponent implements OnInit {
   }
 
 	handleIFrameDataletOpenModal(datalet) {
+    console.log(datalet);
 		
 		this.dialogService.open(DataletDialogComponent, {
       context: {

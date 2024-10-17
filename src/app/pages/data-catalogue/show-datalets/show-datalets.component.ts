@@ -25,6 +25,12 @@ export class ShowDataletsComponent implements OnInit {
   ngOnInit(): void {
     this.restApi.getDatalets(this.nodeID,this.datasetID,this.distributionID).subscribe(
       res => {
+        if(res.length==0){
+          // show message that no datalets are available
+          this.datalets=[];
+          this.selected = {datalet_html:"<div>No datalet found</div>"};
+          return
+        }
         this.datalets=res;
         this.selected=this.datalets[0];
       },
