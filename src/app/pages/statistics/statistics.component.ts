@@ -19,9 +19,9 @@ export class StatisticsComponent implements OnInit {
     tooltip: {},
     // Declare an x-axis (category axis).
     // The category map the first column in the dataset by default.
-    xAxis: { },	
+    xAxis: { type: 'category' },	
     // Declare a y-axis (value axis).
-    yAxis: { type: 'category' },
+    yAxis: {  },
     // Declare several 'bar' series,
     // every series will auto-map to each column by default.
     series: [{ type: 'bar' }],
@@ -32,9 +32,9 @@ export class StatisticsComponent implements OnInit {
     tooltip: {},
     // Declare an x-axis (category axis).
     // The category map the first column in the dataset by default.
-    xAxis: { },	
+    xAxis: { type: 'category' },	
     // Declare a y-axis (value axis).
-    yAxis: { type: 'category' },
+    yAxis: {  },
     // Declare several 'bar' series,
     // every series will auto-map to each column by default.
     series: [{ type: 'bar' }, { type: 'bar' }],
