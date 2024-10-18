@@ -71,16 +71,16 @@ export class StatisticsComponent implements OnInit {
 
   catalogueList: Array<any> = [];
   selectedCatalogues: Array<number> = [0];
-  dateInterval: any = [new Date(), new Date(new Date().getTime() - 7*24*60*60*1000)];
-  selectedInterval: number = 1;
+  dateInterval: any = [new Date(), new Date(new Date().getTime() - 8*24*60*60*1000)];
+  selectedInterval: number = 0;
 
   getStatistics(): void {
     if(this.selectedInterval == 0){
-      this.dateInterval = [new Date(), new Date(new Date().getTime() - 7*24*60*60*1000)];
+      this.dateInterval = [new Date(), new Date(new Date().getFullYear(), new Date().getMonth(), new Date().getDate() - 7)];
     } else if(this.selectedInterval == 1){
-      this.dateInterval = [new Date(), new Date(new Date().getTime() - 30*24*60*60*1000)];
+      this.dateInterval = [new Date(), new Date(new Date().getFullYear(), new Date().getMonth() -1, new Date().getDate())];
     } else if(this.selectedInterval == 2){
-      this.dateInterval = [new Date(), new Date(new Date().getTime() - 678*24*60*60*100)];
+      this.dateInterval = [new Date(), new Date(new Date().getFullYear() - 1, new Date().getMonth(), new Date().getDate())];
     }
 
     let startDate = this.dateInterval[1].toISOString();
