@@ -22,6 +22,14 @@ export const MENU_ITEMS: NbMenuItem[] = [
     }
   },
   {
+    title: 'Catalogues',
+    icon: 'list-outline',
+    link: "/pages/catalogues",
+    data:{
+      name:"catalogues"
+    }
+  },
+  {
     title: 'Statistics',
     icon: 'pie-chart-outline',
     link: "/pages/statistics",

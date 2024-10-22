@@ -22,6 +22,11 @@ const routes: Routes = [{
         .then(m => m.AboutModule),
     },
     {
+      path: 'catalogues',
+      loadChildren: () => import('./catalogues/catalogues.module')
+      .then(m => m.CataloguesModule),
+    },
+    {
       path: 'datasets',
       loadChildren: () => import('./data-catalogue/data-catalogue.module')
         .then(m => m.DataCatalogueModule),

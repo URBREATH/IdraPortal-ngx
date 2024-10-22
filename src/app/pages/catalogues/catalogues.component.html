@@ -1,0 +1,68 @@
+<div class="row mb-1">
+    <div class="col-12">
+        <h1>Catalogues</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-12">
+        <nb-card>
+          <div [nbSpinner]="loadingPrevious"></div>
+            <nb-list-item *ngIf="catalogues?.length == 0 || error">
+                <span>No catalogues found</span>
+            </nb-list-item>
+          <nb-list
+            nbInfiniteList
+            listenWindowScroll
+            [threshold]="500"
+            nbListPageTracker
+            >
+            <nb-list-item *ngFor="let catalogue of catalogues; index as i">
+                <nb-card style="width: 100%;">
+                    <nb-card-header>
+                        <div class="row">
+                            <div class="col-12 d-flex align-items-center">
+                                <img [src]="catalogue.image.imageData" alt="" style="width: 80px; margin-right: 1rem;">
+                                <a style="margin-right: 0.5rem;" [href]="[catalogue.homepage]" target="_blank"><h4>{{catalogue.name}}</h4></a>
+                                <nb-icon nbTooltip="Show Datasets" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" [routerLink]="['/pages/datasets']" [queryParams]="{ search_value: catalogue.name, name: catalogue.name }"></nb-icon>
+                            </div>
+                        </div>
+                    </nb-card-header>
+                    <nb-card-body>
+                        <div class="row">
+                            <div class="col-12">
+                                <span><strong>Country: </strong>{{catalogue.country}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <span><strong>Datasets: </strong>{{catalogue.datasetCount}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <span><strong>Last Update: </strong>{{catalogue.lastUpdateDate}}</span>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <p><strong>Category: </strong>{{catalogue.category}}</p>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-12">
+                                <p>{{catalogue.description}}</p>
+                            </div>
+                        </div>
+                    </nb-card-body>
+                    <nb-card-footer>
+                        <div class="row">
+                            <div class="col-12">
+                            </div>
+                        </div>
+                    </nb-card-footer>
+                </nb-card>
+            </nb-list-item>
+          </nb-list>
+        </nb-card>
+    </div>
+</div>
