@@ -5,6 +5,7 @@ import { SearchRequest } from '../data-catalogue/model/search-request';
 import { SearchResult } from '../data-catalogue/model/search-result';
 import { randomInt } from 'crypto';
 import { Router } from '@angular/router';
+import { NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
 
 @Component({
   selector: 'ngx-home',
@@ -64,6 +65,29 @@ export class HomeComponent implements OnInit {
     },err=>{
       console.log(err);
     })
+  }
+
+  filters: string[] = [];
+  
+  onTagRemove(tagToRemove: NbTagComponent): void {
+    console.log(tagToRemove.text)
+    this.filters = this.filters.filter(x => x!=tagToRemove.text);
+  }
+
+  onTagAdd({ value, input }: NbTagInputAddEvent): void {
+    console.log(value)
+    console.log(input)
+    //added timeout since comma doesn't desapear from input
+    setTimeout(()=>{
+      if(input != undefined )
+      input.nativeElement.value = ''
+      if (value) {
+        this.filters.push(value);
+      }
+      this.router.navigate(['/pages/datasets'], {queryParams:{tags: this.filters.join(',')}})
+    }, 50);
+
+    
   }
 
   randomClass(){

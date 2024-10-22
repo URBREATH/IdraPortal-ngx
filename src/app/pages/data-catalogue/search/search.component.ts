@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ElementRef } from '@angular/core';
 import { NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
 import { DCATDataset,FormatCount } from '../model/dcatdataset';
 import { ODMSCatalogueInfo } from '../model/odmscatalogue-info';
@@ -33,6 +33,7 @@ export class SearchComponent implements OnInit {
   page=1;
 
   totalDatasets:number=0;
+  currentDatasets:number=0;
 
   filters: Array<string> = [];
   filtersTags: Array<string>= [];
@@ -54,22 +55,22 @@ export class SearchComponent implements OnInit {
         if(searchParam['text']!=undefined){
           this.getDatasetByFacet('datasetThemes',searchParam.value)
         }
+        if(searchParam['tags']!=undefined){
+          let tags = searchParam.tags.split(',')
+          tags.forEach(element => {
+            this.onTagAdd({value: element, input: new ElementRef<HTMLInputElement>(document.createElement('input'))})
+          });
+        }
       })
-      // // console.log(this.router.routerState.snapshot.root.queryParams)
-      // let searchParam = this.router.routerState.snapshot.root.queryParams
-      // // this.getDatasetByFacet(tag.search_value,tag.name)
-      // if(searchParam['name']!=undefined){
-      //   setTimeout(()=>{this.getDatasetByFacet(searchParam.search_value,searchParam.name)},100)
-      //   // this.onTagAdd({value:searchParam.name,input:undefined})
-      // }
-      // if(searchParam['text']!=undefined){
-      //   setTimeout(()=>{this.getDatasetByFacet('datasetThemes',searchParam.value)},100)
-      //   // this.getDatasetByFacet('datasetThemes',searchParam.value)
-      // }
     },err=>{
       console.log(err);
       this.loading=false;
     })
+  }
+
+  updateFilters(tags){
+      this.filters= tags;
+      this.searchDataset()
   }
 
   pageChanged($event:number){
@@ -97,6 +98,7 @@ export class SearchComponent implements OnInit {
     this.restApi.searchDatasets(this.searchRequest).subscribe(
       res=>{
         this.searchResponse=res
+        this.currentDatasets = this.searchResponse.count;  
         if(isFirst){
           this.totalDatasets = this.searchResponse.count;  
         }

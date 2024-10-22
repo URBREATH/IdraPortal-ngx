@@ -6,8 +6,9 @@
                     {{cataloguesInfos.length}} catalogues! </h2>
                   <nb-tag-list (tagRemove)="onTagRemove($event)" >
                     <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
-                    <input type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth>
+                    <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth>
                   </nb-tag-list>
+                  <span style="align-self: flex-start;margin-top: 0.3rem"><strong>Datasets found:</strong> {{currentDatasets}}</span>
             </nb-card-body>
         </nb-card>
     </div>

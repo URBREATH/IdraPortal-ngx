@@ -2,6 +2,10 @@
     <div class="container mb-4">
         <h2 class="jumbotron-heading"> Search over {{totalDatasets}} dataset from
               {{cataloguesInfos.length}} catalogues! </h2>
+              <nb-tag-list (tagRemove)="onTagRemove($event)" >
+                <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
+                <input type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth>
+              </nb-tag-list>
     </div>
     <nb-tabset fullWidth>
         <nb-tab tabTitle="Tags">
