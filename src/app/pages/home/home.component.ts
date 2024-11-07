@@ -24,6 +24,180 @@ export class HomeComponent implements OnInit {
   classes: Array<string> = [];
   searchResponse:SearchResult=new SearchResult();
   searchRequest:SearchRequest=new SearchRequest();
+  advancedSearch:boolean=false;
+  searchToggleIcon:string="arrow-ios-downward-outline";
+  Filters: Array<any> = [{type: 'ALL', tags: []}];
+  types: Array<string> = ['title','tags','description'];
+
+  releasedDate: Array<Date> = [];
+  updatedDate: Array<Date> = [];
+  
+  catalogueList: Array<any> = [];
+  selectedCatalogues: Array<number> = [0];
+  selectedCatalogues_prev: Array<number> = [0];
+  sourceLanguage: string = "";
+  targetsLanguage: Array<string> = [];
+  languages: Array<any> = [{"value":"BG" ,"text": "Български" },
+    {"value":"ES" ,"text":"Español"},{"value":"CS" ,"text":"Čeština" },
+    {"value": "DA" ,"text": "Dansk" },{"value": "DE" ,"text": "Deutsch" },
+    {"value": "ET" ,"text": "Eesti" },{"value": "EL" ,"text": "λληνικά"  },
+    {"value": "EN" ,"text": "English" },{"value": "FR" ,"text": "Français" },
+    {"value": "GA" ,"text": "Gaeilge" },{"value": "HR" ,"text": "Hrvatski" },
+    {"value": "IT" ,"text": "Italiano" },{"value": "LV" ,"text": "Latviešu" },{"value": "LT" ,"text": "Lietuvių" },
+    {"value": "HU" ,"text": "Magyar" }, {"value": "MT" ,"text": "Malti" },{"value": "NL" ,"text": "Nederlands" },
+    {"value": "PL" ,"text": "Polski" },{"value": "PT" ,"text": "Português" },{"value": "RO" ,"text": "Română" },
+    {"value": "SK" ,"text": "Slovenčina" },{"value": "SL" ,"text": "Slovenščina" },{"value": "FI" ,"text": "Suomi" },
+    {"value": "SV" ,"text": "Svenska" },{"value": "MK" ,"text": "Македонски" },{"value": "SQ" ,"text": "Shqip" },{"value": "SR" ,"text": "Српски" }];
+
+  maxResultPerPage: number = 25;
+  sortyBy: number = 4;
+  order: number = 0;
+  multiLanguageChecked = false;
+
+  toggleMultiLanguage(checked: boolean) {
+    this.multiLanguageChecked = checked;
+  }
+
+  toggleAdvancedSearch(){
+    this.advancedSearch = !this.advancedSearch;
+    if(this.advancedSearch){
+      this.searchToggleIcon = "arrow-ios-upward-outline";
+    } else {
+      this.searchToggleIcon = "arrow-ios-downward-outline";
+    }
+  }
+
+  addFilter(){
+    if(this.Filters.length < 4){
+      let type = this.types.pop();
+      this.Filters.push({type: type, tags: []});
+    }
+  }
+
+  removeFilter(index:number){
+    if(this.Filters.length>1){
+      this.types.push(this.Filters[index].type);
+      this.Filters.splice(index,1);
+    }
+  }
+  
+  onTagRemoveOnFilter(tagToRemove: NbTagComponent, index: number): void {
+    this.Filters[index].tags = this.Filters[index].tags.filter(x => x!=tagToRemove.text);
+  }
+
+  onTagAddOnFilter({ value, input }: NbTagInputAddEvent, index: number): void {
+    //added timeout since comma doesn't desapear from input
+      if(input != undefined )
+        input.nativeElement.value = ''
+      if (value) {
+        this.Filters[index].tags.push(value);
+      }
+    
+  }
+
+  advancedSearchReq(){
+    if(!this.advancedSearch){
+      this.router.navigate(['/pages/datasets'], {
+        queryParams:{
+          tags: this.tagsFilter.join(','),
+          advancedSearch: false
+        }
+      })
+    } else{
+      let filters = [];
+      this.Filters.forEach(filter => {
+        if(filter.tags.length > 0){
+          filters.push({field: filter.type, value: filter.tags.join(',')});
+        }
+      });
+      let selectedCatalogues
+      if(this.selectedCatalogues.includes(0)){
+        selectedCatalogues = this.selectedCatalogues.filter(x=>x!=0);
+      }
+      let sort
+      switch(this.sortyBy){
+        case 0:
+          sort = 'releaseDate';
+          break;
+        case 1:
+          sort = 'updateDate';
+          break;
+        case 2:
+          sort = 'nodeID';
+          break;
+        case 3:
+          sort = 'contactPoint_fn';
+          // sort = 'publisherName';
+          break;
+        case 4:
+          sort = 'title';
+          break;
+        default:
+          sort = 'title';
+          break;
+      }
+      let params = {
+        live: false,
+        filters: filters,
+        sort: {
+          field: sort,
+          mode: this.order ? 'desc' : 'asc'
+        },
+        rows: this.maxResultPerPage,
+        start: 0,
+        nodes: selectedCatalogues,
+        euroVocFilter: {
+          euroVoc: this.multiLanguageChecked,
+          sourceLanguage: this.sourceLanguage,
+          targetLanguages: this.targetsLanguage
+        }
+      }
+      if(this.releasedDate.length > 0){
+        params['releasedDate'] = {
+          start: this.releasedDate[0],
+          end: this.releasedDate[1]
+        }
+      }
+      if(this.updatedDate.length > 0){
+        params['updatedDate'] = {
+          start: this.updatedDate[0],
+          end: this.updatedDate[1]
+        }
+      }
+      this.router.navigate(['/pages/datasets'], {
+        queryParams: { params: JSON.stringify(params), advancedSearch: true }
+      })
+
+    }
+  }
+
+  updateDate(event:any, type:number){
+    if(type == 0){
+      this.releasedDate = event;
+    } else {
+      this.updatedDate = event;
+    }
+  }
+
+  handleCataloguesChange(event:any){
+    console.log(this.cataloguesInfos.map(x=>x.id))
+    console.log(event)
+    if(event.includes(0) && !this.selectedCatalogues_prev.includes(0)){
+      this.selectedCatalogues = this.cataloguesInfos.map(x=>x.id);
+      this.selectedCatalogues.unshift(0);
+      console.log('1')
+    } else if(!event.includes(0) && this.selectedCatalogues_prev.includes(0)){
+      this.selectedCatalogues = [];
+      console.log('2')
+    } else if(event.length -1 < this.cataloguesInfos.length && event.includes(0)){
+      this.selectedCatalogues = this.selectedCatalogues.filter(x=>x!=0);
+      console.log('3')
+    } else if(event.length == this.cataloguesInfos.length && !event.includes(0)){
+      this.selectedCatalogues.unshift(0);
+      console.log('4')
+    }
+    this.selectedCatalogues_prev = this.selectedCatalogues;
+  }
 
 	dcatThemes=[{value:"AGRI",icon:"agri",text:"Agriculture"},
 		{value:"ECON",icon:"econ",text:"Economy"},
@@ -41,9 +215,13 @@ export class HomeComponent implements OnInit {
 
     
   ngOnInit(): void {
+    
     this.restApi.getCataloguesInfo().subscribe(infos =>{
       this.cataloguesInfos = infos;
       this.searchRequest.nodes = infos.map(x=>x.id)
+      this.selectedCatalogues = infos.map(x=>x.id);
+      this.selectedCatalogues.unshift(0);
+      this.selectedCatalogues_prev = this.selectedCatalogues;
       this.restApi.searchDatasets(this.searchRequest).subscribe(
         res=>{
             this.totalDatasets = res.count;
@@ -67,24 +245,20 @@ export class HomeComponent implements OnInit {
     })
   }
 
-  filters: string[] = [];
+  tagsFilter: string[] = [];
   
   onTagRemove(tagToRemove: NbTagComponent): void {
-    console.log(tagToRemove.text)
-    this.filters = this.filters.filter(x => x!=tagToRemove.text);
+    this.tagsFilter = this.tagsFilter.filter(x => x!=tagToRemove.text);
   }
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    console.log(value)
-    console.log(input)
     //added timeout since comma doesn't desapear from input
     setTimeout(()=>{
       if(input != undefined )
       input.nativeElement.value = ''
       if (value) {
-        this.filters.push(value);
+        this.tagsFilter.push(value);
       }
-      this.router.navigate(['/pages/datasets'], {queryParams:{tags: this.filters.join(',')}})
     }, 50);
 
     

@@ -45,23 +45,30 @@ export class SearchComponent implements OnInit {
       this.cataloguesInfos = infos;
       this.searchRequest.nodes = infos.map(x=>x.id)
       this.loading=false
-      this.searchDataset(true).subscribe(res=>{
-        console.log(this.router.routerState.snapshot.root.queryParams)
-        let searchParam = this.router.routerState.snapshot.root.queryParams
-        // this.getDatasetByFacet(tag.search_value,tag.name)
-        if(searchParam['name']!=undefined){
-          this.getDatasetByFacet(searchParam.search_value,searchParam.name)
-        }
-        if(searchParam['text']!=undefined){
-          this.getDatasetByFacet('datasetThemes',searchParam.value)
-        }
-        if(searchParam['tags']!=undefined){
-          let tags = searchParam.tags.split(',')
-          tags.forEach(element => {
-            this.onTagAdd({value: element, input: new ElementRef<HTMLInputElement>(document.createElement('input'))})
-          });
-        }
-      })
+
+      let searchParam = this.router.routerState.snapshot.root.queryParams
+      
+      if(searchParam['advancedSearch'].toLowerCase()=='true'){
+        this.searchRequest = JSON.parse(searchParam['params']);
+        this.searchDataset(true)
+      } else{
+        this.searchDataset(true).subscribe(res=>{
+          // this.getDatasetByFacet(tag.search_value,tag.name)
+          if(searchParam['name']!=undefined){
+            this.getDatasetByFacet(searchParam.search_value,searchParam.name)
+          }
+          if(searchParam['text']!=undefined){
+            this.getDatasetByFacet('datasetThemes',searchParam.value)
+          }
+          if(searchParam['tags']!=undefined){
+            let tags = searchParam.tags.split(',')
+            tags.forEach(element => {
+              this.onTagAdd({value: element, input: new ElementRef<HTMLInputElement>(document.createElement('input'))})
+            });
+          }
+        })
+      }
+
     },err=>{
       console.log(err);
       this.loading=false;
