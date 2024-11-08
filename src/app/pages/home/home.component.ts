@@ -86,13 +86,11 @@ export class HomeComponent implements OnInit {
   }
 
   onTagAddOnFilter({ value, input }: NbTagInputAddEvent, index: number): void {
-    //added timeout since comma doesn't desapear from input
-      if(input != undefined )
-        input.nativeElement.value = ''
-      if (value) {
-        this.Filters[index].tags.push(value);
-      }
-    
+    if(input != undefined )
+      input.nativeElement.value = ''
+    if (value) {
+      this.Filters[index].tags.push(value.substring(0,value.length-1));
+    }
   }
 
   advancedSearchReq(){
@@ -251,17 +249,26 @@ export class HomeComponent implements OnInit {
     this.tagsFilter = this.tagsFilter.filter(x => x!=tagToRemove.text);
   }
 
-  onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    //added timeout since comma doesn't desapear from input
-    setTimeout(()=>{
-      if(input != undefined )
-      input.nativeElement.value = ''
-      if (value) {
-        this.tagsFilter.push(value);
-      }
-    }, 50);
+  tagInputKeydown(event: KeyboardEvent): void {
+    if ((event.target as HTMLInputElement).value.charAt((event.target as HTMLInputElement).value.length-1) === ',') {
+      this.onTagAdd({ value: (event.target as HTMLInputElement).value, input: null });
+      (event.target as HTMLInputElement).value = '';
+    }
+  }
 
-    
+  tagInputKeydownFilters(event: KeyboardEvent, i: number): void {
+    if ((event.target as HTMLInputElement).value.charAt((event.target as HTMLInputElement).value.length-1) === ',') {
+      this.onTagAddOnFilter({ value: (event.target as HTMLInputElement).value, input: null }, i);
+      (event.target as HTMLInputElement).value = '';
+    }
+  }
+
+  onTagAdd({ value, input }: NbTagInputAddEvent): void {
+    if(input != undefined )
+    input.nativeElement.value = ''
+    if (value) {
+      this.tagsFilter.push(value.substring(0,value.length-1));
+    }
   }
 
   randomClass(){
