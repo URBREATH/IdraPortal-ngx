@@ -27,8 +27,8 @@ export class AppComponent {
         endpoint: '/login',
         method: 'post',
         redirect: {
-          success: '/',
-          failure: null,
+          success: '/pages/administration/adminCatalogues',
+          failure: '/pages/auth/login',
         },
         defaultErrors: ['Username/password combination is not correct, please try again.'],
         defaultMessages: ['You have been successfully logged in.'],
@@ -39,8 +39,8 @@ export class AppComponent {
         endpoint: '/logout',
         method: 'post',
         redirect: {
-          success: '/',
-          failure: null,
+          success: '/pages/auth/login',
+          failure: '/pages/home',
         },
       },
       });

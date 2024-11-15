@@ -97,14 +97,15 @@ export function createTranslateLoader(http: HttpClient) {
           view: '*'
         },
         MANAGER: {
-          view: ['home', 'catalogues', 'mqa', 'statistics', 'datasets', 'administration']	
+          view: ['home', 'sparql', 'catalogues', 'mqa', 'statistics', 'datasets', 'administration']	
         },
         CITIZEN: {
-          view: ['home', 'catalogues', 'datasets', 'mqa', 'statistics']
+          view: ['home', 'sparql', 'catalogues', 'datasets', 'mqa', 'statistics']
         }
       },
     }),
 
+    // changes must be done in app.component.ts
     NbAuthModule.forRoot({
       strategies: [
         NbPasswordAuthStrategy.setup({
@@ -115,8 +116,8 @@ export function createTranslateLoader(http: HttpClient) {
             endpoint: '/login',
             method: 'post',
             redirect: {
-              success: '/',
-              failure: null,
+              success: '/pages/administration/adminCatalogues',
+              failure: '/pages/auth/login',
             },
             defaultErrors: ['Username/password combination is not correct, please try again.'],
             defaultMessages: ['You have been successfully logged in.'],
@@ -127,7 +128,7 @@ export function createTranslateLoader(http: HttpClient) {
             endpoint: '/logout',
             method: 'post',
             redirect: {
-              success: '/',
+              success: '/pages/auth/login',
               failure: null,
             },
           },
@@ -142,6 +143,10 @@ export function createTranslateLoader(http: HttpClient) {
             success: true,
             error: true,
           },
+          redirect: {
+            success: '/pages/administration/adminCatalogues',  // redirect after a successful login
+            failure: '/pages/auth/login', // redirect after a failed login
+          }
         },
         requestPassword: {
           redirectDelay: 500,
@@ -154,6 +159,10 @@ export function createTranslateLoader(http: HttpClient) {
         logout: {
           redirectDelay: 500,
           strategy: 'email',
+          redirect: {
+            success: '/pages/auth/login',
+            failure: '/pages/home',
+          },
         },
         validation: {
           password: {

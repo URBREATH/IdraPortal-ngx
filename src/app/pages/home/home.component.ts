@@ -27,7 +27,8 @@ export class HomeComponent implements OnInit {
   advancedSearch:boolean=false;
   searchToggleIcon:string="arrow-ios-downward-outline";
   Filters: Array<any> = [{type: 'ALL', tags: []}];
-  types: Array<string> = ['title','tags','description'];
+  selectableOptions: Array<string> = [];
+  options: Array<any> = ['description', 'tags', 'title'];
 
   releasedDate: Array<Date> = [];
   updatedDate: Array<Date> = [];
@@ -69,15 +70,18 @@ export class HomeComponent implements OnInit {
 
   addFilter(){
     if(this.Filters.length < 4){
-      let type = this.types.pop();
+      let diff = this.options.filter(x => !this.Filters.map(y=>y.type).includes(x));
+      let type = diff[0];
       this.Filters.push({type: type, tags: []});
+      this.selectableOptions = diff;
     }
   }
 
   removeFilter(index:number){
     if(this.Filters.length>1){
-      this.types.push(this.Filters[index].type);
       this.Filters.splice(index,1);
+      this.selectableOptions = this.options.filter(x => !this.Filters.map(y=>y.type).includes(x));
+      this.selectableOptions.push(this.Filters[index-1].type);
     }
   }
   
@@ -146,9 +150,13 @@ export class HomeComponent implements OnInit {
         nodes: selectedCatalogues,
         euroVocFilter: {
           euroVoc: this.multiLanguageChecked,
-          sourceLanguage: this.sourceLanguage,
-          targetLanguages: this.targetsLanguage
+          sourceLanguage: '',
+          targetLanguages: []
         }
+      }
+      if(this.multiLanguageChecked){
+        params.euroVocFilter.sourceLanguage = this.sourceLanguage;
+        params.euroVocFilter.targetLanguages = this.targetsLanguage;
       }
       if(this.releasedDate.length > 0){
         params['releasedDate'] = {
@@ -178,21 +186,15 @@ export class HomeComponent implements OnInit {
   }
 
   handleCataloguesChange(event:any){
-    console.log(this.cataloguesInfos.map(x=>x.id))
-    console.log(event)
     if(event.includes(0) && !this.selectedCatalogues_prev.includes(0)){
       this.selectedCatalogues = this.cataloguesInfos.map(x=>x.id);
       this.selectedCatalogues.unshift(0);
-      console.log('1')
     } else if(!event.includes(0) && this.selectedCatalogues_prev.includes(0)){
       this.selectedCatalogues = [];
-      console.log('2')
     } else if(event.length -1 < this.cataloguesInfos.length && event.includes(0)){
       this.selectedCatalogues = this.selectedCatalogues.filter(x=>x!=0);
-      console.log('3')
     } else if(event.length == this.cataloguesInfos.length && !event.includes(0)){
       this.selectedCatalogues.unshift(0);
-      console.log('4')
     }
     this.selectedCatalogues_prev = this.selectedCatalogues;
   }
@@ -284,8 +286,7 @@ export class HomeComponent implements OnInit {
     return this.classes[index];
   }
 
-  searchTag(i:any){
-    console.log(i)
+  searchTag(i:number){
     let search_parameter = this.tags[i]
     this.router.navigate(['/pages/datasets'], {queryParams:{search_value: search_parameter.search_value, name: this.tags[i].name}})
   }

@@ -13,6 +13,14 @@ export const MENU_ITEMS: NbMenuItem[] = [
       name:"home"
     }
   },
+  // {
+  //   title: 'Sparql',
+  //   icon: 'pie-chart-outline',
+  //   link: "/pages/sparql",
+  //   data:{
+  //     name:"sparql"
+  //   }
+  // },
   {
     title: 'Data Catalogue',
     icon: 'search-outline',

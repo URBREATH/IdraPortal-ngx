@@ -48,25 +48,35 @@ export class SearchComponent implements OnInit {
 
       let searchParam = this.router.routerState.snapshot.root.queryParams
       
-      if(searchParam['advancedSearch'].toLowerCase()=='true'){
+      if(searchParam['advancedSearch'] == 'true'){
         this.searchRequest = JSON.parse(searchParam['params']);
+        // this.filtersTags = searchParam['params'].filters.map(x=>x.value);
         this.searchDataset(true)
       } else{
-        this.searchDataset(true).subscribe(res=>{
-          // this.getDatasetByFacet(tag.search_value,tag.name)
-          if(searchParam['name']!=undefined){
-            this.getDatasetByFacet(searchParam.search_value,searchParam.name)
-          }
-          if(searchParam['text']!=undefined){
-            this.getDatasetByFacet('datasetThemes',searchParam.value)
-          }
-          if(searchParam['tags']!=undefined){
-            let tags = searchParam.tags.split(',')
-            tags.forEach(element => {
-              this.onTagAdd({value: element, input: new ElementRef<HTMLInputElement>(document.createElement('input'))})
-            });
-          }
-        })
+        if(searchParam['type']!=undefined){
+          this.searchRequest.filters.push(new SearchFilter('catalogues',searchParam.search_value))
+          this.searchDataset(true)
+        }
+        else if(searchParam['name']!=undefined){
+          // this.filtersTags.push(searchParam.name)
+          this.searchRequest.filters.push(new SearchFilter('tags',searchParam.search_value))
+          this.searchDataset(true)
+        }
+        else if(searchParam['text']!=undefined){
+          // this.filtersTags.push(searchParam.value)
+          this.searchRequest.filters.push(new SearchFilter('datasetThemes',searchParam.value))
+          this.searchDataset(true)
+        }
+        else if(searchParam['tags']!=undefined){
+          let tags = searchParam.tags.split(',')
+          // tags.forEach(element => {
+          //   this.filtersTags.push(element)
+          // });
+          this.searchRequest.filters.push(new SearchFilter('tags',searchParam.tags))
+          this.searchDataset(true)
+        } else{
+          this.searchDataset(true)
+        }
       }
 
     },err=>{
@@ -91,7 +101,10 @@ export class SearchComponent implements OnInit {
     this.filtersTags=[];
 
     this.searchRequest.filters.forEach(x=>{
-      if(x.field!='ALL'){
+      if(x.field=='ALL' && x.value!=''){
+        let values = x.value.split(',')
+        values.forEach(y=> this.filtersTags.push(y))
+      } else if(x.value!=''){
         let values = x.value.split(',')
         let name=x.field;
         let index = this.searchResponse.facets.findIndex(x=> x.search_parameter===name)
@@ -125,7 +138,6 @@ export class SearchComponent implements OnInit {
   }
 
   onTagRemove(tagToRemove: NbTagComponent): void {
-    console.log(tagToRemove.text)
     this.filters = this.filters.filter(x => x!=tagToRemove.text);
     this.searchRequest.filters.map(x =>{ 
       if(x.field=='ALL'){
@@ -138,8 +150,6 @@ export class SearchComponent implements OnInit {
   }
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    console.log(value)
-    console.log(input)
     //added timeout since comma doesn't desapear from input
     setTimeout(()=>{
       if(input != undefined )
@@ -254,8 +264,6 @@ export class SearchComponent implements OnInit {
   }
 
   getDatasetByFacet(search_parameter,newValue){
-    console.log(search_parameter)
-    console.log(newValue)
     this.page=1;
     this.searchRequest.start=0;
     let index = this.searchRequest.filters.findIndex(x=> x.field===search_parameter);
