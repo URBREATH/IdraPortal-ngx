@@ -8,49 +8,45 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Home',
     icon: 'home-outline',
-    link: "/pages/home",
-    data:{
-      name:"home"
-    }
+    link: '/pages/home',
+    data: {
+      name: 'home',
+    },
+    hidden: false,
   },
-  // {
-  //   title: 'Sparql',
-  //   icon: 'pie-chart-outline',
-  //   link: "/pages/sparql",
-  //   data:{
-  //     name:"sparql"
-  //   }
-  // },
   {
     title: 'Data Catalogue',
     icon: 'search-outline',
-    link: "/pages/datasets",
-    data:{
-      name:"catalogues"
-    }
+    link: '/pages/datasets',
+    data: {
+      name: 'catalogues',
+    },
+    hidden: false,
   },
   {
     title: 'Catalogues',
     icon: 'list-outline',
-    link: "/pages/catalogues",
-    data:{
-      name:"catalogues"
-    }
+    link: '/pages/catalogues',
+    data: {
+      name: 'catalogues',
+    },
+    hidden: false,
   },
   {
     title: 'Statistics',
     icon: 'pie-chart-outline',
-    link: "/pages/statistics",
-    data:{
-      name:"statistics"
-    }
+    link: '/pages/statistics',
+    data: {
+      name: 'statistics',
+    },
+    hidden: false,
   },
   {
     title: 'Mqa Scoring',
     icon: 'bar-chart-outline',
-    link: "/pages/mqa",
-    data:{
-      name:"mqa"
+    link: '/pages/mqa',
+    data: {
+      name: 'mqa',
     },
     hidden: true,
   },
@@ -60,23 +56,20 @@ export const MENU_ITEMS: NbMenuItem[] = [
     children: [
       {
         title: 'Data Catalogue Administration',
-		link: "/pages/administration/adminCatalogues",
-        //url: '',
-        //target: '_blank',
+        link: '/pages/administration/adminCatalogues',
       },
       {
         title: 'Datalet Administration',
-		link: "/pages/administration/dataletsManagement",
+        link: '/pages/administration/dataletsManagement',
       },
-	   {
+      {
         title: 'Configurations Administration',
-		link: "/pages/administration/configuration",
+        link: '/pages/administration/configuration',
       },
     ],
-    data:{
-      name:'administration'
+    data: {
+      name: 'administration',
     },
     hidden: true,
   },
-
 ];

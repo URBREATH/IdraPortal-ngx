@@ -49,6 +49,7 @@
     "@nebular/eva-icons": "^12.0.0",
     "@nebular/security": "^12.0.0",
     "@nebular/theme": "^12.0.0",
+    "@auth0/angular-jwt": "^5.2.0",
     "@ngstack/code-editor": "^6.0.0",
     "@ngx-translate/core": "^14.0.0",
     "@ngx-translate/http-loader": "^6.0.0",

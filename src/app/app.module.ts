@@ -5,9 +5,9 @@
  */
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { NgModule } from '@angular/core';
+import { InjectionToken, NgModule } from '@angular/core';
 import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
-import { ConfigModule } from 'ngx-config-json';
+import { ConfigModule, ConfigService } from 'ngx-config-json';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { CoreModule } from './@core/core.module';
 import { ThemeModule } from './@theme/theme.module';
@@ -34,11 +34,13 @@ import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
 // import { NbPasswordAuthStrategy, NbAuthModule } from '@nebular/auth';
 import { MarkdownModule } from 'ngx-markdown';
 import { RouterModule } from '@angular/router';
-import { NbAuthModule } from './@theme/components/auth/auth.module';
-import { NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { NgxEchartsModule } from 'ngx-echarts';
-
-
+import { NbAuthModule,  NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType } from '@nebular/auth';
+import { environment } from '../environments/environment';
+import { OidcJWTToken } from './pages/auth/oidc/oidc';
+import { TokenInterceptor } from './pages/auth/services/token.interceptor';
+import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
+import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 class GenericConfig<T> {
   constructor(public config: T) {}
 }
@@ -104,35 +106,75 @@ export function createTranslateLoader(http: HttpClient) {
         }
       },
     }),
+    JwtModule.forRoot({
+      config: {
+        tokenGetter: () => {
+          return localStorage.getItem('token');
 
+        }
+      }
+    }),
     // changes must be done in app.component.ts
     NbAuthModule.forRoot({
       strategies: [
-        NbPasswordAuthStrategy.setup({
-          name: 'email',
-          baseEndpoint: '',
-          login: {
-            alwaysFail: false,
-            endpoint: '/login',
-            method: 'post',
-            redirect: {
-              success: '/pages/administration/adminCatalogues',
-              failure: '/pages/auth/login',
-            },
-            defaultErrors: ['Username/password combination is not correct, please try again.'],
-            defaultMessages: ['You have been successfully logged in.'],
+        NbOAuth2AuthStrategy.setup({
+          name: environment.authProfile, 
+          clientId: environment.client_id,
+          clientSecret: environment.client_secret,
+          baseEndpoint: `${environment.idmBaseURL}/auth/realms/${environment.idmRealmName}/protocol/openid-connect`,
+          clientAuthMethod: NbOAuth2ClientAuthMethod.NONE,
+          token: {
+            endpoint: '/token',
+            redirectUri: `/keycloak-auth/callback`,
+            class: OidcJWTToken,
           },
-          logout: {
-            // ...
-            alwaysFail: false,
-            endpoint: '/logout',
-            method: 'post',
-            redirect: {
-              success: '/pages/auth/login',
-              failure: null,
-            },
+          authorize: {
+            endpoint: '/auth',
+            scope: 'openid',
+            redirectUri: `/keycloak-auth/callback`,
+            responseType: NbOAuth2ResponseType.CODE
           },
+          redirect: {
+            success: '/pages', // welcome page path
+            failure: null, // stay on the same page
+          },
+          refresh: {
+            endpoint: '/token',
+            grantType: NbOAuth2GrantType.REFRESH_TOKEN,
+            scope:'openid'
+          } 
+          
         }),
+        
+      ],forms: {}}),
+      NbAuthModuleCustom.forRoot({
+        strategies: [
+        NbPasswordAuthStrategy.setup({
+        name: 'email',
+        baseEndpoint: '',
+        login: {
+          alwaysFail: false,
+          endpoint: '/login',
+          method: 'post',
+          redirect: {
+            success: '/pages/administration/adminCatalogues',
+            failure: '/pages/auth/login',
+          },
+          defaultErrors: ['Username/password combination is not correct, please try again.'],
+          defaultMessages: ['You have been successfully logged in.'],
+        },
+        logout: {
+          // ...
+          alwaysFail: false,
+          endpoint: '/logout',
+          method: 'post',
+          redirect: {
+            success: '/pages/auth/login',
+            failure: null,
+          } 
+          
+        }}),
+        
       ],
       forms: {
         login: {
@@ -183,11 +225,20 @@ export function createTranslateLoader(http: HttpClient) {
     }),
   ],
   providers: [NbSidebarService,
+
+  
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: TokenInterceptor,
+      multi: true
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: NbAuthSimpleInterceptor,
       multi: true,
-    }
+    },
+    JwtHelperService,
+   
   ],
   bootstrap: [AppComponent],
 })
