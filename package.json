@@ -78,7 +78,6 @@
     "pace-js": "1.0.2",
     "roboto-fontface": "0.8.0",
     "rxjs": "^7.8.1",
-    "rxjs-compat": "^6.6.7",
     "shpjs": "^6.0.1",
     "socicon": "3.0.5",
     "style-loader": "^1.2.1",

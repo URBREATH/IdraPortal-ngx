@@ -9,10 +9,9 @@ import { UserClaims } from '../../../pages/auth/oidc/oidc';
 import { Router } from '@angular/router';
 import { OidcUserInformationService } from '../../../pages/auth/services/oidc-user-information.service';
 import { ConfigService } from 'ngx-config-json';
-import { Observable } from 'rxjs-compat';
 import { NbAuthJWTToken, NbAuthService } from '../auth/public_api';
 import { RippleService } from '../../../@core/utils/ripple.service';
-
+import { Observable } from 'rxjs';
 
 
 
