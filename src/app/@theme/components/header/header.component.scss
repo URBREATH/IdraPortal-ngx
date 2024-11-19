@@ -13,13 +13,6 @@
     width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
   }
 
-  .login-container {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    justify-content: flex-end;
-  }
-
   nb-action {
     height: auto;
     display: flex;
@@ -33,20 +26,27 @@
   ::ng-deep nb-search button {
     padding: 0!important;
   }
-
+  .logo img {
+    max-height: 50px; // o l'altezza desiderata
+    width: auto; // mantiene le proporzioni dell'immagine
+  }
   .header-container {
     display: flex;
     align-items: center;
     width: auto;
 
     .sidebar-toggle {
-      @include nb-ltr(margin-right, 1.25rem);
-      @include nb-rtl(margin-left, 1.25rem);
+      @include nb-ltr(padding-right, 1.25rem);
+      @include nb-rtl(padding-left, 1.25rem);
       text-decoration: none;
       color: nb-theme(text-hint-color);
       nb-icon {
         font-size: 1.75rem;
       }
+    }
+
+    nb-icon{
+      color:#ec441c;
     }
 
     .logo {
@@ -56,11 +56,6 @@
       @include nb-rtl(border-right, 1px solid nb-theme(divider-color));
       white-space: nowrap;
       text-decoration: none;
-    }
-
-    img {
-      max-width: 50%;
-      max-height: 15%;
     }
   }
 

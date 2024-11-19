@@ -93,6 +93,8 @@ export class MqaComponent implements OnInit {
     this.data_list = []
     let res = await this.mqaService.getAll();
     res.forEach(element => {
+      console.log(element);
+      
       // if(element.type == "dataset"){
       //   this.data_list.push(
       //     {
@@ -319,6 +321,7 @@ export class MqaComponent implements OnInit {
     console.log(response);
     
     if(response.dataset != null){
+      console.log('true');
       let accessUrl = "";
       (response.dataset.accessURL).forEach(element => {
         accessUrl += "code: " + element?.code + "("+element?.percentage+"%), "
@@ -387,6 +390,7 @@ export class MqaComponent implements OnInit {
       this.data_dat = []
       this.dataSource_dat = this.dataSourceBuilder_dat.create(this.data_dat);
     }
+    console.log(this.data_dat);
   }
 
   async getCatalogue(id: string) : Promise<any>{

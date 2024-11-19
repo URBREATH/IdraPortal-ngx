@@ -1,8 +1,115 @@
 <section class="jumbotron text-center">
     <div class="container mb-4">
         <h2 class="jumbotron-heading"> Search over {{totalDatasets}} dataset from
-              {{cataloguesInfos.length}} catalogues! </h2>
+                {{cataloguesInfos.length}} catalogues! </h2>
+                <div class="d-flex flex-row justify-content-between align-items-center">
+                    <nb-tag-list (tagRemove)="onTagRemove($event)" >
+                        <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
+                        <input [disabled]="advancedSearch" type="text" nbTagInput placeholder="Insert comma separated keywords" (input)="tagInputKeydown($event)" fullWidth>
+                    </nb-tag-list>
+                    <nb-icon nbTooltip="Search" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" style="margin-left: 0.5rem;"></nb-icon>
+                    <nb-icon nbTooltip="Advanced Search" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" style="margin-left: 0.5rem;"></nb-icon>
+                </div>
     </div>
+    <nb-card class="d-flex mb-2" *ngIf="advancedSearch">
+        <nb-card-body>
+            <div class="row mb-1" *ngFor="let item of Filters; index as i">
+                <div class="col-2 d-flex align-items-center">
+                    <span style="min-width: fit-content;">Filter {{i+1}}</span>
+                    <nb-select [(selected)]="item.type" placeholder="Select filter" [disabled]="i == 0 || i != Filters.length -1" style="margin-left: 0.5rem;">
+                        <nb-option *ngIf="i == 0" value="ALL" >All</nb-option>
+                        <nb-option *ngFor="let val of selectableOptions" [value]="val" >{{val}}</nb-option>
+                    </nb-select>
+                    
+                </div>
+                <div class="col-10 d-flex align-items-center">
+                    <nb-tag-list (tagRemove)="onTagRemoveOnFilter($event,i)" >
+                        <nb-tag appearance="outline" status="primary" *ngFor="let filter of item.tags" [text]="filter" removable></nb-tag>
+                        <input type="text" nbTagInput placeholder="Insert comma separated keywords" (input)="tagInputKeydownFilters($event,i)" fullWidth>
+                    </nb-tag-list>
+                    <button nbButton status="primary" shape="round" (click)="addFilter(i)" *ngIf="i == Filters.length -1 && i != 3" style="margin-left: 0.5rem;width: 30px;height: 30px;display: flex;flex-direction: column;align-items: center;" ><nb-icon nbTooltip="Add Filter" icon="plus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
+                    <button nbButton status="primary" shape="round" (click)="removeFilter(i)" *ngIf="i != 0" style="margin-left: 0.5rem;width: 30px;height: 30px;display: flex;flex-direction: column;align-items: center" ><nb-icon nbTooltip="Add Filter" icon="minus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-2 d-flex align-items-center">
+                    <span style="min-width: fit-content;">Released Date</span>
+                </div>
+                <div class="col-10 d-flex align-items-center">
+                    <input style="width: 12rem;" nbInput fieldSize="small" [nbDatepicker]="releasedDate">
+                    <nb-rangepicker #releasedDate (rangeChange)="updateDate($event,0)"></nb-rangepicker>
+                    <nb-icon icon="calendar-outline" style="margin-left: 0.5rem;"></nb-icon>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-2 d-flex align-items-center">
+                    <span style="min-width: fit-content;">Updated Date</span>
+                </div>
+                <div class="col-10 d-flex align-items-center">
+                    <input style="width: 12rem;" nbInput fieldSize="small" [nbDatepicker]="updatedDate">
+                    <nb-rangepicker #updatedDate (rangeChange)="updateDate($event,1)"></nb-rangepicker>
+                    <nb-icon icon="calendar-outline" style="margin-left: 0.5rem;"></nb-icon>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-2 d-flex align-items-center">
+                    <span style="min-width: fit-content;">Catalogues</span>
+                </div>
+                <div class="col-10 d-flex align-items-center">
+                    <nb-select style="max-width: -webkit-fill-available !important;" multiple [(selected)]="selectedCatalogues" (selectedChange)="handleCataloguesChange($event)" placeholder="Select at least one catalogue">
+                        <nb-option [value]="0">All Selected</nb-option>
+                        <nb-option *ngFor="let catalogue of cataloguesInfos" [value]="catalogue.id">{{catalogue.name}}</nb-option>
+                    </nb-select>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-2 d-flex align-items-center">
+                    <nb-checkbox (checkedChange)="toggleMultiLanguage($event)">Multi Language</nb-checkbox>
+                </div>
+                <div class="col-2 d-flex align-items-center" *ngIf="multiLanguageChecked">
+                    <nb-select [(selected)]="sourceLanguage" placeholder="Source" style="width: 150px;">
+                        <nb-option *ngFor="let lang of languages" [value]="lang.value">{{lang.text}}</nb-option>
+                    </nb-select>
+                </div>
+                <div class="col-8 d-flex align-items-center" *ngIf="multiLanguageChecked">
+                    <nb-select multiple [(selected)]="targetsLanguage" placeholder="Targets" style="max-width: -webkit-fill-available !important;" >
+                        <nb-option *ngFor="let lang of languages" [value]="lang.value">{{lang.text}}</nb-option>
+                    </nb-select>
+                </div>
+            </div>
+            <div class="row mb-1">
+                <div class="col-2 d-flex align-items-center">
+                    <span style="min-width: fit-content;">Sorty By</span>
+                </div>
+                <div class="col-3 d-flex align-items-center">
+                    <nb-select [(selected)]="sortyBy" placeholder="Sorty By" style="width: 150px;">
+                        <nb-option [value]="0">Release Date</nb-option>
+                        <nb-option [value]="1">Update Date</nb-option>
+                        <nb-option [value]="2">Catalogues</nb-option>
+                        <nb-option [value]="3">Publisher Name</nb-option>
+                        <nb-option [value]="4">Title</nb-option>
+                    </nb-select>
+                </div>
+                <div class="col-3 d-flex align-items-center">
+                    <nb-select [(selected)]="order" placeholder="Order" style="width: 150px;">
+                        <nb-option [value]="0">Ascendent</nb-option>
+                        <nb-option [value]="1">Descendent</nb-option>
+                    </nb-select>
+                </div>
+                <div class="col-2 d-flex align-items-center">
+                    <span style="min-width: fit-content;">Max results per page</span>
+                </div>
+                <div class="col-2 d-flex align-items-center">
+                    <nb-select [(selected)]="maxResultPerPage" placeholder="25" style="width: 150px;">
+                        <nb-option [value]="5">5</nb-option>
+                        <nb-option [value]="10">10</nb-option>
+                        <nb-option [value]="25">25</nb-option>
+                        <nb-option [value]="50">50</nb-option>
+                    </nb-select>
+                </div>
+            </div>
+        </nb-card-body>
+    </nb-card>
     <nb-tabset fullWidth>
         <nb-tab tabTitle="Tags">
             <div class="display-flex">
@@ -22,21 +129,21 @@
                         <div class="col-4">
                             <nb-list>
                                 <nb-list-item *ngFor="let category of dcatThemes | slice:0:4">
-                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
+                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
                                 </nb-list-item>
                             </nb-list>
                         </div>
                         <div class="col-4">
                             <nb-list>
                                 <nb-list-item *ngFor="let category of dcatThemes | slice:4:8">
-                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
+                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
                                 </nb-list-item>
                             </nb-list>
                         </div>
                         <div class="col-4">
                             <nb-list>
                                 <nb-list-item *ngFor="let category of dcatThemes | slice:8:13">
-                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'../../../assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
+                                    <button  nbButton ghost status="primary" (click)="searchCategory(category)"><img [src]="'assets/dcat_themes_icon/'+category.icon+'.svg'" class="category-img"> {{category.text}}</button>
                                 </nb-list-item>
                             </nb-list>
                         </div>

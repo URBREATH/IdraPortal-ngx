@@ -3,8 +3,12 @@ import { NgModule } from '@angular/core';
 
 import { PagesComponent } from './pages.component';
 import { NotFoundComponent } from './miscellaneous/not-found/not-found.component';
+import {
+  NbAuthComponent as NebularAuthComponent,
+  NbLoginComponent as NebularLoginComponent,
+  NbLogoutComponent as NebularLogoutComponent
+} from '@nebular/auth';
 import { NbAuthComponent, NbLoginComponent, NbLogoutComponent } from '../@theme/components/auth/public_api';
-
 
 const routes: Routes = [{
   path: '',
@@ -16,10 +20,20 @@ const routes: Routes = [{
       loadChildren: () => import('./home/home.module')
         .then(m => m.HomeModule),
     },
+    // {
+    //   path: 'sparql',
+    //   loadChildren: () => import('./sparql/sparql.module')
+    //   .then(m => m.SparqlModule),
+    // },
     {
       path: 'about',
       loadChildren: () => import('./about/about.module')
         .then(m => m.AboutModule),
+    },
+    {
+      path: 'catalogues',
+      loadChildren: () => import('./catalogues/catalogues.module')
+      .then(m => m.CataloguesModule),
     },
     {
       path: 'datasets',
@@ -38,19 +52,39 @@ const routes: Routes = [{
       .then(m => m.MqaModule),
     },
     {
-      path: 'auth',
-      component: NbAuthComponent,
+      path: 'statistics',
+      loadChildren: () => import('./statistics/statistics.module')
+      .then(m => m.StatisticsModule),
+    },
+    {
+      path: 'keycloak-auth',
+      component: NebularAuthComponent,
       children: [
         {
           path: 'login',
-          component: NbLoginComponent,
+          component: NebularLoginComponent,
         },
         {
           path: 'logout',
-          component: NbLogoutComponent,
+          component: NebularLogoutComponent,
         },
-    ],
-    },
+      ],  
+    }, 
+        {
+          path: 'auth',
+          component: NbAuthComponent,
+          children: [
+            {
+              path: 'login',
+              component: NbLoginComponent,
+            },
+            {
+              path: 'logout',
+              component: NbLogoutComponent,
+            },
+          ]},
+    
+    
 // ---------------------
     { 
       path: '',

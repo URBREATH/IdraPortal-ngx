@@ -1,0 +1,18 @@
+.display-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.justify-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.chart-container {
+    position: relative;
+    height: 100vh;
+    overflow: hidden;
+  }
+  

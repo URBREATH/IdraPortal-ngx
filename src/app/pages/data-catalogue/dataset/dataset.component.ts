@@ -32,7 +32,7 @@ export class DatasetComponent implements OnInit {
   distributionPerPage:number =6;
 
   dataletBaseUrl=undefined;
-  enableDatalet=false;
+  enableDatalet=true;
 
   samedomain=false;
 
@@ -45,8 +45,8 @@ export class DatasetComponent implements OnInit {
     private configService: ConfigService<Record<string, any>>,
     private refreshService: RefreshService,
     ) { 
-      this.dataletBaseUrl = configService["datalet_base_url"];
-      this.enableDatalet = configService["enable_datalet"];
+      this.dataletBaseUrl = this.configService.config["datalet_base_url"];
+      this.enableDatalet = this.configService.config["enable_datalet"];
     }
 
 

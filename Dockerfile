@@ -1,4 +1,4 @@
-FROM node:12.9.1-alpine as builder
+FROM node:20.14.0-alpine as builder
 ARG BASE_HREF
 RUN mkdir -p /app
 WORKDIR /app
@@ -7,7 +7,7 @@ COPY package-lock.json /app
  
 RUN npm install
 COPY . /app
-RUN npm run build -- --prod --aot --base-href /IdraPortal/
+RUN npm run build -- --configuration production --base-href /IdraPortal/
 
 FROM nginx
 EXPOSE 80

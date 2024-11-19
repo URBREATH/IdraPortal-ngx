@@ -4,6 +4,8 @@ import { NbMenuItem } from '@nebular/theme';
 import { ConfigService } from 'ngx-config-json';
 
 import { MENU_ITEMS } from './pages-menu';
+import { NbAccessChecker } from '@nebular/security';
+import { NbAuthOAuth2JWTToken, NbAuthService } from '@nebular/auth';
 
 @Component({
   selector: 'ngx-pages',
@@ -20,8 +22,9 @@ export class PagesComponent implements OnInit {
   menu = MENU_ITEMS;
   userRoles: string[];
   constructor(
-    // private accessChecker: NbAccessChecker,
-    private configService: ConfigService<Record<string, any>>
+     private accessChecker: NbAccessChecker,
+    private configService: ConfigService<Record<string, any>>,
+    private auth: NbAuthService
     ) {
   }
 
@@ -48,23 +51,27 @@ export class PagesComponent implements OnInit {
 
   authMenuItems() {
     this.menu.forEach(item => {
-      this.authMenuItem(item);
+      if(item.hidden)
+        this.authMenuItem(item);
     });
   }
 
   authMenuItem(menuItem: NbMenuItem) {
 
-    // if (menuItem.data && menuItem.data['name']) {
-    //   this.accessChecker.isGranted('view', menuItem.data['name']).subscribe(res =>
-    //     menuItem.hidden = !res
-    //   )
-    // } else {
-    //   menuItem.hidden = true;
-    // }
-    // if (!menuItem.hidden && menuItem.children != null) {
-    //   menuItem.children.forEach(item => {
-    //     item.hidden = menuItem.hidden;
-    //   });
-    // }
+    if (menuItem.data && menuItem.data['name'] ) {
+      this.accessChecker.isGranted('view', menuItem.data['name']).subscribe(res =>
+       
+        menuItem.hidden = !res
+       )
+     } else {
+
+          menuItem.hidden = true;
+     }
+     if (!menuItem.hidden && menuItem.children != null ) {
+       menuItem.children.forEach(item => {
+         item.hidden = menuItem.hidden;
+       });
+     }
+  
   }
 }

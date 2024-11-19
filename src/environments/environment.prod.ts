@@ -5,4 +5,9 @@
  */
 export const environment = {
   production: true,
+  idmBaseURL: "https://platform.beopen-dep.it",
+  idmRealmName: "master",
+  authProfile: "oidc",
+  client_id: "beopen-dashboard",
+  client_secret: "C6RnfcTCKZHyIn2F5zxmgaRCaJn9YHCp",
 };

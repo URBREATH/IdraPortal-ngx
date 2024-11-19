@@ -24,7 +24,8 @@ export class DataletIframeComponent implements OnInit {
     protected dialogRef: NbDialogRef<DataletIframeComponent>,
     private configService: ConfigService<Record<string, any>>
     ) {
-      this.dataletBaseUrl = configService["datalet_base_url"];
+      this.dataletBaseUrl = this.configService.config["datalet_base_url"];
+      console.log(this.dataletBaseUrl);
      }
 
   ngOnInit(): void {

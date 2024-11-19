@@ -1,43 +1,74 @@
 <div class="header-container">
   <div class="logo-container">
-    <a
-      href="#"
-      class="sidebar-toggle"
-      matRipple
-      [matRippleUnbounded]="true"
-      [matRippleCentered]="true"
-      (click)="toggleSidebar()"
-    >
-      <nb-icon [icon]="(materialTheme$ | async) ? 'menu-outline' : 'menu-2-outline'"></nb-icon>
+    <a (click)="toggleSidebar()" href="#" class="sidebar-toggle">
+      <nb-icon icon="menu-2-outline"></nb-icon>
     </a>
     <a class="logo" href="#" (click)="navigateHome()"><img class="mr-1" src="assets\images\idra_logo.png"></a>
   </div>
+
 </div>
 
-<div class="header-container">
-
-<!-- *nbIsGranted="['view', 'user']" -> sta cosa disabilitava la vista del menù da studiare -->
-
+<div *ngIf="typeLogin.toLowerCase() === 'keycloak'" class="header-container">
   <nb-actions size="small" *ngIf="authenticationEnabled">
     <nb-action
-      class="user-action"
-      
-      matRipple
-      [matRippleUnbounded]="true"
-      [matRippleCentered]="true">
-      <nb-user [nbContextMenu]="userMenu"
-               nbContextMenuTag="user-menu"
-               [onlyPicture]="userPictureOnly"
-               [name]="(user?.name!=undefined)?user?.name:user?.preferred_username"
-               [title]="user?.roles.join(' | ')"
-               [picture]="'assets/images/default_user.png'">
+      class="user-action">
+      <div *ngIf="user">
+      <nb-user  *ngIf="user.roles!==undefined"
+                [nbContextMenu]="userMenu"
+                nbContextMenuTag="user-menu"
+                [onlyPicture]="userPictureOnly"
+                [name]="(user?.name!==undefined)?user?.name:user?.preferred_username"
+                [title]="user?.roles.join(' | ')"
+                [picture]="'assets/images/default_user.png'">
       </nb-user>
+
+      <nb-user  *ngIf="user.realm_access!==undefined && user.realm_access.roles !== undefined"
+                [nbContextMenu]="userMenu"
+                nbContextMenuTag="user-menu"
+                [onlyPicture]="userPictureOnly"
+                [name]="(user?.name!==undefined)?user?.name:user?.preferred_username"
+                [title]="user?.realm_access.roles.join(' | ')"
+                [picture]="'assets/images/default_user.png'">
+      </nb-user>
+    </div>
     </nb-action>
   </nb-actions>
-  <div class="login-container">
-    <ng-template #login>
-      <button nbButton (click)="logIn()">Login</button>
-    </ng-template>
-    <button nbButton (click)="logOut()" *ngIf="authenticated; else login">Logout</button>
-  </div>
+        <!-- Not Authenticated -->
+    <nb-actions size="small" *ngIf="authenticationEnabled && (user=== undefined || user === null)">
+      <nb-action class="user-action" >
+        <nb-user [nbContextMenu]="userMenuDefault" nbContextMenuTag="user-menu" [onlyPicture]="userPictureOnly"
+
+          [picture]="'assets/images/default_user.png'">
+        </nb-user>
+      </nb-action>
+    </nb-actions>
+
 </div>
+
+<div  *ngIf="typeLogin.toLowerCase() === 'basic'" class="header-container">
+
+  <!-- *nbIsGranted="['view', 'user']" -> sta cosa disabilitava la vista del menù da studiare -->
+  
+    <nb-actions size="small" *ngIf="authenticationEnabled">
+      <nb-action
+        class="user-action"
+        
+        matRipple
+        [matRippleUnbounded]="true"
+        [matRippleCentered]="true">
+        <nb-user [nbContextMenu]="userMenu"
+                 nbContextMenuTag="user-menu"
+                 [onlyPicture]="userPictureOnly"
+                 [name]="(user?.name!=undefined)?user?.name:user?.preferred_username"
+                 [title]="user?.roles.join(' | ')"
+                 [picture]="'assets/images/default_user.png'">
+        </nb-user>
+      </nb-action>
+    </nb-actions>
+    <div class="login-container">
+      <ng-template #login>
+        <button nbButton (click)="logIn()">Login</button>
+      </ng-template>
+      <button nbButton (click)="logOut()" *ngIf="authenticated; else login">Logout</button>
+    </div>
+  </div>

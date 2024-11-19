@@ -31,8 +31,6 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
     return this.authService.getToken()
       .pipe(
         switchMap((token: NbAuthJWTToken): Observable<HttpEvent<any>> => { // Specify the return type as Observable<HttpEvent<any>>
-          // console.log(req)
-          // if (token_ != null && req.url.indexOf('administration') !== -1) {
           if (token_ != null) {
             req = req.clone({
               withCredentials: false,
