@@ -109,10 +109,10 @@ export function nbNoOpInterceptorFilter(req: HttpRequest<any>): boolean {
     NbLogoutComponent,
   ],
 })
-export class NbAuthModule {
-  static forRoot(nbAuthOptions?: NbAuthOptions): ModuleWithProviders<NbAuthModule> {
+export class NbAuthModuleCustom {
+  static forRoot(nbAuthOptions?: NbAuthOptions): ModuleWithProviders<NbAuthModuleCustom> {
     return {
-      ngModule: NbAuthModule,
+      ngModule: NbAuthModuleCustom,
       providers: [
         { provide: NB_AUTH_USER_OPTIONS, useValue: nbAuthOptions },
         { provide: NB_AUTH_OPTIONS, useFactory: nbOptionsFactory, deps: [NB_AUTH_USER_OPTIONS] },
