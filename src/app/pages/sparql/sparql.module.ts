@@ -29,7 +29,7 @@ import { CodeEditorModule } from '@ngstack/code-editor';
     NbInputModule,
     NbDatepickerModule,
     NbCheckboxModule,
-    CodeEditorModule.forRoot()
+    CodeEditorModule
   ]
 })
 export class SparqlModule { }

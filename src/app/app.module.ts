@@ -37,6 +37,7 @@ import { RouterModule } from '@angular/router';
 import { NbAuthModule } from './@theme/components/auth/auth.module';
 import { NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { CodeEditorModule } from '@ngstack/code-editor';
 
 
 class GenericConfig<T> {
@@ -79,6 +80,7 @@ export function createTranslateLoader(http: HttpClient) {
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
     MarkdownModule.forRoot(),
+    CodeEditorModule.forRoot(),
     ConfigModule.forRoot({
       pathToConfig: 'assets/config.json',
       configType: GenericConfig
