@@ -172,7 +172,7 @@ export function createTranslateLoader(http: HttpClient) {
           method: 'post',
           redirect: {
             success: '/pages/auth/login',
-            failure: null,
+            failure: '/pages/auth/login',
           } 
           
         }}),

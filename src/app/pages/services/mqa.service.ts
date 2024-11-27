@@ -138,10 +138,15 @@ export class MqaService {
         
         )
         .subscribe((data: any) => {
-          const toastRef: NbToastRef = this.toastr.show('Analisys submitted', 'Success', { status: 'success', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
-          
-          resolve(data)
-          return data
+          if(data?.message != null){
+            const toastRef: NbToastRef = this.toastr.show('Analisys submitted', 'Success', { status: 'success', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+            resolve(data)
+            return data
+          } else {
+            const toastRef: NbToastRef = this.toastr.show("There was an error", 'Error', { status: 'danger', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+            reject(data)
+            return data
+          }
         }, error => {
           const toastRef: NbToastRef = this.toastr.show("There was an error", 'Error', { status: 'danger', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
           
@@ -161,10 +166,15 @@ export class MqaService {
         
         )
         .subscribe((data: any) => {
-          const toastRef: NbToastRef = this.toastr.show('Analisys submitted', 'Success', { status: 'success', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
-          
-          resolve(data)
-          return data
+          if(data?.message != null){
+            const toastRef: NbToastRef = this.toastr.show('Analisys submitted', 'Success', { status: 'success', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+            resolve(data)
+            return data
+          } else {
+            const toastRef: NbToastRef = this.toastr.show("There was an error", 'Error', { status: 'danger', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
+            reject(data)
+            return data
+          }
         }, error => {
           const toastRef: NbToastRef = this.toastr.show("There was an error", 'Error', { status: 'danger', duration: 3000, destroyByClick: true, position: NbGlobalPhysicalPosition.TOP_RIGHT});
           

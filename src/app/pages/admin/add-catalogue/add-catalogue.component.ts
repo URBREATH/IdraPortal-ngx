@@ -683,9 +683,11 @@ export class AddCatalogueComponent implements OnInit {
 				
 				this.restApi.modODMSNode(fd, params.modifyId).subscribe(infos =>{
 					this.loading = false;
-					// this.router.navigate(['/catalogues']);
+					this.router.navigate(['/catalogues']);
 				},err=>{
-				console.log(err);
+					this.loading = false;
+					this.toastrService.danger('Could not update catalogue','Error');
+					console.log(err);
 				})
 	
 			} else {
@@ -703,7 +705,9 @@ export class AddCatalogueComponent implements OnInit {
 					this.loading = false;
 				
 				},err=>{
+					console.log(err);
 					this.toastrService.danger('Could not create catalogue','Error');
+					this.loading = false;
 				})
 				
 			}
