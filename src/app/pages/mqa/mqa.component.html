@@ -24,7 +24,7 @@
     <div class="row justify-content-center align-items-center">
       <div class="col-6">
           <h3>Submit with file</h3> 
-          <nb-form-field action="submitAnalisysJSON">
+          <nb-form-field action="submitAnalisysFile">
               <div class="form-group mb-2">
                   <label for="RDF"><b>RDF file</b></label>
                   <div class="custom-file">
@@ -39,15 +39,7 @@
                       id="importFile" 
                       (change)="onFileChange($event.target.files)"
                     >
-                    <!-- <label 
-                      class="custom-file-label"
-                      #labelImport 
-                      for="importFile"
-                      >Choose file</label
-                    > -->
                   </div>
-                  <!-- <label #labelImport class="form-label" for="importFile">Default file input example</label>
-                  <input #XML_sub_local type="file" class="form-control" id="importFile" /> -->
               </div>
               <button status="primary" nbButton (click)="submitAnalisysFile()" type="submit">Send</button>
           </nb-form-field>

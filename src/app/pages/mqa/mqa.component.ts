@@ -116,9 +116,6 @@ export class MqaComponent implements OnInit {
 
 
   onFileChange(files: FileList) {
-    this.labelImport.nativeElement.innerText = Array.from(files)
-      .map(f => f.name)
-      .join(', ');
     this.fileToUpload = files.item(0);
   }
 
