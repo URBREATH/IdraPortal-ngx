@@ -35,6 +35,7 @@ import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
 import { MarkdownModule } from 'ngx-markdown';
 import { RouterModule } from '@angular/router';
 import { NgxEchartsModule } from 'ngx-echarts';
+import { CodeEditorModule } from '@ngstack/code-editor';
 import { NbAuthModule,  NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType } from '@nebular/auth';
 import { environment } from '../environments/environment';
 import { OidcJWTToken } from './pages/auth/oidc/oidc';
@@ -81,6 +82,7 @@ export function createTranslateLoader(http: HttpClient) {
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
     MarkdownModule.forRoot(),
+    CodeEditorModule.forRoot(),
     ConfigModule.forRoot({
       pathToConfig: 'assets/config.json',
       configType: GenericConfig
@@ -170,7 +172,7 @@ export function createTranslateLoader(http: HttpClient) {
           method: 'post',
           redirect: {
             success: '/pages/auth/login',
-            failure: null,
+            failure: '/pages/auth/login',
           } 
           
         }}),

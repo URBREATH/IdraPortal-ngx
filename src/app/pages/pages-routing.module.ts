@@ -20,11 +20,11 @@ const routes: Routes = [{
       loadChildren: () => import('./home/home.module')
         .then(m => m.HomeModule),
     },
-    // {
-    //   path: 'sparql',
-    //   loadChildren: () => import('./sparql/sparql.module')
-    //   .then(m => m.SparqlModule),
-    // },
+    {
+      path: 'sparql',
+      loadChildren: () => import('./sparql/sparql.module')
+      .then(m => m.SparqlModule),
+    },
     {
       path: 'about',
       loadChildren: () => import('./about/about.module')

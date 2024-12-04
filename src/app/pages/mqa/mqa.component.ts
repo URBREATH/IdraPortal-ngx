@@ -116,9 +116,6 @@ export class MqaComponent implements OnInit {
 
 
   onFileChange(files: FileList) {
-    this.labelImport.nativeElement.innerText = Array.from(files)
-      .map(f => f.name)
-      .join(', ');
     this.fileToUpload = files.item(0);
   }
 
@@ -134,8 +131,8 @@ export class MqaComponent implements OnInit {
     return NbSortDirection.NONE;
   }
 
-  private data: TreeNode<FSEntry>[] = []; //table catalogue score
-  private data_dat: TreeNode<FSEntryDataset>[] = []; //table dataset score
+  public data: TreeNode<FSEntry>[] = []; //table catalogue score
+  public data_dat: TreeNode<FSEntryDataset>[] = []; //table dataset score
   private data_list: TreeNode<FSEntryListCat>[] = []; //table list of catalogues and datasets
 
   getShowOn(index: number) {
@@ -317,6 +314,7 @@ export class MqaComponent implements OnInit {
   }
 
   async getDataset(id: string) : Promise<any>{
+    this.data = []
     let response = await this.mqaService.getOne(id);
     console.log(response);
     
@@ -394,6 +392,7 @@ export class MqaComponent implements OnInit {
   }
 
   async getCatalogue(id: string) : Promise<any>{
+    this.data_dat = []
     let response = await this.mqaService.getOne(id);
     if(response.catalogue != null){
       this.data = [

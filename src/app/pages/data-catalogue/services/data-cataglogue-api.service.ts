@@ -53,7 +53,7 @@ export class DataCataglogueAPIService {
   }
 
   executeSPARQLQuery(query: string, outputFormat: string):Observable<any>{
-    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/client/sparql/query`,{query: query, outputFormat: outputFormat});
+    return this.http.post<any>(`${this.apiEndpoint}/Idra/api/v1/client/sparql/query`,{query: query, format: outputFormat});
   }
 
   downloadFromUri(distribution:DCATDistribution):Observable<any>{

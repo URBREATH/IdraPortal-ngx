@@ -8,11 +8,18 @@ export const MENU_ITEMS: NbMenuItem[] = [
   {
     title: 'Home',
     icon: 'home-outline',
-    link: '/pages/home',
-    data: {
-      name: 'home',
-    },
-    hidden: false,
+    link: "/pages/home",
+    data:{
+      name:"home"
+    }
+  },
+  {
+    title: 'Sparql',
+    icon: 'code-outline',
+    link: "/pages/sparql",
+    data:{
+      name:"sparql"
+    }
   },
   {
     title: 'Data Catalogue',
