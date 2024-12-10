@@ -1,48 +1,44 @@
-<nb-card >
-  <nb-card-header>{{ title }}</nb-card-header>
-  <nb-card-body >
-    <div class="row" >
+<nb-card>
+  <nb-card-header>{{ 'REMOTE_CATALOG_TITLE' | translate }}</nb-card-header>
+  <nb-card-body>
+    <div class="row">
       <div class="col-md-6">
-        <h6 class="jumbotron-heading">Catalogue Type:</h6>	
-        <nb-select placeholder="Catalogue Type" (selectedChange)="changedTypeHandler($event)" [selected]="catalogueType">
-          <nb-option [value]="false" >JSON</nb-option>
-          <nb-option [value]="true" >Idra</nb-option>
+        <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_TYPE' | translate }}</h6>
+        <nb-select placeholder="{{ 'REMOTE_CATALOG_TYPE' | translate }}" (selectedChange)="changedTypeHandler($event)" [selected]="catalogueType">
+          <nb-option [value]="false">{{ 'REMOTE_CATALOG_JSON' | translate }}</nb-option>
+          <nb-option [value]="true">{{ 'REMOTE_CATALOG_IDRA' | translate }}</nb-option>
         </nb-select>
-        <h6 class="jumbotron-heading">Catalogue Name:</h6>
-         <input type="text" nbInput fullWidth status="primary" placeholder="Insert Prefix" [(ngModel)]="catalogueName">
-         <h6 class="jumbotron-heading">URL:</h6>
-        <input type="text" nbInput fullWidth status="primary" placeholder="Insert namespace <url>" [(ngModel)]="catalogueURL">
-    
-        
-        <h6 class="jumbotron-heading" *ngIf="catalogueType == true">Authentication method:</h6>	
-        <nb-select placeholder="Country"  *ngIf="catalogueType == true" (selectedChange)="changedAuthMethodHandler($event)" [selected]="authMethod" >
-          <nb-option value="0" >N.A.</nb-option>
-          <nb-option value="1" >Basic</nb-option>
-          <nb-option value="2" >Oauth2</nb-option>
+        <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_NAME' | translate }}</h6>
+        <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_INSERT_NAME' | translate }}" [(ngModel)]="catalogueName">
+        <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_URL' | translate }}</h6>
+        <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_INSERT_URL' | translate }}" [(ngModel)]="catalogueURL">
+
+        <h6 class="jumbotron-heading" *ngIf="catalogueType == true">{{ 'REMOTE_CATALOG_AUTH_METHOD' | translate }}</h6>
+        <nb-select placeholder="{{ 'REMOTE_CATALOG_AUTH_METHOD' | translate }}" *ngIf="catalogueType == true" (selectedChange)="changedAuthMethodHandler($event)" [selected]="authMethod">
+          <nb-option value="0">{{ 'REMOTE_CATALOG_AUTH_NA' | translate }}</nb-option>
+          <nb-option value="1">{{ 'REMOTE_CATALOG_AUTH_BASIC' | translate }}</nb-option>
+          <nb-option value="2">{{ 'REMOTE_CATALOG_AUTH_OAUTH2' | translate }}</nb-option>
         </nb-select>
       </div>
       <div class="col-md-6">
-        
+        <h6 *ngIf="authMethod == '1' || authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_USERNAME' | translate }}</h6>
+        <input *ngIf="authMethod == '1' || authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_USERNAME' | translate }}" [(ngModel)]="username">
+        <h6 *ngIf="authMethod == '1' || authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_PASSWORD' | translate }}</h6>
+        <input *ngIf="authMethod == '1' || authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_PASSWORD' | translate }}" [(ngModel)]="password">
 
-        <h6 *ngIf="authMethod == '1' || authMethod == '2'" class="jumbotron-heading">Username:</h6>
-        <input *ngIf="authMethod == '1' || authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="Username" [(ngModel)]="username">
-        <h6 *ngIf="authMethod == '1' || authMethod == '2'" class="jumbotron-heading">Password:</h6>
-        <input *ngIf="authMethod == '1' || authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="Password" [(ngModel)]="password">
-
-        <h6 *ngIf="authMethod == '2'" class="jumbotron-heading">Client ID:</h6>
-        <input *ngIf="authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="Client ID" [(ngModel)]="clientID">
-        <h6 *ngIf="authMethod == '2'" class="jumbotron-heading">Client Secret:</h6>
-        <input *ngIf="authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="Client Secret" [(ngModel)]="clientSecret">
-        <h6 *ngIf="authMethod == '2'" class="jumbotron-heading">Portal URL:</h6>
-        <input *ngIf="authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="Portal URL" [(ngModel)]="portalURL">
-
+        <h6 *ngIf="authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_CLIENT_ID' | translate }}</h6>
+        <input *ngIf="authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_CLIENT_ID' | translate }}" [(ngModel)]="clientID">
+        <h6 *ngIf="authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_CLIENT_SECRET' | translate }}</h6>
+        <input *ngIf="authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_CLIENT_SECRET' | translate }}" [(ngModel)]="clientSecret">
+        <h6 *ngIf="authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_PORTAL_URL' | translate }}</h6>
+        <input *ngIf="authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_PORTAL_URL' | translate }}" [(ngModel)]="portalURL">
       </div>
     </div>
   </nb-card-body>
   <nb-card-footer>
-    <div style="display: flex;justify-content: space-between;">
-      <button nbButton status="primary" (click)="dismiss(0,0,0,0,0,0,0,0,0)">CLOSE</button>
-      <button nbButton status="primary" (click)="dismiss(catalogueName, catalogueURL, catalogueType, authMethod, username, password, clientID, clientSecret, portalURL)">{{action}}</button>
+    <div style="display: flex; justify-content: space-between;">
+      <button nbButton status="primary" (click)="dismiss(0,0,0,0,0,0,0,0,0)">{{ 'REMOTE_CATALOG_CLOSE' | translate }}</button>
+      <button nbButton status="primary" (click)="dismiss(catalogueName, catalogueURL, catalogueType, authMethod, username, password, clientID, clientSecret, portalURL)">{{ 'REMOTE_CATALOG_ACTION' | translate }}</button>
     </div>
   </nb-card-footer>
 </nb-card>

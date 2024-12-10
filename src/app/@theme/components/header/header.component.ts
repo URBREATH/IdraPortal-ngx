@@ -9,9 +9,11 @@ import { UserClaims } from '../../../pages/auth/oidc/oidc';
 import { Router } from '@angular/router';
 import { OidcUserInformationService } from '../../../pages/auth/services/oidc-user-information.service';
 import { ConfigService } from 'ngx-config-json';
+import { TranslateModule, TranslateLoader, TranslateService } from '@ngx-translate/core';
 import { NbAuthJWTToken, NbAuthService } from '../auth/public_api';
 import { RippleService } from '../../../@core/utils/ripple.service';
 import { Observable } from 'rxjs';
+import { SharedService } from '../../../pages/services/shared.service';
 
 
 
@@ -30,9 +32,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   currentTheme = 'default';
   typeLogin = "";
   userMenu: NbMenuItem[] = [];
-
+  public idraUserLanguage: string;
   public readonly materialTheme$: Observable<boolean>;
-
+  public languages = [];
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
@@ -44,7 +46,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
               @Inject(NB_WINDOW) private window,
               private breakpointService: NbMediaBreakpointsService,
               private router: Router,
-              private authService: NbAuthService
+              private authService: NbAuthService,
+              private translate: TranslateService,
+              private sharedService: SharedService,
               ) {
                 this.typeLogin = this.configService.config["authenticationMethod"];
        if(this.typeLogin.toLowerCase() === "basic"){         
@@ -64,19 +68,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
         }
         
       });
-    }          
+    }  
+            
   }
 
 
   authenticated: boolean = false;
   
   ngOnInit() {
+    this.idraUserLanguage = 'en';
+
+    let lan = this.configService.config['languages'];
+
+    lan.forEach(x => {
+      let f = x;
+      if (x == 'en') f = 'gb'
+      if (x == 'sp') f = 'es'
+      //this.languages.push({lan:x,flag: `flag-icon flag-icon-${f} flag-icon-squared` })
+      this.languages.push({ lan: x, flag: f, picture: `assets/flags/${f}.svg` })
+    })
+    this.translate.use(this.idraUserLanguage);
+    this.sharedService.propagateDialogSelectedLanguage(this.idraUserLanguage);
+
     if(this.typeLogin.toLowerCase() === "keycloak"){
     this.currentTheme = this.themeService.currentTheme;
     console.log(this.user);
     this.authenticationEnabled=this.configService.config["enableAuthentication"];
-
-    this.userMenuDefault = [
+       this.userMenuDefault = [
       {
         title: "Login",
         data: { tag: "login" },
@@ -185,5 +203,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   logOut() {
     this.router.navigate(['/pages/auth/logout']);
+  }
+  changeLang(event) {
+    this.translate.use(event);
+    this.sharedService.propagateDialogSelectedLanguage(event);
   }
 }

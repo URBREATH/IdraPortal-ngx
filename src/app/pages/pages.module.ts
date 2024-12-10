@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { NbMenuModule } from '@nebular/theme';
-
+import { TranslateModule } from '@ngx-translate/core';
 import { ThemeModule } from '../@theme/theme.module';
 import { PagesComponent } from './pages.component';
 import { PagesRoutingModule } from './pages-routing.module';
@@ -13,6 +13,7 @@ import { CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA } from '@angular/core';
     ThemeModule,
     NbMenuModule,
     MiscellaneousModule,
+    TranslateModule
   ],
   declarations: [
     PagesComponent

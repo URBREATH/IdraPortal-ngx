@@ -7,6 +7,9 @@ import { NgxEchartsModule } from 'ngx-echarts';
 import { FsIconComponent, FsIconComponentCat } from './mqa.component';
 import { ThemeModule } from '../../@theme/theme.module';
 import { CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA } from '@angular/core';
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core';
+import { CustomTranslateLoader } from '../../app.module';
+import { HttpClient } from '@angular/common/http';
 
 @NgModule({
   schemas: [CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA],
@@ -14,6 +17,7 @@ import { CUSTOM_ELEMENTS_SCHEMA,NO_ERRORS_SCHEMA } from '@angular/core';
   imports: [
     MqaRoutingModule,
     CommonModule,
+    TranslateModule,
     NbCardModule,
     NbButtonModule,
     NbIconModule,

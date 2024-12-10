@@ -3,6 +3,7 @@ import { NbDialogService, NbSortDirection, NbSortRequest, NbTreeGridDataSource, 
 import { CataloguesServiceService } from '../catalogues-service.service';
 import { DataletDialogComponent } from './dialog/datalet-dialog.component';
 import { RefreshService } from '../../services/refresh.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface TreeNode<T> {
   data: T;
@@ -34,6 +35,7 @@ export class DataletsManagementComponent implements OnInit {
   constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,
 		private restApi:CataloguesServiceService,
 		private dialogService: NbDialogService,
+    public translation: TranslateService,
     private refreshService: RefreshService, ) { }
 
     data: TreeNode<FSEntry>[] = [];

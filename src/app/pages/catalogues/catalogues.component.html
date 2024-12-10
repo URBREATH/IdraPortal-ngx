@@ -1,59 +1,57 @@
 <section class="jumbotron">
-    <div class="container">
-      <div class="row mb-1">
-        <div class="col-12">
-          <h1>Catalogues</h1>
-        </div>
+  <div class="container">
+    <div class="row mb-1">
+      <div class="col-12">
+        <h1>{{ 'CATALOGUES_TITLE' | translate }}</h1>
       </div>
-      <div class="row">
-        <div class="col-12">
-          <div [nbSpinner]="loadingPrevious"></div>
-          <span *ngIf="catalogues?.length == 0 || error">No catalogues found</span>
-          <div class="row" *ngFor="let row of catalogues | slice:0:catalogues.length; let i = index">
-            <div class="col-12 col-md-4 "  style="margin-top: 2.5rem;" *ngFor="let catalogue of catalogues.slice(i * 3, i * 3 + 3)">
-              <nb-card class="height-card">
-                <nb-card-header>
-                  <div class="row">
-                    <div class="col-12 d-flex align-items-center">
-                      <img [src]="catalogue.image.imageData" alt="" style="width: 80px; margin-right: 1rem;">
-                      <a style="margin-right: 0.5rem;" [href]="[catalogue.homepage]" target="_blank"><h4>{{catalogue.name}}</h4></a>
-                      <nb-icon nbTooltip="Show Datasets" icon="search-outline" class="icon-card" [options]="{ animation: { type: 'zoom' } }" [routerLink]="['/pages/datasets']" [queryParams]="{ search_value: catalogue.name, name: catalogue.name, type: 'catalogues' }"></nb-icon>
-                    </div>
+    </div>
+    <div class="row">
+      <div class="col-12">
+        <div [nbSpinner]="loadingPrevious"></div>
+        <span *ngIf="catalogues?.length == 0 || error">{{ 'CATALOGUES_NO_CATALOGUES_FOUND' | translate }}</span>
+        <div class="row" *ngFor="let row of catalogues | slice:0:catalogues.length; let i = index">
+          <div class="col-12 col-md-4" style="margin-top: 2.5rem;" *ngFor="let catalogue of catalogues.slice(i * 3, i * 3 + 3)">
+            <nb-card class="height-card">
+              <nb-card-header>
+                <div class="row">
+                  <div class="col-12 d-flex align-items-center">
+                    <img [src]="catalogue.image.imageData" alt="" style="width: 80px; margin-right: 1rem;">
+                    <a style="margin-right: 0.5rem;" [href]="[catalogue.homepage]" target="_blank"><h4>{{ catalogue.name }}</h4></a>
+                    <nb-icon nbTooltip="{{ 'CATALOGUES_SHOW_DATASETS' | translate }}" icon="search-outline" class="icon-card" [options]="{ animation: { type: 'zoom' } }" [routerLink]="['/pages/datasets']" [queryParams]="{ search_value: catalogue.name, name: catalogue.name, type: 'catalogues' }"></nb-icon>
                   </div>
-                </nb-card-header>
-                <nb-card-body>
-                  <div class="row">
-                    <div class="col-12">
-                      <span><strong>Country: </strong>{{catalogue.country}}</span>
-                    </div>
+                </div>
+              </nb-card-header>
+              <nb-card-body>
+                <div class="row">
+                  <div class="col-12">
+                    <span><strong>{{ 'CATALOGUES_COUNTRY' | translate }}: </strong>{{ catalogue.country }}</span>
                   </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <span><strong>Datasets: </strong>{{catalogue.datasetCount}}</span>
-                    </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <span><strong>{{ 'CATALOGUES_DATASETS' | translate }}: </strong>{{ catalogue.datasetCount }}</span>
                   </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <span><strong>Last Update: </strong>{{catalogue.lastUpdateDate}}</span>
-                    </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <span><strong>{{ 'CATALOGUES_LAST_UPDATE' | translate }}: </strong>{{ catalogue.lastUpdateDate }}</span>
                   </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <p><strong>Category: </strong>{{catalogue.category}}</p>
-                    </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <p><strong>{{ 'CATALOGUES_CATEGORY' | translate }}: </strong>{{ catalogue.category }}</p>
                   </div>
-                  <div class="row">
-                    <div class="col-12">
-                      <p class="description-scroll">{{catalogue.description}}</p>
-                    </div>
+                </div>
+                <div class="row">
+                  <div class="col-12">
+                    <p class="description-scroll">{{ catalogue.description }}</p>
                   </div>
-                </nb-card-body>
-              </nb-card>
-            </div>
+                </div>
+              </nb-card-body>
+            </nb-card>
           </div>
         </div>
       </div>
     </div>
-  </section>
-  
-  
+  </div>
+</section>

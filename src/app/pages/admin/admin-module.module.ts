@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { TranslateModule } from '@ngx-translate/core';
 import { AdminRoutingModule } from './admin-routing.module';
 import { CataloguesListComponent } from './catalogues-list/catalogues-list.component';
 import { NbAccordionModule, NbActionsModule, NbCardModule, NbDialogModule, NbFormFieldModule, NbIconModule, NbInputModule, NbListModule, NbSelectModule, NbSpinnerModule, NbTagModule, NbToastrModule, NbTooltipModule, NbTreeGridModule, NbToggleModule, NbButtonModule, NbUserModule, NbTableModule, NbCheckboxModule } from '@nebular/theme';
@@ -26,6 +26,7 @@ import { DataletDialogComponent } from './datalets-management/dialog/datalet-dia
   
 imports: [
     CommonModule,
+    TranslateModule,
     AdminRoutingModule,
     NbDialogModule.forChild(),
     NbFormFieldModule,

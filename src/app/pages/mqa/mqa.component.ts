@@ -5,6 +5,7 @@ import { delay } from 'rxjs/operators';
 import {FormControl, FormGroup, Validators} from '@angular/forms';
 import { RefreshService } from '../services/refresh.service';
 import * as echarts from 'echarts';
+import { TranslateService } from '@ngx-translate/core';
 
 interface TreeNode<T> {
   data: T;
@@ -49,6 +50,7 @@ export class MqaComponent implements OnInit {
     private mqaService : MqaService,
     private theme: NbThemeService,
     private refreshService: RefreshService,
+    public translation: TranslateService,
     private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, //table catalogue score
     private dataSourceBuilder_dat: NbTreeGridDataSourceBuilder<FSEntryDataset>, //table dataset score
     private dataSourceBuilder_list: NbTreeGridDataSourceBuilder<FSEntryListCat> //table list of catalogues and datasets

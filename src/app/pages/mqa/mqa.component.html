@@ -1,32 +1,22 @@
 
 
 <div class="container">
-  <h3>Metadata Quality Validator</h3>
+  <h3>{{ 'MQA_TITLE' | translate }}</h3>
   <br />
-  <label
-    >Select a Catalog or a Dataset by uploading it as RDF file or by entering the URL that identifies it and obtain the score or evaluation metrics relating to it, according to the &nbsp;<b>DCAT-AP standard</b
-    >&nbsp;   to ensure that the Catalogue or Dataset is valid for its submission in the  &nbsp;
-    <b>European Data Portal - </b
-    >&nbsp;<a  href="https://data.europa.eu/"
-      ><b>https://data.europa.eu/</b></a
-    ></label
-  >
+  <label>
+    {{ 'MQA_DESCRIPTION' | translate }}&nbsp;<b>{{ 'MQA_DCAT_AP_STANDARD' | translate }}</b>&nbsp;{{ 'MQA_VALID_SUBMISSION' | translate }}&nbsp;<b>{{ 'MQA_EUROPEAN_DATA_PORTAL' | translate }}</b>&nbsp;<a href="https://data.europa.eu/"><b>https://data.europa.eu/</b></a>
+  </label>
   <p>
-    The algorithm follows the&nbsp;
-    <a href="https://data.europa.eu/mqa/methodology?locale=en">
-      <b>methodology</b>
-    </a>&nbsp;
-    set out by the European data portal.
-    <br>
-    If it is a Catalogue already federated in Idra, it is possible to download the Catalogue RDF file directly from Idra dashboard by going to the Administration menu, then to the Manage Catalogues page, and for the desired Catalogue press the Download Dump button, which will download the file. 
+    {{ 'MQA_ALGORITHM_FOLLOWS' | translate }}&nbsp;<a href="https://data.europa.eu/mqa/methodology?locale=en"><b>{{ 'MQA_METHODOLOGY' | translate }}</b></a>&nbsp;{{ 'MQA_SET_OUT' | translate }}<br>
+    {{ 'MQA_DOWNLOAD_RDF' | translate }}
   </p>
   <hr />
     <div class="row justify-content-center align-items-center">
       <div class="col-6">
-          <h3>Submit with file</h3> 
+      <h3>{{ 'MQA_SUBMIT_FILE' | translate }}</h3>
           <nb-form-field action="submitAnalisysFile">
               <div class="form-group mb-2">
-                  <label for="RDF"><b>RDF file</b></label>
+          <label for="RDF"><b>{{ 'MQA_RDF_FILE' | translate }}</b></label>
                   <div class="custom-file">
                     <input 
                       #XML_sub_local 
@@ -41,19 +31,19 @@
                     >
                   </div>
               </div>
-              <button status="primary" nbButton (click)="submitAnalisysFile()" type="submit">Send</button>
+        <button status="primary" nbButton (click)="submitAnalisysFile()" type="submit">{{ 'MQA_SEND' | translate }}</button>
           </nb-form-field>
           <hr>
       </div>
       <div class="col-6">
-          <h3>Submit with url</h3> 
+      <h3>{{ 'MQA_SUBMIT_URL' | translate }}</h3>
           <nb-form-field action="submitAnalisysJSON">
               <div class="form-group mb-2">
-                  <label for="RDF"><b>RDF file url</b></label>
+          <label for="RDF"><b>{{ 'MQA_RDF_FILE_URL' | translate }}</b></label>
                   <input #XML_sub nbInput fullWidth shape="round" type="text" placeholder="https://url-to-file.com" name="XML" required value="https://data.europa.eu/api/hub/repo/datasets/60f30419135bec6a5e480086~~1.rdf?useNormalizedId=true&locale=en" id="RDF">
 
               </div>
-              <button status="primary" nbButton (click)="submitAnalisysJSON(XML_sub.value)" type="submit">Send</button>
+        <button status="primary" nbButton (click)="submitAnalisysJSON(XML_sub.value)" type="submit">{{ 'MQA_SEND' | translate }}</button>
           </nb-form-field>
           <hr>
       </div>
@@ -62,41 +52,36 @@
     <div class="row justify-content-center align-items-center">
       <div class="col-12">
           <div class="row align-items-center ml-1">
-            <h5>Catalogue & Datasets</h5>
+      <h5>{{ 'MQA_CATALOGUE_DATASETS' | translate }}</h5>
           </div>
           <nb-card>
-              <nb-card-body  style="max-height: 60vh; overflow-y: scroll">
-            
-                <label class="search-label" for="search_list">Search:</label>
+      <nb-card-body style="max-height: 60vh; overflow-y: scroll">
+        <label class="search-label" for="search_list">{{ 'MQA_SEARCH' | translate }}:</label>
                 <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
                 <button size="small" style="margin-left: 0.5rem;" nbButton (click)="loadList()"><nb-icon icon="refresh-outline"></nb-icon></button>
-                <table [nbTreeGrid]="dataSource_list" [nbSort]="dataSource_list" (sort)="updateSort($event)" >
-            
+        <table [nbTreeGrid]="dataSource_list" [nbSort]="dataSource_list" (sort)="updateSort($event)">
                   <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns_list"></tr>
                   <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns_list"></tr>
             
                   <ng-container [nbTreeGridColumnDef]="customColumn_list">
                     <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn_list)" *nbTreeGridHeaderCellDef>
-                      {{customColumn_list}}
+              {{ customColumn_list }}
                     </th>
                     <td nbTreeGridCell *nbTreeGridCellDef="let row">
                       <ngx-fs-icon-cat [type]="row.data.type" [expanded]="row.expanded"></ngx-fs-icon-cat>
-                      {{row.data[customColumn_list]}}
+              {{ row.data[customColumn_list] }}
                     </td>
                   </ng-container>
-            
-                  <ng-container *ngFor="let column of defaultColumns_list; let index = index"
-                                [nbTreeGridColumnDef]="column"
-                                [showOn]="getShowOn(index)">
+          <ng-container *ngFor="let column of defaultColumns_list; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
                     <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>
-                      {{column}}
+              {{ column }}
                     </th>
-                    <td nbTreeGridCell *nbTreeGridCellDef="let row" >
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">
                       <div class="buttonContainer">
-                        <div *ngIf="column !== 'Action'; else isLastColumn">{{row.data[column] || '-'}}</div>
+                <div *ngIf="column !== 'Action'; else isLastColumn">{{ row.data[column] || '-' }}</div>
                         <ng-template #isLastColumn>
-                          <button size="small" outline nbButton status="primary" [hidden]="row.data['Type'] == 'dataset'" (click)="getCatalogue(row.data['Action'])">Show Score</button>
-                          <button size="small" outline nbButton status="primary" [hidden]="row.data['Type'] == 'catalogue'" (click)="getDataset(row.data['Action'])">Show Metrics</button>
+                  <button size="small" outline nbButton status="primary" [hidden]="row.data['Type'] == 'dataset'" (click)="getCatalogue(row.data['Action'])">{{ 'MQA_SHOW_SCORE' | translate }}</button>
+                  <button size="small" outline nbButton status="primary" [hidden]="row.data['Type'] == 'catalogue'" (click)="getDataset(row.data['Action'])">{{ 'MQA_SHOW_METRICS' | translate }}</button>
                           <button size="small" outline nbButton status="danger" (click)="alertConfirm(row.data['Action'])"><nb-icon icon="trash-2-outline"></nb-icon></button>
                         </ng-template>
                       </div>
@@ -118,21 +103,20 @@
                   <div echarts [options]="option" class="echart"></div>
               </div>
               <div class="info col-6">
-                  <div class="h4 value">Over All Score: <span id="overall">0</span></div>
-                  <div class="details subtitle-2"><span>out of</span> 405</div>
+        <div class="h4 value">{{ 'MQA_OVERALL_SCORE' | translate }}: <span id="overall">0</span></div>
+        <div class="details subtitle-2"><span>{{ 'MQA_OUT_OF' | translate }}</span> 405</div>
               </div>
           </div>
       </div>
     </div>
     <div class="row justify-content-center align-items-center">
-      <div class="col-12"  *ngIf="data.length != 0">
+  <div class="col-12" *ngIf="data.length != 0">
         <div class="row align-items-center ml-1">
-          <h5>Catalogue score</h5>
+      <h5>{{ 'MQA_CATALOGUE_SCORE' | translate }}</h5>
         </div>
         <nb-card>
             <nb-card-body>
-          
-              <label class="search-label" for="search">Search:</label>
+        <label class="search-label" for="search">{{ 'MQA_SEARCH' | translate }}:</label>
 							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
           
               <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
@@ -142,21 +126,18 @@
           
                 <ng-container [nbTreeGridColumnDef]="customColumn">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn)" *nbTreeGridHeaderCellDef>
-                    {{customColumn}}
+              {{ customColumn }}
                   </th>
                   <td nbTreeGridCell *nbTreeGridCellDef="let row">
                     <ngx-fs-icon [Items]="row.data['Items']" [expanded]="row.expanded"></ngx-fs-icon>
-                    {{row.data[customColumn]}}
+              {{ row.data[customColumn] }}
                   </td>
                 </ng-container>
-          
-                <ng-container *ngFor="let column of defaultColumns; let index = index"
-                              [nbTreeGridColumnDef]="column"
-                              [showOn]="getShowOn(index)">
+          <ng-container *ngFor="let column of defaultColumns; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>
-                    {{column}}
+              {{ column }}
                   </th>
-                  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column] || '-'}}</td>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[column] || '-' }}</td>
                 </ng-container>
           
               </table>
@@ -167,12 +148,11 @@
       </div>
       <div class="col-12" *ngIf="data_dat.length != 0">
         <div class="row align-items-center ml-1">
-          <h5>Dataset metrics</h5>
+      <h5>{{ 'MQA_DATASET_METRICS' | translate }}</h5>
         </div>
         <nb-card>
             <nb-card-body>
-          
-              <label class="search-label" for="search">Search:</label>
+        <label class="search-label" for="search">{{ 'MQA_SEARCH' | translate }}:</label>
 							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
           
               <table [nbTreeGrid]="dataSource_dat" [nbSort]="dataSource_dat" (sort)="updateSort($event)">
@@ -182,21 +162,18 @@
           
                 <ng-container [nbTreeGridColumnDef]="customColumn_dat">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn_dat)" *nbTreeGridHeaderCellDef>
-                    {{customColumn_dat}}
+              {{ customColumn_dat }}
                   </th>
                   <td nbTreeGridCell *nbTreeGridCellDef="let row">
                     <ngx-fs-icon [Items]="row.data['Items']" [expanded]="row.expanded"></ngx-fs-icon>
-                    {{row.data[customColumn_dat]}}
+              {{ row.data[customColumn_dat] }}
                   </td>
                 </ng-container>
-          
-                <ng-container *ngFor="let column of defaultColumns_dat; let index = index"
-                              [nbTreeGridColumnDef]="column"
-                              [showOn]="getShowOn(index)">
+          <ng-container *ngFor="let column of defaultColumns_dat; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>
-                    {{column}}
+              {{ column }}
                   </th>
-                  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[column] || '-'}}</td>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[column] || '-' }}</td>
                 </ng-container>
           
               </table>

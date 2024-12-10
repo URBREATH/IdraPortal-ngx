@@ -1,0 +1,10 @@
+{
+    "/IdraPortal-ngx-Translations": {
+      "target": "https://raw.githubusercontent.com/BeOpen-project/IdraPortal-ngx-Translations",
+      "secure": false,
+      "changeOrigin": true,
+      "pathRewrite": {
+        "^/IdraPortal-ngx-Translations": ""
+      }
+    }
+  }

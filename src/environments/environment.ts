@@ -10,7 +10,7 @@
 
 export const environment = {
   production: false,
-  idmBaseURL: "https://platform.beopen-dep.it",
+  idmBaseURL: "https://platform.beopendep.it",
   idmRealmName: "master",
   authProfile: "oidc",
   client_id: "beopen-dashboard",

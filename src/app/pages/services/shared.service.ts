@@ -7,7 +7,8 @@ import { ODMSCatalogueComplete } from '../data-catalogue/model/odmscataloguecomp
   providedIn: 'root'
 })
 export class SharedService {
-
+  private dialogSelectedLanguage = new BehaviorSubject<string>(null);
+  dialogSelectedLanguage$ = this.dialogSelectedLanguage.asObservable();
   constructor() { }
 
   // private addCatalogueIsLoaded = new BehaviorSubject<boolean>(false);
@@ -17,4 +18,7 @@ export class SharedService {
   // propagateCatalogueIsLoaded(newVal: boolean) {
   //   this.addCatalogueIsLoaded.next(newVal)
   // }
+  propagateDialogSelectedLanguage(dialogSelectedLanguage: string) {
+    this.dialogSelectedLanguage.next(dialogSelectedLanguage)
+  }
 }

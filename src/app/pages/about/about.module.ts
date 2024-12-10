@@ -6,7 +6,7 @@ import { AboutComponent } from './about.component';
 import { AboutRoutingModule } from './about-routing.module';
 import { NbCardModule } from '@nebular/theme';
 import { MatCardModule } from '@angular/material/card';
-
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
@@ -15,7 +15,8 @@ import { MatCardModule } from '@angular/material/card';
     CommonModule,
     AboutRoutingModule,
     NbCardModule,
-    MatCardModule
+    MatCardModule,
+    TranslateModule
   ]
 })
 export class AboutModule { }
