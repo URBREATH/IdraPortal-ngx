@@ -191,6 +191,13 @@
 			</nb-card-body>
 		</div>
 
+		<div class="col-md-12" *ngIf="node.nodeType == 'ZENODO'">
+			<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+				<h6 class="jumbotron-heading">Communities:</h6>
+				<input type="text" nbInput fullWidth status="primary" placeholder="communities" [(ngModel)]="node.communities">
+			</nb-card-body>
+		</div>
+
 		<div class="col-md-6" *ngIf="node.nodeType == 'NATIVE'">
 			<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 				<h6 class="jumbotron-heading">Federation Level:</h6>

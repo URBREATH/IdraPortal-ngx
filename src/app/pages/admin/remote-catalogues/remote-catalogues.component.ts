@@ -110,6 +110,9 @@ getLevel(nodeType: string): string {
 			case 'CKAN':
 				//federationLevel='LEVEL_3';
 				return "3";
+			case 'ZENODO':
+				//federationLevel='LEVEL_3';
+				return "3";
 			case 'DKAN':
 				//node.federationLevel='LEVEL_2';
 				return "2";

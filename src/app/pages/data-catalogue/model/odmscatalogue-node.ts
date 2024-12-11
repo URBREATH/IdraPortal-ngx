@@ -20,6 +20,7 @@ export class ODMSCatalogueNode {
     refreshPeriod:string;
     description:string;
     APIKey: string;
+    communities : string;
     location:string;
     locationDescription:string;
     dcatProfile:string;
