@@ -169,11 +169,17 @@
               {{ row.data[customColumn_dat] }}
                   </td>
                 </ng-container>
-          <ng-container *ngFor="let column of defaultColumns_dat; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
+          <ng-container *ngFor="let column of defaultColumns_dat_indexes; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>
-              {{ column }}
+              {{ defaultColumns_dat[index] }}
                   </th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[column] || '-' }}</td>
+                  
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">
+                    <div *ngIf="index == 0 && row.data[column] !== 'true' && row.data[column] !== 'false' && row.data[column]!=='-' && !row.data[column].startsWith('code:') ;then content else rowColumnStandard"></div>
+                    <ng-template #content>{{ row.data[column] }}%</ng-template>
+                    <ng-template #rowColumnStandard>{{ row.data[column] }}</ng-template>
+                    
+                  </td>
                 </ng-container>
           
               </table>

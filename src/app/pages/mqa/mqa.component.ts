@@ -76,8 +76,9 @@ export class MqaComponent implements OnInit {
 
   //table dataset score
   customColumn_dat = 'Metric';
-  defaultColumns_dat = [ 'Value', 'Items' ];
-  allColumns_dat = [ this.customColumn_dat, ...this.defaultColumns_dat ];
+  defaultColumns_dat = [ 'Value (%)', 'Items' ];
+  defaultColumns_dat_indexes = [ 'Value', 'Items' ];
+  allColumns_dat = [ this.customColumn_dat, ...this.defaultColumns_dat_indexes ];
 
   //table list of catalogues and datasets
   customColumn_list = 'Title';
