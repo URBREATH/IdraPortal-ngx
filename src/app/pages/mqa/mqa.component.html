@@ -162,21 +162,24 @@
           
                 <ng-container [nbTreeGridColumnDef]="customColumn_dat">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn_dat)" *nbTreeGridHeaderCellDef>
-              {{ customColumn_dat }}
+                    {{ customColumn_dat }}
                   </th>
                   <td nbTreeGridCell *nbTreeGridCellDef="let row">
                     <ngx-fs-icon [Items]="row.data['Items']" [expanded]="row.expanded"></ngx-fs-icon>
-              {{ row.data[customColumn_dat] }}
+                    {{ row.data[customColumn_dat] }}
                   </td>
                 </ng-container>
-          <ng-container *ngFor="let column of defaultColumns_dat_indexes; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
+                <ng-container *ngFor="let column of defaultColumns_dat_indexes; let index = index" [nbTreeGridColumnDef]="column" [showOn]="getShowOn(index)">
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>
-              {{ defaultColumns_dat[index] }}
+                    {{ defaultColumns_dat[index] }} 
+                    <nb-icon style="margin-left: 0.2rem;" *ngIf="index == 0" nbTooltip="{{ 'MQA_DATASET_TABLE_INFO_TOOLTIP_VALUE' | translate }}" icon="info" [options]="{ animation: { type: 'zoom' } }"></nb-icon>
                   </th>
                   
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">
+                  <td nbTreeGridCell *nbTreeGridCellDef="let row">
                     <div *ngIf="index == 0 && row.data[column] !== 'true' && row.data[column] !== 'false' && row.data[column]!=='-' && !row.data[column].startsWith('code:') ;then content else rowColumnStandard"></div>
-                    <ng-template #content>{{ row.data[column] }}%</ng-template>
+                    <ng-template #content>
+                      <span [style.color]="row.data[column] > 100 ? 'red' : 'black'">{{ row.data[column] }}%</span>
+                    </ng-template>    
                     <ng-template #rowColumnStandard>{{ row.data[column] }}</ng-template>
                     
                   </td>

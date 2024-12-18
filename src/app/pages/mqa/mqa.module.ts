@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MqaComponent } from './mqa.component';
 import { MqaRoutingModule } from './mqa-routing.module';
-import { NbButtonModule, NbCardModule, NbIconModule, NbUserModule, NbFormFieldModule, NbInputModule, NbTreeGridModule, NbTableModule, NbAccordionModule, NbToastrModule, NbDialogModule } from '@nebular/theme';
+import { NbButtonModule, NbCardModule, NbIconModule, NbUserModule, NbFormFieldModule, NbInputModule, NbTreeGridModule, NbTableModule, NbAccordionModule, NbToastrModule, NbDialogModule, NbTooltipModule } from '@nebular/theme';
 import { NgxEchartsModule } from 'ngx-echarts';
 import { FsIconComponent, FsIconComponentCat } from './mqa.component';
 import { ThemeModule } from '../../@theme/theme.module';
@@ -30,7 +30,8 @@ import { HttpClient } from '@angular/common/http';
     NbTableModule,
     ThemeModule,
     NbToastrModule.forRoot(),
-    NbDialogModule.forRoot()
+    NbDialogModule.forRoot(),
+    NbTooltipModule,
   ]
 })
 export class MqaModule { }
