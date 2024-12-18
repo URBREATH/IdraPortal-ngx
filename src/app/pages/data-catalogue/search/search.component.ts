@@ -9,6 +9,7 @@ import { SearchResult } from '../model/search-result';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
 import { Router } from '@angular/router';
 import { Observable } from 'rxjs';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'ngx-search',
@@ -25,6 +26,7 @@ export class SearchComponent implements OnInit {
 
   constructor(private restApi:DataCataglogueAPIService,
     public router: Router,
+    public translation: TranslateService,
   ) { }
 
   loading=false;

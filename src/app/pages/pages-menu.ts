@@ -1,25 +1,28 @@
-import { NbMenuItem } from '@nebular/theme';
+import { MenuItem } from './menu-item';
 
-export const MENU_ITEMS: NbMenuItem[] = [
+export const MENU_ITEMS: MenuItem[] = [
   {
     title: 'SERVICES',
     group: true,
+    key: 'SERVICES',
   },
   {
     title: 'Home',
     icon: 'home-outline',
     link: "/pages/home",
-    data:{
-      name:"home"
-    }
+    data: {
+      name: "home"
+    },
+    key: 'Home'
   },
   {
     title: 'Sparql',
     icon: 'code-outline',
     link: "/pages/sparql",
-    data:{
-      name:"sparql"
-    }
+    data: {
+      name: "sparql"
+    },
+    key: 'Sparql'
   },
   {
     title: 'Data Catalogue',
@@ -29,6 +32,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       name: 'catalogues',
     },
     hidden: false,
+    key: 'Data Catalogue'
   },
   {
     title: 'Catalogues',
@@ -38,6 +42,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       name: 'catalogues',
     },
     hidden: false,
+    key: 'Catalogues'
   },
   {
     title: 'Statistics',
@@ -47,6 +52,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       name: 'statistics',
     },
     hidden: false,
+    key: 'Statistics'
   },
   {
     title: 'Mqa Scoring',
@@ -56,6 +62,7 @@ export const MENU_ITEMS: NbMenuItem[] = [
       name: 'mqa',
     },
     hidden: true,
+    key: 'Mqa Scoring'
   },
   {
     title: 'Administration',
@@ -64,19 +71,23 @@ export const MENU_ITEMS: NbMenuItem[] = [
       {
         title: 'Data Catalogue Administration',
         link: '/pages/administration/adminCatalogues',
+        key: 'Data Catalogue Administration'
       },
       {
         title: 'Datalet Administration',
         link: '/pages/administration/dataletsManagement',
+        key: 'Datalet Administration'
       },
       {
         title: 'Configurations Administration',
         link: '/pages/administration/configuration',
+        key: 'Configurations Administration'
       },
     ],
     data: {
       name: 'administration',
     },
     hidden: true,
+    key: 'Administration'
   },
 ];

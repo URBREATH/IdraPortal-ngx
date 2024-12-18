@@ -10,6 +10,7 @@ import { Router } from '@angular/router';
 import { SharedService } from '../../services/shared.service';
 import { ODMSCatalogueComplete } from '../../data-catalogue/model/odmscataloguecomplete';
 import { RefreshService } from '../../services/refresh.service';
+import { TranslateService } from '@ngx-translate/core';
 
 
 interface TreeNode<T> {
@@ -312,6 +313,7 @@ export class CataloguesListComponent implements OnInit {
 		private restApi:CataloguesServiceService,
 		private dialogService: NbDialogService,
 		private router: Router,
+		public translation: TranslateService,
 		private sharedService: SharedService,
 		private refreshService: RefreshService) {
 		

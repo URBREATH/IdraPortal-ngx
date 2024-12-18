@@ -12,6 +12,7 @@ import { Md5 } from 'ts-md5';
 import { PrefixDialogComponent } from './dialog/prefix-dialog/prefix-dialog.component';
 import { RemoteCatalogueDialogComponent } from './dialog/remoteCatalogue-dialog/remoteCatalogue-dialog.component';
 import { RefreshService } from '../../services/refresh.service';
+import { TranslateService } from '@ngx-translate/core';
 
 interface TreeNode<T> {
   data: T;
@@ -56,6 +57,7 @@ export class AdminConfigurationsComponent implements OnInit {
     private sharedService: SharedService,
     private refreshService: RefreshService,
     private sanitizer: DomSanitizer,
+    public translation: TranslateService,
     private dialogService: NbDialogService) { }
 
   data: TreeNode<FSEntry>[] = [];

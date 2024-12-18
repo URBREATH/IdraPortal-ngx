@@ -2,7 +2,7 @@
     "enableAuthentication":true,
     "authenticationMethod":"basic",
     "idmBaseURL":"http://localhost:8081",
-    "keyCloakBaseURL": "https://platform.beopen-dep.it",
+    "keyCloakBaseURL": "https://platform.beopendep.it",
     "dashboardBaseURL":"http://localhost:4200",
     "keyCloakRealmName":"master",
     "idmRealmName":"urbanite",
@@ -13,6 +13,7 @@
     "enable_datalet":true,
     "datalet_base_url":"http://localhost:8080/deep/deep-components/creator.html",
     "mqa_base_url": "http://localhost:8000",
-    "idra_docker_url": "http://docker-idra-1:8080"
+    "idra_docker_url": "http://docker-idra-1:8080",
+    "languages": ["en"]
 
 }

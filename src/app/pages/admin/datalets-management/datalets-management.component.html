@@ -1,126 +1,64 @@
 <!-- <div [nbSpinner]="loading" nbSpinnerSize="giant" nbSpinnerStatus="primary"> -->
-    <div class="col-row">
-        <nb-card class="minicard">
-            <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
-              <h2 class="jumbotron-heading">Datalets management</h2>
-
-            </nb-card-body>
-        </nb-card>
-        
-<nb-card>
-  <nb-card-body>
-
-	<div  style = "padding-bottom: 30px">
-    	<button routerLink="../adminCatalogues" nbButton outline status="success" >Back</button>
-	</div>
-
-  <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
-    <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns">
-    </tr>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[0]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[0]]}}</td>
-    </ng-container>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[1]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[1]]}}</td>
-    </ng-container>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[2]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[2]]}}</td>
-    </ng-container>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[3]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[3]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[3]]}}</td>
-    </ng-container>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[4]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[4]]}}</td>
-    </ng-container>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[5]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[5]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[5]]}}</td>
-    </ng-container>
-
-    <ng-container [nbTreeGridColumnDef]="defaultColumns[6]">
-      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef >{{defaultColumns[6]}}</th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{row.data[defaultColumns[6]]}}</td>
-    </ng-container>
-
-
-    <ng-container [nbTreeGridColumnDef]="iconColumn" >
-      <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef >
-        Actions
-      </th>
-      <td nbTreeGridCell *nbTreeGridCellDef="let row" >
-        <nb-icon icon="eye-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleIFrameDataletOpenModal(row.data.datalet_html)"></nb-icon>
-        <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteDatalet(row.data.id, row.data.nodeID, row.data.datasetID, row.data.distributionID)" ></nb-icon>
-      </td>
-    </ng-container>
-
-
-  </table>
-
-  </nb-card-body>
-</nb-card>
-
-
-
-   <!--  </div> -->
-
-
-<!--
-    <div class="d-flex flex-column align-items-center justify-content-center" *ngIf="searchResponse.count==0">
-      <h3 class="jumbotron-heading"> No dataset found! </h3>
-    </div>
--->
-<!-- *ngIf="searchResponse.count>0" -->
-    <!-- <div class="row">
-        <div class="col-9"> -->
-
-<!--
-          <div class="row m-1">
-            <pagination-controls  (pageChange)="pageChanged($event)">
-            </pagination-controls>
-          </div>
-          <div class="row m-1">
-            <nb-tag-list (tagRemove)="onFilterRemove($event)" >
-              <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
-            </nb-tag-list>
-          </div>
--->
-            <!-- results -->
-         <!--
-            <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: searchRequest.rows, currentPage: page, totalItems: searchResponse.count }" class="minicard">
-                <nb-card-header>
-                 <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
-                </nb-card-header>
-                <nb-card-body class="content-truncated">
-                    <span class="truncated">{{dataset.description}}</span>
-                </nb-card-body>
-                <nb-card-footer>
-                    <nb-tag-list size="small">
-                        <nb-tag *ngFor="let tmp of dataset.distributionFormats" text="{{tmp.format}} ({{tmp.count}})" size="tiny" [style.background]="getColor(tmp.format)">
-                        </nb-tag>
-                      </nb-tag-list>
-                </nb-card-footer>
-            </nb-card>
-
-            <div class="row m-1">
-              <pagination-controls  (pageChange)="pageChanged($event)">
-              </pagination-controls>
-            </div>
-		-->
-        <!-- </div>
-    </div> -->
-
-
-</div>
-
+  <div class="col-row">
+    <nb-card class="minicard">
+      <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+        <h2 class="jumbotron-heading">{{ 'DATALETS_MANAGEMENT_TITLE' | translate }}</h2>
+      </nb-card-body>
+    </nb-card>
+  
+    <nb-card>
+      <nb-card-body>
+        <div style="padding-bottom: 30px">
+          <button routerLink="../adminCatalogues" nbButton outline status="success">{{ 'DATALETS_MANAGEMENT_BACK_BUTTON' | translate }}</button>
+        </div>
+  
+        <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
+          <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+          <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[0] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[1] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[2] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[2]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[3]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[3] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[3]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[4] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[4]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[5]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[5] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[5]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[6]">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[6] }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[6]] }}</td>
+          </ng-container>
+  
+          <ng-container [nbTreeGridColumnDef]="iconColumn">
+            <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef>{{ 'DATALETS_MANAGEMENT_ACTIONS' | translate }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">
+              <nb-icon icon="eye-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleIFrameDataletOpenModal(row.data.datalet_html)"></nb-icon>
+              <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteDatalet(row.data.id, row.data.nodeID, row.data.datasetID, row.data.distributionID)"></nb-icon>
+            </td>
+          </ng-container>
+        </table>
+      </nb-card-body>
+    </nb-card>
+  </div>

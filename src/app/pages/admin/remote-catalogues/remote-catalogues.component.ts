@@ -6,6 +6,7 @@ import { ODMSCatalogue } from '../../data-catalogue/model/odmscatalogue';
 
 import * as remoteCatalogueData from '../../../../assets/remoteCatalogues.json';
 import { Router } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
 
 
 interface TreeNode<T> {
@@ -45,7 +46,7 @@ export class RemoteCataloguesComponent implements OnInit {
 //    allRemCatJson = [];
    allRemCatJson: any = remoteCatalogueData
 
-  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService, private router: Router) { }
+  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService, private router: Router,public translation: TranslateService,) { }
 
   ngOnInit(): void {
 	

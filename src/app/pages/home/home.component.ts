@@ -6,6 +6,7 @@ import { SearchResult } from '../data-catalogue/model/search-result';
 import { randomInt } from 'crypto';
 import { Router } from '@angular/router';
 import { NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'ngx-home',
@@ -15,7 +16,8 @@ import { NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
 export class HomeComponent implements OnInit {
 
   constructor(private restApi:DataCataglogueAPIService,
-    private router: Router
+    private router: Router,
+    public translation: TranslateService,
   ) { }
 
   cataloguesInfos: Array<ODMSCatalogueInfo>=[]
