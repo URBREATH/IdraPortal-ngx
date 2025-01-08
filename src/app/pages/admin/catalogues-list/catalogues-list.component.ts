@@ -11,6 +11,7 @@ import { SharedService } from '../../services/shared.service';
 import { ODMSCatalogueComplete } from '../../data-catalogue/model/odmscataloguecomplete';
 import { RefreshService } from '../../services/refresh.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ConfigService } from 'ngx-config-json';
 
 
 interface TreeNode<T> {
@@ -315,8 +316,10 @@ export class CataloguesListComponent implements OnInit {
 		private router: Router,
 		public translation: TranslateService,
 		private sharedService: SharedService,
-		private refreshService: RefreshService) {
-		
+		private refreshService: RefreshService,
+		private config:ConfigService<Record<string, any>>
+	  ) {
+		this.CB_enabled=this.config.config["CB_enabled"];
 	}
 
 	ngOnInit(): void {
@@ -328,13 +331,20 @@ export class CataloguesListComponent implements OnInit {
 		}, 60000);
 	}
 
+	CB_enabled = true;
 	loadCatalogue(){
 		this.data = [];
 		// this.dataSource = this.dataSourceBuilder.create(this.data);
 		this.loading=true
+		if(this.CB_enabled){
+			this.defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id', 'CB'];
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
+		} else {
+			this.defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
+		}
 
 		this.restApi.getAllCataloguesInfo().subscribe(infos =>{
-
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
 			this.cataloguesInfos = infos;
 			console.log("cataloguesInfos: ",this.cataloguesInfos)
 			this.totalCatalogues = this.cataloguesInfos.length;
@@ -428,7 +438,7 @@ export class CataloguesListComponent implements OnInit {
 
 	// ------------------------- TABLE
 	customColumn = 'Active';
-	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'CB', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
+	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id', 'CB'];
 	iconColumn = ' ';
 	allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
 
