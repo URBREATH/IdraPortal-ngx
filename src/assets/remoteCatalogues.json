@@ -839,7 +839,7 @@
         "locationDescription": "",
         "messageCount": 2,
         "isActive": false,
-        "country": "",
+        "country": "IT",
         "category": "Private Institution"
     },
     {
@@ -865,7 +865,7 @@
         "locationDescription": "",
         "messageCount": 2,
         "isActive": false,
-        "country": "",
+        "country": "IT",
         "category": "",
         "additionalConfig": {
                 "type": "ORION",

@@ -15,6 +15,6 @@
     "mqa_base_url": "http://localhost:8000",
     "idra_docker_url": "http://docker-idra-1:8080",
     "languages": ["en"],
-    "CB_enabled": true
+    "CB_enabled": false
 
 }

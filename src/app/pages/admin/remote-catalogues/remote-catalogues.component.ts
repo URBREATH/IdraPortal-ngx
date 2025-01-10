@@ -52,7 +52,7 @@ export class RemoteCataloguesComponent implements OnInit {
 	
 	
 	// GET REM CATALOGUES LIST
-	this.restApi.getAllRemCat().subscribe(infos =>{
+	this.restApi.getRemoteNodesJson().subscribe(infos =>{
 				console.log("\nCHIAMATA API GET ALL REM CAT. infos: "+infos[0].URL);
 				this.allRemCat = infos;
 	

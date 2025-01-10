@@ -349,33 +349,67 @@ export class CataloguesListComponent implements OnInit {
 			console.log("cataloguesInfos: ",this.cataloguesInfos)
 			this.totalCatalogues = this.cataloguesInfos.length;
 			for(let i=0; i<infos.length; i++){
-				// push to this.data the info of the catalogues
-				let level = this.getLevel(infos[i].nodeType);
-				let refreshPeriodValue = parseInt(infos[i].refreshPeriod);
-				let refreshPeriod = "";
-				switch(refreshPeriodValue){
-					case 0:
-						refreshPeriod = "Auto-update";
-						break;
-					case 1:
-						refreshPeriod = "-";
-						break;
-					case 3600: 
-						refreshPeriod = "1 hour";
-						break;
-					case 86400:
-						refreshPeriod = "1 day";
-						break;
-					case 604800:
-						refreshPeriod = "1 week";
-						break;
-				}
-				let country = this.countries.find(c => c.code == infos[i].country);
+				// make an if to check if name is readable to avoid errors
+				try {
 
-				this.data.push({
-					data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
-				});
-				this.dataSource = this.dataSourceBuilder.create(this.data);
+						// 	push to this.data the info of the catalogues
+						let level = this.getLevel(infos[i].nodeType);
+						let refreshPeriodValue = parseInt(infos[i].refreshPeriod);
+						let refreshPeriod = "";
+						switch(refreshPeriodValue){
+							case 0:
+								refreshPeriod = "Auto-update";
+								break;
+							case 1:
+								refreshPeriod = "-";
+								break;
+							case 3600: 
+								refreshPeriod = "1 hour";
+								break;
+							case 86400:
+								refreshPeriod = "1 day";
+								break;
+							case 604800:
+								refreshPeriod = "1 week";
+								break;
+						}
+						let country = this.countries.find(c => c.code == infos[i].country);
+	
+						this.data.push({
+							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
+						});
+						this.dataSource = this.dataSourceBuilder.create(this.data);
+				} catch (error) {
+					// skip
+						infos[i].country = "IT";
+						// 	push to this.data the info of the catalogues
+						let level = this.getLevel(infos[i].nodeType);
+						let refreshPeriodValue = parseInt(infos[i].refreshPeriod);
+						let refreshPeriod = "";
+						switch(refreshPeriodValue){
+							case 0:
+								refreshPeriod = "Auto-update";
+								break;
+							case 1:
+								refreshPeriod = "-";
+								break;
+							case 3600: 
+								refreshPeriod = "1 hour";
+								break;
+							case 86400:
+								refreshPeriod = "1 day";
+								break;
+							case 604800:
+								refreshPeriod = "1 week";
+								break;
+						}
+						let country = this.countries.find(c => c.code == infos[i].country);
+	
+						this.data.push({
+							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
+						});
+						this.dataSource = this.dataSourceBuilder.create(this.data);
+				}
 			}
 		},err=>{
 			console.log(err);
