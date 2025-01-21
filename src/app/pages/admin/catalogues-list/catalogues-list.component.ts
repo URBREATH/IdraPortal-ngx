@@ -319,7 +319,7 @@ export class CataloguesListComponent implements OnInit {
 		private refreshService: RefreshService,
 		private config:ConfigService<Record<string, any>>
 	  ) {
-		this.CB_enabled=this.config.config["CB_enabled"];
+		this.CB_enabled=this.config.config["idra.orion.manager.url"];
 	}
 
 	ngOnInit(): void {
