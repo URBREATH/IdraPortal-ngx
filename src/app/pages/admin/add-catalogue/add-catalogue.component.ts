@@ -4,6 +4,7 @@ import { CataloguesServiceService } from '../catalogues-service.service';
 import { SharedService } from '../../services/shared.service';
 import { DomSanitizer} from '@angular/platform-browser';
 import { NbToastrService } from '@nebular/theme';
+import { TranslateService } from '@ngx-translate/core';
 
 export interface Node {
 	id : string ;
@@ -412,7 +413,8 @@ export class AddCatalogueComponent implements OnInit {
 		private restApi:CataloguesServiceService, 
 		private route: ActivatedRoute, 
 		private sanitizer: DomSanitizer, 
-		private toastrService: NbToastrService
+		private toastrService: NbToastrService,
+		public translation: TranslateService
 	) {}
 
 	receivedMode : string = "";

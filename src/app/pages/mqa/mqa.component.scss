@@ -21,3 +21,9 @@ span {
     gap: 0.5rem;
 
 }
+
+::ng-deep .nb-tree-grid-header-cell button{
+    vertical-align: middle !important;
+    display: flex !important;
+    align-items: center !important;
+}

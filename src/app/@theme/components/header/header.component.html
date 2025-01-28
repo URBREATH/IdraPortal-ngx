@@ -9,6 +9,30 @@
 </div>
 
 <div *ngIf="typeLogin.toLowerCase() === 'keycloak'" class="header-container">
+  <nb-select
+  *ngIf="authenticationEnabled && (user !== undefined && user !== null)"
+  (selectedChange)="changeLang($event)"
+  [selected]="idraUserLanguage"
+  status="primary"
+  shape="semi-round"
+  filled
+>
+  <nb-option
+    *ngFor="let lang of languages"
+    [value]="lang.lan"
+    class="d-flex flex-row align-items-center"
+    style="background-color: rgb(107, 123, 190);"
+  >
+    <nb-user
+      size="small"
+      [name]="lang.lan | uppercase"
+      [picture]="lang.picture"
+      showTitle="false"
+    >
+    </nb-user>
+  </nb-option>
+</nb-select>
+
   <nb-actions size="small" *ngIf="authenticationEnabled">
     <nb-action
       class="user-action">
@@ -45,30 +69,48 @@
 
 </div>
 
-<div  *ngIf="typeLogin.toLowerCase() === 'basic'" class="header-container">
+<div *ngIf="typeLogin.toLowerCase() === 'basic'" class="header-container" fxLayout="row" fxLayoutAlign="start center">
+  <nb-select
+    *ngIf="authenticated"
+    (selectedChange)="changeLang($event)"
+    [selected]="idraUserLanguage"
+    status="primary"
+    shape="semi-round"
+    filled
+    fxFlex="none"
+    style="margin-right: 16px;"
+  >
+    <nb-option
+      *ngFor="let lang of languages"
+      [value]="lang.lan"
+      class="d-flex flex-row align-items-center"
+      style="background-color: rgb(162, 172, 225);"
+    >
+      <nb-user
+        size="small"
+        [name]="lang.lan | uppercase"
+        [picture]="lang.picture"
+        showTitle="false"
+      >
+      </nb-user>
+    </nb-option>
+  </nb-select>
 
-  <!-- *nbIsGranted="['view', 'user']" -> sta cosa disabilitava la vista del menù da studiare -->
-  
-    <nb-actions size="small" *ngIf="authenticationEnabled">
-      <nb-action
-        class="user-action"
-        
-        matRipple
-        [matRippleUnbounded]="true"
-        [matRippleCentered]="true">
-        <nb-user [nbContextMenu]="userMenu"
-                 nbContextMenuTag="user-menu"
-                 [onlyPicture]="userPictureOnly"
-                 [name]="(user?.name!=undefined)?user?.name:user?.preferred_username"
-                 [title]="user?.roles.join(' | ')"
-                 [picture]="'assets/images/default_user.png'">
-        </nb-user>
-      </nb-action>
-    </nb-actions>
-    <div class="login-container">
-      <ng-template #login>
-        <button nbButton (click)="logIn()">Login</button>
-      </ng-template>
-      <button nbButton (click)="logOut()" *ngIf="authenticated; else login">Logout</button>
-    </div>
+  <nb-actions size="small" *ngIf="authenticationEnabled">
+    <nb-action class="user-action" matRipple [matRippleUnbounded]="true" [matRippleCentered]="true">
+      <nb-user [nbContextMenu]="userMenu"
+               nbContextMenuTag="user-menu"
+               [onlyPicture]="userPictureOnly"
+               [name]="(user?.name !== undefined) ? user?.name : user?.preferred_username"
+               [title]="user?.roles.join(' | ')"
+               [picture]="'assets/images/default_user.png'">
+      </nb-user>
+    </nb-action>
+  </nb-actions>
+  <div class="login-container" fxFlex="none" style="margin-left: 16px;">
+    <ng-template #login>
+      <button nbButton (click)="logIn()">Login</button>
+    </ng-template>
+    <button nbButton (click)="logOut()" *ngIf="authenticated; else login">Logout</button>
   </div>
+</div>

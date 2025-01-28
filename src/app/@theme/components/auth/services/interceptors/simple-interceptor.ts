@@ -10,15 +10,16 @@ import { NbTokenService } from '../token/token.service';
 import { NbAuthResult } from '../auth-result';
 import { Router } from '@angular/router';
 import { MENU_ITEMS } from '../../../../../pages/pages-menu';
+import { ConfigService } from 'ngx-config-json';
 
 @Injectable()
 export class NbAuthSimpleInterceptor implements HttpInterceptor {
   menu: any;
 
-  constructor(protected tokenService: NbTokenService,
-    @Inject(NB_AUTH_OPTIONS) protected options = {},private injector: Injector,
-              @Inject(NB_AUTH_INTERCEPTOR_HEADER) protected headerName: string = 'Authorization',
-              private router: Router,) {
+  constructor(protected tokenService: NbTokenService,private config: ConfigService<Record<string, any>>,
+    @Inject(NB_AUTH_OPTIONS) protected options = {}, private injector: Injector,
+    @Inject(NB_AUTH_INTERCEPTOR_HEADER) protected headerName: string = 'Authorization',
+    private router: Router) {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -27,18 +28,24 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
 
     this.menu = MENU_ITEMS;
 
+    if (req.url.includes('/IdraPortal-ngx-Translations')) {
+      const clonedReq = req.clone({
+        headers: req.headers.delete('Authorization')
+      });
+      console.log('Request to IdraPortal-ngx-Translations, removing Authorization header.');
+      return next.handle(clonedReq);
+    }
 
     return this.authService.getToken()
       .pipe(
-        switchMap((token: NbAuthJWTToken): Observable<HttpEvent<any>> => { // Specify the return type as Observable<HttpEvent<any>>
+        switchMap((token: NbAuthJWTToken): Observable<HttpEvent<any>> => {
           if (token_ != null) {
             req = req.clone({
               withCredentials: false,
               headers: new HttpHeaders({
-                // 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*',
                 'Authorization': `Bearer ${token_}`,
-                'Cookie': 'loggedin='+token+';username='+username,
+                'Cookie': 'loggedin=' + token + ';username=' + username,
                 'observe': 'response',
               }),
             });
@@ -50,22 +57,20 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
               }
             });
           }
-          // check the response, if the response code is 401, remove the token and redirect to login page
           return next.handle(req)
-          .pipe(
-            catchError(err => {
-              if (err instanceof HttpErrorResponse) {
-
-                if (err.status === 401) {
-                  localStorage.removeItem('token');
-                  localStorage.removeItem('username');
-                  this.tokenService.clear();
-                  this.router.navigate(['/pages/auth/login']);
+            .pipe(
+              catchError(err => {
+                if (err instanceof HttpErrorResponse) {
+                  if (err.status === 401) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('username');
+                    this.tokenService.clear();
+                    this.router.navigate(['/pages/auth/login']);
+                  }
+                  return throwError(err);
                 }
-                return throwError(err);
-              }
-            }),
-          );
+              }),
+            );
         }),
       );
   }

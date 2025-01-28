@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CataloguesService } from './catalogues.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'ngx-catalogues',
@@ -10,6 +11,7 @@ export class CataloguesComponent implements OnInit {
 
   constructor(
     private cataloguesService : CataloguesService,
+    public translation: TranslateService,
   ) { }
 
   loadingPrevious = true;

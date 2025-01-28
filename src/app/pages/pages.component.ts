@@ -6,6 +6,9 @@ import { ConfigService } from 'ngx-config-json';
 import { MENU_ITEMS } from './pages-menu';
 import { NbAccessChecker } from '@nebular/security';
 import { NbAuthOAuth2JWTToken, NbAuthService } from '@nebular/auth';
+import { TranslateService } from '@ngx-translate/core';
+import { MenuItem } from './menu-item';
+import { SharedService } from './services/shared.service';
 
 @Component({
   selector: 'ngx-pages',
@@ -19,16 +22,19 @@ import { NbAuthOAuth2JWTToken, NbAuthService } from '@nebular/auth';
 })
 export class PagesComponent implements OnInit {
 
-  menu = MENU_ITEMS;
+  menu: MenuItem[];
   userRoles: string[];
   constructor(
      private accessChecker: NbAccessChecker,
     private configService: ConfigService<Record<string, any>>,
-    private auth: NbAuthService
+    private auth: NbAuthService,
+    private translateService: TranslateService,
+    private sharedService: SharedService
     ) {
   }
 
   ngOnInit() {
+    this.menu = MENU_ITEMS;
 /*
     this.menu.map( x=> {
       if( x.data!=undefined && x.data['name']=='administration'){
@@ -44,7 +50,12 @@ export class PagesComponent implements OnInit {
       }
     })
 */
+this.translateService.onLangChange.subscribe(event => this.translateMenuItems());
+this.translateMenuItems();
+this.translateService.use('en');
     if (this.configService.config['enableAuthentication']) {
+     
+    
       this.authMenuItems();
     }
   }
@@ -56,8 +67,9 @@ export class PagesComponent implements OnInit {
     });
   }
 
-  authMenuItem(menuItem: NbMenuItem) {
-
+  authMenuItem(menuItem: MenuItem) {
+    this.translateService.use('en');
+    this.sharedService.propagateDialogSelectedLanguage("en");
     if (menuItem.data && menuItem.data['name'] ) {
       this.accessChecker.isGranted('view', menuItem.data['name']).subscribe(res =>
        
@@ -72,6 +84,16 @@ export class PagesComponent implements OnInit {
          item.hidden = menuItem.hidden;
        });
      }
-  
+
+  }
+  translateMenuItems() {
+    this.menu.forEach(item => this.translateMenuItem(item));
+  }
+
+  translateMenuItem(menuItem: MenuItem) {
+    if (menuItem.children != null) {
+      menuItem.children.forEach(item => this.translateMenuItem(item));
+    }
+    menuItem.title = this.translateService.instant(menuItem.key);
   }
 }
