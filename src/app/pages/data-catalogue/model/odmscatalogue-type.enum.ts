@@ -7,4 +7,5 @@ export enum ODMSCatalogueType {
   DKAN = "DKAN",
   ORION = "ORION",
   SPARQL = "SPARQL",
+  ZENODO = "ZENODO",
 }

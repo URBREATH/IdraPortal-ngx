@@ -1,6 +1,7 @@
 
 export class ODMSCatalogueComplete {
     APIKey: string; 
+    communities : string;
     autoUpdate: number;
     category: string;
     country: string;
