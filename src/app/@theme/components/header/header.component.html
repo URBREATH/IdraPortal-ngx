@@ -8,30 +8,38 @@
 
 </div>
 
-<div *ngIf="typeLogin.toLowerCase() === 'keycloak'" class="header-container">
-  <nb-select
-  *ngIf="authenticationEnabled && (user !== undefined && user !== null)"
-  (selectedChange)="changeLang($event)"
-  [selected]="idraUserLanguage"
-  status="primary"
-  shape="semi-round"
-  filled
->
-  <nb-option
-    *ngFor="let lang of languages"
-    [value]="lang.lan"
-    class="d-flex flex-row align-items-center"
-    style="background-color: rgb(107, 123, 190);"
-  >
-    <nb-user
-      size="small"
-      [name]="lang.lan | uppercase"
-      [picture]="lang.picture"
-      showTitle="false"
+
+<div class="right-container">
+  <div class="language-select-container">
+    <nb-select
+    class="custom-select"
+    (selectedChange)="changeLang($event)"
+    [selected]="idraUserLanguage"
+    status="primary"
+    shape="semi-round"
+    filled
     >
-    </nb-user>
-  </nb-option>
-</nb-select>
+      <nb-option
+        *ngFor="let lang of languages"
+        [value]="lang.lan"
+        class="d-flex flex-row align-items-center"
+        style="background-color: rgb(255, 255, 255);"
+      >
+        <nb-user
+          size="small"
+          [name]="lang.lan | uppercase"
+          [picture]="lang.picture"
+          showTitle="false"
+        >
+        </nb-user>
+      </nb-option>
+    </nb-select>
+  </div>
+</div>
+
+
+<div class="header-container"
+  *ngIf="typeLogin.toLowerCase() === 'keycloak'" >
 
   <nb-actions size="small" *ngIf="authenticationEnabled">
     <nb-action
@@ -70,31 +78,6 @@
 </div>
 
 <div *ngIf="typeLogin.toLowerCase() === 'basic'" class="header-container" fxLayout="row" fxLayoutAlign="start center">
-  <nb-select
-    *ngIf="authenticated"
-    (selectedChange)="changeLang($event)"
-    [selected]="idraUserLanguage"
-    status="primary"
-    shape="semi-round"
-    filled
-    fxFlex="none"
-    style="margin-right: 16px;"
-  >
-    <nb-option
-      *ngFor="let lang of languages"
-      [value]="lang.lan"
-      class="d-flex flex-row align-items-center"
-      style="background-color: rgb(162, 172, 225);"
-    >
-      <nb-user
-        size="small"
-        [name]="lang.lan | uppercase"
-        [picture]="lang.picture"
-        showTitle="false"
-      >
-      </nb-user>
-    </nb-option>
-  </nb-select>
 
   <nb-actions size="small" *ngIf="authenticationEnabled">
     <nb-action class="user-action" matRipple [matRippleUnbounded]="true" [matRippleCentered]="true">
