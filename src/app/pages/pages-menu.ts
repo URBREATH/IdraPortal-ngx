@@ -16,15 +16,6 @@ export const MENU_ITEMS: MenuItem[] = [
     key: 'Home'
   },
   {
-    title: 'Sparql',
-    icon: 'code-outline',
-    link: "/pages/sparql",
-    data: {
-      name: "sparql"
-    },
-    key: 'Sparql'
-  },
-  {
     title: 'Data Catalogue',
     icon: 'search-outline',
     link: '/pages/datasets',
@@ -63,6 +54,15 @@ export const MENU_ITEMS: MenuItem[] = [
     },
     hidden: true,
     key: 'Mqa Scoring'
+  },
+  {
+    title: 'Sparql',
+    icon: 'code-outline',
+    link: "/pages/sparql",
+    data: {
+      name: "sparql"
+    },
+    key: 'Sparql'
   },
   {
     title: 'Administration',
