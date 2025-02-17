@@ -50,7 +50,7 @@ class GenericConfig<T> {
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
 }
-const URL = '/IdraPortal-ngx-Translations';
+const URL = 'https://raw.githubusercontent.com/BeOpen-project/IdraPortal-ngx-Translations';
 
 export class CustomTranslateLoader implements TranslateLoader {
   contentHeader = new HttpHeaders({
@@ -61,7 +61,8 @@ export class CustomTranslateLoader implements TranslateLoader {
     const url = `${URL}/main/v1.0/${lang}.json`;
     const extUrl = `${URL}/main/v1.1/ext/${lang}.json`;
 
-    let idra = this.httpClient.get(url,{ withCredentials: true });
+    // let idra = this.httpClient.get(url,{ withCredentials: true });
+    let idra = this.httpClient.get(url);
     
    return idra;
   }

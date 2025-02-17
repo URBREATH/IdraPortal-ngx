@@ -11,6 +11,7 @@ import { SharedService } from '../../services/shared.service';
 import { ODMSCatalogueComplete } from '../../data-catalogue/model/odmscataloguecomplete';
 import { RefreshService } from '../../services/refresh.service';
 import { TranslateService } from '@ngx-translate/core';
+import { ConfigService } from 'ngx-config-json';
 
 
 interface TreeNode<T> {
@@ -315,8 +316,10 @@ export class CataloguesListComponent implements OnInit {
 		private router: Router,
 		public translation: TranslateService,
 		private sharedService: SharedService,
-		private refreshService: RefreshService) {
-		
+		private refreshService: RefreshService,
+		private config:ConfigService<Record<string, any>>
+	  ) {
+		this.CB_enabled=this.config.config["idra.orion.manager.url"];
 	}
 
 	ngOnInit(): void {
@@ -328,44 +331,85 @@ export class CataloguesListComponent implements OnInit {
 		}, 60000);
 	}
 
+	CB_enabled = true;
 	loadCatalogue(){
 		this.data = [];
 		// this.dataSource = this.dataSourceBuilder.create(this.data);
 		this.loading=true
+		if(this.CB_enabled){
+			this.defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id', 'CB'];
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
+		} else {
+			this.defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
+		}
 
 		this.restApi.getAllCataloguesInfo().subscribe(infos =>{
-
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
 			this.cataloguesInfos = infos;
 			console.log("cataloguesInfos: ",this.cataloguesInfos)
 			this.totalCatalogues = this.cataloguesInfos.length;
 			for(let i=0; i<infos.length; i++){
-				// push to this.data the info of the catalogues
-				let level = this.getLevel(infos[i].nodeType);
-				let refreshPeriodValue = parseInt(infos[i].refreshPeriod);
-				let refreshPeriod = "";
-				switch(refreshPeriodValue){
-					case 0:
-						refreshPeriod = "Auto-update";
-						break;
-					case 1:
-						refreshPeriod = "-";
-						break;
-					case 3600: 
-						refreshPeriod = "1 hour";
-						break;
-					case 86400:
-						refreshPeriod = "1 day";
-						break;
-					case 604800:
-						refreshPeriod = "1 week";
-						break;
-				}
-				let country = this.countries.find(c => c.code == infos[i].country);
+				// make an if to check if name is readable to avoid errors
+				try {
 
-				this.data.push({
-					data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
-				});
-				this.dataSource = this.dataSourceBuilder.create(this.data);
+						// 	push to this.data the info of the catalogues
+						let level = this.getLevel(infos[i].nodeType);
+						let refreshPeriodValue = parseInt(infos[i].refreshPeriod);
+						let refreshPeriod = "";
+						switch(refreshPeriodValue){
+							case 0:
+								refreshPeriod = "Auto-update";
+								break;
+							case 1:
+								refreshPeriod = "-";
+								break;
+							case 3600: 
+								refreshPeriod = "1 hour";
+								break;
+							case 86400:
+								refreshPeriod = "1 day";
+								break;
+							case 604800:
+								refreshPeriod = "1 week";
+								break;
+						}
+						let country = this.countries.find(c => c.code == infos[i].country);
+	
+						this.data.push({
+							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
+						});
+						this.dataSource = this.dataSourceBuilder.create(this.data);
+				} catch (error) {
+					// skip
+						infos[i].country = "IT";
+						// 	push to this.data the info of the catalogues
+						let level = this.getLevel(infos[i].nodeType);
+						let refreshPeriodValue = parseInt(infos[i].refreshPeriod);
+						let refreshPeriod = "";
+						switch(refreshPeriodValue){
+							case 0:
+								refreshPeriod = "Auto-update";
+								break;
+							case 1:
+								refreshPeriod = "-";
+								break;
+							case 3600: 
+								refreshPeriod = "1 hour";
+								break;
+							case 86400:
+								refreshPeriod = "1 day";
+								break;
+							case 604800:
+								refreshPeriod = "1 week";
+								break;
+						}
+						let country = this.countries.find(c => c.code == infos[i].country);
+	
+						this.data.push({
+							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
+						});
+						this.dataSource = this.dataSourceBuilder.create(this.data);
+				}
 			}
 		},err=>{
 			console.log(err);
@@ -431,7 +475,7 @@ export class CataloguesListComponent implements OnInit {
 
 	// ------------------------- TABLE
 	customColumn = 'Active';
-	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'CB', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
+	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id', 'CB'];
 	iconColumn = ' ';
 	allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
 

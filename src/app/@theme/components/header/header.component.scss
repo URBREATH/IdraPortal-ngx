@@ -13,6 +13,31 @@
     width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
   }
 
+  .right-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .language-select-container {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+  }
+  
+  ::ng-deep .custom-select:hover .select-button {
+    background-color: #08aaef !important;
+  }
+  ::ng-deep .custom-select:focus .select-button {
+    background-color: #119bd6 !important;
+  }
+  ::ng-deep .custom-select:focus-visible .select-button {
+    background-color: #119bd6 !important;
+  }
+  ::ng-deep .custom-select:focus-within .select-button {
+    background-color: #119bd6 !important;
+  }
+
   nb-action {
     height: auto;
     display: flex;

@@ -20,7 +20,7 @@
           <ng-container [nbTreeGridColumnDef]="customColumn">
             <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn)" *nbTreeGridHeaderCellDef style="width: 75px">{{ 'CATALOGUE_LIST_ACTIVE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <nb-toggle [checked]="row.data[customColumn]" status="success" (click)="activeCatalogue(row.data[defaultColumns[9]], row.data.index, row.data[customColumn])"></nb-toggle>
+              <nb-toggle [checked]="row.data[customColumn]" status="success" (click)="activeCatalogue(row.data[defaultColumns[8]], row.data.index, row.data[customColumn])"></nb-toggle>
             </td>
           </ng-container>
   
@@ -58,33 +58,33 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[5]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{ 'CATALOGUE_LIST_CB' | translate }}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <ng-template #online>
-                <nb-icon icon="checkmark-outline" style="color: #64B728;"></nb-icon>
-              </ng-template>
-              <nb-icon *ngIf="row.data[defaultColumns[5]] == false; else online" icon="close-outline" style="color: crimson;"></nb-icon>
-            </td>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 90px">{{ 'CATALOGUE_LIST_DATASETS' | translate }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[5]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[6]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 90px">{{ 'CATALOGUE_LIST_DATASETS' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 120px">{{ 'CATALOGUE_LIST_UPDATE_PERIOD' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[6]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[7]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 120px">{{ 'CATALOGUE_LIST_UPDATE_PERIOD' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 120px">{{ 'CATALOGUE_LIST_LAST_UPDATE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[7]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[8]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 120px">{{ 'CATALOGUE_LIST_LAST_UPDATE' | translate }}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[8]] }}</td>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid" style="width: 50px">{{ 'CATALOGUE_LIST_ID' | translate }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row" class="hid">{{ row.data[defaultColumns[8]] }}</td>
           </ng-container>
   
-          <ng-container [nbTreeGridColumnDef]="defaultColumns[9]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid" style="width: 50px">{{ 'CATALOGUE_LIST_ID' | translate }}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row" class="hid">{{ row.data[defaultColumns[9]] }}</td>
+          <ng-container [nbTreeGridColumnDef]="defaultColumns[9]" *ngIf="CB_enabled == true">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{ 'CATALOGUE_LIST_CB' | translate }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row">
+              <ng-template #offline >
+                <nb-icon icon="close-outline" style="color: crimson;"></nb-icon>
+              </ng-template>
+              <nb-icon *ngIf="row.data[defaultColumns[9]] == true; else offline" icon="checkmark-outline" style="color: #64B728;"></nb-icon>
+            </td>
           </ng-container>
   
           <!-- ICONS -->
@@ -95,11 +95,11 @@
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump()"></nb-icon>
             </th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SEND_MQA_ANALYSIS' | translate }}" icon="bar-chart-outline" [options]="{ animation: { type: 'zoom' } }" (click)="sendMqaAnalisysCatalogue(row.data[defaultColumns[9]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SYNCHRONIZE_CATALOGUE' | translate }}" icon="sync-outline" [options]="{ animation: { type: 'zoom' } }" (click)="syncCatalogue(row.data[defaultColumns[9]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_MODIFY_CATALOGUE' | translate }}" icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data[defaultColumns[9]])"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DELETE_CATALOGUE' | translate }}" icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteCatalogue(row.data[defaultColumns[9]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump(row.data[defaultColumns[0]], row.data[defaultColumns[9]])"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SEND_MQA_ANALYSIS' | translate }}" icon="bar-chart-outline" [options]="{ animation: { type: 'zoom' } }" (click)="sendMqaAnalisysCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SYNCHRONIZE_CATALOGUE' | translate }}" icon="sync-outline" [options]="{ animation: { type: 'zoom' } }" (click)="syncCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_MODIFY_CATALOGUE' | translate }}" icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data[defaultColumns[8]])"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DELETE_CATALOGUE' | translate }}" icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump(row.data[defaultColumns[0]], row.data[defaultColumns[8]])"></nb-icon>
             </td>
           </ng-container>
         </table>
