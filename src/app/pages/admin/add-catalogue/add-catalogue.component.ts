@@ -5,6 +5,7 @@ import { SharedService } from '../../services/shared.service';
 import { DomSanitizer} from '@angular/platform-browser';
 import { NbToastrService } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
+import { RefreshService } from '../../services/refresh.service';
 
 export interface Node {
 	id : string ;
@@ -412,7 +413,8 @@ export class AddCatalogueComponent implements OnInit {
 		private route: ActivatedRoute, 
 		private sanitizer: DomSanitizer, 
 		private toastrService: NbToastrService,
-		public translation: TranslateService
+		public translation: TranslateService,
+		private refreshService: RefreshService,
 	) {}
 
 	receivedMode : string = "";
@@ -421,6 +423,7 @@ export class AddCatalogueComponent implements OnInit {
 	modifyMode : boolean = false;
 
     ngOnInit(): void {
+		this.refreshService.refreshPageOnce('admin-configuration');
 		this.route.queryParams
 			.subscribe(params => {
 			if(params.modifyId != null && params.modifyId != undefined && params.modifyId != ''){

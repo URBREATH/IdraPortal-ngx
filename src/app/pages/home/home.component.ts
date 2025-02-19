@@ -7,6 +7,7 @@ import { randomInt } from 'crypto';
 import { Router } from '@angular/router';
 import { NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
+import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-home',
@@ -18,6 +19,7 @@ export class HomeComponent implements OnInit {
   constructor(private restApi:DataCataglogueAPIService,
     private router: Router,
     public translation: TranslateService,
+        private refreshService: RefreshService,
   ) { }
 
   cataloguesInfos: Array<ODMSCatalogueInfo>=[]
@@ -217,6 +219,7 @@ export class HomeComponent implements OnInit {
 
     
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
     
     this.restApi.getCataloguesInfo().subscribe(infos =>{
       this.cataloguesInfos = infos;

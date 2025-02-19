@@ -1,6 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 import { DataCataglogueAPIService } from '../data-catalogue/services/data-cataglogue-api.service';
 import { CodeModel } from '@ngstack/code-editor';
+import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-sparql',
@@ -10,6 +11,7 @@ import { CodeModel } from '@ngstack/code-editor';
 export class SparqlComponent implements OnInit {
 
   constructor(
+      private refreshService: RefreshService,
     private restApi:DataCataglogueAPIService
   ) { }
 
@@ -85,6 +87,7 @@ LIMIT 50`,
   }
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
   }
 
 }

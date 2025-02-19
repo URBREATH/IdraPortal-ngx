@@ -26,7 +26,9 @@
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{ 'CATALOGUE_LIST_NAME' | translate }}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row"> 
+              <a href="{{row.data.catalogueUrl}}">{{ row.data[defaultColumns[0]] }}</a>
+            </td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">

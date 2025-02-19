@@ -7,6 +7,7 @@ import { ODMSCatalogue } from '../../data-catalogue/model/odmscatalogue';
 import * as remoteCatalogueData from '../../../../assets/remoteCatalogues.json';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { RefreshService } from '../../services/refresh.service';
 
 
 interface TreeNode<T> {
@@ -46,11 +47,15 @@ export class RemoteCataloguesComponent implements OnInit {
 //    allRemCatJson = [];
    allRemCatJson: any = remoteCatalogueData
 
-  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService, private router: Router,public translation: TranslateService,) { }
+  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>,
+	private refreshService: RefreshService,
+	private restApi:CataloguesServiceService,
+	private router: Router,public translation: TranslateService,) { }
 
   ngOnInit(): void {
 	
 	
+    this.refreshService.refreshPageOnce('admin-configuration');
 	// GET REM CATALOGUES LIST
 	this.restApi.getRemoteNodesJson().subscribe(infos =>{
 				console.log("\nCHIAMATA API GET ALL REM CAT. infos: "+infos[0].URL);

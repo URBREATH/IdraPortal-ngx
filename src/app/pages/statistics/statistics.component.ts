@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as echarts from 'echarts';
 import { CoolTheme } from './cool-theme';
 import { StatisticsService } from './statistics.service';
+import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-statistics',
@@ -12,6 +13,7 @@ export class StatisticsComponent implements OnInit {
 
   constructor(
     private statisticsService : StatisticsService,
+        private refreshService: RefreshService,
   ) { }
 
   options: echarts.EChartsOption = {
@@ -135,6 +137,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
 
     this.statisticsService.getCatalogueList().then((data)=>{
       this.catalogueList = data;
