@@ -107,21 +107,21 @@
 						<nb-card-body>
 						  <div style="padding-bottom: 20px">
 							<label class="search-label" for="search">{{ 'ADMIN_REMOTE_CATALOG_SEARCH_LABEL' | translate }}</label>
-							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
+							<input fieldSize="small" nbInput [nbFilterInput]="dataSourceCat" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
 						  </div>
-						  <table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)">
+						  <table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)" style="width: 100%; table-layout: auto;">
 							<tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsCat"></tr>
 							<tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsCat"></tr>
 							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[0]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{ defaultColumnsCat[0] }}</th>
+							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[0] }}</th><!--style="width: 200px"-->
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumnsCat[0]] }}</td>
 							</ng-container>
 							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[1]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{ defaultColumnsCat[1] }}</th>
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumnsCat[1]] }}</td>
+							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[1] }}</th><!--style="width: 75px"-->
+							  <td nbTreeGridCell *nbTreeGridCellDef="let row" style="word-break: break-word;">{{ row.data[defaultColumnsCat[1]] }}</td>
 							</ng-container>
 							<ng-container [nbTreeGridColumnDef]="iconColumnCat">
-							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef style="width: 120px">{{ 'ADMIN_REMOTE_CATALOG_ACTIONS' | translate }}</th>
+							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef>{{ 'ADMIN_REMOTE_CATALOG_ACTIONS' | translate }}</th><!--style="width: 120px"-->
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">
 								<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleEditRemoteCatalogueOpenModal(row.data)"></nb-icon>
 								<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleRemoteCataloguDelete(row.data.id, row.data.index)"></nb-icon>

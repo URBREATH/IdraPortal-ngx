@@ -19,8 +19,8 @@
             <label class="search-label" style="padding-top: 60px; margin-left: 30px">{{ 'REMOTE_CATALOGUE_ADMIN_REMOTE_CATALOGUE_LABEL' | translate }}</label>
           </div>
           <div class="col-md-1">
-            <nb-select placeholder="{{ 'REMOTE_CATALOGUE_ADMIN_JSON_CATALOGUE_PLACEHOLDER' | translate }}" style="padding-top: 50px">
-              <nb-option *ngFor="let cat of allRemCat" [value]="cat.catalogueName">{{ cat.catalogueName }}</nb-option>
+            <nb-select placeholder="{{ 'REMOTE_CATALOGUE_ADMIN_JSON_CATALOGUE_PLACEHOLDER' | translate }}" style="padding-top: 50px" (selectedChange)="onCatalogueChange($event)">
+              <nb-option *ngFor="let cat of allRemCat" [value]="cat.id">{{ cat.catalogueName }}</nb-option>
             </nb-select>
           </div>
         </div>
@@ -57,7 +57,7 @@
           <ng-container [nbTreeGridColumnDef]="iconColumn">
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ 'REMOTE_CATALOGUE_ADMIN_ACTIONS' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-action>
+              <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline" nbTooltip="Add Catalogue" nbTooltipPlacement="right" [options]="{ animation: { type: 'zoom' } }" (click)="row.data.alreadyLoaded ? $event.stopPropagation() : addRemoteCatalogue(row.data.index)"></nb-action>
             </td>
           </ng-container>
         </table>
