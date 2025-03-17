@@ -18,11 +18,11 @@
 						  </nb-select>
 						  <div class="d-flex align-content-center mt-3">
 							<h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CATALOG_ENABLE_RDF' | translate }}</h6>
-							<nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfControls"></nb-checkbox>
+							<nb-checkbox style="margin-left: 0.5rem;" class="align-self-center ml-1" status="primary" [(ngModel)]="rdfControls"></nb-checkbox>
 						  </div>
 						  <div class="d-flex align-content-center mt-3" *ngIf="rdfControls == true">
 							<h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CATALOG_ENABLE_RDF_SIZE' | translate }}</h6>
-							<nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfMaxSize"></nb-checkbox>
+							<nb-checkbox style="margin-left: 0.5rem;" class="align-self-center ml-1" status="primary" [(ngModel)]="rdfMaxSize"></nb-checkbox>
 						  </div>
 						  <h6 class="jumbotron-heading" *ngIf="rdfControls == true">{{ 'ADMIN_CATALOG_RDF_MAX' | translate }}</h6>
 						  <input type="number" nbInput status="primary" placeholder="{{ 'ADMIN_CATALOG_RDF_MAX_PLACEHOLDER' | translate }}" *ngIf="rdfControls == true" [(ngModel)]="rdfMaxNumber">
@@ -147,7 +147,7 @@
 						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
 						  <div class="d-flex align-content-center">
 							<h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CONTEXT_BROKER_ENABLE' | translate }}</h6>
-							<nb-checkbox class="align-self-center ml-1" status="primary" [checked]="contextBrokerFederation" [(ngModel)]="contextBrokerFederation" (checkedChange)="handleContextBrokerFederation()"></nb-checkbox>
+							<nb-checkbox style="margin-left: 0.5rem;" class="align-self-center ml-1" status="primary" [checked]="contextBrokerFederation" [(ngModel)]="contextBrokerFederation" (checkedChange)="handleContextBrokerFederation()"></nb-checkbox>
 						  </div>
 						  <h6 class="jumbotron-heading" *ngIf="contextBrokerFederation == true">{{ 'ADMIN_CONTEXT_BROKER_URL' | translate }}</h6>
 						  <input type="text" nbInput status="primary" fullWidth placeholder="{{ 'ADMIN_CONTEXT_BROKER_URL_PLACEHOLDER' | translate }}" [(ngModel)]="contextBrokerUrl" *ngIf="contextBrokerFederation == true">
