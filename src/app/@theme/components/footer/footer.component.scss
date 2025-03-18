@@ -2,11 +2,14 @@
 @import '@nebular/theme/styles/global/breakpoints';
 @import 'bootstrap/scss/mixins/breakpoints';
 
+$secondary: #3f3368;
+
 @include nb-install-component() {
   width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
+
 
   .socials {
     font-size: 2rem;

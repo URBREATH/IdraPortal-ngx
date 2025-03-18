@@ -2,6 +2,15 @@
 @import '@nebular/theme/styles/global/breakpoints';
 @import '../../styles/themes';
 
+$primary: #2BA5DE;
+$primary-dark: #1d7097;
+$primary-light: #91d0ee;
+$secondary: #3f3368;
+$secondary-dark: #2b2347;
+$secondary-light: #9b95b0;
+$surface: #cdd9e0;
+$surface-dark: #25262E;
+
 @include nb-install-component() {
   display: flex;
   justify-content: space-between;
@@ -26,16 +35,16 @@
   }
   
   ::ng-deep .custom-select:hover .select-button {
-    background-color: #08aaef !important;
+    background-color: $secondary !important;
   }
   ::ng-deep .custom-select:focus .select-button {
     background-color: #119bd6 !important;
   }
   ::ng-deep .custom-select:focus-visible .select-button {
-    background-color: #119bd6 !important;
+    background-color: $secondary !important;
   }
   ::ng-deep .custom-select:focus-within .select-button {
-    background-color: #119bd6 !important;
+    background-color: $secondary !important;
   }
 
   nb-action {
@@ -71,7 +80,7 @@
     }
 
     nb-icon{
-      color:#ec441c;
+      color: $primary;
     }
 
     .logo {
