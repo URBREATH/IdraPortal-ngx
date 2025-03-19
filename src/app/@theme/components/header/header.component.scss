@@ -43,9 +43,6 @@ $surface-dark: #25262E;
   ::ng-deep .custom-select:focus-visible .select-button {
     background-color: $secondary !important;
   }
-  ::ng-deep .custom-select:focus-within .select-button {
-    background-color: $secondary !important;
-  }
 
   nb-action {
     height: auto;
@@ -81,6 +78,10 @@ $surface-dark: #25262E;
 
     nb-icon{
       color: $primary;
+    }
+
+    nb-icon:hover{
+      color: $secondary;
     }
 
     .logo {
