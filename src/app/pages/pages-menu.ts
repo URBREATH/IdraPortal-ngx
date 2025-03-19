@@ -65,6 +65,15 @@ export const MENU_ITEMS: MenuItem[] = [
     key: 'Sparql'
   },
   {
+    title: 'Datasets NGSI',
+    icon: 'folder-outline',
+    link: "/pages/datasets-ngsi",
+    data: {
+      name: "datasets-ngsi"
+    },
+    key: 'Datasets NGSI'
+  },
+  {
     title: 'Administration',
     icon: 'settings-2-outline',
     children: [
