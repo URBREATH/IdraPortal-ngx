@@ -95,7 +95,28 @@ export class CataloguesServiceService {
     return this.http.get<any>(`http://localhost/catalogue.json`);
   }
 
+  //getSelectedRemCatIdra
+  getSelectedRemCat(id:number):Observable<any>{
+    return this.http.get<any>(`${this.apiEndpoint}/Idra/api/v1/administration/remoteCatalogue/auth/`+id);
+  }
 
+  //getSelectedRemCatNotIdra
+  getSelectedRemCatNotIdra(url: string): Promise<any> {
+      return fetch(url)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          return data;
+        })
+        .catch(error => {
+          console.error("Fetch error:", error);
+          return null;
+        });
+    }
 
 
 

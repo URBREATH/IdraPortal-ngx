@@ -26,12 +26,12 @@
         <nb-card class="minicard">
             <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                 <h6 class="jumbotron-heading">{{ 'NAME' | translate }}</h6>
-                <input type="text" nbInput fullWidth status="primary" [(ngModel)]="node.name" placeholder="{{ 'NAME' | translate }}">
+                <input type="text" nbInput fullWidth status="primary" required [(ngModel)]="node.name" placeholder="{{ 'NAME' | translate }}">
             </nb-card-body>
 
             <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                 <h6 class="jumbotron-heading">{{ 'PUBLISHER_NAME' | translate }}</h6>
-                <input type="text" nbInput fullWidth status="primary" [(ngModel)]="node.publisherName" placeholder="{{ 'PUBLISHER_NAME' | translate }}">
+                <input type="text" nbInput fullWidth status="primary" required [(ngModel)]="node.publisherName" placeholder="{{ 'PUBLISHER_NAME' | translate }}">
             </nb-card-body>
 
             <div class="row show-grid">
@@ -69,19 +69,25 @@
 
 <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
     <h6 class="jumbotron-heading">{{ 'HOMEPAGE' | translate }}</h6>
-    <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'HOMEPAGE' | translate }}" [(ngModel)]="node.homepage">
+    <input type="url" nbInput fullWidth status="primary" placeholder="{{ 'HOMEPAGE' | translate }}" 
+    [(ngModel)]="node.homepage"
+    [disabled]="node.nodeType === 'DCATDUMP'"
+    [required]="node.nodeType !== 'DCATDUMP'">
 </nb-card-body>
 
 <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
     <h6 class="jumbotron-heading">{{ 'API_ENDPOINT' | translate }}</h6>
-    <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'API_ENDPOINT' | translate }}" [(ngModel)]="node.host">
+    <input type="url" nbInput fullWidth status="primary" placeholder="{{ 'API_ENDPOINT' | translate }}"
+     [(ngModel)]="node.host"
+     [disabled]="modifyId || node.nodeType === 'DCATDUMP'"
+     [required]="node.nodeType !== 'DCATDUMP'">
 </nb-card-body>
 
 <div class="row show-grid">
     <div class="col-md-4">
         <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
             <h6 class="jumbotron-heading">{{ 'TYPE' | translate }}</h6>
-            <select class="form-control" (change)="changedTypeHandler($event.target.value)" [(ngModel)]="node.nodeType">
+            <select class="form-control" (change)="changedTypeHandler($event.target.value)" [(ngModel)]="node.nodeType" required [disabled]="modifyId ? true : null">
                 <option value="" disabled selected hidden>{{ 'TYPE' | translate }}</option>
                 <option *ngFor="let type of nodeType" [value]="type.value">
                     {{ type.value }}
@@ -93,7 +99,7 @@
     <div class="col-md-4">
         <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
             <h6 class="jumbotron-heading">{{ 'ACTIVE' | translate }}</h6>
-            <select class="form-control" (change)="changedActiveHandler($event.target.value)" [(ngModel)]="node.isActive">
+            <select class="form-control" (change)="changedActiveHandler($event.target.value)" [(ngModel)]="node.isActive" [disabled]="modifyId ? true : null">
                 <option *ngFor="let mode of activeMode" [value]="mode.value">
                     {{ mode.text }}
                 </option>
