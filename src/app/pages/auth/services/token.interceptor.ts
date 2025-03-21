@@ -22,13 +22,13 @@ export class TokenInterceptor implements HttpInterceptor {
       return next.handle(req);
     }
 
-    if (req.url.includes('/IdraPortal-ngx-Translations')) {
-      const clonedReq = req.clone({
-        headers: req.headers.delete('Authorization')
-      });
-      console.log('Request to IdraPortal-ngx-Translations, removing Authorization header.');
-      return next.handle(clonedReq);
-    }
+    // if (req.url.includes('/IdraPortal-ngx-Translations')) {
+    //   const clonedReq = req.clone({
+    //     headers: req.headers.delete('Authorization')
+    //   });
+    //   console.log('Request to IdraPortal-ngx-Translations, removing Authorization header.');
+    //   return next.handle(clonedReq);
+    // }
 
     if (req.url.indexOf('/oauth2/token') > -1 
       || req.url.indexOf('/openid-connect/token') > -1 
