@@ -1,3 +1,114 @@
-p {
-    background-color: red;
+@import 'bootstrap/scss/mixins/breakpoints';
+@import '@nebular/theme/styles/global/breakpoints';
+@import '../../@theme/styles/themes.scss';
+
+
+//urbreath theme colors
+$primary: #2BA5DE;
+$primary-dark: #1d7097;
+$primary-light: #91d0ee;
+$secondary: #3f3368;
+$secondary-dark: #2b2347;
+$secondary-light: #9b95b0;
+$surface: #cdd9e0;
+$surface-dark: #25262E;
+
+@include nb-install-component() {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+  .logo-container {
+    display: flex;
+    align-items: center;
+    width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
+  }
+
+  .right-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .language-select-container {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+  }
+  
+  ::ng-deep .custom-select:hover .select-button {
+    background-color: $secondary !important;
+  }
+  ::ng-deep .custom-select:focus .select-button {
+    background-color: #119bd6 !important;
+  }
+  ::ng-deep .custom-select:focus-visible .select-button {
+    background-color: $secondary !important;
+  }
+
+  nb-action {
+    height: auto;
+    display: flex;
+    align-content: center;
+  }
+
+  nb-user {
+    cursor: pointer;
+  }
+
+  ::ng-deep nb-search button {
+    padding: 0!important;
+  }
+  .logo img {
+    max-height: 50px; // o l'altezza desiderata
+    width: auto; // mantiene le proporzioni dell'immagine
+  }
+  .header-container {
+    display: flex;
+    align-items: center;
+    width: auto;
+
+    .sidebar-toggle {
+      @include nb-ltr(padding-right, 1.25rem);
+      @include nb-rtl(padding-left, 1.25rem);
+      text-decoration: none;
+      color: nb-theme(text-hint-color);
+      nb-icon {
+        font-size: 1.75rem;
+      }
+    }
+
+    nb-icon{
+      color: $primary;
+    }
+
+    nb-icon:hover{
+      color: $secondary;
+    }
+
+    .logo {
+      padding: 0 1.25rem;
+      font-size: 1.75rem;
+      @include nb-ltr(border-left, 1px solid nb-theme(divider-color));
+      @include nb-rtl(border-right, 1px solid nb-theme(divider-color));
+      white-space: nowrap;
+      text-decoration: none;
+    }
+  }
+
+  @include media-breakpoint-down(sm) {
+    .control-item {
+      display: none;
+    }
+    .user-action {
+      border: none;
+      padding: 0;
+    }
+  }
+
+  @include media-breakpoint-down(is) {
+    nb-select {
+      display: none;
+    }
+  }
 }
