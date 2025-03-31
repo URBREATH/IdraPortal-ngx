@@ -6,5 +6,11 @@
       "pathRewrite": {
         "^/IdraPortal-ngx-Translations": ""
       }
-    }
+    },
+    "/api/*": {
+    "target": "https://ngsi-broker-dev.urbreath.tech",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
   }

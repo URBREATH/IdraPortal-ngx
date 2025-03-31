@@ -11,13 +11,10 @@ export class NgsiDatasetsService {
 
   // Return the Observable so the component can subscribe to it
   getDatasets(): Observable<any> {
-    return this.http.get('https://ngsi-broker-dev.urbreath.tech/api/dataset', {
+    return this.http.get('/api/dataset', {
       headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
-        'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       }
     });
   }

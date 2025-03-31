@@ -96,6 +96,12 @@ $surface-dark: #25262E;
     }
   }
 
+  .accordion-header {
+    background-color: $primary;
+    color: white;
+    font-size: 1.25rem;
+  }
+
   @include media-breakpoint-down(sm) {
     .control-item {
       display: none;
