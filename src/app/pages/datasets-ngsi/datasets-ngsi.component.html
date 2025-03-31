@@ -8,14 +8,50 @@
             <input type="text" class="pb-2" nbInput fieldSize="medium" placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" fullWidth>
         </div>
     </nb-card>
-    <div class="ngsi-datasets-body ">
-        <nb-accordion>
-            <nb-accordion-item>
-             <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
-             <nb-accordion-item-body>
-               Item Content
-             </nb-accordion-item-body>
-            </nb-accordion-item>
-           </nb-accordion>
+    <div class="ngsi-datasets-body d-flex flex-row justify-content-between align-items-start mt-4" style="gap:1rem;">
+        <div class="left-column w-25 p-0 d-flex flex-column">
+            <nb-accordion class="mb-2">
+                <nb-accordion-item>
+                    <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
+                    <nb-accordion-item-body>
+                        Item Content
+                    </nb-accordion-item-body>
+                </nb-accordion-item>
+            </nb-accordion>
+            <nb-accordion class="mb-2">
+                <nb-accordion-item>
+                    <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
+                    <nb-accordion-item-body>
+                        Item Content
+                    </nb-accordion-item-body>
+                </nb-accordion-item>
+            </nb-accordion>
+            <nb-accordion class="mb-2">
+                <nb-accordion-item>
+                    <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
+                    <nb-accordion-item-body>
+                        Item Content
+                    </nb-accordion-item-body>
+                </nb-accordion-item>
+            </nb-accordion>
+        </div>
+        <div class="right-column w-75 p-0 d-flex flex-column">
+            <nb-card *ngFor="let dataset of ngsiDatasetsInfo">
+                <nb-card-header class="d-flex flex-row justify-content-between align-items-center">
+                    <h5>{{dataset.title}}</h5>
+                    <div class="d-flex flex-row align-items-center">
+                        <nb-icon icon="star-outline" pack="eva" class="mr-2"></nb-icon>
+                        <span>{{dataset.rating}}</span>
+                    </div>
+                </nb-card-header>
+                <nb-card-body class="p-4">
+                    <p>{{dataset.description}}</p>
+                    <div class="d-flex flex-row justify-content-between align-items-center">
+                        <button nbButton status="primary" shape="rectangle">View</button>
+                        <span>{{dataset.date}}</span>
+                    </div>
+                </nb-card-body>
+            </nb-card>
+        </div>
     </div>
 </section>
