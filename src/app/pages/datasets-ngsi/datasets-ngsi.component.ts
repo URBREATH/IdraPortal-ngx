@@ -83,4 +83,9 @@ export class DatasetsNgsiComponent implements OnInit {
       this.loading = false;
     }, 500);
   }
+
+  //
+  dynamicUrl(): string {
+    return 1 > 0 ? "/pages/datasets-ngsi/editor" : "/pages/datasets-ngsi/editor";
+  }
 }

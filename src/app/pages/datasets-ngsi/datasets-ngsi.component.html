@@ -2,7 +2,8 @@
     <nb-card class="p-4">
         <span class="d-flex flex-row justify-content-between align-items-center pb-2">
             <h5>{{ 'HOME_SEARCH_TITLE' | translate }} {{totalDatasets}} {{ 'HOME_DATASETS_FROM' | translate }} {{ngsiDatasetsInfo.length}} {{ 'HOME_CATALOGUES' | translate }}!</h5>
-            <button nbButton status="primary" shape="rectangle">Create New Dataset</button>
+            <button nbButton status="primary" shape="rectangle" 
+            [routerLink]="dynamicUrl()">Create New Dataset</button>
         </span>
         <div>
             <input type="text" class="pb-2" nbInput fieldSize="medium" placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" fullWidth>

@@ -40,12 +40,17 @@ const routes: Routes = [{
       loadChildren: () => import('./data-catalogue/data-catalogue.module')
         .then(m => m.DataCatalogueModule),
     },
-    {
-      path: 'datasets-ngsi',
-      loadChildren: () => import('./datasets-ngsi/datasets-ngsi.module')
-        .then(m => m.DatasetsNgsiModule),
-    },
 //-------------------- NEW
+      {
+        path: 'datasets-ngsi/editor',
+        loadChildren: () => import('./datasets-ngsi-editor/datasets-ngsi-editor.module')
+            .then(m => m.DatasetsNgsiEditorModule),
+      },
+      {
+        path: 'datasets-ngsi',
+        loadChildren: () => import('./datasets-ngsi/datasets-ngsi.module')
+          .then(m => m.DatasetsNgsiModule),
+      },
      {
       path: 'administration',
       loadChildren: () => import('./admin/admin-module.module')
