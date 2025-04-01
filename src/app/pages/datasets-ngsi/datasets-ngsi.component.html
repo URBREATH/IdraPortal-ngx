@@ -36,22 +36,36 @@
             </nb-accordion>
         </div>
         <div class="right-column w-75 p-0 d-flex flex-column">
-            <nb-card *ngFor="let dataset of ngsiDatasetsInfo">
-                <nb-card-header class="d-flex flex-row justify-content-between align-items-center">
-                    <h5>{{dataset.title}}</h5>
-                    <div class="d-flex flex-row align-items-center">
-                        <nb-icon icon="star-outline" pack="eva" class="mr-2"></nb-icon>
-                        <span>{{dataset.rating}}</span>
-                    </div>
-                </nb-card-header>
-                <nb-card-body class="p-4">
-                    <p>{{dataset.description}}</p>
-                    <div class="d-flex flex-row justify-content-between align-items-center">
-                        <button nbButton status="primary" shape="rectangle">View</button>
-                        <span>{{dataset.date}}</span>
-                    </div>
-                </nb-card-body>
-            </nb-card>
+            <div class="datasets-card">
+                <nb-list
+                    nbInfiniteList
+                    [threshold]="500"
+                    (bottomThreshold)="loadMoreDatasets()">
+                    <nb-list-item class="list-item" *ngFor="let dataset of displayedDatasets">
+                        <nb-card class="w-100">
+                            <nb-card-header class="d-flex flex-row justify-content-between align-items-center">
+                                <h5>{{dataset.title}}</h5>
+                                <div class="d-flex flex-row align-items-center">
+                                    <nb-icon icon="star-outline" pack="eva" class="mr-2"></nb-icon>
+                                    <span>{{dataset.rating}}</span>
+                                </div>
+                            </nb-card-header>
+                            <nb-card-body class="p-4">
+                                <p>{{dataset.description}}</p>
+                                <div class="d-flex flex-row justify-content-between align-items-center">
+                                    <button nbButton status="primary" shape="rectangle">View</button>
+                                    <span>{{dataset.date}}</span>
+                                </div>
+                            </nb-card-body>
+                        </nb-card>
+                    </nb-list-item>
+                    <nb-list-item *ngIf="loading">
+                        <div class="loading-spinner">
+                            <nb-spinner></nb-spinner>
+                        </div>
+                    </nb-list-item>
+                </nb-list>
+            </div>
         </div>
     </div>
 </section>

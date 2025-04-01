@@ -118,3 +118,58 @@ $surface-dark: #25262E;
     }
   }
 }
+
+.right-column {
+  height: calc(100vh - 200px); // Adjust this value based on your layout
+}
+
+.datasets-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+nb-list {
+  min-height: 400px;
+  overflow-y: auto;
+  height: 100%;
+  scrollbar-width: thin; // For Firefox
+}
+
+nb-card {
+  border-radius: 0;
+}
+
+.list-item {
+  padding: 0 1rem 0 0;
+  border: none;
+}
+
+// For Chrome, Edge, and Safari
+nb-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+nb-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+nb-list::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 4px;
+}
+
+nb-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+// Make sure card in list item takes full width
+nb-list-item nb-card {
+  width: 100%;
+}
