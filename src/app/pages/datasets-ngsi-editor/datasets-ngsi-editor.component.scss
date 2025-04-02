@@ -1,3 +1,11 @@
+:host ::ng-deep .custom-stepper .header {
+  margin: 0 10rem;
+}
+
+:host ::ng-deep .custom-stepper .header .label {
+  font-size: large;
+}
+
 .stepper-container {
   margin: 20px auto;
   max-width: 1200px;
@@ -7,23 +15,35 @@
   display: flex;
   justify-content: space-between;
   gap: 20px;
-  margin-top: 20px;
+  padding: 0;
 }
 
-.distribution-form,
-.dataset-form {
-  flex: 1;
+.distribution-form{
   display: flex;
   flex-direction: column;
   gap: 15px;
+  padding: 15px;
 }
 
-.inline-fields {
+.dataset-form {
   display: flex;
+  flex-direction: row;
   gap: 15px;
+  padding: 15px;
+}
 
-  div {
-    flex: 1;
+.distribution-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h4 {
+    margin: 0;
+  }
+
+  button {
+    min-width: 100px;
   }
 }
 
@@ -81,6 +101,7 @@
 }
 
 .left-column,
+.mid-column,
 .right-column {
   flex: 1;
   display: flex;

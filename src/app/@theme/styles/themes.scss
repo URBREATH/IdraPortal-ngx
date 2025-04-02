@@ -187,3 +187,7 @@ $nb-themes: nb-register-theme((
   slide-out-shadow-color: 0 4px 14px 0 #292929,
   slide-out-shadow-color-rtl: 0 4px 14px 0 #292929,
 ), material-dark, material-dark);
+
+$nb-themes: nb-register-theme((
+  stepper-step-text-font-size: 1.75rem,
+), default, default);

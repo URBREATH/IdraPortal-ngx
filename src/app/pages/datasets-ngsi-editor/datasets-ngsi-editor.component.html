@@ -1,10 +1,11 @@
-<nb-card>
+<div>
   <!-- The Nebular Stepper container -->
-  <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container">
+  <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper">
     
     <!-- Step 1: Add Distributions -->
-    <nb-step label="1 - Add distributions">
+    <nb-step label="Add distributions">
       <div class="step-content">
+        <nb-card class="m-0 w-50">
         <!-- Left panel: distribution form -->
         <form [formGroup]="distributionForm" class="distribution-form">
           <label for="distTitle">Title</label>
@@ -13,34 +14,39 @@
           <label for="downloadUrl">Download URL</label>
           <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" />
           
-          <div class="inline-fields">
-            <div>
-              <label for="format">Format</label>
-              <select nbSelect id="format" formControlName="format">
-                <option value="CSV">CSV</option>
-                <option value="JSON">JSON</option>
-                <option value="XML">XML</option>
-              </select>
-            </div>
-            <div>
-              <label for="releaseDate">Release date</label>
-              <input nbInput placeholder="DD/MM/YY" id="releaseDate" formControlName="releaseDate" />
-            </div>
-          </div>
+          <label for="format">Format</label>
+          <nb-select id="format" formControlName="format">
+            <nb-option value="CSV">CSV</nb-option>
+            <nb-option value="JSON">JSON</nb-option>
+            <nb-option value="XML">XML</nb-option>
+          </nb-select>
+
+          <label for="releaseDate">Release date</label>
+          <input nbInput placeholder="DD/MM/YY" id="releaseDate" formControlName="releaseDate" />
           
           <label for="description">Description</label>
           <textarea nbInput id="description" formControlName="description"></textarea>
+        
           
           <button nbButton status="primary" (click)="onAddDistribution()">
             Create
           </button>
         </form>
+      </nb-card>
 
         <!-- Right panel: distribution list -->
-        <div class="distribution-list-panel">
-          <h4>Distribution list</h4>
-          <p *ngIf="distributions.length === 0">No distributions added yet</p>
-          <ul>
+        <nb-card class="distribution-list-panel m-0">
+          <div class="distribution-list-header">
+            <div>
+            <h4>Distribution list</h4>
+            <p *ngIf="distributions.length === 0">No distributions added yet</p>
+            </div>
+            
+            <button nbButton status="info" (click)="onImportDistributions()">
+              Import
+            </button>
+          </div>
+            <ul>
             <li *ngFor="let dist of distributions; let i = index" class="distribution-item">
               <div>
                 <strong>{{ dist.title }}</strong>
@@ -51,10 +57,7 @@
               </button>
             </li>
           </ul>
-          <button nbButton status="info" (click)="onImportDistributions()">
-            Import
-          </button>
-        </div>
+        </nb-card>
       </div>
       <div class="step-controls">
         <button nbButton status="primary" (click)="stepper.next()">
@@ -64,7 +67,7 @@
     </nb-step>
     
     <!-- Step 2: Create Dataset -->
-    <nb-step label="2 - Create dataset">
+    <nb-step label="Create dataset">
       <div class="step-content">
         <form [formGroup]="datasetForm" class="dataset-form">
           <div class="left-column">
@@ -96,7 +99,7 @@
             <textarea nbInput id="versionNotes" formControlName="versionNotes"></textarea>
           </div>
           
-          <div class="right-column">
+          <div class="mid-column">
             <label for="name">Name</label>
             <input nbInput id="name" formControlName="name" type="text" />
             
@@ -112,6 +115,8 @@
             <label for="keyword">Keyword</label>
             <input nbInput id="keyword" formControlName="keyword" type="text" />
             
+          </div>
+          <div class="right-column">
             <label for="theme">Theme</label>
             <div class="inline-fields">
               <input nbInput id="theme" formControlName="theme" type="text" />
@@ -151,4 +156,4 @@
       </div>
     </nb-step>
   </nb-stepper>
-</nb-card>
+</div>
