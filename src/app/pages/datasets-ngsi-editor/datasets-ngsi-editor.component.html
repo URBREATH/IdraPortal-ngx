@@ -1,1 +1,154 @@
-<p>datasets-ngsi-editor works!</p>
+<nb-card>
+  <!-- The Nebular Stepper container -->
+  <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container">
+    
+    <!-- Step 1: Add Distributions -->
+    <nb-step label="1 - Add distributions">
+      <div class="step-content">
+        <!-- Left panel: distribution form -->
+        <form [formGroup]="distributionForm" class="distribution-form">
+          <label for="distTitle">Title</label>
+          <input nbInput id="distTitle" formControlName="title" type="text" />
+          
+          <label for="downloadUrl">Download URL</label>
+          <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" />
+          
+          <div class="inline-fields">
+            <div>
+              <label for="format">Format</label>
+              <select nbSelect id="format" formControlName="format">
+                <option value="CSV">CSV</option>
+                <option value="JSON">JSON</option>
+                <option value="XML">XML</option>
+              </select>
+            </div>
+            <div>
+              <label for="releaseDate">Release date</label>
+              <input nbInput placeholder="DD/MM/YY" id="releaseDate" formControlName="releaseDate" />
+            </div>
+          </div>
+          
+          <label for="description">Description</label>
+          <textarea nbInput id="description" formControlName="description"></textarea>
+          
+          <button nbButton status="primary" (click)="onAddDistribution()">
+            Create
+          </button>
+        </form>
+
+        <!-- Right panel: distribution list -->
+        <div class="distribution-list-panel">
+          <h4>Distribution list</h4>
+          <p *ngIf="distributions.length === 0">No distributions added yet</p>
+          <ul>
+            <li *ngFor="let dist of distributions; let i = index" class="distribution-item">
+              <div>
+                <strong>{{ dist.title }}</strong>
+                <p>{{ dist.description }}</p>
+              </div>
+              <button nbButton status="danger" (click)="removeDistribution(i)">
+                <nb-icon icon="trash-2-outline"></nb-icon>
+              </button>
+            </li>
+          </ul>
+          <button nbButton status="info" (click)="onImportDistributions()">
+            Import
+          </button>
+        </div>
+      </div>
+      <div class="step-controls">
+        <button nbButton status="primary" (click)="stepper.next()">
+          Next
+        </button>
+      </div>
+    </nb-step>
+    
+    <!-- Step 2: Create Dataset -->
+    <nb-step label="2 - Create dataset">
+      <div class="step-content">
+        <form [formGroup]="datasetForm" class="dataset-form">
+          <div class="left-column">
+            <label for="title">Title</label>
+            <input nbInput id="title" formControlName="title" type="text" />
+            
+            <label for="downloadUrl">Download URL</label>
+            <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" />
+            
+            <div class="inline-fields">
+              <div>
+                <label for="format">Format</label>
+                <select nbSelect id="format" formControlName="format">
+                  <option value="CSV">CSV</option>
+                  <option value="JSON">JSON</option>
+                  <option value="XML">XML</option>
+                </select>
+              </div>
+              <div>
+                <label for="releaseDate">Release date</label>
+                <input nbInput placeholder="DD/MM/YY" id="releaseDate" formControlName="releaseDate" />
+              </div>
+            </div>
+            
+            <label for="description">Description</label>
+            <textarea nbInput id="description" formControlName="description"></textarea>
+
+            <label for="versionNotes">Version notes</label>
+            <textarea nbInput id="versionNotes" formControlName="versionNotes"></textarea>
+          </div>
+          
+          <div class="right-column">
+            <label for="name">Name</label>
+            <input nbInput id="name" formControlName="name" type="text" />
+            
+            <label for="publisher">Publisher</label>
+            <input nbInput id="publisher" formControlName="publisher" type="text" />
+            
+            <label for="contactPoint">Contact point</label>
+            <input nbInput id="contactPoint" formControlName="contactPoint" type="text" />
+            
+            <label for="creator">Creator</label>
+            <input nbInput id="creator" formControlName="creator" type="text" />
+            
+            <label for="keyword">Keyword</label>
+            <input nbInput id="keyword" formControlName="keyword" type="text" />
+            
+            <label for="theme">Theme</label>
+            <div class="inline-fields">
+              <input nbInput id="theme" formControlName="theme" type="text" />
+              <button nbButton status="info">
+                <nb-icon icon="plus-outline"></nb-icon>
+              </button>
+            </div>
+            
+            <label for="access">Access</label>
+            <select nbSelect id="access" formControlName="access">
+              <option value="PUBLIC">Public</option>
+              <option value="PRIVATE">Private</option>
+            </select>
+            
+            <label for="frequency">Frequency</label>
+            <select nbSelect id="frequency" formControlName="frequency">
+              <option value="DAILY">Daily</option>
+              <option value="WEEKLY">Weekly</option>
+              <option value="MONTHLY">Monthly</option>
+            </select>
+            
+            <!-- Spatial / map area -->
+            <div class="map-placeholder">
+              <strong>Spatial:</strong>
+              <p>(Map placeholder)</p>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="step-controls">
+        <button nbButton status="primary" (click)="stepper.previous()">
+          Back
+        </button>
+        <button nbButton status="success" (click)="onCreateDataset()">
+          Create dataset
+        </button>
+      </div>
+    </nb-step>
+  </nb-stepper>
+</nb-card>
