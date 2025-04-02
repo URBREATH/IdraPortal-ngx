@@ -8,7 +8,15 @@ import { DatasetsNgsiEditorComponent } from '../datasets-ngsi-editor/datasets-ng
 import { ReactiveFormsModule } from '@angular/forms';
 
 // Nebular modules
-import { NbIconModule, NbButtonModule, NbCardModule, NbInputModule, NbStepperModule, NbSelectModule } from '@nebular/theme';
+import { 
+  NbIconModule, 
+  NbButtonModule, 
+  NbCardModule, 
+  NbInputModule, 
+  NbStepperModule, 
+  NbSelectModule, 
+  NbDatepickerModule 
+} from '@nebular/theme';
 
 @NgModule({
   declarations: [
@@ -23,7 +31,8 @@ import { NbIconModule, NbButtonModule, NbCardModule, NbInputModule, NbStepperMod
     NbCardModule,
     NbInputModule,
     NbStepperModule,
-    NbSelectModule
+    NbSelectModule,
+    NbDatepickerModule,
   ]
 })
 export class DatasetsNgsiEditorModule { }

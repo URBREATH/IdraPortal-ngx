@@ -1,5 +1,4 @@
 <div>
-  <!-- The Nebular Stepper container -->
   <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper">
     
     <!-- Step 1: Add Distributions -->
@@ -8,26 +7,34 @@
         <nb-card class="m-0 w-50">
         <!-- Left panel: distribution form -->
         <form [formGroup]="distributionForm" class="distribution-form">
+          <label for="distId">ID (Optional)</label>
+          <input nbInput id="distId" formControlName="id" type="text" class="full-width-input" />
+          
           <label for="distTitle">Title</label>
-          <input nbInput id="distTitle" formControlName="title" type="text" />
+          <input nbInput id="distTitle" formControlName="title" type="text" class="full-width-input" />
           
           <label for="downloadUrl">Download URL</label>
-          <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" />
+          <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" class="full-width-input" />
           
           <label for="format">Format</label>
-          <nb-select id="format" formControlName="format">
+          <nb-select id="format" formControlName="format" class="full-width-input">
             <nb-option value="CSV">CSV</nb-option>
             <nb-option value="JSON">JSON</nb-option>
             <nb-option value="XML">XML</nb-option>
           </nb-select>
 
-          <label for="releaseDate">Release date</label>
-          <input nbInput placeholder="DD/MM/YY" id="releaseDate" formControlName="releaseDate" />
+          <label for="releaseDate">Release Date</label>
+          <input nbInput 
+                 placeholder="yyyy-MM-dd" 
+                 id="releaseDate" 
+                 formControlName="releaseDate" 
+                 [nbDatepicker]="releaseDatePicker" 
+                 class="full-width-input" />
+          <nb-datepicker #releaseDatePicker (dateChange)="onDateSelect($event, 'releaseDate')"></nb-datepicker>
           
           <label for="description">Description</label>
-          <textarea nbInput id="description" formControlName="description"></textarea>
+          <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
         
-          
           <button nbButton status="primary" (click)="onAddDistribution()">
             Create
           </button>
@@ -49,7 +56,7 @@
             <ul>
             <li *ngFor="let dist of distributions; let i = index" class="distribution-item">
               <div>
-                <strong>{{ dist.title }}</strong>
+                <strong>{{ dist.title }} (ID: {{ dist.id }})</strong>
                 <p>{{ dist.description }}</p>
               </div>
               <button nbButton status="danger" (click)="removeDistribution(i)">
@@ -71,77 +78,134 @@
       <div class="step-content">
         <form [formGroup]="datasetForm" class="dataset-form">
           <div class="left-column">
+            <label for="datasetId">Dataset ID</label>
+            <input nbInput id="datasetId" formControlName="id" type="text" class="full-width-input" />
+            
             <label for="title">Title</label>
-            <input nbInput id="title" formControlName="title" type="text" />
+            <input nbInput id="title" formControlName="title" type="text" class="full-width-input" />
             
-            <label for="downloadUrl">Download URL</label>
-            <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" />
-            
-            <div class="inline-fields">
-              <div>
-                <label for="format">Format</label>
-                <select nbSelect id="format" formControlName="format">
-                  <option value="CSV">CSV</option>
-                  <option value="JSON">JSON</option>
-                  <option value="XML">XML</option>
-                </select>
+            <label>Dataset Description</label>
+            <div formArrayName="datasetDescription" class="array-field">
+              <div *ngFor="let desc of datasetDescriptions.controls; let i = index" class="array-item">
+                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
+                <button nbButton status="danger" size="tiny" (click)="removeDatasetDescription(i)">
+                  <nb-icon icon="close-outline"></nb-icon>
+                </button>
               </div>
-              <div>
-                <label for="releaseDate">Release date</label>
-                <input nbInput placeholder="DD/MM/YY" id="releaseDate" formControlName="releaseDate" />
-              </div>
+              <button nbButton status="info" size="small" (click)="addDatasetDescription()">
+                <nb-icon icon="plus-outline"></nb-icon> Add Description
+              </button>
             </div>
             
             <label for="description">Description</label>
-            <textarea nbInput id="description" formControlName="description"></textarea>
+            <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
 
-            <label for="versionNotes">Version notes</label>
-            <textarea nbInput id="versionNotes" formControlName="versionNotes"></textarea>
+            <label>Version Notes</label>
+            <div formArrayName="versionNotes" class="array-field">
+              <div *ngFor="let note of versionNotesArray.controls; let i = index" class="array-item">
+                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
+                <button nbButton status="danger" size="tiny" (click)="removeVersionNote(i)">
+                  <nb-icon icon="close-outline"></nb-icon>
+                </button>
+              </div>
+              <button nbButton status="info" size="small" (click)="addVersionNote()">
+                <nb-icon icon="plus-outline"></nb-icon> Add Version Note
+              </button>
+            </div>
+            
+            <label for="version">Version</label>
+            <input nbInput id="version" formControlName="version" type="text" class="full-width-input" />
           </div>
           
           <div class="mid-column">
             <label for="name">Name</label>
-            <input nbInput id="name" formControlName="name" type="text" />
+            <input nbInput id="name" formControlName="name" type="text" class="full-width-input" />
             
             <label for="publisher">Publisher</label>
-            <input nbInput id="publisher" formControlName="publisher" type="text" />
+            <input nbInput id="publisher" formControlName="publisher" type="text" class="full-width-input" />
             
-            <label for="contactPoint">Contact point</label>
-            <input nbInput id="contactPoint" formControlName="contactPoint" type="text" />
-            
-            <label for="creator">Creator</label>
-            <input nbInput id="creator" formControlName="creator" type="text" />
-            
-            <label for="keyword">Keyword</label>
-            <input nbInput id="keyword" formControlName="keyword" type="text" />
-            
-          </div>
-          <div class="right-column">
-            <label for="theme">Theme</label>
-            <div class="inline-fields">
-              <input nbInput id="theme" formControlName="theme" type="text" />
-              <button nbButton status="info">
-                <nb-icon icon="plus-outline"></nb-icon>
+            <label>Contact Points</label>
+            <div formArrayName="contactPoint" class="array-field">
+              <div *ngFor="let cp of contactPoints.controls; let i = index" class="array-item">
+                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
+                <button nbButton status="danger" size="tiny" (click)="removeContactPoint(i)">
+                  <nb-icon icon="close-outline"></nb-icon>
+                </button>
+              </div>
+              <button nbButton status="info" size="small" (click)="addContactPoint()">
+                <nb-icon icon="plus-outline"></nb-icon> Add Contact Point
               </button>
             </div>
             
-            <label for="access">Access</label>
-            <select nbSelect id="access" formControlName="access">
-              <option value="PUBLIC">Public</option>
-              <option value="PRIVATE">Private</option>
-            </select>
+            <label for="creator">Creator</label>
+            <input nbInput id="creator" formControlName="creator" type="text" class="full-width-input" />
+            
+            <label>Keywords</label>
+            <div formArrayName="keyword" class="array-field">
+              <div *ngFor="let kw of keywords.controls; let i = index" class="array-item">
+                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
+                <button nbButton status="danger" size="tiny" (click)="removeKeyword(i)">
+                  <nb-icon icon="close-outline"></nb-icon>
+                </button>
+              </div>
+              <button nbButton status="info" size="small" (click)="addKeyword()">
+                <nb-icon icon="plus-outline"></nb-icon> Add Keyword
+              </button>
+            </div>
+            
+            <label for="releaseDate">Release Date</label>
+            <input nbInput 
+                   placeholder="yyyy-MM-dd" 
+                   id="datasetReleaseDate" 
+                   formControlName="releaseDate" 
+                   [nbDatepicker]="datasetReleaseDatePicker" 
+                   class="full-width-input" />
+            <nb-datepicker #datasetReleaseDatePicker (dateChange)="onDateSelect($event, 'datasetReleaseDate')"></nb-datepicker>
+          </div>
+          <div class="right-column">
+            <label>Themes</label>
+            <div formArrayName="theme" class="array-field">
+              <div *ngFor="let themeItem of themes.controls; let i = index" class="array-item">
+                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
+                <button nbButton status="danger" size="tiny" (click)="removeTheme(i)">
+                  <nb-icon icon="close-outline"></nb-icon>
+                </button>
+              </div>
+              <button nbButton status="info" size="small" (click)="addTheme()">
+                <nb-icon icon="plus-outline"></nb-icon> Add Theme
+              </button>
+            </div>
+            
+            <label for="accessRights">Access Rights</label>
+            <nb-select id="accessRights" formControlName="accessRights" class="full-width-input">
+              <nb-option value="public">Public</nb-option>
+              <nb-option value="non-public">Non-Public</nb-option>
+            </nb-select>
             
             <label for="frequency">Frequency</label>
-            <select nbSelect id="frequency" formControlName="frequency">
-              <option value="DAILY">Daily</option>
-              <option value="WEEKLY">Weekly</option>
-              <option value="MONTHLY">Monthly</option>
-            </select>
+            <nb-select id="frequency" formControlName="frequency" class="full-width-input">
+              <nb-option value="DAILY">Daily</nb-option>
+              <nb-option value="WEEKLY">Weekly</nb-option>
+              <nb-option value="MONTHLY">Monthly</nb-option>
+            </nb-select>
             
             <!-- Spatial / map area -->
-            <div class="map-placeholder">
+            <div class="spatial-section">
               <strong>Spatial:</strong>
-              <p>(Map placeholder)</p>
+              <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
+                <div [formGroupName]="i" class="spatial-point">
+                  <div formArrayName="coordinates" class="coordinates-input">
+                    <div class="coordinate">
+                      <label>Longitude:</label>
+                      <input nbInput type="number" step="0.000001" [formControlName]="0" class="full-width-input" />
+                    </div>
+                    <div class="coordinate">
+                      <label>Latitude:</label>
+                      <input nbInput type="number" step="0.000001" [formControlName]="1" class="full-width-input" />
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </form>

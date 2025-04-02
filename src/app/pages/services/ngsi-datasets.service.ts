@@ -18,13 +18,10 @@ export class NgsiDatasetsService {
     });
   }
 
-  // Nuovo metodo per inviare il dataset in POST a /api/dataset
-  postDataset(payload: any): Observable<any> {
-    return this.http.post('/api/dataset', payload, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
+  postDataset(dataset: any) {
+    return this.http.post('/api/dataset', dataset, {
+      responseType: 'text',  // <-- This tells Angular not to parse as JSON
+      observe: 'response'    // <-- Optional: to get the full response including headers
     });
   }
 }
