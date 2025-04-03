@@ -1,32 +1,32 @@
 <section class="jumbotron">
     <div class="mb-4">
-        <nb-card style="height: 70vh;">
-            <nb-card-body style="height: 70vh;">
+        <nb-card class="editor-card">
+            <nb-card-body class="editor-card-body">
               <ngs-code-editor 
                 theme="vs-light" 
                 language="typescript"
                 [options]="options"
                 [(codeModel)]="model"
-                style="height: 65vh;"
+                class="code-editor"
                 >
               </ngs-code-editor>
             </nb-card-body>
         </nb-card>
         <div class="row">
           <div class="col-4">
-            <span style="min-width: fit-content;margin-right: 0.5rem;">Output format:</span>
+            <span class="output-format-label">Output format:</span>
             <nb-select [(selected)]="outputFormat" placeholder="Output format">
               <nb-option value="XML">XML</nb-option>
               <nb-option value="JSON">JSON</nb-option>
             </nb-select>
           </div>
           <div class="col-8 d-flex justify-content-end" *ngIf="query_bck == ''">
-            <button nbButton status="success" (click)="clear()" style="margin-right: 0.5rem;" >Clear</button>
+            <button nbButton status="success" (click)="clear()" class="mr-2">Clear</button>
             <button nbButton status="primary" (click)="executeQuery()">Execute</button>
           </div>
           <div class="col-8 d-flex justify-content-end" *ngIf="query_bck != ''">
-            <button nbButton status="success" (click)="back()" style="margin-right: 0.5rem;" >Back</button>
-            <button nbButton status="success" (click)="copy()" style="margin-right: 0.5rem;" >Copy</button>
+            <button nbButton status="success" (click)="back()" class="mr-2">Back</button>
+            <button nbButton status="success" (click)="copy()" class="mr-2">Copy</button>
             <button nbButton status="primary" (click)="download()">Download</button>
           </div>
         </div>

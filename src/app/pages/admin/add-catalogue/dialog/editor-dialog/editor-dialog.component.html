@@ -1,0 +1,19 @@
+<nb-card class="height-70-vh">
+  <nb-card-header>{{ 'DCATDUMP_EDITOR_TITLE' | translate }}</nb-card-header>
+    <nb-card-body class="height-70-vh">
+      <ngs-code-editor 
+        theme="vs-light" 
+        language="typescript"
+        [options]="options"
+        [(codeModel)]="model"
+        class="height-65-vh"
+        >
+      </ngs-code-editor>
+    </nb-card-body>
+  <nb-card-footer>
+    <div class="button-container">
+      <button nbButton status="primary" (click)="dismiss(false)">{{ 'DIALOG_CLOSE' | translate }}</button>
+      <button nbButton status="primary" (click)="dismiss(true)">{{ 'DIALOG_ACTION' | translate }}</button>
+    </div>
+  </nb-card-footer>
+</nb-card>

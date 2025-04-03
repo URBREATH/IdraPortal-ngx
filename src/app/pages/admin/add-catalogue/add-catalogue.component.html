@@ -13,10 +13,10 @@
             <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                 <h6 class="jumbotron-heading">{{ 'IMAGE' | translate }}</h6>
                 <div class="custom-file">
-                    <input nbInput style="background-color: white;" type="file" class="form-control" id="importFile" (change)="onFileChange($event.target.files[0],0)">
+                    <input nbInput type="file" class="form-control background-white" id="importFile" (change)="onFileChange($event.target.files[0],0)">
                 </div>
-                <div style="height: fit-content;">
-                    <img id="image" [src]="imageUrl" alt="" style="margin-top: 1rem; height: 120px;width: auto;">
+                <div class="height-fit-content">
+                    <img id="image" [src]="imageUrl" alt="" class="image-component">
                 </div>
             </nb-card-body>
         </nb-card>
@@ -113,8 +113,13 @@
                 <div class="col-md-6" *ngIf="node.nodeType == 'DCATDUMP'">
                     <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                         <h6 class="jumbotron-heading">{{ 'DUMP_FILE' | translate }}</h6>
-                        <div class="custom-file">
-                            <input nbInput style="background-color: white;" type="file" class="form-control" multiple id="importFile" (change)="onFileChange($event.target.files[0],1)">
+                        <div class="custom-file d-flex flex-row align-items-center justify-content-center">
+                            <input nbInput type="file" class="form-control background-white" multiple id="importFile" (change)="onFileChange($event.target.files[0],1)">
+                            <nb-icon *ngIf="this.node.dumpString != ''; else emptyDumpString" nbTooltip="{{ 'DUMP_FILE_CHECK' | translate }}" icon="checkmark-square-2-outline" class="ml-1"></nb-icon>
+                            <ng-template #emptyDumpString>
+                                <nb-icon nbTooltip="{{ 'DUMP_FILE_CHECK' | translate }}" icon="close-square-outline" class="ml-1"></nb-icon>
+                            </ng-template>
+                            <nb-icon nbTooltip="{{ 'DUMP_FILE_MODIFY' | translate }}"  icon="edit-2-outline" [options]="{ animation: { type: 'zoom' } }" class="ml-1" (click)="handleOpenEditorDialog()"></nb-icon>
                         </div>
                     </nb-card-body>
                 </div>
@@ -162,7 +167,7 @@
                     <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                         <h6 class="jumbotron-heading">{{ 'JSON_FILE' | translate }}</h6>
                         <div class="custom-file">
-                            <input nbInput style="background-color: white;" type="file" class="form-control" multiple id="importFileJsonOrion" (change)="onFileChange($event.target.files[0],2)">
+                            <input nbInput type="file" class="form-control background-white" multiple id="importFileJsonOrion" (change)="onFileChange($event.target.files[0],2)">
                         </div>
                     </nb-card-body>
                 </div>
@@ -181,7 +186,7 @@
                     <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                         <h6 class="jumbotron-heading">{{ 'JSON_FILE' | translate }}</h6>
                         <div class="custom-file">
-                            <input nbInput style="background-color: white;" type="file" class="form-control" multiple id="importFileSparql" (change)="onFileChange($event.target.files[0],3)">
+                            <input nbInput type="file" class="form-control background-white" multiple id="importFileSparql" (change)="onFileChange($event.target.files[0],3)">
                         </div>
                     </nb-card-body>
                 </div>
@@ -190,13 +195,13 @@
                     <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                         <h6 class="jumbotron-heading">{{ 'JSON_FILE' | translate }}</h6>
                         <div class="custom-file">
-                            <input nbInput style="background-color: white;" type="file" class="form-control" multiple id="importFileWeb" (change)="onFileChange($event.target.files[0],4)">
+                            <input nbInput type="file" class="form-control background-white" multiple id="importFileWeb" (change)="onFileChange($event.target.files[0],4)">
                         </div>
                     </nb-card-body>
                 </div>
             </div>
             
-            <div class="row show-grid" style="padding: 20px">
+            <div class="row show-grid padding-20" >
                 <div class="col-md-4">
                     <button routerLink="../" nbButton fullWidth outline status="primary" (click)="back()">{{ 'BACK' | translate }}</button>
                 </div>

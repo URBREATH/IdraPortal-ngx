@@ -27,3 +27,73 @@ span {
     display: flex !important;
     align-items: center !important;
 }
+
+/* Stili per input */
+.input-bg-white {
+    background-color: white;
+  }
+  
+  .search-input {
+    width: 200px;
+    height: 30px;
+    margin-left: 0.5rem;
+  }
+  
+  /* Stili per nb-card-body scrollable */
+  .scrollable-card {
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  
+  /* Margini */
+  .ml-1 {
+    margin-left: 1rem;
+  }
+  
+  .ml-2 {
+    margin-left: 0.5rem;
+  }
+  
+  .ml-icon {
+    margin-left: 0.2rem;
+  }
+  
+  /* Stili per testo */
+  .text-danger {
+    color: red;
+  }
+  
+  /* Bottoni e input */
+  .mb-2 {
+    margin-bottom: 0.5rem;
+  }
+  
+  /* Layout per container pulsanti */
+  .buttonContainer {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+  
+  /* Stile per grafici */
+  .echart {
+    min-height: 300px;
+  }
+  
+  /* Stile per info box */
+  .info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .value {
+    font-size: 1.5rem;
+    font-weight: bold;
+  }
+  
+  .details {
+    font-size: 0.875rem;
+    color: #666;
+  }

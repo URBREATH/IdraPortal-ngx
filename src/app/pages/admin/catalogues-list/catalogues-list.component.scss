@@ -71,3 +71,78 @@ nb-icon {
     width: 23%;
   }
 }
+
+/* Padding per contenitori */
+.pb-20 {
+  padding-bottom: 20px;
+}
+
+/* Stile per input di ricerca */
+.search-input {
+  width: 200px;
+  height: 30px;
+  margin-left: 0.5rem;
+}
+
+/* Larghezze colonne tabella */
+.col-w-50 {
+  width: 50px;
+}
+
+.col-w-70 {
+  width: 70px;
+}
+
+.col-w-75 {
+  width: 75px;
+}
+
+.col-w-90 {
+  width: 90px;
+}
+
+.col-w-120 {
+  width: 120px;
+}
+
+.col-w-150 {
+  width: 150px;
+}
+
+.col-w-200 {
+  width: 200px;
+}
+
+/* Classi per colori di testo */
+.text-success {
+  color: #64B728;
+}
+
+.text-danger {
+  color: crimson;
+}
+
+/* Stile per righe disabilitate */
+.disabled {
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+/* Stile per icona rotante */
+.rotate_icon {
+  animation: rotate 1.5s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Nasconde elementi */
+.hid {
+  display: none;
+}

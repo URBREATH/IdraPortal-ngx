@@ -1,11 +1,37 @@
-    .container {
-      width:1000px;
-    }
-    .left {
-      width:500px;
-      float:left;
-    }
-    .right {
-      width:500px;
-      float:right;
-    }
+.container {
+  width:1000px;
+}
+.left {
+  width:500px;
+  float:left;
+}
+.right {
+  width:500px;
+  float:right;
+}
+
+.background-white {
+  background-color: #fff;
+}
+
+.height-fit-content {
+  height: fit-content;
+}
+
+.image-component {
+  margin-top: 1rem; 
+  height: 120px;
+  width: auto;
+}
+
+.ml-1 {
+  margin-left: 0.5rem;
+}
+
+.background-white {
+  background-color: #fff;
+}
+
+.padding-20 {
+  padding: 20px;
+}
