@@ -2,6 +2,9 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+
 
 @Component({
   selector: 'ngx-datasets-ngsi',
@@ -24,7 +27,9 @@ export class DatasetsNgsiComponent implements OnInit {
 
   constructor(
     public translation: TranslateService,
-    private ngsiDatasetsService: NgsiDatasetsService
+    private ngsiDatasetsService: NgsiDatasetsService,
+    private dialogService: NbDialogService,
+    private toastrService: NbToastrService
   ) { }
 
   ngOnInit(): void {
@@ -86,7 +91,6 @@ export class DatasetsNgsiComponent implements OnInit {
     }, 500);
   }
 
-  //
   dynamicUrl(): string {
     return 1 > 0 ? "/pages/datasets-ngsi/editor" : "/pages/datasets-ngsi/editor";
   }
@@ -99,7 +103,109 @@ export class DatasetsNgsiComponent implements OnInit {
       this.datasetsToDelete.push(datasetId);
     }
   }
+
   isChecked(datasetId: string): boolean {
     return this.datasetsToDelete.includes(datasetId);
+  }
+
+  // Delete a single dataset
+  deleteDataset(datasetId: string): void {
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Delete Dataset',
+        message: 'Are you sure you want to delete this dataset?',
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+          next: () => {
+            this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
+            this.displayedDatasets = this.displayedDatasets.filter(ds => ds.id !== datasetId);
+            
+            const index = this.datasetsToDelete.indexOf(datasetId);
+            if (index > -1) {
+              this.datasetsToDelete.splice(index, 1);
+            }
+            
+            this.toastrService.success('Dataset deleted successfully', 'Success');
+          },
+          error: (error) => {
+            console.error('Error deleting dataset:', error);
+            this.toastrService.danger('Failed to delete dataset', 'Error');
+          }
+        });
+      }
+    });
+  }
+
+  // Delete all selected datasets
+  deleteSelectedDatasets(): void {
+    if (this.datasetsToDelete.length === 0) {
+      this.toastrService.warning('No datasets selected for deletion', 'Warning');
+      return;
+    }
+
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Delete Selected Datasets',
+        message: `Are you sure you want to delete ${this.datasetsToDelete.length} selected datasets?`,
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Track completed deletions
+        let completedCount = 0;
+        let errorCount = 0;
+        
+        // Process each dataset to delete
+        this.datasetsToDelete.forEach(datasetId => {
+          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+            next: () => {
+              completedCount++;
+              // Check if all operations completed
+              if (completedCount + errorCount === this.datasetsToDelete.length) {
+                this.finalizeBatchDeletion(completedCount, errorCount);
+              }
+            },
+            error: (error) => {
+              console.error(`Error deleting dataset ${datasetId}:`, error);
+              errorCount++;
+              // Check if all operations completed
+              if (completedCount + errorCount === this.datasetsToDelete.length) {
+                this.finalizeBatchDeletion(completedCount, errorCount);
+              }
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // Helper to finalize batch deletion and update UI
+  private finalizeBatchDeletion(successCount: number, errorCount: number): void {
+    // Remove deleted datasets from the displayed lists
+    this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(
+      ds => !this.datasetsToDelete.includes(ds.id)
+    );
+    this.displayedDatasets = this.displayedDatasets.filter(
+      ds => !this.datasetsToDelete.includes(ds.id)
+    );
+    
+    // Clear the deletion list
+    this.datasetsToDelete = [];
+    
+    // Show appropriate message
+    if (errorCount === 0) {
+      this.toastrService.success(`Successfully deleted ${successCount} datasets`, 'Success');
+    } else if (successCount === 0) {
+      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
+    } else {
+      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
+    }
+  }
+
+  // Edit a dataset - redirect to editor with dataset ID
+  editDataset(datasetId: string): void {
+    // Navigate to the editor with the dataset ID
+    window.location.href = `/pages/datasets-ngsi/editor/${datasetId}`;
   }
 }

@@ -9,6 +9,11 @@
                 <button nbButton status="danger" [disabled]="datasetsToDelete.length === 0" >Delete Selected</button>
             </span>
         </span>
+        <div class="header-actions" *ngIf="datasetsToDelete.length > 0">
+            <button nbButton status="danger" (click)="deleteSelectedDatasets()">
+                Delete Selected ({{datasetsToDelete.length}})
+            </button>
+        </div>
         <div>
             <input type="text" class="pb-2" nbInput fieldSize="medium" placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" fullWidth>
         </div>
@@ -51,9 +56,15 @@
                             <nb-card-header class="d-flex flex-row justify-content-between align-items-center">
                                 <h5>{{dataset.title}}</h5>
                                 <span class="dataset-actions d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">
-                                    <nb-checkbox class="dataset-checkbox" (checkedChange)="toggle(dataset.id)"></nb-checkbox>
-                                    <button nbButton status="primary" ><nb-icon icon="edit-2-outline"></nb-icon></button>
-                                    <button nbButton status="danger"><nb-icon icon="trash-2-outline"></nb-icon> </button>
+                                    <nb-checkbox class="dataset-checkbox" 
+                                                [checked]="isChecked(dataset.id)" 
+                                                (checkedChange)="toggle(dataset.id)"></nb-checkbox>
+                                    <button nbButton status="primary" (click)="editDataset(dataset.id)">
+                                        <nb-icon icon="edit-2-outline"></nb-icon>
+                                    </button>
+                                    <button nbButton status="danger" (click)="deleteDataset(dataset.id)">
+                                        <nb-icon icon="trash-2-outline"></nb-icon>
+                                    </button>
                                 </span>                              
                             </nb-card-header>
                             <nb-card-body class="p-4">

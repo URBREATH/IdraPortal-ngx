@@ -43,6 +43,7 @@ import { TokenInterceptor } from './pages/auth/services/token.interceptor';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { Observable } from 'rxjs';
+import { SharedModule } from './shared/shared.module';
 class GenericConfig<T> {
   constructor(public config: T) {}
 }
@@ -69,9 +70,7 @@ export class CustomTranslateLoader implements TranslateLoader {
 }
 
 @NgModule({
-  declarations: [AppComponent, 
-    // AuthLogoutComponent
-  ],
+  declarations: [AppComponent],
   imports: [
   
     NgxEchartsModule.forRoot({
@@ -244,6 +243,7 @@ export class CustomTranslateLoader implements TranslateLoader {
         },
       },
     }),
+    SharedModule,
   ],
   providers: [NbSidebarService,
 

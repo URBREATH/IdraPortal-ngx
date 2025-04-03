@@ -27,10 +27,7 @@ export class NgsiDatasetsService {
 
   deleteDataset(datasetId: string) {
     return this.http.delete(`/api/dataset/${datasetId}`, {
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      }
+      responseType: 'text' // Use 'text' if the API returns non-JSON response
     });
   }
 
