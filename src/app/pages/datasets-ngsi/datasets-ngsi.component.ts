@@ -14,6 +14,8 @@ export class DatasetsNgsiComponent implements OnInit {
   ngsiDatasetsInfo: any[] = [];
   // Store the data to be displayed
   displayedDatasets: any[] = [];
+  // Store the datasets to be deleted
+  datasetsToDelete: any[] = [];
   totalDatasets: number = 0;
   pageSize = 3;
   currentPage = 1;
@@ -87,5 +89,17 @@ export class DatasetsNgsiComponent implements OnInit {
   //
   dynamicUrl(): string {
     return 1 > 0 ? "/pages/datasets-ngsi/editor" : "/pages/datasets-ngsi/editor";
+  }
+
+  toggle(datasetId: string): void {
+    const index = this.datasetsToDelete.indexOf(datasetId);
+    if (index > -1) {
+      this.datasetsToDelete.splice(index, 1);
+    } else {
+      this.datasetsToDelete.push(datasetId);
+    }
+  }
+  isChecked(datasetId: string): boolean {
+    return this.datasetsToDelete.includes(datasetId);
   }
 }

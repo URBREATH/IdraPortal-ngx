@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DatasetsNgsiRoutingModule } from './datasets-ngsi-routing.module';
 import { DatasetsNgsiComponent } from './datasets-ngsi.component';
-import { NbAccordionModule, NbButtonModule, NbCardModule, NbInputModule, NbListModule,} from '@nebular/theme';
+import { NbAccordionModule, NbButtonModule, NbCardModule, NbCheckboxModule, NbIconModule, NbInputModule, NbListModule,} from '@nebular/theme';
 import { TranslateModule } from '@ngx-translate/core';
 
 
@@ -17,6 +17,8 @@ import { TranslateModule } from '@ngx-translate/core';
         NbButtonModule,
         NbAccordionModule,
         NbListModule,
+        NbIconModule,
+        NbCheckboxModule
     ],
     })
 export class DatasetsNgsiModule { }

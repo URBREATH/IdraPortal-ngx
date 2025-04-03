@@ -173,3 +173,52 @@ nb-list::-webkit-scrollbar-thumb:hover {
 nb-list-item nb-card {
   width: 100%;
 }
+
+// Styling for checkbox to match button height
+::ng-deep nb-checkbox.dataset-checkbox {
+  display: block !important;
+  height: 40px !important;
+  
+  .nb-checkbox {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 4px !important;
+    line-height: 40px !important;
+  }
+  
+  .nb-checkbox-input {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .custom-checkbox {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  nb-icon {
+    font-size: 1.5rem !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 40px !important;
+  }
+}
+
+// Make sure buttons have consistent height
+::ng-deep .dataset-actions {
+  display: flex !important;
+  align-items: center !important;
+  
+  button {
+    height: 40px !important;
+    width: 40px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+

@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
-import moment from 'moment';;
+import moment from 'moment';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',

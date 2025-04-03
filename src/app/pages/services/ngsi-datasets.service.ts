@@ -24,4 +24,24 @@ export class NgsiDatasetsService {
       observe: 'response'    // <-- Optional: to get the full response including headers
     });
   }
+
+  deleteDataset(datasetId: string) {
+    return this.http.delete(`/api/dataset/${datasetId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    });
+  }
+
+  multiDeleteDatasets(datasetIds: string[]) {
+    return this.http.post('/api/dataset/multi-delete', datasetIds, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    });
+  }
+
+
 }
