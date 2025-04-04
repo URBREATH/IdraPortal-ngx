@@ -5,15 +5,11 @@
             <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">   
                 <button nbButton status="primary" 
                 [routerLink]="dynamicUrl()">Create New Dataset</button>
-                <button nbButton status="danger">Delete All</button>
-                <button nbButton status="danger" [disabled]="datasetsToDelete.length === 0" >Delete Selected</button>
+                <button nbButton status="danger" (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button"><nb-icon icon="trash-2-outline"></nb-icon> Delete All Datasets </button>
+                <button nbButton status="danger" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()" ><nb-icon icon="trash-2-outline"></nb-icon>Delete Selected ({{datasetsToDelete.length}})</button>
+                
             </span>
         </span>
-        <div class="header-actions" *ngIf="datasetsToDelete.length > 0">
-            <button nbButton status="danger" (click)="deleteSelectedDatasets()">
-                Delete Selected ({{datasetsToDelete.length}})
-            </button>
-        </div>
         <div>
             <input type="text" class="pb-2" nbInput fieldSize="medium" placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" fullWidth>
         </div>

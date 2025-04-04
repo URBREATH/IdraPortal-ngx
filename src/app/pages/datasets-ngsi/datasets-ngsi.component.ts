@@ -208,4 +208,72 @@ export class DatasetsNgsiComponent implements OnInit {
     // Navigate to the editor with the dataset ID
     window.location.href = `/pages/datasets-ngsi/editor/${datasetId}`;
   }
+
+  // Function to delete all datasets
+  deleteAllDatasets(): void {
+    // If no datasets to delete, show warning
+    if (this.ngsiDatasetsInfo.length === 0) {
+      this.toastrService.warning('No datasets available to delete', 'Warning');
+      return;
+    }
+
+    // Show confirmation dialog
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Delete All Datasets',
+        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} datasets. This action cannot be undone. Are you sure you want to proceed?`,
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Track completed deletions
+        let completedCount = 0;
+        let errorCount = 0;
+        const totalCount = this.ngsiDatasetsInfo.length;
+        
+        // Get all dataset IDs
+        const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
+        
+        // Process each dataset to delete
+        allDatasetIds.forEach(datasetId => {
+          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+            next: () => {
+              completedCount++;
+              // Check if all operations completed
+              if (completedCount + errorCount === totalCount) {
+                this.finalizeAllDeletion(completedCount, errorCount);
+              }
+            },
+            error: (error) => {
+              console.error(`Error deleting dataset ${datasetId}:`, error);
+              errorCount++;
+              // Check if all operations completed
+              if (completedCount + errorCount === totalCount) {
+                this.finalizeAllDeletion(completedCount, errorCount);
+              }
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // Helper method to finalize all deletion
+  private finalizeAllDeletion(successCount: number, errorCount: number): void {
+    if (errorCount === 0) {
+      // All deletions successful
+      this.ngsiDatasetsInfo = [];
+      this.displayedDatasets = [];
+      this.datasetsToDelete = [];
+      this.allItemsLoaded = true;
+      
+      this.toastrService.success(`Successfully deleted all ${successCount} datasets`, 'Success');
+    } else if (successCount === 0) {
+      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
+    } else {
+      // Some deletions failed
+      // Reload datasets to get accurate state from server
+      this.loadDatasets();
+      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
+    }
+  }
 }
