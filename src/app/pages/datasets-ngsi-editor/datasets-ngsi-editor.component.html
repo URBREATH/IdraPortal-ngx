@@ -10,34 +10,50 @@
           <label for="distId">ID (Optional)</label>
           <input nbInput id="distId" formControlName="id" type="text" class="full-width-input" />
           
-          <label for="distTitle">Title</label>
-          <input nbInput id="distTitle" formControlName="title" type="text" class="full-width-input" />
-          
-          <label for="downloadUrl">Download URL</label>
-          <input nbInput id="downloadUrl" formControlName="downloadUrl" type="text" class="full-width-input" />
-          
-          <label for="format">Format</label>
-          <nb-select id="format" formControlName="format" class="full-width-input">
-            <nb-option value="CSV">CSV</nb-option>
-            <nb-option value="JSON">JSON</nb-option>
-            <nb-option value="XML">XML</nb-option>
-          </nb-select>
-
-          <label for="releaseDate">Release Date</label>
+          <label for="title" class="required-field">Title</label>
           <input nbInput 
-                 placeholder="yyyy-MM-dd" 
-                 id="releaseDate" 
-                 formControlName="releaseDate" 
-                 [nbDatepicker]="releaseDatePicker" 
-                 class="full-width-input" />
-          <nb-datepicker #releaseDatePicker (dateChange)="onDateSelect($event, 'releaseDate')"></nb-datepicker>
+                 id="title" 
+                 formControlName="title" 
+                 type="text" 
+                 class="full-width-input"
+                 [status]="isFieldInvalid('title') ? 'danger' : 'basic'" />
+          <div *ngIf="isFieldInvalid('title')" class="error-message">
+            Title is required
+          </div>
           
           <label for="description">Description</label>
           <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
-        
-          <button nbButton status="primary" (click)="onAddDistribution()">
-            Create
-          </button>
+          
+          <label for="downloadURL" class="required-field">Download URL</label>
+          <input nbInput 
+                 id="downloadURL" 
+                 formControlName="downloadURL" 
+                 type="text" 
+                 class="full-width-input"
+                 [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
+          <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
+            Download URL is required
+          </div>
+          
+          <label for="format">Format</label>
+          <input nbInput id="format" formControlName="format" type="text" class="full-width-input" />
+          
+          <label for="license">License</label>
+          <input nbInput id="license" formControlName="license" type="text" class="full-width-input" />
+          
+          <label for="releaseDate">Release Date</label>
+          <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
+                 [nbDatepicker]="releaseDatePicker" class="full-width-input" />
+          <nb-datepicker #releaseDatePicker (dateChange)="onDateSelect($event, 'releaseDate')"></nb-datepicker>
+          
+          <div class="form-actions">
+            <button nbButton 
+                    status="primary" 
+                    (click)="createDistribution()"
+                    [disabled]="distributionForm.invalid">
+              Create Distribution
+            </button>
+          </div>
         </form>
       </nb-card>
 
@@ -49,8 +65,12 @@
             <p *ngIf="distributions.length === 0">No distributions added yet</p>
             </div>
             
-            <button nbButton status="info" (click)="onImportDistributions()">
-              Import
+            <button nbButton status="info" 
+                    [disabled]="loadingDistributions"
+                    (click)="onImportDistributions()">
+              <nb-icon *ngIf="loadingDistributions" icon="loader-outline" [spin]="true"></nb-icon>
+              <span *ngIf="!loadingDistributions">Import</span>
+              <span *ngIf="loadingDistributions">Loading...</span>
             </button>
           </div>
             <ul>

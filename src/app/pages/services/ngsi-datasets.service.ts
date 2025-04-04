@@ -40,5 +40,21 @@ export class NgsiDatasetsService {
     });
   }
 
+  
+  getDistributions(): Observable<any> {
+    return this.http.get('/api/distributiondcatap', {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    });
+  }
+
+  createDistribution(distribution: any) {
+    return this.http.post('/api/distributiondcatap', distribution, {
+      responseType: 'text',
+      observe: 'response'
+    });
+  }
 
 }

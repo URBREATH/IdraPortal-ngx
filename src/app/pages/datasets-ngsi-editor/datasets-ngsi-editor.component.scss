@@ -165,3 +165,25 @@ button[nbButton] {
   width: 100%;
   box-sizing: border-box;
 }
+
+.required-field::after {
+  content: " *";
+  color: red;
+}
+
+.error-message {
+  color: #ff3d71;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+  margin-bottom: 0.5rem;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #ff3d71;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

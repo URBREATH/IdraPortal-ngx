@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
@@ -18,6 +18,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   
   datasetForm: FormGroup;
   
+  loadingDistributions: boolean = false;
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
@@ -28,11 +30,18 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Initialize distribution form
     this.distributionForm = this.fb.group({
       id: [''],
-      title: [''],
-      downloadUrl: [''],
-      format: ['CSV'],
-      releaseDate: [''],
+      title: ['', Validators.required],
       description: [''],
+      accessUrl: [''],
+      downloadURL: ['', Validators.required], // Add required validator here
+      format: ['text/csv'],
+      byteSize: [0],
+      checksum: [''],
+      rights: [''],
+      mediaType: [''],
+      license: ['CC-BY'],
+      releaseDate: [''],
+      modifiedDate: ['']
     });
 
     // Initialize dataset form with arrays for multi-value fields
@@ -57,6 +66,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     // Add initial spatial point
     this.addSpatialPoint();
+    
+    // Load distributions automatically
+    this.loadDistributions();
   }
 
   // Helper methods for form arrays
@@ -170,17 +182,55 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.spatialPoints.removeAt(index);
   }
 
-  onAddDistribution(): void {
-    // Ensure the distribution has an ID
+  createDistribution(): void {
+    // Mark all fields as touched to trigger validation display
+    this.markFormGroupTouched(this.distributionForm);
+    
+    if (this.distributionForm.invalid) {
+      console.error('Form is invalid. Please fill in required fields.');
+      return;
+    }
+
+    const formData = this.distributionForm.value;
+
+    // Format the distribution object according to API requirements
     const distribution = {
-      ...this.distributionForm.value,
-      id: this.distributionForm.value.id || this.generateDistributionId()
+      id: formData.id || this.generateDistributionId(),
+      title: formData.title,
+      description: formData.description || 'Distribution description',
+      accessUrl: [formData.accessUrl || ''],
+      downloadURL: formData.downloadURL || `urn:ngsi-ld:DistributionDCAT-AP:items:${this.generateRandomId()}`,
+      format: formData.format || 'text/csv',
+      byteSize: formData.byteSize || Math.floor(Math.random() * 100000),
+      checksum: formData.checksum || this.generateRandomChecksum(),
+      rights: formData.rights || 'copyleft',
+      mediaType: formData.mediaType || '',
+      license: formData.license || 'CC-BY',
+      releaseDate: formData.releaseDate ? 
+        new Date(formData.releaseDate).toISOString() : 
+        new Date().toISOString(),
+      modifiedDate: formData.modifiedDate ? 
+        new Date(formData.modifiedDate).toISOString() : 
+        new Date().toISOString()
     };
-    
-    this.distributions.push(distribution);
-    
-    this.distributionForm.reset({
-      format: 'CSV',
+
+    this.ngsiDatasetsService.createDistribution(distribution).subscribe({
+      next: (response) => {
+        console.log('Distribution created successfully:', response);
+        
+        // Add the created distribution to local array
+        this.distributions.push(distribution);
+        
+        // Reset the form
+        this.distributionForm.reset({
+          format: 'text/csv',
+          license: 'CC-BY',
+          rights: 'copyleft'
+        });
+      },
+      error: (error) => {
+        console.error('Error creating distribution:', error);
+      }
     });
   }
 
@@ -196,7 +246,34 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   }
 
   onImportDistributions(): void {
-    console.log('Importing distributions...');
+    this.loadingDistributions = true;
+    
+    this.ngsiDatasetsService.getDistributions().subscribe({
+      next: (response) => {
+        if (response && response.length > 0) {
+          // Filter out distributions that are already in the list (avoid duplicates)
+          const newDistributions = response.filter(newDist => 
+            !this.distributions.some(existingDist => existingDist.id === newDist.id)
+          );
+          
+          // Add the new distributions to the existing array
+          if (newDistributions.length > 0) {
+            this.distributions = [...this.distributions, ...newDistributions];
+            console.log(`Imported ${newDistributions.length} new distributions`);
+          } else {
+            console.log('No new distributions to import');
+          }
+        } else {
+          console.log('No distributions available to import');
+        }
+        
+        this.loadingDistributions = false;
+      },
+      error: (error) => {
+        console.error('Error loading distributions:', error);
+        this.loadingDistributions = false;
+      }
+    });
   }
 
   onCreateDataset(): void {
@@ -257,5 +334,55 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.datasetForm.get('releaseDate')?.setValue(formattedDate);
       }
     }
+  }
+
+  // Add this method to load distributions
+  loadDistributions(): void {
+    this.loadingDistributions = true;
+    
+    this.ngsiDatasetsService.getDistributions().subscribe({
+      next: (response) => {
+        if (response && response.length > 0) {
+          // Store the available distributions
+          this.distributions = response;
+          console.log(`Loaded ${this.distributions.length} distributions`);
+        } else {
+          console.log('No distributions available');
+        }
+        this.loadingDistributions = false;
+      },
+      error: (error) => {
+        console.error('Error loading distributions:', error);
+        this.loadingDistributions = false;
+      }
+    });
+  }
+
+  private generateRandomId(): string {
+    return `${Math.floor(Math.random() * 10000)}:${Math.floor(Math.random() * 100000000)}`;
+  }
+
+  private generateRandomChecksum(): string {
+    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let result = '';
+    for (let i = 0; i < 4; i++) {
+      result += chars.charAt(Math.floor(Math.random() * chars.length));
+    }
+    return result + '.';
+  }
+
+  isFieldInvalid(fieldName: string): boolean {
+    const field = this.distributionForm.get(fieldName);
+    return field ? (field.invalid && (field.dirty || field.touched)) : false;
+  }
+
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      }
+    });
   }
 }
