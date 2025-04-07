@@ -15,7 +15,8 @@ import {
   NbInputModule, 
   NbStepperModule, 
   NbSelectModule, 
-  NbDatepickerModule 
+  NbDatepickerModule, 
+  NbCheckboxModule
 } from '@nebular/theme';
 
 @NgModule({
@@ -33,6 +34,7 @@ import {
     NbStepperModule,
     NbSelectModule,
     NbDatepickerModule,
+    NbCheckboxModule
   ]
 })
 export class DatasetsNgsiEditorModule { }

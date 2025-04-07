@@ -61,8 +61,13 @@
         <nb-card class="distribution-list-panel m-0">
           <div class="distribution-list-header">
             <div>
-            <h4>Distribution list</h4>
-            <p *ngIf="distributions.length === 0">No distributions added yet</p>
+              <h4>Distribution list</h4>
+              <p *ngIf="distributions.length === 0">No distributions added yet</p>
+              <nb-checkbox *ngIf="distributions.length > 0" 
+                           [checked]="areAllDistributionsSelected()" 
+                           (checkedChange)="toggleAllDistributions($event)">
+                Select all
+              </nb-checkbox>
             </div>
             
             <button nbButton status="info" 
@@ -73,12 +78,14 @@
               <span *ngIf="loadingDistributions">Loading...</span>
             </button>
           </div>
-            <ul>
+          <ul>
             <li *ngFor="let dist of distributions; let i = index" class="distribution-item">
-              <div>
-                <strong>{{ dist.title }} (ID: {{ dist.id }})</strong>
-                <p>{{ dist.description }}</p>
-              </div>
+              <nb-checkbox [(checked)]="selectedDistributions[dist.id]" class="distribution-checkbox">
+                <div>
+                  <strong>{{ dist.title }} (ID: {{ dist.id }})</strong>
+                  <p>{{ dist.description }}</p>
+                </div>
+              </nb-checkbox>
               <button nbButton 
                       status="danger" 
                       [disabled]="deletingDistributions[dist.id]" 

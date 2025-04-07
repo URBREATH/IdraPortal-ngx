@@ -24,11 +24,13 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   deletingDistributions: { [key: string]: boolean } = {};
 
+  selectedDistributions: {[id: string]: boolean} = {};
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
         private router: Router,
-        private dialogService: NbDialogService // Add this line
+        private dialogService: NbDialogService 
   ) { }
 
   ngOnInit(): void {
@@ -38,8 +40,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       title: ['', Validators.required],
       description: [''],
       accessUrl: [''],
-      downloadURL: ['', Validators.required], // Add required validator here
-      format: ['text/csv'],
+      downloadURL: ['', Validators.required], 
       byteSize: [0],
       checksum: [''],
       rights: [''],
@@ -254,7 +255,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return;
     }
     
-    // Use the dialog service instead of confirm()
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
         title: 'Delete Distribution',
@@ -317,8 +317,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Format the data according to the required structure
     const formValue = this.datasetForm.value;
     
-    // Get distribution IDs for the datasetDistribution field
-    const datasetDistribution = this.distributions.map(dist => dist.id);
+    // Get distribution IDs for the datasetDistribution field - only include checked distributions
+    const datasetDistribution = this.distributions
+      .filter(dist => this.selectedDistributions[dist.id])
+      .map(dist => dist.id);
 
     // Format date with time component
     const releaseDate = formValue.releaseDate ? 
@@ -329,7 +331,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     const dataset = {
       ...formValue,
       releaseDate,
-      datasetDistribution,
+      datasetDistribution, // This now contains only selected distributions
       // Ensure these are arrays even if empty
       datasetDescription: formValue.datasetDescription || [],
       theme: formValue.theme || [],
@@ -353,6 +355,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         console.log('Dataset created successfully:', response);
         this.datasetForm.reset();
         this.distributions = [];
+        this.selectedDistributions = {};
         this.router.navigate(['/pages/datasets-ngsi']);
       },
       error: (error) => {
@@ -361,7 +364,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
-  // Add this method to handle date selection
   onDateSelect(date: Date, controlName: string) {
     if (date) {
       const formattedDate = moment(date).format('YYYY-MM-DD');
@@ -373,15 +375,19 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
   }
 
-  // Add this method to load distributions
   loadDistributions(): void {
     this.loadingDistributions = true;
     
     this.ngsiDatasetsService.getDistributions().subscribe({
       next: (response) => {
         if (response && response.length > 0) {
-          // Store the available distributions
           this.distributions = response;
+          
+          // Select all distributions by default
+          response.forEach(dist => {
+            this.selectedDistributions[dist.id] = true;
+          });
+          
           console.log(`Loaded ${this.distributions.length} distributions`);
         } else {
           console.log('No distributions available');
@@ -393,6 +399,23 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.loadingDistributions = false;
       }
     });
+  }
+
+  // Check if all distributions are selected
+  areAllDistributionsSelected(): boolean {
+    return this.distributions.length > 0 && 
+           this.distributions.every(dist => this.selectedDistributions[dist.id]);
+  }
+
+  // Toggle selection for all distributions
+  toggleAllDistributions(checked: boolean): void {
+    if (checked) {
+      this.distributions.forEach(dist => {
+        this.selectedDistributions[dist.id] = true;
+      });
+    } else {
+      this.selectedDistributions = {};
+    }
   }
 
   private generateRandomId(): string {
