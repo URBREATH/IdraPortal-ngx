@@ -311,7 +311,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     console.log('Creating dataset with data:', JSON.stringify(dataset));
     
-    this.ngsiDatasetsService.postDataset(dataset).subscribe({
+    this.ngsiDatasetsService.createDataset(dataset).subscribe({
       next: (response) => {
         console.log('Dataset created successfully:', response);
         this.datasetForm.reset();

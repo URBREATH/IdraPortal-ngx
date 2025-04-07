@@ -18,10 +18,10 @@ export class NgsiDatasetsService {
     });
   }
 
-  postDataset(dataset: any) {
+  createDataset(dataset: any) {
     return this.http.post('/api/dataset', dataset, {
-      responseType: 'text',  // <-- This tells Angular not to parse as JSON
-      observe: 'response'    // <-- Optional: to get the full response including headers
+      responseType: 'text',
+      observe: 'response'
     });
   }
 
