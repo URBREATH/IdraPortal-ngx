@@ -3,6 +3,8 @@ import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
+import { NbDialogService } from '@nebular/theme';
+import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -20,10 +22,13 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   
   loadingDistributions: boolean = false;
 
+  deletingDistributions: { [key: string]: boolean } = {};
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
-        private router: Router
+        private router: Router,
+        private dialogService: NbDialogService // Add this line
   ) { }
 
   ngOnInit(): void {
@@ -242,7 +247,39 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   }
 
   removeDistribution(index: number): void {
-    this.distributions.splice(index, 1);
+    const distributionToDelete = this.distributions[index];
+    
+    if (!distributionToDelete || !distributionToDelete.id) {
+      console.error('Invalid distribution or missing ID');
+      return;
+    }
+    
+    // Use the dialog service instead of confirm()
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Delete Distribution',
+        message: `Are you sure you want to delete distribution "${distributionToDelete.title}"?`,
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Set loading state for this specific distribution
+        this.deletingDistributions[distributionToDelete.id] = true;
+        
+        this.ngsiDatasetsService.deleteDistribution(distributionToDelete.id).subscribe({
+          next: () => {
+            console.log(`Distribution ${distributionToDelete.id} deleted successfully`);
+            this.distributions.splice(index, 1);
+            delete this.deletingDistributions[distributionToDelete.id];
+          },
+          error: (error) => {
+            console.error(`Error deleting distribution ${distributionToDelete.id}:`, error);
+            delete this.deletingDistributions[distributionToDelete.id];
+            // You can also use a toast service here instead of alert
+            alert(`Failed to delete distribution: ${error.message || 'Unknown error'}`);
+          }
+        });
+      }
+    });
   }
 
   onImportDistributions(): void {

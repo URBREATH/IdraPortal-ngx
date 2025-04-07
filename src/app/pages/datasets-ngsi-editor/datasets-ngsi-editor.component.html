@@ -79,8 +79,12 @@
                 <strong>{{ dist.title }} (ID: {{ dist.id }})</strong>
                 <p>{{ dist.description }}</p>
               </div>
-              <button nbButton status="danger" (click)="removeDistribution(i)">
-                <nb-icon icon="trash-2-outline"></nb-icon>
+              <button nbButton 
+                      status="danger" 
+                      [disabled]="deletingDistributions[dist.id]" 
+                      (click)="removeDistribution(i)">
+                <nb-icon *ngIf="!deletingDistributions[dist.id]" icon="trash-2-outline"></nb-icon>
+                <nb-icon *ngIf="deletingDistributions[dist.id]" icon="loader-outline" [spin]="true"></nb-icon>
               </button>
             </li>
           </ul>

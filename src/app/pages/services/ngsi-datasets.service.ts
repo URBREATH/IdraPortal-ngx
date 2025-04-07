@@ -57,4 +57,10 @@ export class NgsiDatasetsService {
     });
   }
 
+  deleteDistribution(distributionId: string) {
+    return this.http.delete(`/api/distribution/${distributionId}`, {
+      responseType: 'text' // Use 'text' if the API returns non-JSON response
+    });
+  }
+
 }
