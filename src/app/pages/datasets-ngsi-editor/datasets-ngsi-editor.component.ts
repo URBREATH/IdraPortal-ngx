@@ -13,6 +13,14 @@ import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/co
 })
 export class DatasetsNgsiEditorComponent implements OnInit {
 
+  // Add this property to your component
+  formatOptions: string[] = [
+    'JSON',
+    'CSV',
+    'XML',
+    'TXT'
+  ];
+
   selectedStepIndex = 0;
   
   distributionForm: FormGroup;
@@ -38,7 +46,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.distributionForm = this.fb.group({
       id: [''],
       title: ['', Validators.required],
-      format: ['text/csv'], // Added missing control
+      format: ['CSV'],
       description: [''],
       accessUrl: [''],
       downloadURL: ['', Validators.required], 
@@ -207,7 +215,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       description: formData.description || 'Distribution description',
       accessUrl: [formData.accessUrl || ''],
       downloadURL: formData.downloadURL || `urn:ngsi-ld:DistributionDCAT-AP:items:${this.generateRandomId()}`,
-      format: formData.format || 'text/csv',
+      format: formData.format || 'CSV',
       byteSize: formData.byteSize || Math.floor(Math.random() * 100000),
       checksum: formData.checksum || this.generateRandomChecksum(),
       rights: formData.rights || 'copyleft',
@@ -230,7 +238,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         
         // Reset the form
         this.distributionForm.reset({
-          format: 'text/csv',
+          format: 'CSV',
           license: 'CC-BY',
           rights: 'copyleft'
         });

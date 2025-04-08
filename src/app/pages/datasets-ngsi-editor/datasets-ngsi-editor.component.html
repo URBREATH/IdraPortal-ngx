@@ -35,8 +35,17 @@
             Download URL is required
           </div>
           
-          <label for="format">Format</label>
-          <input nbInput id="format" formControlName="format" type="text" class="full-width-input" />
+          <div class="form-group">
+            <label for="format">Format</label>
+            <select 
+              id="format"
+              formControlName="format"
+              class="form-control">
+              <option *ngFor="let option of formatOptions" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
           
           <label for="license">License</label>
           <input nbInput id="license" formControlName="license" type="text" class="full-width-input" />
