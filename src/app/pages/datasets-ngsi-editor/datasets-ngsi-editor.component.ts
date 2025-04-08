@@ -38,6 +38,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.distributionForm = this.fb.group({
       id: [''],
       title: ['', Validators.required],
+      format: ['text/csv'], // Added missing control
       description: [''],
       accessUrl: [''],
       downloadURL: ['', Validators.required], 
