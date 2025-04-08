@@ -25,6 +25,15 @@ export class NgsiDatasetsService {
     });
   }
 
+  updateDataset(datasetId: string, dataset: any) {
+    console.log(JSON.stringify(dataset));
+    console.log(datasetId);
+    return this.http.patch(`/api/dataset/${datasetId}`, dataset, {
+      responseType: 'text',
+      observe: 'response'
+    });
+  }
+
   deleteDataset(datasetId: string) {
     return this.http.delete(`/api/dataset/${datasetId}`, {
       responseType: 'text' // Use 'text' if the API returns non-JSON response

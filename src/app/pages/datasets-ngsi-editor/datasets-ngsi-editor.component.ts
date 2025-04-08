@@ -34,6 +34,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   selectedDistributions: {[id: string]: boolean} = {};
 
+  // Add the isEditing property
+  isEditing: boolean = false;
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
@@ -42,6 +45,35 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    // Initialize form
+    this.initForms();
+    
+    // Check if we're editing an existing dataset
+    const storedDataset = localStorage.getItem('dataset_to_edit');
+    if (storedDataset) {
+      try {
+        const parsedDataset = JSON.parse(storedDataset);
+        this.isEditing = true; // Set editing flag to true
+        console.log('Editing existing dataset:', parsedDataset.id);
+        
+        // Populate the form with existing data
+        this.populateDatasetForm(parsedDataset);
+        
+        // Load distributions and select those associated with this dataset
+        this.loadDistributions(parsedDataset);
+      } catch (error) {
+        console.error('Error parsing dataset from localStorage:', error);
+        this.isEditing = false;
+        this.loadDistributions();
+      }
+    } else {
+      this.isEditing = false;
+      this.loadDistributions();
+    }
+  }
+
+  // Initialize forms
+  initForms(): void {
     // Initialize distribution form
     this.distributionForm = this.fb.group({
       id: [''],
@@ -81,9 +113,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     // Add initial spatial point
     this.addSpatialPoint();
-    
-    // Load distributions automatically
-    this.loadDistributions();
   }
 
   // Helper methods for form arrays
@@ -222,11 +251,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       mediaType: formData.mediaType || '',
       license: formData.license || 'CC-BY',
       releaseDate: formData.releaseDate ? 
-        new Date(formData.releaseDate).toISOString() : 
-        new Date().toISOString(),
+        moment(formData.releaseDate).format() : // Use moment format instead of toISOString
+        moment().format(),
       modifiedDate: formData.modifiedDate ? 
-        new Date(formData.modifiedDate).toISOString() : 
-        new Date().toISOString()
+        moment(formData.modifiedDate).format() : // Use moment format instead of toISOString
+        moment().format()
     };
 
     this.ngsiDatasetsService.createDistribution(distribution).subscribe({
@@ -323,7 +352,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   }
 
   onCreateDataset(): void {
-    // Format the data according to the required structure
     const formValue = this.datasetForm.value;
     
     // Get distribution IDs for the datasetDistribution field - only include checked distributions
@@ -331,16 +359,16 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       .filter(dist => this.selectedDistributions[dist.id])
       .map(dist => dist.id);
 
-    // Format date with time component
+    // Format date with time component using Moment.js
     const releaseDate = formValue.releaseDate ? 
-      new Date(formValue.releaseDate).toISOString() : 
-      new Date().toISOString();
+      moment(formValue.releaseDate).format() : // ISO 8601 format
+      moment().format();
 
-    // Create the final dataset object
-    const dataset = {
+    // Create the dataset object
+    let dataset = {
       ...formValue,
       releaseDate,
-      datasetDistribution, // This now contains only selected distributions
+      datasetDistribution,
       // Ensure these are arrays even if empty
       datasetDescription: formValue.datasetDescription || [],
       theme: formValue.theme || [],
@@ -357,34 +385,54 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       }]
     };
     
-    console.log('Creating dataset with data:', JSON.stringify(dataset));
+    // Remove ID from the payload when updating
+    const datasetId = formValue.id;
+    if (this.isEditing) {
+      const { id, ...datasetWithoutId } = dataset;
+      dataset = datasetWithoutId;
+    }
     
-    this.ngsiDatasetsService.createDataset(dataset).subscribe({
+    console.log(`${this.isEditing ? 'Updating' : 'Creating'} dataset with data:`, JSON.stringify(dataset));
+    
+    // Choose between create or update
+    let operation;
+    if (this.isEditing) {
+      operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
+    } else {
+      operation = this.ngsiDatasetsService.createDataset(dataset);
+    }
+    
+    operation.subscribe({
       next: (response) => {
-        console.log('Dataset created successfully:', response);
+        console.log(`Dataset ${this.isEditing ? 'updated' : 'created'} successfully:`, response);
+        // Clear localStorage
+        localStorage.removeItem('dataset_to_edit');
+        // Reset form and navigate back
         this.datasetForm.reset();
         this.distributions = [];
         this.selectedDistributions = {};
         this.router.navigate(['/pages/datasets-ngsi']);
       },
       error: (error) => {
-        console.error('Error creating dataset:', error);
+        console.error(`Error ${this.isEditing ? 'updating' : 'creating'} dataset:`, error);
       }
     });
   }
 
   onDateSelect(date: Date, controlName: string) {
     if (date) {
-      const formattedDate = moment(date).format('YYYY-MM-DD');
-      if (controlName === 'releaseDate') {
-        this.distributionForm.get('releaseDate')?.setValue(formattedDate);
-      } else if (controlName === 'datasetReleaseDate') {
-        this.datasetForm.get('releaseDate')?.setValue(formattedDate);
+      const momentDate = moment(date);
+      if (momentDate.isValid()) {
+        if (controlName === 'releaseDate') {
+          this.distributionForm.get('releaseDate')?.setValue(momentDate.toDate());
+        } else if (controlName === 'datasetReleaseDate') {
+          this.datasetForm.get('releaseDate')?.setValue(momentDate.toDate());
+        }
       }
     }
   }
 
-  loadDistributions(): void {
+  loadDistributions(existingDataset: any = null): void {
     this.loadingDistributions = true;
     
     this.ngsiDatasetsService.getDistributions().subscribe({
@@ -392,12 +440,65 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         if (response && response.length > 0) {
           this.distributions = response;
           
-          // Select all distributions by default
-          response.forEach(dist => {
-            this.selectedDistributions[dist.id] = true;
-          });
+          // Clear all selections first
+          this.selectedDistributions = {};
           
-          console.log(`Loaded ${this.distributions.length} distributions`);
+          if (existingDataset && existingDataset.datasetDistribution) {
+            // For editing: select only distributions that were part of the dataset
+            // Ensure distributionIds is always an array
+            let distributionIds = existingDataset.datasetDistribution;
+            
+            // Convert to array if it's not already
+            if (!Array.isArray(distributionIds)) {
+              if (typeof distributionIds === 'string') {
+                // If it's a single string ID, wrap it in an array
+                distributionIds = [distributionIds];
+              } else {
+                // If it's something else entirely, default to empty array
+                distributionIds = [];
+                console.warn('datasetDistribution is not an array or string:', distributionIds);
+              }
+            }
+            
+            // Debug logging to check what's happening
+            console.log('Dataset distribution IDs (processed):', distributionIds);
+            console.log('Available distributions:', this.distributions.map(d => d.id));
+            
+            // Now safely use forEach on the distributions
+            this.distributions.forEach(dist => {
+              // Check if distribution ID matches any ID in distributionIds, ignoring the prefix
+              const isSelected = distributionIds.some(datasetId => {
+                // Convert both to strings for consistency
+                const dsId = String(datasetId);
+                const distId = String(dist.id);
+                
+                // Direct match
+                if (dsId === distId) return true;
+                
+                // Handle the case when dataset ID has the prefix added
+                if (dsId.includes('urn:ngsi-ld:Dataset:items:')) {
+                  const normalizedId = dsId.replace('urn:ngsi-ld:Dataset:items:', '');
+                  return normalizedId === distId;
+                }
+                
+                return false;
+              });
+              
+              this.selectedDistributions[dist.id] = isSelected;
+              
+              if (isSelected) {
+                console.log(`Selected distribution: ${dist.id} - ${dist.title}`);
+              }
+            });
+            
+            console.log(`Loaded ${this.distributions.length} distributions, selected ${distributionIds.length}`);
+          } else {
+            // For new datasets, select all by default
+            response.forEach(dist => {
+              this.selectedDistributions[dist.id] = true;
+            });
+            console.log(`Loaded ${this.distributions.length} distributions, selected all`);
+          }
         } else {
           console.log('No distributions available');
         }
@@ -408,6 +509,114 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.loadingDistributions = false;
       }
     });
+  }
+
+  // Add a method to populate the form with existing dataset data
+  populateDatasetForm(dataset: any): void {
+    console.log('Populating form with dataset:', dataset);
+    
+    // Clear existing form arrays
+    while (this.datasetDescriptions.length > 0) {
+      this.datasetDescriptions.removeAt(0);
+    }
+    while (this.themes.length > 0) {
+      this.themes.removeAt(0);
+    }
+    while (this.contactPoints.length > 0) {
+      this.contactPoints.removeAt(0);
+    }
+    while (this.keywords.length > 0) {
+      this.keywords.removeAt(0);
+    }
+    while (this.versionNotesArray.length > 0) {
+      this.versionNotesArray.removeAt(0);
+    }
+    while (this.spatialPoints.length > 0) {
+      this.spatialPoints.removeAt(0);
+    }
+    
+    // Parse the date properly using Moment.js
+    let releaseDate = null;
+    if (dataset.releaseDate) {
+      const momentDate = moment(dataset.releaseDate);
+      if (momentDate.isValid()) {
+        releaseDate = momentDate.toDate(); // Convert to Date object for Angular datepicker
+      } else {
+        console.warn('Invalid date format from server:', dataset.releaseDate);
+        releaseDate = null;
+      }
+    }
+    
+    // Set simple fields
+    this.datasetForm.patchValue({
+      id: dataset.id || '',
+      title: dataset.title || '',
+      description: dataset.description || '',
+      name: dataset.name || '',
+      publisher: dataset.publisher || '',
+      releaseDate: releaseDate, // Use our properly parsed date
+      creator: dataset.creator || '',
+      accessRights: dataset.accessRights || 'non-public',
+      frequency: dataset.frequency || '',
+      version: dataset.version || ''
+    });
+    
+    // Set array fields
+    if (dataset.datasetDescription && dataset.datasetDescription.length > 0) {
+      dataset.datasetDescription.forEach((desc: string) => {
+        this.datasetDescriptions.push(this.fb.control(desc));
+      });
+    } else {
+      this.addDatasetDescription();
+    }
+    
+    if (dataset.theme && dataset.theme.length > 0) {
+      dataset.theme.forEach((theme: string) => {
+        this.themes.push(this.fb.control(theme));
+      });
+    } else {
+      this.addTheme();
+    }
+    
+    if (dataset.contactPoint && dataset.contactPoint.length > 0) {
+      dataset.contactPoint.forEach((contact: string) => {
+        this.contactPoints.push(this.fb.control(contact));
+      });
+    } else {
+      this.addContactPoint();
+    }
+    
+    if (dataset.keyword && dataset.keyword.length > 0) {
+      dataset.keyword.forEach((keyword: string) => {
+        this.keywords.push(this.fb.control(keyword));
+      });
+    } else {
+      this.addKeyword();
+    }
+    
+    if (dataset.versionNotes && dataset.versionNotes.length > 0) {
+      dataset.versionNotes.forEach((note: string) => {
+        this.versionNotesArray.push(this.fb.control(note));
+      });
+    } else {
+      this.addVersionNote();
+    }
+    
+    // Handle spatial data
+    if (dataset.spatial && dataset.spatial.length > 0) {
+      dataset.spatial.forEach((point: any) => {
+        const pointGroup = this.fb.group({
+          type: [point.type || 'Point'],
+          coordinates: this.fb.array([
+            this.fb.control(point.coordinates[0]),
+            this.fb.control(point.coordinates[1])
+          ])
+        });
+        this.spatialPoints.push(pointGroup);
+      });
+    } else {
+      this.addSpatialPoint();
+    }
   }
 
   // Check if all distributions are selected

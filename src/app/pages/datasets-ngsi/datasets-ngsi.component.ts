@@ -4,6 +4,7 @@ import { TranslateService } from '@ngx-translate/core';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { Router } from '@angular/router';
 
 
 @Component({
@@ -26,6 +27,7 @@ export class DatasetsNgsiComponent implements OnInit {
   allItemsLoaded = false;
 
   constructor(
+    private router: Router,
     public translation: TranslateService,
     private ngsiDatasetsService: NgsiDatasetsService,
     private dialogService: NbDialogService,
@@ -203,10 +205,26 @@ export class DatasetsNgsiComponent implements OnInit {
     }
   }
 
-  // Edit a dataset - redirect to editor with dataset ID
+  // Edit a dataset
   editDataset(datasetId: string): void {
-    // Navigate to the editor with the dataset ID
-    window.location.href = `/pages/datasets-ngsi/editor/${datasetId}`;
+     // Find the dataset with this ID
+     const datasetToEdit = this.ngsiDatasetsInfo.find(dataset => dataset.id === datasetId);
+    
+    // Ensure datasetDistribution is always an array before storing
+    if (datasetToEdit) {
+      if (!datasetToEdit.datasetDistribution) {
+        datasetToEdit.datasetDistribution = [];
+      } else if (!Array.isArray(datasetToEdit.datasetDistribution)) {
+        datasetToEdit.datasetDistribution = [datasetToEdit.datasetDistribution];
+        console.log('Converted datasetDistribution to array:', datasetToEdit.datasetDistribution);
+      }
+      
+      // Save the dataset to localStorage
+      localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
+      
+      // Navigate to the editor page
+      this.router.navigate(['/pages/datasets-ngsi/editor']);
+    }
   }
 
   // Function to delete all datasets
