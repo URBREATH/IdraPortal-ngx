@@ -352,7 +352,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   }
 
   onCreateDataset(): void {
-    const formValue = this.datasetForm.value;
+    const formValue = this.datasetForm.getRawValue();
     
     // Get distribution IDs for the datasetDistribution field - only include checked distributions
     const datasetDistribution = this.distributions
@@ -387,6 +387,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Remove ID from the payload when updating
     const datasetId = formValue.id;
+    console.log('DATASET ID:' + datasetId);
     if (this.isEditing) {
       const { id, ...datasetWithoutId } = dataset;
       dataset = datasetWithoutId;
