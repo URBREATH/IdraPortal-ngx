@@ -119,7 +119,12 @@
         <form [formGroup]="datasetForm" class="dataset-form">
           <div class="left-column">
             <label for="datasetId">Dataset ID</label>
-            <input nbInput id="datasetId" formControlName="id" type="text" class="full-width-input" />
+            <input nbInput 
+                   id="datasetId" 
+                   formControlName="id" 
+                   type="text" 
+                   class="full-width-input"
+                   [attr.title]="isEditing ? 'ID cannot be modified when updating a dataset' : ''" />
             
             <label for="title">Title</label>
             <input nbInput id="title" formControlName="title" type="text" class="full-width-input" />
@@ -255,7 +260,7 @@
           Back
         </button>
         <button nbButton status="success" (click)="onCreateDataset()">
-          Create dataset
+          {{ isEditing ? 'Update dataset' : 'Create dataset' }}
         </button>
       </div>
     </nb-step>

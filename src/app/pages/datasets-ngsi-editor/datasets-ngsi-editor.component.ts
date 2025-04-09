@@ -560,6 +560,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       frequency: dataset.frequency || '',
       version: dataset.version || ''
     });
+
+      // Disable the ID field when editing
+    if (this.isEditing) {
+      this.datasetForm.get('id').disable();
+    }
     
     // Set array fields
     if (dataset.datasetDescription && dataset.datasetDescription.length > 0) {

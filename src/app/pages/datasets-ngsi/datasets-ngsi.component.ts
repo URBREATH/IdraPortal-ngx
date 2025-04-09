@@ -35,6 +35,9 @@ export class DatasetsNgsiComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+    //clear localStorage to avoid conflicts with other components
+    localStorage.removeItem('dataset_to_edit');
+
     // Call the method in your service
     this.loadDatasets();
   }
