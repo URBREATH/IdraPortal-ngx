@@ -1,5 +1,5 @@
 <div>
-  <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper">
+  <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper" (stepChange)="onStepChange($event.index)">
     
     <!-- Step 1: Add Distributions -->
     <nb-step label="Add distributions">
@@ -251,6 +251,7 @@
                   </div>
                 </div>
               </div>
+              <div id="map"></div>
             </div>
           </div>
         </form>

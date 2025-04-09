@@ -5,6 +5,7 @@ import { Router } from '@angular/router';
 import moment from 'moment';
 import { NbDialogService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import * as L from 'leaflet';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -34,8 +35,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   selectedDistributions: {[id: string]: boolean} = {};
 
-  // Add the isEditing property
   isEditing: boolean = false;
+
+  public map: L.Map;
+
 
   constructor(
         private fb: FormBuilder,
@@ -70,6 +73,43 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.isEditing = false;
       this.loadDistributions();
     }
+  }
+
+
+  //open street map tiles
+  osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution:
+      "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a> | &copy; <a href='https://www.flaticon.com/authors/smashingstocks'>smashingstocks - Flaticon</a>",
+  });
+
+  // Add this method to handle stepper step changes
+  onStepChange(stepperIndex: number): void {
+    this.selectedStepIndex = stepperIndex;
+    
+    // Call initMap specifically when we reach step 2 (index 1)
+    if (this.selectedStepIndex === 1) {
+      // Use setTimeout to ensure the DOM is ready with the map element
+      setTimeout(() => {
+        this.initMap();
+      });
+    }
+  }
+
+  // Update initMap to remove the redundant check since we'll only call it at the right time
+  private initMap(): void {
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.log('Map element not found. Cannot initialize map.');
+      return;
+    }
+    
+    // Initialize the map with OpenStreetMap tiles
+    this.map = L.map("map", {
+      center: [0, 0],
+      zoom: 2,
+      layers: [this.osm],
+    });
   }
 
   // Initialize forms

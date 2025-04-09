@@ -187,3 +187,11 @@ input.ng-invalid.ng-touched {
   from { opacity: 0; transform: translateY(-10px); }
   to { opacity: 1; transform: translateY(0); }
 }
+
+#map { 
+  height: 300px; 
+  width: 100%;
+  margin-top: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
