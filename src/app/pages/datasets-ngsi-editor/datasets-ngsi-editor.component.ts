@@ -107,9 +107,35 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Initialize the map with OpenStreetMap tiles
     this.map = L.map("map", {
       center: [0, 0],
-      zoom: 2,
+      zoom: 10,
       layers: [this.osm],
     });
+
+    if (this.isEditing){
+      const storedDataset = localStorage.getItem('dataset_to_edit');
+      if (storedDataset){
+        let spatial = JSON.parse(storedDataset).spatial;
+        //if the geometry is a point, add a marker to the map
+          if(spatial.type === 'Point' && spatial.coordinates.length === 2) {
+            let icon: L.Icon = L.icon({
+              iconUrl:
+                "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
+              iconSize: [35, 41],
+              iconAnchor: [10, 41],
+              popupAnchor: [2, -40],
+              shadowUrl:
+                "https://unpkg.com/leaflet@1.4.0/dist/images/marker-shadow.png",
+            });
+            const coordinates = spatial.coordinates;
+            L.marker([coordinates[1], coordinates[0]], 
+              {
+                icon: icon,
+              },).addTo(this.map);
+            this.map.setView([coordinates[1], coordinates[0]], 13);
+            console.log(`Marker added at coordinates: ${coordinates[1]}, ${coordinates[0]}`);
+          }
+      }
+    }
   }
 
   // Initialize forms
@@ -151,8 +177,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       versionNotes: this.fb.array([this.createVersionNoteField()])
     });
 
-    // Add initial spatial point
-    this.addSpatialPoint();
   }
 
   // Helper methods for form arrays
@@ -176,20 +200,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return this.fb.control('');
   }
 
-  createSpatialPoint() {
-    return this.fb.group({
-      type: ['Point'],
-      coordinates: this.fb.array([
-        this.fb.control(this.getRandomCoordinate(0, 180)), // longitude
-        this.fb.control(this.getRandomCoordinate(-90, 90)) // latitude
-      ])
-    });
-  }
-
-  // Helper to generate realistic coordinates
-  getRandomCoordinate(min: number, max: number): number {
-    return parseFloat((Math.random() * (max - min) + min).toFixed(6));
-  }
+  
 
   // Form array getters
   get datasetDescriptions() {
@@ -235,10 +246,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   addVersionNote() {
     this.versionNotesArray.push(this.createVersionNoteField());
-  }
-
-  addSpatialPoint() {
-    this.spatialPoints.push(this.createSpatialPoint());
   }
 
   // Methods to remove items from arrays
@@ -648,21 +655,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.addVersionNote();
     }
     
-    // Handle spatial data
-    if (dataset.spatial && dataset.spatial.length > 0) {
-      dataset.spatial.forEach((point: any) => {
-        const pointGroup = this.fb.group({
-          type: [point.type || 'Point'],
-          coordinates: this.fb.array([
-            this.fb.control(point.coordinates[0]),
-            this.fb.control(point.coordinates[1])
-          ])
-        });
-        this.spatialPoints.push(pointGroup);
-      });
-    } else {
-      this.addSpatialPoint();
-    }
   }
 
   // Check if all distributions are selected
