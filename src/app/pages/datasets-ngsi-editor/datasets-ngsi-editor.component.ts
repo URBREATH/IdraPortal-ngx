@@ -6,6 +6,7 @@ import moment from 'moment';
 import { NbDialogService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
+import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -714,5 +715,27 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.markFormGroupTouched(control);
       }
     });
+  }
+
+  // Open map dialog when clicking on the map
+  openMapDialog() {
+    this.dialogService.open(MapDialogComponent)
+      .onClose.subscribe(result => {
+        if (result) {
+          // Check if we have coordinates already
+          if (this.spatialPoints.length) {
+            // Update existing point
+            const pointGroup = this.spatialPoints.at(0) as FormGroup;
+            const coordArray = pointGroup.get('coordinates') as FormArray;
+            coordArray.setValue(result);
+          } else {
+            // Add new point
+            const point = this.fb.group({
+              coordinates: this.fb.array(result)
+            });
+            this.spatialPoints.push(point);
+          }
+        }
+      });
   }
 }

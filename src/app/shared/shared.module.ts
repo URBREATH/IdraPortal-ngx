@@ -1,19 +1,23 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { NbCardModule, NbButtonModule } from '@nebular/theme';
+import { NbCardModule, NbButtonModule, NbIconModule } from '@nebular/theme';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
+import { MapDialogComponent } from './map-dialog/map-dialog.component';
 
 @NgModule({
   declarations: [
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    MapDialogComponent
   ],
   imports: [
     CommonModule,
     NbCardModule,
-    NbButtonModule
+    NbButtonModule,
+    NbIconModule
   ],
   exports: [
-    ConfirmationDialogComponent
+    ConfirmationDialogComponent,
+    MapDialogComponent
   ]
 })
 export class SharedModule { }

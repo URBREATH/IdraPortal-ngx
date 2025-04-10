@@ -1,0 +1,29 @@
+.dialog-map {
+  height: 400px;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+nb-card {
+  max-width: 800px;
+  width: 100%;
+}
+
+nb-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+nb-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.close-button {
+  padding: 0;
+  margin: 0;
+  height: 2rem;
+  width: 2rem;
+}
