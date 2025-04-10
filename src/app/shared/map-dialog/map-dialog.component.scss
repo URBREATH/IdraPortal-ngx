@@ -1,12 +1,13 @@
+/* Basic Dialog Styling */
 .dialog-map {
-  height: 400px;
-  width: 100%;
-  margin-bottom: 1rem;
+  height:65vh;
+  width: 100rem;
 }
 
 nb-card {
-  max-width: 800px;
   width: 100%;
+  margin: 0;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
 }
 
 nb-card-header {
@@ -26,4 +27,52 @@ nb-card-footer {
   margin: 0;
   height: 2rem;
   width: 2rem;
+}
+
+/* Override Nebular Dialog Container */
+:host {
+  display: block;
+}
+
+/* Ensure dialog is positioned above everything */
+::ng-deep .nb-global-portal-tree {
+  position: fixed !important;
+  z-index: 1050;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  
+  .nb-overlay-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    overflow: auto;
+    z-index: 1050;
+    
+    .nb-dialog-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      width: 100%;
+    }
+  }
+}
+
+/* Ensure Leaflet map in dialog displays properly */
+::ng-deep .leaflet-container {
+  z-index: 1052 !important;
+}
+
+/* Make background semi-transparent instead of hidden */
+::ng-deep .overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.5) !important;
+}
+
+/* Prevent scrolling but keep content visible */
+::ng-deep body.nb-global-scrollblock {
+  overflow: hidden !important;
 }

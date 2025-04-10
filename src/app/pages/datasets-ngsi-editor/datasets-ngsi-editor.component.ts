@@ -719,23 +719,46 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Open map dialog when clicking on the map
   openMapDialog() {
-    this.dialogService.open(MapDialogComponent)
-      .onClose.subscribe(result => {
-        if (result) {
-          // Check if we have coordinates already
-          if (this.spatialPoints.length) {
-            // Update existing point
-            const pointGroup = this.spatialPoints.at(0) as FormGroup;
-            const coordArray = pointGroup.get('coordinates') as FormArray;
-            coordArray.setValue(result);
-          } else {
-            // Add new point
-            const point = this.fb.group({
-              coordinates: this.fb.array(result)
-            });
-            this.spatialPoints.push(point);
-          }
+    // Store the current scroll position
+    const scrollPosition = window.scrollY || document.documentElement.scrollTop;
+    
+    // Hide the background map completely
+    const mapElement = document.getElementById('map');
+    if (mapElement) {
+      mapElement.classList.add('map-hidden');
+    }
+    
+    this.dialogService.open(MapDialogComponent, {
+      hasBackdrop: true,
+      closeOnBackdropClick: true,
+      closeOnEsc: true,
+      dialogClass: 'map-dialog-fixed',
+      hasScroll: false
+    })
+    .onClose.subscribe(result => {
+      // Show the map again
+      if (mapElement) {
+        mapElement.classList.remove('map-hidden');
+      }
+      
+      // Restore scroll position
+      setTimeout(() => {
+        window.scrollTo(0, scrollPosition);
+      }, 0);
+      
+      // Handle result
+      if (result) {
+        if (this.spatialPoints.length) {
+          const pointGroup = this.spatialPoints.at(0) as FormGroup;
+          const coordArray = pointGroup.get('coordinates') as FormArray;
+          coordArray.setValue(result);
+        } else {
+          const point = this.fb.group({
+            coordinates: this.fb.array(result)
+          });
+          this.spatialPoints.push(point);
         }
-      });
+      }
+    });
   }
 }

@@ -196,3 +196,8 @@ input.ng-invalid.ng-touched {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
 }
+
+/* Style for hidden map */
+#map.map-hidden {
+  visibility: hidden;
+}
