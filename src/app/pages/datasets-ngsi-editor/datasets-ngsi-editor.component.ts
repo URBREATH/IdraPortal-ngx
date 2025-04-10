@@ -85,6 +85,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Add this method to handle stepper step changes
   onStepChange(stepperIndex: number): void {
+    // Check if we're leaving step 2 (index 1) and clean up the map
+    if (this.selectedStepIndex === 1 && stepperIndex !== 1) {
+      this.cleanupMap();
+    }
+    
     this.selectedStepIndex = stepperIndex;
     
     // Call initMap specifically when we reach step 2 (index 1)
@@ -93,6 +98,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       setTimeout(() => {
         this.initMap();
       });
+    }
+  }
+
+  // Method to properly clean up the map
+  private cleanupMap(): void {
+    if (this.map) {
+      console.log('Cleaning up map resources');
+      this.map.remove();
+      this.map = null;
     }
   }
 
@@ -106,8 +120,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Initialize the map with OpenStreetMap tiles
     this.map = L.map("map", {
-      center: [0, 0],
-      zoom: 10,
+      center: [52, 12],
+      zoom: 3,
       layers: [this.osm],
     });
 
@@ -131,7 +145,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
               {
                 icon: icon,
               },).addTo(this.map);
-            this.map.setView([coordinates[1], coordinates[0]], 13);
+            this.map.setView([coordinates[1], coordinates[0]], 9);
             console.log(`Marker added at coordinates: ${coordinates[1]}, ${coordinates[0]}`);
           }
       }
