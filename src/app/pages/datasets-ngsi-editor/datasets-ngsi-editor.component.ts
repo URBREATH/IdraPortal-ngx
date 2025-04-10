@@ -145,7 +145,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
               {
                 icon: icon,
               },).addTo(this.map);
-            this.map.setView([coordinates[1], coordinates[0]], 9);
+            this.map.setView([coordinates[1], coordinates[0]], 5);
             console.log(`Marker added at coordinates: ${coordinates[1]}, ${coordinates[0]}`);
           }
       }
