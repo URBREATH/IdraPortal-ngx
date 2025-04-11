@@ -117,7 +117,7 @@
                             <input nbInput type="file" class="form-control background-white" multiple id="importFile" (change)="onFileChange($event.target.files[0],1)">
                             <nb-icon *ngIf="this.node.dumpString != ''; else emptyDumpString" nbTooltip="{{ 'DUMP_FILE_CHECK' | translate }}" icon="checkmark-square-2-outline" class="ml-1"></nb-icon>
                             <ng-template #emptyDumpString>
-                                <nb-icon nbTooltip="{{ 'DUMP_FILE_CHECK' | translate }}" icon="close-square-outline" class="ml-1"></nb-icon>
+                                <nb-icon nbTooltip="{{ 'DUMP_FILE_MISSING' | translate }}" icon="close-square-outline" class="ml-1"></nb-icon>
                             </ng-template>
                             <nb-icon nbTooltip="{{ 'DUMP_FILE_MODIFY' | translate }}"  icon="edit-2-outline" [options]="{ animation: { type: 'zoom' } }" class="ml-1" (click)="handleOpenEditorDialog()"></nb-icon>
                         </div>
