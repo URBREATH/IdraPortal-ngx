@@ -142,6 +142,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       layers: [this.osm],
     });
 
+    //Open the map dialog when clicking on the map
+    this.map.on('click', () => {
+      this.openMapDialog();
+    });
+
     // Create a FeatureGroup to hold all spatial entities
     const drawnLayers = new L.FeatureGroup();
     
