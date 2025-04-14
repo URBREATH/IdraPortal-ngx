@@ -113,6 +113,22 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Update initMap to remove the redundant check since we'll only call it at the right time
   private initMap(): void {
+
+    // Fix marker icon issue by setting the default icon using CDN URLs
+    const iconDefault = L.icon({
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    
+    // Assign the default icon to L.Marker.prototype
+    L.Marker.prototype.options.icon = iconDefault;
+
     const mapElement = document.getElementById('map');
     if (!mapElement) {
       console.log('Map element not found. Cannot initialize map.');
@@ -132,20 +148,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         let spatial = JSON.parse(storedDataset).spatial;
         //if the geometry is a point, add a marker to the map
           if(spatial.type === 'Point' && spatial.coordinates.length === 2) {
-            let icon: L.Icon = L.icon({
-              iconUrl:
-                "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
-              iconSize: [35, 41],
-              iconAnchor: [10, 41],
-              popupAnchor: [2, -40],
-              shadowUrl:
-                "https://unpkg.com/leaflet@1.4.0/dist/images/marker-shadow.png",
-            });
+            
             const coordinates = spatial.coordinates;
-            L.marker([coordinates[1], coordinates[0]], 
-              {
-                icon: icon,
-              },).addTo(this.map);
+            L.marker([coordinates[1], coordinates[0]]).addTo(this.map);
             this.map.setView([coordinates[1], coordinates[0]], 5);
             console.log(`Marker added at coordinates: ${coordinates[1]}, ${coordinates[0]}`);
           }

@@ -21,6 +21,22 @@ export class MapDialogComponent implements OnInit {
   }
   
   private initMap() {
+
+    // Fix marker icon issue by setting the default icon using CDN URLs
+        const iconDefault = L.icon({
+          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+          popupAnchor: [1, -34],
+          tooltipAnchor: [16, -28],
+          shadowSize: [41, 41]
+        });
+        
+        // Assign the default icon to L.Marker.prototype
+        L.Marker.prototype.options.icon = iconDefault;
+
     this.map = L.map('dialog-map').setView([41.902782, 12.496366], 5);
     
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -40,6 +56,10 @@ export class MapDialogComponent implements OnInit {
        polyline: false,
        rectangle: <any>{ showArea: false },
        circlemarker: false,
+       // Configure marker options to use our custom icon
+      marker: {
+        icon: iconDefault
+      }
      },
    });
    this.map.addControl(drawControl);
