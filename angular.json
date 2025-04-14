@@ -40,7 +40,8 @@
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.carousel.min.css",
               "node_modules/ngx-owl-carousel-o/lib/styles/prebuilt-themes/owl.theme.default.min.css",
               "src/app/@theme/styles/styles.scss",
-              "node_modules/leaflet/dist/leaflet.css"
+              "node_modules/leaflet/dist/leaflet.css",
+              "node_modules/leaflet-draw/dist/leaflet.draw.css"
             ],
             "scripts": [
               "node_modules/pace-js/pace.min.js",

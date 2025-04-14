@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { NbDialogRef } from '@nebular/theme';
 import * as L from 'leaflet';
+import 'leaflet-draw';
+
 
 @Component({
   selector: 'app-map-dialog',
@@ -25,10 +27,30 @@ export class MapDialogComponent implements OnInit {
       maxZoom: 19,
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
-    
-    this.map.on('click', (e: L.LeafletMouseEvent) => {
-      this.setMarker(e.latlng.lat, e.latlng.lng);
-    });
+
+   // Initialise the FeatureGroup to store editable layers and add them to the map
+   var editableLayers = new L.FeatureGroup();
+   this.map.addLayer(editableLayers);
+
+   // Initialise the draw control and pass it the FeatureGroup of editable layers
+   var drawControl = new L.Control.Draw({
+     edit: { featureGroup: editableLayers },
+     position: "topright",
+     draw: {
+       polyline: false,
+       rectangle: <any>{ showArea: false },
+       circlemarker: false,
+     },
+   });
+   this.map.addControl(drawControl);
+
+   //this function gets called whenever we draw something on the map
+   this.map.on("draw:created", function (e: any) {
+    let drawingLayer = e.layer;
+    //and then the drawn layer will get stored in editableLayers
+    editableLayers.addLayer(drawingLayer);
+  });
+
     
     // Force map to recalculate its size after being displayed in dialog
     setTimeout(() => {
