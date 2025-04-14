@@ -30,7 +30,7 @@
 					  </nb-card>
 					</div>
 					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleClickCatalogues()">{{ 'ADMIN_CATALOG_UPDATE_BUTTON' | translate }}</button>
+					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleClickCatalogues()">{{ 'ADMIN_CATALOG_UPDATE_BUTTON' | translate }}</button>
 					</div>
 				  </div>
 				</nb-accordion-item-body>
@@ -43,23 +43,23 @@
 					<div class="col-md-12">
 					  <nb-card>
 						<nb-card-body>
-						  <div style="padding-bottom: 20px">
+						  <div class="pb-20">
 							<label class="search-label" for="search">{{ 'ADMIN_SPARQL_SEARCH_LABEL' | translate }}</label>
-							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
+							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" >
 						  </div>
 						  <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
 							<tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
 							<tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
 							<ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{ 'ADMIN_SPARQL_COLUMN_1' | translate }}</th>
+							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'ADMIN_SPARQL_COLUMN_1' | translate }}</th>
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
 							</ng-container>
 							<ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{ 'ADMIN_SPARQL_COLUMN_2' | translate }}</th>
+							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'ADMIN_SPARQL_COLUMN_2' | translate }}</th>
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
 							</ng-container>
 							<ng-container [nbTreeGridColumnDef]="iconColumn">
-							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 120px">{{ 'ADMIN_SPARQL_ACTIONS' | translate }}</th>
+							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef class="col-w-120">{{ 'ADMIN_SPARQL_ACTIONS' | translate }}</th>
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">
 								<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixEdit(row.data.id, row.data[defaultColumns[0]], row.data[defaultColumns[1]])"></nb-icon>
 								<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixDelete(row.data.id)"></nb-icon>
@@ -70,7 +70,7 @@
 					  </nb-card>
 					</div>
 					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleSparqlPrefixOpenModal()">{{ 'ADMIN_SPARQL_ADD_PREFIX' | translate }}</button>
+					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleSparqlPrefixOpenModal()">{{ 'ADMIN_SPARQL_ADD_PREFIX' | translate }}</button>
 					</div>
 				  </div>
 				</nb-accordion-item-body>
@@ -93,7 +93,7 @@
 					  </nb-card>
 					</div>
 					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleUpdatePassword()">{{ 'ADMIN_UPDATE_PASSWORD_BUTTON' | translate }}</button>
+					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleUpdatePassword()">{{ 'ADMIN_UPDATE_PASSWORD_BUTTON' | translate }}</button>
 					</div>
 				  </div>
 				</nb-accordion-item-body>
@@ -105,23 +105,23 @@
 					<div class="col-md-12">
 					  <nb-card>
 						<nb-card-body>
-						  <div style="padding-bottom: 20px">
+						  <div class="pb-20">
 							<label class="search-label" for="search">{{ 'ADMIN_REMOTE_CATALOG_SEARCH_LABEL' | translate }}</label>
-							<input fieldSize="small" nbInput [nbFilterInput]="dataSourceCat" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
+							<input fieldSize="small" nbInput [nbFilterInput]="dataSourceCat" id="search" class="search-input" >
 						  </div>
-						  <table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)" style="width: 100%; table-layout: auto;">
+						  <table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)" class="table-layout-container">
 							<tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsCat"></tr>
 							<tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsCat"></tr>
 							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[0]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[0] }}</th><!--style="width: 200px"-->
+							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[0] }}</th><!--class="col-w-200"-->
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumnsCat[0]] }}</td>
 							</ng-container>
 							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[1]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[1] }}</th><!--style="width: 75px"-->
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row" style="word-break: break-word;">{{ row.data[defaultColumnsCat[1]] }}</td>
+							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[1] }}</th><!--class="col-w-75"-->
+							  <td nbTreeGridCell *nbTreeGridCellDef="let row" class="word-break-style">{{ row.data[defaultColumnsCat[1]] }}</td>
 							</ng-container>
 							<ng-container [nbTreeGridColumnDef]="iconColumnCat">
-							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef>{{ 'ADMIN_REMOTE_CATALOG_ACTIONS' | translate }}</th><!--style="width: 120px"-->
+							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef>{{ 'ADMIN_REMOTE_CATALOG_ACTIONS' | translate }}</th><!--class="col-w-120"-->
 							  <td nbTreeGridCell *nbTreeGridCellDef="let row">
 								<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleEditRemoteCatalogueOpenModal(row.data)"></nb-icon>
 								<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleRemoteCataloguDelete(row.data.id, row.data.index)"></nb-icon>
@@ -132,7 +132,7 @@
 					  </nb-card>
 					</div>
 					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleRemoteCatalogueOpenModal()">{{ 'ADMIN_REMOTE_CATALOG_ADD_BUTTON' | translate }}</button>
+					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleRemoteCatalogueOpenModal()">{{ 'ADMIN_REMOTE_CATALOG_ADD_BUTTON' | translate }}</button>
 					</div>
 				  </div>
 				</nb-accordion-item-body>
@@ -155,7 +155,7 @@
 					  </nb-card>
 					</div>
 					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" style="margin-top: 1rem;" (click)="handleClickCatalogues()">{{ 'ADMIN_CONTEXT_BROKER_UPDATE_BUTTON' | translate }}</button>
+					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleClickCatalogues()">{{ 'ADMIN_CONTEXT_BROKER_UPDATE_BUTTON' | translate }}</button>
 					</div>
 				  </div>
 				</nb-accordion-item-body>

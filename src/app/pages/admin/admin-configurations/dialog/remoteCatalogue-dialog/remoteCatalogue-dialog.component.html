@@ -1,17 +1,17 @@
 <nb-card>
   <nb-card-header> {{ catalogueName ? 'Modify Remote Catalogue' : 'Create New Remote Catalogue' }}</nb-card-header><!--{{ 'REMOTE_CATALOG_TITLE' | translate }}-->
-  <nb-card-body>
+  <nb-card-body class="card-container">
     <div class="row">
       <div class="col-md-12">
         <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_TYPE' | translate }}</h6>
-        <nb-select placeholder="{{ 'REMOTE_CATALOG_TYPE' | translate }}" (selectedChange)="changedTypeHandler($event)" [selected]="catalogueType">
+        <nb-select class="mb-3" placeholder="{{ 'REMOTE_CATALOG_TYPE' | translate }}" (selectedChange)="changedTypeHandler($event)" [selected]="catalogueType">
           <nb-option [value]="false">{{ 'REMOTE_CATALOG_JSON' | translate }}</nb-option>
           <nb-option [value]="true">{{ 'REMOTE_CATALOG_IDRA' | translate }}</nb-option>
         </nb-select>
         <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_NAME' | translate }}</h6>
-        <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_INSERT_NAME' | translate }}" [(ngModel)]="catalogueName">
+        <input class="mb-3" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_INSERT_NAME' | translate }}" [(ngModel)]="catalogueName">
         <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_URL' | translate }}</h6>
-        <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_INSERT_URL' | translate }}" [(ngModel)]="catalogueURL">
+        <input class="mb-3" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_INSERT_URL' | translate }}" [(ngModel)]="catalogueURL">
 
         <h6 class="jumbotron-heading" *ngIf="catalogueType == true">{{ 'REMOTE_CATALOG_AUTH_METHOD' | translate }}</h6>
         <nb-select placeholder="{{ 'REMOTE_CATALOG_AUTH_METHOD' | translate }}" *ngIf="catalogueType == true" (selectedChange)="changedAuthMethodHandler($event)" [selected]="authMethod">
@@ -36,7 +36,7 @@
     </div>
   </nb-card-body>
   <nb-card-footer>
-    <div style="display: flex; justify-content: space-between;">
+    <div class="d-flex justify-content-between">
       <button nbButton status="primary" (click)="dismiss(0,0,0,0,0,0,0,0,0)">{{ 'REMOTE_CATALOG_CLOSE' | translate }}</button>
       <button nbButton status="primary" (click)="dismiss(catalogueName, catalogueURL, catalogueType, authMethod, username, password, clientID, clientSecret, portalURL)">{{ catalogueName ? 'UPDATE' : 'CREATE' }}</button><!--{{ 'REMOTE_CATALOG_ACTION' | translate }}-->
     </div>

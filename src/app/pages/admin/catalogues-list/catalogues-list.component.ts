@@ -34,6 +34,7 @@ interface FSEntry {
   index: number;
   Active: boolean;
   synchLock: string;
+  catalogueUrl: string;
 }
 
 
@@ -376,7 +377,7 @@ export class CataloguesListComponent implements OnInit {
 						let country = this.countries.find(c => c.code == infos[i].country);
 	
 						this.data.push({
-							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
+							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock, catalogueUrl: infos[i].homepage},
 						});
 						this.dataSource = this.dataSourceBuilder.create(this.data);
 				} catch (error) {
@@ -406,7 +407,7 @@ export class CataloguesListComponent implements OnInit {
 						let country = this.countries.find(c => c.code == infos[i].country);
 	
 						this.data.push({
-							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock},
+							data: { Name: infos[i].name, Country: country.name, Type: infos[i].nodeType, Level: level, Status: infos[i].nodeState, CB: infos[i].isFederatedInCb, Datasets: infos[i].datasetCount, UpdatePeriod: refreshPeriod, LastUpdate: formatDate(infos[i].lastUpdateDate, 'yyyy-MM-dd HH:mm:ss', 'en-US'), id: infos[i].id, index: i, Active: infos[i].isActive, synchLock: infos[i].synchLock, catalogueUrl: infos[i].homepage},
 						});
 						this.dataSource = this.dataSourceBuilder.create(this.data);
 				}

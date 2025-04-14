@@ -4,11 +4,19 @@
   nb-card {
     width: max-content;
     height: max-content;
+    min-width: 70vw;
   }
 }
  
- 
-.buttons-container{
+.height-70-vh {
+  height: 70vh;
+}
+
+.height-65-vh {
+  height: 65vh;
+}
+
+.button-container {
   display: flex;
   justify-content: space-between;
 }

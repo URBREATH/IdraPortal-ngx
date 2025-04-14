@@ -3,9 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CataloguesServiceService } from '../catalogues-service.service';
 import { SharedService } from '../../services/shared.service';
 import { DomSanitizer} from '@angular/platform-browser';
-import { NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
+import { RefreshService } from '../../services/refresh.service';
+import { PrefixDialogComponent } from '../admin-configurations/dialog/prefix-dialog/prefix-dialog.component';
+import { EditorDialogComponent } from './dialog/editor-dialog/editor-dialog.component';
 
 export interface Node {
 	id : string ;
@@ -415,7 +418,9 @@ export class AddCatalogueComponent implements OnInit {
 		private route: ActivatedRoute, 
 		private sanitizer: DomSanitizer, 
 		private toastrService: NbToastrService,
-		public translation: TranslateService
+		public translation: TranslateService,
+		private refreshService: RefreshService,
+		private dialogService: NbDialogService
 	) {}
 
 	receivedMode : string = "";
@@ -423,7 +428,26 @@ export class AddCatalogueComponent implements OnInit {
 	loading: boolean = false;
 	modifyMode : boolean = false;
 
+	handleOpenEditorDialog() {
+		console.log(this.node)
+			this.dialogService.open(EditorDialogComponent, {
+			  context: {
+				model: {
+					language: 'json',
+					uri: 'main.json',
+					value: this.node.dumpString,
+				}
+			  },
+			}).onClose.subscribe(res => {
+			  if(res != false) {
+				console.log(res);
+				this.node.dumpString = res;
+			  }
+			});
+	}
+
     ngOnInit(): void {
+		this.refreshService.refreshPageOnce('admin-configuration');
 		this.route.queryParams
 			.subscribe(params => {
 			if(params.modifyId != null && params.modifyId != undefined && params.modifyId != ''){

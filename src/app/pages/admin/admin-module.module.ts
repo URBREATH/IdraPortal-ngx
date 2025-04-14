@@ -18,11 +18,13 @@ import { AdminConfigurationsComponent } from './admin-configurations/admin-confi
 import { PrefixDialogComponent } from './admin-configurations/dialog/prefix-dialog/prefix-dialog.component';
 import { RemoteCatalogueDialogComponent } from './admin-configurations/dialog/remoteCatalogue-dialog/remoteCatalogue-dialog.component';
 import { DataletDialogComponent } from './datalets-management/dialog/datalet-dialog.component';
+import { EditorDialogComponent } from './add-catalogue/dialog/editor-dialog/editor-dialog.component';
+import { CodeEditorModule } from '@ngstack/code-editor';
 
 
 
 @NgModule({
-  declarations: [CataloguesListComponent, AddCatalogueComponent, RemoteCataloguesComponent, DataletsManagementComponent, ShowcaseDialogComponent, AdminConfigurationsComponent, PrefixDialogComponent, RemoteCatalogueDialogComponent, DataletDialogComponent],
+  declarations: [CataloguesListComponent, AddCatalogueComponent, RemoteCataloguesComponent, DataletsManagementComponent, ShowcaseDialogComponent, AdminConfigurationsComponent, PrefixDialogComponent, RemoteCatalogueDialogComponent, DataletDialogComponent, EditorDialogComponent],
   
 imports: [
     CommonModule,
@@ -54,7 +56,9 @@ imports: [
     NbUserModule,
     NgxEchartsModule,
     NbTableModule,
-    ThemeModule
+    ThemeModule,
+
+    CodeEditorModule
   ]
 })
 export class AdminModule { 

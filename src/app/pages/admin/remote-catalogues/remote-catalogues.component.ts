@@ -7,6 +7,7 @@ import { ODMSCatalogue } from '../../data-catalogue/model/odmscatalogue';
 import * as remoteCatalogueData from '../../../../assets/remoteCatalogues.json';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
+import { RefreshService } from '../../services/refresh.service';
 
 
 interface TreeNode<T> {
@@ -51,10 +52,16 @@ export class RemoteCataloguesComponent implements OnInit {
    dataNotIdra: any
    selectedCatalogueIsIdra : boolean
 
-  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, private restApi:CataloguesServiceService, private router: Router,public translation: TranslateService,private toastrService: NbToastrService) { }
+  constructor(private dataSourceBuilder: NbTreeGridDataSourceBuilder<FSEntry>, 
+	private refreshService: RefreshService,
+	private restApi:CataloguesServiceService, 
+	private router: Router,
+	public translation: TranslateService,
+	private toastrService: NbToastrService) { }
 
   ngOnInit(): void {
 
+    this.refreshService.refreshPageOnce('admin-configuration');
 
 	// GET REM CATALOGUES LIST
 	this.restApi.getAllRemCat().subscribe(infos =>{

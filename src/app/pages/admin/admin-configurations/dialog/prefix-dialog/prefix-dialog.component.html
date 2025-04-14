@@ -2,12 +2,12 @@
   <nb-card-header>{{ 'DIALOG_TITLE' | translate }}</nb-card-header>
   <nb-card-body>
     <h6 class="jumbotron-heading">{{ 'DIALOG_PREFIX' | translate }}</h6>
-    <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'DIALOG_INSERT_PREFIX' | translate }}" [(ngModel)]="prefix">
+    <input class="mb-3" type="text" nbInput fullWidth status="primary" placeholder="{{ 'DIALOG_INSERT_PREFIX' | translate }}" [(ngModel)]="prefix">
     <h6 class="jumbotron-heading">{{ 'DIALOG_NAMESPACE' | translate }}</h6>
     <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'DIALOG_INSERT_NAMESPACE' | translate }}" [(ngModel)]="namespace">
   </nb-card-body>
   <nb-card-footer>
-    <div style="display: flex; justify-content: space-between;">
+    <div class="button-container">
       <button nbButton status="primary" (click)="dismiss(0,0)">{{ 'DIALOG_CLOSE' | translate }}</button>
       <button nbButton status="primary" (click)="dismiss(prefix, namespace)">{{ 'DIALOG_ACTION' | translate }}</button>
     </div>

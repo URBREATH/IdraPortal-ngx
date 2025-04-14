@@ -3,7 +3,7 @@
         <!-- select Catalogues -->
         <span>Catalogues</span>
         
-    <nb-select multiple [(selected)]="selectedCatalogues" placeholder="Multiple Select" style="width: 150px;" (selectedChange)="getStatistics()">
+    <nb-select multiple [(selected)]="selectedCatalogues" placeholder="Multiple Select" class="w-150" (selectedChange)="getStatistics()">
         <nb-option [value]="0">All Selected</nb-option>
         <nb-option *ngFor="let catalogue of catalogueList" [value]="catalogue.id">{{catalogue.name}}</nb-option>
     </nb-select>

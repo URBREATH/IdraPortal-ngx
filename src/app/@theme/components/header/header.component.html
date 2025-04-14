@@ -22,7 +22,7 @@
       <nb-option
         *ngFor="let lang of languages"
         [value]="lang.lan"
-        class="d-flex flex-row align-items-center"
+        class="d-flex flex-row align-items-center white-background"
         style="background-color: rgb(255, 255, 255);"
       >
         <nb-user
@@ -90,7 +90,7 @@
       </nb-user>
     </nb-action>
   </nb-actions>
-  <div class="login-container" fxFlex="none" style="margin-left: 16px;">
+  <div class="login-container m-left-16" fxFlex="none" style="margin-left: 16px;">
     <ng-template #login>
       <button nbButton (click)="logIn()">Login</button>
     </ng-template>

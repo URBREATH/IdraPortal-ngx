@@ -74,3 +74,64 @@
   flex-shrink: 0; 
 }
 
+
+/* Layout per card */
+.card-container {
+  margin-top: 2.5rem;
+}
+
+.height-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Stili per immagini e link */
+.catalogue-image {
+  width: 80px;
+  margin-right: 1rem;
+}
+
+.catalogue-link {
+  margin-right: 0.5rem;
+}
+
+/* Stile per l'icona nella card */
+.icon-card {
+  cursor: pointer;
+  transition: transform 0.2s;
+  
+  &:hover {
+    transform: scale(1.2);
+  }
+}
+
+/* Stile per la descrizione con scroll */
+.description-scroll {
+  max-height: 100px;
+  overflow-y: auto;
+  padding-right: 5px;
+  
+  /* Stili per scrollbar */
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 3px;
+  }
+  
+  &::-webkit-scrollbar-thumb:hover {
+    background: #555;
+  }
+}
+
+/* Margini */
+.mb-1 {
+  margin-bottom: 0.25rem;
+}
