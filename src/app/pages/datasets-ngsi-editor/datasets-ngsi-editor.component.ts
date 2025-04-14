@@ -142,18 +142,78 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       layers: [this.osm],
     });
 
+    // Create a FeatureGroup to hold all spatial entities
+    const drawnLayers = new L.FeatureGroup();
+    
     if (this.isEditing){
       const storedDataset = localStorage.getItem('dataset_to_edit');
       if (storedDataset){
         let spatial = JSON.parse(storedDataset).spatial;
-        //if the geometry is a point, add a marker to the map
-          if(spatial.type === 'Point' && spatial.coordinates.length === 2) {
-            
-            const coordinates = spatial.coordinates;
-            L.marker([coordinates[1], coordinates[0]]).addTo(this.map);
-            this.map.setView([coordinates[1], coordinates[0]], 5);
-            console.log(`Marker added at coordinates: ${coordinates[1]}, ${coordinates[0]}`);
+        //if spatial is not an array, convert it to an array
+        if (!Array.isArray(spatial)) {
+          spatial = [spatial];
+        }
+        // Loop through each spatial object and add it to the FeatureGroup
+        for (const entity of spatial){
+          try {
+            // Handle different geometry types
+            if (entity.type === 'Point') {
+              // Create a marker for Point geometry
+              const [longitude, latitude] = entity.coordinates;
+              L.marker([latitude, longitude])
+                .bindPopup(`Point: [${latitude}, ${longitude}]`)
+                .addTo(drawnLayers);
+            } 
+            else if (entity.type === 'LineString') {
+              // Create a polyline for LineString geometry
+              // Convert from GeoJSON [lng, lat] to Leaflet [lat, lng] format
+              const latLngs = entity.coordinates.map(coord => [coord[1], coord[0]]);
+              L.polyline(latLngs, { color: 'blue' })
+                .bindPopup('LineString')
+                .addTo(drawnLayers);
+            }
+            else if (entity.type === 'Polygon') {
+              // Create a polygon for Polygon geometry
+              // For polygons, coordinates are nested arrays where the first array contains the outer ring
+              const latLngs = entity.coordinates[0].map(coord => [coord[1], coord[0]]);
+              L.polygon(latLngs, { color: 'green' })
+                .bindPopup('Polygon')
+                .addTo(drawnLayers);
+            }
+            else if (entity.type === 'Circle') {
+              // Handle circle entity if your data includes it
+              if (entity.center && entity.radius) {
+                const [longitude, latitude] = entity.center;
+                L.circle([latitude, longitude], { radius: entity.radius, color: 'red' })
+                  .bindPopup(`Circle: radius ${entity.radius}m`)
+                  .addTo(drawnLayers);
+              }
+            }
+            else if (entity.geometry && entity.geometry.type) {
+              // Handle GeoJSON Feature objects that have a geometry property
+              const geometry = entity.geometry;
+              
+              if (geometry.type === 'Point') {
+                const [longitude, latitude] = geometry.coordinates;
+                L.marker([latitude, longitude])
+                  .bindPopup(entity.properties?.name || 'Feature Point')
+                  .addTo(drawnLayers);
+              }
+              // Add other geometry types as needed
+            }
+          } catch (error) {
+            console.error('Error adding spatial entity to map:', entity, error);
           }
+        }
+        
+        // Add the FeatureGroup to the map
+        drawnLayers.addTo(this.map);
+        
+         // If we have at least one valid entity, fit the map to show all entities
+         this.map.fitBounds(drawnLayers.getBounds(), {
+          padding: [50, 50],
+          maxZoom: 5
+        });
       }
     }
   }
