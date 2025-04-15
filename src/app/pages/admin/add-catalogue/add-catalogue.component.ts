@@ -562,9 +562,33 @@ export class AddCatalogueComponent implements OnInit {
 		this.node.pubNameInvalid = this.node.publisherName.trim() === '' ? true : false;
 
 		if(this.node.host.trim() === ''){
-			this.node.hostInvalid = this.node.nodeType === 'DCATDUMP' ? false : true;		
+			this.node.hostInvalid = this.node.nodeType === 'DCATDUMP' ? false : true;	
+ 			if(this.node.nodeType == 'ZENODO'){
+ 				if(this.node.communities == '')
+ 				{
+ 					this.node.hostInvalid=true;
+ 					this.toastrService.danger('Catalogue communities field required for complete url', 'Error');
+ 				}
+ 				else
+ 				{
+ 					this.node.hostInvalid=false;
+ 					this.node.host = 'https://zenodo.org/api/records?communities='+this.node.communities;
+ 				}
+ 			}			
 		}else{
 			this.node.hostInvalid=false;
+			if(this.node.nodeType == 'ZENODO'){
+				if(this.node.communities == '')
+				{
+					this.node.hostInvalid=true;
+					this.toastrService.danger('Catalogue communities field required for complete url', 'Error');
+				}
+				else
+				{
+					this.node.hostInvalid=false;
+					this.node.host = 'https://zenodo.org/api/records?communities='+this.node.communities;
+				}
+			}
 		}
 		
 		if(this.node.homepage.trim() === ''){

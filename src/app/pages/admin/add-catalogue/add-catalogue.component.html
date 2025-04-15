@@ -74,10 +74,19 @@
 
             <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                 <h6 class="jumbotron-heading">{{ 'API_ENDPOINT' | translate }}</h6>
+                <!--ZENODO--->
+                <input type="url" nbInput fullWidth status="primary" placeholder="{{ 'API_ENDPOINT' | translate }}"     
+                [(ngModel)]="node.host"
+                [disabled]="true"
+                *ngIf="node.nodeType == 'ZENODO'"
+                readonly>                
+
                 <input type="url" nbInput fullWidth status="primary" placeholder="{{ 'API_ENDPOINT' | translate }}"
                 [(ngModel)]="node.host"
                 [disabled]="modifyId || node.nodeType === 'DCATDUMP'"
-                [required]="node.nodeType !== 'DCATDUMP'">
+                [required]="node.nodeType !== 'DCATDUMP'"
+                *ngIf="node.nodeType != 'ZENODO'">
+ 
             </nb-card-body>
 
             <div class="row show-grid">
@@ -120,7 +129,8 @@
                     <div class="col-md-12" *ngIf="node.nodeType == 'ZENODO'">
                         <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
                             <h6 class="jumbotron-heading">Communities:</h6>
-                            <input type="text" nbInput fullWidth status="primary" placeholder="communities" [(ngModel)]="node.communities">
+                            <input type="text" nbInput fullWidth status="primary" placeholder="communities" [(ngModel)]="node.communities"
+                            [required]="!modifyId ? true : null" [disabled]="modifyId ? true : null">
                         </nb-card-body>
                     </div>
 
