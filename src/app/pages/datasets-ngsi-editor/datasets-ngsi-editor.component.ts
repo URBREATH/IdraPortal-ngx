@@ -467,8 +467,27 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     // Format date with time component using Moment.js
     const releaseDate = formValue.releaseDate ? 
-      moment(formValue.releaseDate).format() : // ISO 8601 format
+      moment(formValue.releaseDate).format() : 
       moment().format();
+
+    // Get spatial data from localStorage instead of form
+    let spatialData;
+    const storedDataset = localStorage.getItem('dataset_to_edit');
+    
+    if (storedDataset) {
+      // Use spatial from localStorage if available
+      const parsedStoredDataset = JSON.parse(storedDataset);
+      spatialData = parsedStoredDataset.spatial;
+    } else {
+      // Fallback to random point if no stored spatial data
+      spatialData = {
+        type: "Point",
+        coordinates: [
+          parseFloat((Math.random() * 180).toFixed(6)),
+          parseFloat((Math.random() * 90).toFixed(6))
+        ]
+      };
+    }
 
     // Create the dataset object
     let dataset = {
@@ -481,14 +500,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       contactPoint: formValue.contactPoint || [],
       keyword: formValue.keyword || [],
       versionNotes: formValue.versionNotes || [],
-      // Ensure spatial has proper coordinates
-      spatial: formValue.spatial?.length > 0 ? formValue.spatial : [{
-        type: "Point",
-        coordinates: [
-          parseFloat((Math.random() * 180).toFixed(6)),
-          parseFloat((Math.random() * 90).toFixed(6))
-        ]
-      }]
+      // Use spatial data from localStorage
+      spatial: spatialData
     };
     
     // Remove ID from the payload when updating
