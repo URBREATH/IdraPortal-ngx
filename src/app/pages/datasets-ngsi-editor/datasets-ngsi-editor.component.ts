@@ -147,27 +147,26 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.openMapDialog();
     });
 
-    // Create a FeatureGroup to hold all spatial entities
-    const drawnLayers = new L.FeatureGroup();
+    // Create a FeatureGroup to hold the spatial entity
+    const geometry = new L.FeatureGroup();
     
-    if (this.isEditing){
+    // Check if we have spatial data in localStorage
       const storedDataset = localStorage.getItem('dataset_to_edit');
-      if (storedDataset){
+      if (storedDataset !== null) {
         let spatial = JSON.parse(storedDataset).spatial;
         //if spatial is not an array, convert it to an array
         if (!Array.isArray(spatial)) {
           spatial = [spatial];
         }
-        // Loop through each spatial object and add it to the FeatureGroup
+        // Though the array will always be of one element, we iterate through it to handle multiple geometries if needed
         for (const entity of spatial){
-          try {
             // Handle different geometry types
             if (entity.type === 'Point') {
               // Create a marker for Point geometry
               const [longitude, latitude] = entity.coordinates;
               L.marker([latitude, longitude])
                 .bindPopup(`Point: [${latitude}, ${longitude}]`)
-                .addTo(drawnLayers);
+                .addTo(geometry);
             } 
             else if (entity.type === 'LineString') {
               // Create a polyline for LineString geometry
@@ -175,7 +174,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
               const latLngs = entity.coordinates.map(coord => [coord[1], coord[0]]);
               L.polyline(latLngs, { color: 'blue' })
                 .bindPopup('LineString')
-                .addTo(drawnLayers);
+                .addTo(geometry);
             }
             else if (entity.type === 'Polygon') {
               // Create a polygon for Polygon geometry
@@ -183,44 +182,19 @@ export class DatasetsNgsiEditorComponent implements OnInit {
               const latLngs = entity.coordinates[0].map(coord => [coord[1], coord[0]]);
               L.polygon(latLngs, { color: 'green' })
                 .bindPopup('Polygon')
-                .addTo(drawnLayers);
+                .addTo(geometry);
             }
-            else if (entity.type === 'Circle') {
-              // Handle circle entity if your data includes it
-              if (entity.center && entity.radius) {
-                const [longitude, latitude] = entity.center;
-                L.circle([latitude, longitude], { radius: entity.radius, color: 'red' })
-                  .bindPopup(`Circle: radius ${entity.radius}m`)
-                  .addTo(drawnLayers);
-              }
-            }
-            else if (entity.geometry && entity.geometry.type) {
-              // Handle GeoJSON Feature objects that have a geometry property
-              const geometry = entity.geometry;
-              
-              if (geometry.type === 'Point') {
-                const [longitude, latitude] = geometry.coordinates;
-                L.marker([latitude, longitude])
-                  .bindPopup(entity.properties?.name || 'Feature Point')
-                  .addTo(drawnLayers);
-              }
-              // Add other geometry types as needed
-            }
-          } catch (error) {
-            console.error('Error adding spatial entity to map:', entity, error);
-          }
         }
         
         // Add the FeatureGroup to the map
-        drawnLayers.addTo(this.map);
+        geometry.addTo(this.map);
         
-         // If we have at least one valid entity, fit the map to show all entities
-         this.map.fitBounds(drawnLayers.getBounds(), {
+         // Fit the map to the bounds of the geometry
+         this.map.fitBounds(geometry.getBounds(), {
           padding: [50, 50],
           maxZoom: 5
         });
       }
-    }
   }
 
   // Initialize forms
@@ -805,7 +779,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       dialogClass: 'map-dialog-fixed',
       hasScroll: false
     })
-    .onClose.subscribe(result => {
+    .onClose.subscribe(newSpatial => {
       // Show the map again
       if (mapElement) {
         mapElement.classList.remove('map-hidden');
@@ -817,17 +791,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       }, 0);
       
       // Handle result
-      if (result) {
-        if (this.spatialPoints.length) {
-          const pointGroup = this.spatialPoints.at(0) as FormGroup;
-          const coordArray = pointGroup.get('coordinates') as FormArray;
-          coordArray.setValue(result);
-        } else {
-          const point = this.fb.group({
-            coordinates: this.fb.array(result)
-          });
-          this.spatialPoints.push(point);
-        }
+      if (newSpatial) {
+        // Clean up and reinitialize the map
+      this.cleanupMap();
+      setTimeout(() => {
+        this.initMap();
+      }, 100);
       }
     });
   }

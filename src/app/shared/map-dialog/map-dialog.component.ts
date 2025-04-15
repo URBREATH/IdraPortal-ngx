@@ -10,9 +10,8 @@ import 'leaflet-draw';
   styleUrls: ['./map-dialog.component.scss']
 })
 export class MapDialogComponent implements OnInit {
-  private map: L.Map;
-  private marker: L.Marker;
-  selectedLocation: [number, number] = [0, 0];
+  map: L.Map;
+  marker: L.Marker;
   
   constructor(private dialogRef: NbDialogRef<MapDialogComponent>) { }
   
@@ -48,14 +47,33 @@ export class MapDialogComponent implements OnInit {
    var editableLayers = new L.FeatureGroup();
    this.map.addLayer(editableLayers);
 
+   const storedSpatial = localStorage.getItem("dataset_to_edit");
+   if (storedSpatial) {
+      // Parse the stored spatial data from local storage
+      const parsedData = JSON.parse(storedSpatial).spatial;
+      // Check the type of the stored spatial data and create the corresponding layer
+      if (parsedData.type === "Point") {
+        this.marker = L.marker([parsedData.coordinates[1], parsedData.coordinates[0]], { draggable: true }).addTo(editableLayers);
+        this.map.setView([parsedData.coordinates[1], parsedData.coordinates[0]], 5);
+      } else if (parsedData.type === "Polygon") {
+        const latlngs = parsedData.coordinates[0].map((coord: number[]) => [coord[1], coord[0]]);
+        const polygon = L.polygon(latlngs, { color: 'red' }).addTo(editableLayers);
+        this.map.fitBounds(polygon.getBounds());
+      }
+      else if (parsedData.type === "LineString") {
+        const latlngs = parsedData.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
+        const polyline = L.polyline(latlngs, { color: 'red' }).addTo(editableLayers);
+        this.map.fitBounds(polyline.getBounds());
+      } 
+   }
+
    // Initialise the draw control and pass it the FeatureGroup of editable layers
    var drawControl = new L.Control.Draw({
      edit: { featureGroup: editableLayers },
      position: "topright",
      draw: {
-       polyline: false,
-       rectangle: <any>{ showArea: false },
-       circlemarker: false,
+      rectangle: false,
+      circlemarker: false,
        // Configure marker options to use our custom icon
       marker: {
         icon: iconDefault
@@ -78,19 +96,41 @@ export class MapDialogComponent implements OnInit {
     }, 200);
   }
   
-  private setMarker(lat: number, lng: number) {
-    this.selectedLocation = [lng, lat]; // Note: GeoJSON format is [longitude, latitude]
-    
-    if (this.marker) {
-      this.marker.setLatLng([lat, lng]);
-    } else {
-      this.marker = L.marker([lat, lng]).addTo(this.map);
-    }
-  }
   
   saveLocation() {
-    this.dialogRef.close(this.selectedLocation);
+
+    let newSpatial: object;
+
+    this.map.eachLayer((layer: any) => {
+      // Check for Marker type
+      if (layer instanceof L.Marker) {
+        const latLng = layer.getLatLng();
+        newSpatial = {
+          type: 'Point',
+          coordinates: [latLng.lng, latLng.lat]
+        };
+      }
+      
+      // Check for Polyline (but not Polygon, since Polygon extends Polyline)
+      else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+        newSpatial = layer.toGeoJSON().geometry;
+      }
+      
+      // Check for Polygon
+      else if (layer instanceof L.Polygon) {
+        newSpatial = layer.toGeoJSON().geometry;
+      }
+    });
+
+
+    //store the new spatial data in local storage
+    const datasetToEdit = JSON.parse(localStorage.getItem("dataset_to_edit")) || {};
+    datasetToEdit.spatial = newSpatial;
+    localStorage.setItem("dataset_to_edit", JSON.stringify(datasetToEdit));
+
+    this.dialogRef.close(true);
   }
+
   
   close() {
     this.dialogRef.close();
