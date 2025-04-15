@@ -1,8 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { NbDialogRef } from '@nebular/theme';
+import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import * as L from 'leaflet';
 import 'leaflet-draw';
-
 
 @Component({
   selector: 'app-map-dialog',
@@ -12,29 +11,32 @@ import 'leaflet-draw';
 export class MapDialogComponent implements OnInit {
   map: L.Map;
   marker: L.Marker;
+  editableLayers: L.FeatureGroup;
   
-  constructor(private dialogRef: NbDialogRef<MapDialogComponent>) { }
+  constructor(
+    private dialogRef: NbDialogRef<MapDialogComponent>,
+    private toastrService: NbToastrService
+  ) { }
   
   ngOnInit() {
     setTimeout(() => this.initMap(), 100);
   }
   
   private initMap() {
-
     // Fix marker icon issue by setting the default icon using CDN URLs
-        const iconDefault = L.icon({
-          iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-          iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-          shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-          iconSize: [25, 41],
-          iconAnchor: [12, 41],
-          popupAnchor: [1, -34],
-          tooltipAnchor: [16, -28],
-          shadowSize: [41, 41]
-        });
-        
-        // Assign the default icon to L.Marker.prototype
-        L.Marker.prototype.options.icon = iconDefault;
+    const iconDefault = L.icon({
+      iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+      iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+      shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    
+    // Assign the default icon to L.Marker.prototype
+    L.Marker.prototype.options.icon = iconDefault;
 
     this.map = L.map('dialog-map').setView([41.902782, 12.496366], 5);
     
@@ -43,94 +45,113 @@ export class MapDialogComponent implements OnInit {
       attribution: '© OpenStreetMap contributors'
     }).addTo(this.map);
 
-   // Initialise the FeatureGroup to store editable layers and add them to the map
-   var editableLayers = new L.FeatureGroup();
-   this.map.addLayer(editableLayers);
+    // Initialise the FeatureGroup to store editable layers and add them to the map
+    this.editableLayers = new L.FeatureGroup();
+    this.map.addLayer(this.editableLayers);
 
-   const storedSpatial = localStorage.getItem("dataset_to_edit");
-   if (storedSpatial) {
+    const storedSpatial = localStorage.getItem("dataset_to_edit");
+    if (storedSpatial) {
       // Parse the stored spatial data from local storage
       const parsedData = JSON.parse(storedSpatial).spatial;
       // Check the type of the stored spatial data and create the corresponding layer
       if (parsedData.type === "Point") {
-        this.marker = L.marker([parsedData.coordinates[1], parsedData.coordinates[0]], { draggable: true }).addTo(editableLayers);
+        this.marker = L.marker([parsedData.coordinates[1], parsedData.coordinates[0]], { draggable: true }).addTo(this.editableLayers);
         this.map.setView([parsedData.coordinates[1], parsedData.coordinates[0]], 5);
       } else if (parsedData.type === "Polygon") {
         const latlngs = parsedData.coordinates[0].map((coord: number[]) => [coord[1], coord[0]]);
-        const polygon = L.polygon(latlngs, { color: 'red' }).addTo(editableLayers);
+        const polygon = L.polygon(latlngs, { color: 'red' }).addTo(this.editableLayers);
         this.map.fitBounds(polygon.getBounds());
       }
       else if (parsedData.type === "LineString") {
         const latlngs = parsedData.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
-        const polyline = L.polyline(latlngs, { color: 'red' }).addTo(editableLayers);
+        const polyline = L.polyline(latlngs, { color: 'red' }).addTo(this.editableLayers);
         this.map.fitBounds(polyline.getBounds());
       } 
-   }
+    }
 
-   // Initialise the draw control and pass it the FeatureGroup of editable layers
-   var drawControl = new L.Control.Draw({
-     edit: { featureGroup: editableLayers },
-     position: "topright",
-     draw: {
-      rectangle: false,
-      circlemarker: false,
-       // Configure marker options to use our custom icon
-      marker: {
-        icon: iconDefault
+    // Initialise the draw control and pass it the FeatureGroup of editable layers
+    var drawControl = new L.Control.Draw({
+      edit: { featureGroup: this.editableLayers },
+      position: "topright",
+      draw: {
+        rectangle: false,
+        circle: false,
+        circlemarker: false,
+        // Configure marker options to use our custom icon
+        marker: {
+          icon: iconDefault
+        }
+      },
+    });
+    this.map.addControl(drawControl);
+
+    // This function gets called whenever we draw something on the map
+    this.map.on("draw:created", (e: any) => {
+      let drawingLayer = e.layer;
+      if (this.editableLayers && this.editableLayers.getLayers().length === 0) {
+      // Add the new layer
+      this.editableLayers.addLayer(drawingLayer);
       }
-     },
-   });
-   this.map.addControl(drawControl);
+    });
 
-   //this function gets called whenever we draw something on the map
-   this.map.on("draw:created", function (e: any) {
-    let drawingLayer = e.layer;
-    //and then the drawn layer will get stored in editableLayers
-    editableLayers.addLayer(drawingLayer);
-  });
-
+    this.map.on("draw:drawstart", (e: any) => {
+      
+      // Check if there's already a layer
+      if (this.editableLayers && this.editableLayers.getLayers().length > 0) {
+        // Show warning notification
+        this.toastrService.warning(
+          'Cancella prima la geometria esistente',
+          'Attenzione',
+        );
+        return; // Don't add the new layer
+      }
+    })
     
+    // Listen for delete events to keep track of layers
+    this.map.on("draw:deleted", (e: any) => {
+      console.log("Layer deleted");
+    });
+
     // Force map to recalculate its size after being displayed in dialog
     setTimeout(() => {
       this.map.invalidateSize();
     }, 200);
   }
   
-  
   saveLocation() {
-
     let newSpatial: object;
 
-    this.map.eachLayer((layer: any) => {
-      // Check for Marker type
-      if (layer instanceof L.Marker) {
-        const latLng = layer.getLatLng();
-        newSpatial = {
-          type: 'Point',
-          coordinates: [latLng.lng, latLng.lat]
-        };
-      }
-      
-      // Check for Polyline (but not Polygon, since Polygon extends Polyline)
-      else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
-        newSpatial = layer.toGeoJSON().geometry;
-      }
-      
-      // Check for Polygon
-      else if (layer instanceof L.Polygon) {
-        newSpatial = layer.toGeoJSON().geometry;
-      }
-    });
+    if (this.editableLayers.getLayers().length === 0) {
+      this.toastrService.warning(
+        'Aggiungi una geometria sulla mappa',
+        'Nessuna geometria'
+      );
+      return;
+    }
+    
+    // Get the first (and only) layer
+    const layer = this.editableLayers.getLayers()[0];
+    
+    // Check layer type and extract data
+    if (layer instanceof L.Marker) {
+      const latLng = layer.getLatLng();
+      newSpatial = {
+        type: 'Point',
+        coordinates: [latLng.lng, latLng.lat]
+      };
+    } else if (layer instanceof L.Polyline && !(layer instanceof L.Polygon)) {
+      newSpatial = layer.toGeoJSON().geometry;
+    } else if (layer instanceof L.Polygon) {
+      newSpatial = layer.toGeoJSON().geometry;
+    }
 
-
-    //store the new spatial data in local storage
+    // Store the new spatial data in local storage
     const datasetToEdit = JSON.parse(localStorage.getItem("dataset_to_edit")) || {};
     datasetToEdit.spatial = newSpatial;
     localStorage.setItem("dataset_to_edit", JSON.stringify(datasetToEdit));
 
     this.dialogRef.close(true);
   }
-
   
   close() {
     this.dialogRef.close();
