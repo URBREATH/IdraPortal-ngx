@@ -118,17 +118,16 @@
       <div class="step-content">
         <form [formGroup]="datasetForm" class="dataset-form">
           <div class="left-column">
-            <label for="datasetId">Dataset ID</label>
-            <input nbInput 
-                   id="datasetId" 
-                   formControlName="id" 
-                   type="text" 
-                   class="full-width-input"
-                   [attr.title]="isEditing ? 'ID cannot be modified when updating a dataset' : ''" />
-            
-            <label for="title">Title</label>
-            <input nbInput id="title" formControlName="title" type="text" class="full-width-input" />
-            
+            <div class="form-group">
+              <label for="title">Title <span class="required-indicator">*</span></label>
+              <input nbInput fullWidth id="title" formControlName="title">
+            </div>
+
+            <div class="form-group">
+              <label for="datasetId">ID <span class="required-indicator">*</span></label>
+              <input nbInput fullWidth id="datasetId" formControlName="id">
+            </div>
+
             <label>Dataset Description</label>
             <div formArrayName="datasetDescription" class="array-field">
               <div *ngFor="let desc of datasetDescriptions.controls; let i = index" class="array-item">
@@ -198,14 +197,12 @@
               </button>
             </div>
             
-            <label for="releaseDate">Release Date</label>
-            <input nbInput 
-                   placeholder="yyyy-MM-dd" 
-                   id="datasetReleaseDate" 
-                   formControlName="releaseDate" 
-                   [nbDatepicker]="datasetReleaseDatePicker" 
-                   class="full-width-input" />
-            <nb-datepicker #datasetReleaseDatePicker (dateChange)="onDateSelect($event, 'datasetReleaseDate')"></nb-datepicker>
+            <div class="form-group">
+              <label for="releaseDate">Release Date <span class="required-indicator">*</span></label>
+              <input nbInput fullWidth id="releaseDate" formControlName="releaseDate"
+                     [nbDatepicker]="datepicker">
+              <nb-datepicker #datepicker></nb-datepicker>
+            </div>
           </div>
           <div class="right-column">
             <label>Themes</label>
@@ -236,7 +233,7 @@
             
             <!-- Spatial / map area -->
             <div class="spatial-section">
-              <strong>Spatial:</strong>
+              <strong>Spatial:</strong><span class="required-indicator">*</span>
               <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
                 <div [formGroupName]="i" class="spatial-point">
                   <div formArrayName="coordinates" class="coordinates-input">

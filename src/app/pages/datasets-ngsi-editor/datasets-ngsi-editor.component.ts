@@ -3,7 +3,7 @@ import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
-import { NbDialogService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
 import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component';
@@ -45,7 +45,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
         private router: Router,
-        private dialogService: NbDialogService 
+        private dialogService: NbDialogService,
+        private toastrService: NbToastrService 
   ) { }
 
   ngOnInit(): void {
@@ -337,7 +338,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.markFormGroupTouched(this.distributionForm);
     
     if (this.distributionForm.invalid) {
-      console.error('Form is invalid. Please fill in required fields.');
+      this.toastrService.danger(
+        'Please fill in all required fields',
+        'Form Invalid'
+      );
       return;
     }
 
@@ -418,8 +422,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           error: (error) => {
             console.error(`Error deleting distribution ${distributionToDelete.id}:`, error);
             delete this.deletingDistributions[distributionToDelete.id];
-            // You can also use a toast service here instead of alert
-            alert(`Failed to delete distribution: ${error.message || 'Unknown error'}`);
+            this.toastrService.danger(
+              error.message || 'Unknown error occurred',
+              'Failed to Delete Distribution'
+            );
           }
         });
       }
@@ -460,7 +466,49 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   onCreateDataset(): void {
     const formValue = this.datasetForm.getRawValue();
     
-    // Get distribution IDs for the datasetDistribution field - only include checked distributions
+    // Check for mandatory fields
+    if (!formValue.title) {
+      this.toastrService.danger(
+        'Please provide a title for the dataset',
+        'Title Required'
+      );
+      return;
+    }
+
+    if (!formValue.releaseDate) {
+      this.toastrService.danger(
+        'Please specify a release date',
+        'Release Date Required'
+      );
+      return;
+    }
+
+    if (!this.isEditing && !formValue.id) {
+      this.toastrService.danger(
+        'Please provide an ID for the dataset',
+        'ID Required'
+      );
+      return;
+    }
+    
+    // Check for spatial data in localStorage
+    const storedDataset = localStorage.getItem('dataset_to_edit');
+    let spatialData;
+    
+    if (storedDataset) {
+      const parsedStoredDataset = JSON.parse(storedDataset);
+      spatialData = parsedStoredDataset.spatial;
+    }
+    
+    if (!spatialData) {
+      this.toastrService.danger(
+        'Please add a location on the map',
+        'Spatial Data Required'
+      );
+      return;
+    }
+
+    // Get distribution IDs for the datasetDistribution field
     const datasetDistribution = this.distributions
       .filter(dist => this.selectedDistributions[dist.id])
       .map(dist => dist.id);
@@ -468,45 +516,19 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Format date with time component using Moment.js
     const releaseDate = formValue.releaseDate ? 
       moment(formValue.releaseDate).format() : 
-      moment().format();
+      null;
 
-    // Get spatial data from localStorage instead of form
-    let spatialData;
-    const storedDataset = localStorage.getItem('dataset_to_edit');
-    
-    if (storedDataset) {
-      // Use spatial from localStorage if available
-      const parsedStoredDataset = JSON.parse(storedDataset);
-      spatialData = parsedStoredDataset.spatial;
-    } else {
-      // Fallback to random point if no stored spatial data
-      spatialData = {
-        type: "Point",
-        coordinates: [
-          parseFloat((Math.random() * 180).toFixed(6)),
-          parseFloat((Math.random() * 90).toFixed(6))
-        ]
-      };
-    }
-
-    // Create the dataset object
+    // Create the dataset object with only user-provided data
     let dataset = {
       ...formValue,
       releaseDate,
       datasetDistribution,
-      // Ensure these are arrays even if empty
-      datasetDescription: formValue.datasetDescription || [],
-      theme: formValue.theme || [],
-      contactPoint: formValue.contactPoint || [],
-      keyword: formValue.keyword || [],
-      versionNotes: formValue.versionNotes || [],
-      // Use spatial data from localStorage
+      // Use user-defined spatial data
       spatial: spatialData
     };
     
     // Remove ID from the payload when updating
     const datasetId = formValue.id;
-    console.log('DATASET ID:' + datasetId);
     if (this.isEditing) {
       const { id, ...datasetWithoutId } = dataset;
       dataset = datasetWithoutId;

@@ -172,12 +172,23 @@ button[nbButton] {
   color: red;
 }
 
+.required-indicator {
+  color: #ff3d71;  // Nebular danger color
+  margin-left: 4px;
+  font-weight: bold;
+}
+
 .error-message {
   color: #ff3d71;
   font-size: 0.75rem;
   margin-top: 0.25rem;
   margin-bottom: 0.5rem;
   animation: fadeIn 0.3s ease-in-out;
+}
+
+// Style for required form controls that are invalid and touched
+.ng-invalid.ng-touched {
+  border-color: #ff3d71;
 }
 
 input.ng-invalid.ng-touched {
