@@ -348,6 +348,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return;
     }
 
+    // Check if ID contains forbidden strings that could interfere with ID matching
+    if (formData.id.includes(':')) {
+      this.toastrService.danger(
+        'Distribution ID cannot contain ":" as it is reserved for internal use',
+        'Invalid ID Format'
+      );
+      return;
+    }
+
     // Format the distribution object according to API requirements
     const distribution = {
       id: formData.id || this.generateDistributionId(),
@@ -609,7 +618,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
             
             // Now safely use forEach on the distributions
             this.distributions.forEach(dist => {
-              // Check if distribution ID matches any ID in distributionIds, ignoring the prefix
+              // Check if distribution ID matches any ID in distributionIds by extracting the identifier part
               const isSelected = distributionIds.some(datasetId => {
                 // Convert both to strings for consistency
                 const dsId = String(datasetId);
@@ -618,13 +627,21 @@ export class DatasetsNgsiEditorComponent implements OnInit {
                 // Direct match
                 if (dsId === distId) return true;
                 
-                // Handle the case when dataset ID has the prefix added
-                if (dsId.includes('urn:ngsi-ld:Dataset:items:')) {
-                  const normalizedId = dsId.replace('urn:ngsi-ld:Dataset:items:', '');
-                  return normalizedId === distId;
-                }
+                // Extract identifier part after "id:" or "items:" in both IDs
+                const getIdPart = (id: string): string => {
+                  if (id.includes(':id:')) {
+                    return id.split(':id:')[1];
+                  } else if (id.includes(':items:')) {
+                    return id.split(':items:')[1];
+                  }
+                  return id;
+                };
                 
-                return false;
+                const datasetIdPart = getIdPart(dsId);
+                const distributionIdPart = getIdPart(distId);
+                
+                // Compare the extracted identifier parts
+                return datasetIdPart === distributionIdPart;
               });
               
               this.selectedDistributions[dist.id] = isSelected;
