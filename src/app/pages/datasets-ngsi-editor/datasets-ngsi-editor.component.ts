@@ -155,37 +155,30 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       const storedDataset = localStorage.getItem('dataset_to_edit');
       if (storedDataset !== null) {
         let spatial = JSON.parse(storedDataset).spatial;
-        //if spatial is not an array, convert it to an array
-        if (!Array.isArray(spatial)) {
-          spatial = [spatial];
-        }
-        // Though the array will always be of one element, we iterate through it to handle multiple geometries if needed
-        for (const entity of spatial){
             // Handle different geometry types
-            if (entity.type === 'Point') {
+            if (spatial.type === 'Point') {
               // Create a marker for Point geometry
-              const [longitude, latitude] = entity.coordinates;
+              const [longitude, latitude] = spatial.coordinates;
               L.marker([latitude, longitude])
                 .bindPopup(`Point: [${latitude}, ${longitude}]`)
                 .addTo(geometry);
             } 
-            else if (entity.type === 'LineString') {
+            else if (spatial.type === 'LineString') {
               // Create a polyline for LineString geometry
               // Convert from GeoJSON [lng, lat] to Leaflet [lat, lng] format
-              const latLngs = entity.coordinates.map(coord => [coord[1], coord[0]]);
+              const latLngs = spatial.coordinates.map(coord => [coord[1], coord[0]]);
               L.polyline(latLngs, { color: 'blue' })
                 .bindPopup('LineString')
                 .addTo(geometry);
             }
-            else if (entity.type === 'Polygon') {
+            else if (spatial.type === 'Polygon') {
               // Create a polygon for Polygon geometry
               // For polygons, coordinates are nested arrays where the first array contains the outer ring
-              const latLngs = entity.coordinates[0].map(coord => [coord[1], coord[0]]);
+              const latLngs = spatial.coordinates[0].map(coord => [coord[1], coord[0]]);
               L.polygon(latLngs, { color: 'green' })
                 .bindPopup('Polygon')
                 .addTo(geometry);
             }
-        }
         
         // Add the FeatureGroup to the map
         geometry.addTo(this.map);
@@ -346,25 +339,33 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
 
     const formData = this.distributionForm.value;
+    
+    if (!formData.id) {
+      this.toastrService.danger(
+        'Please provide an ID for the distribution',
+        'ID Required'
+      );
+      return;
+    }
 
     // Format the distribution object according to API requirements
     const distribution = {
       id: formData.id || this.generateDistributionId(),
       title: formData.title,
-      description: formData.description || 'Distribution description',
-      accessUrl: [formData.accessUrl || ''],
-      downloadURL: formData.downloadURL || `urn:ngsi-ld:DistributionDCAT-AP:items:${this.generateRandomId()}`,
+      description: formData.description || '',
+      accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
+      downloadURL: formData.downloadURL,
       format: formData.format || 'CSV',
-      byteSize: formData.byteSize || Math.floor(Math.random() * 100000),
-      checksum: formData.checksum || this.generateRandomChecksum(),
-      rights: formData.rights || 'copyleft',
+      byteSize: formData.byteSize || 0,
+      checksum: formData.checksum || '',
+      rights: formData.rights || '',
       mediaType: formData.mediaType || '',
-      license: formData.license || 'CC-BY',
+      license: formData.license || '',
       releaseDate: formData.releaseDate ? 
-        moment(formData.releaseDate).format() : // Use moment format instead of toISOString
+        moment(formData.releaseDate).format() : 
         moment().format(),
       modifiedDate: formData.modifiedDate ? 
-        moment(formData.modifiedDate).format() : // Use moment format instead of toISOString
+        moment(formData.modifiedDate).format() : 
         moment().format()
     };
 
@@ -377,9 +378,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         
         // Reset the form
         this.distributionForm.reset({
-          format: 'CSV',
-          license: 'CC-BY',
-          rights: 'copyleft'
+          format: 'CSV'
         });
       },
       error: (error) => {
@@ -463,6 +462,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
+
+  // Method to create or update a dataset
   onCreateDataset(): void {
     const formValue = this.datasetForm.getRawValue();
     
@@ -493,11 +494,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Check for spatial data in localStorage
     const storedDataset = localStorage.getItem('dataset_to_edit');
-    let spatialData;
+    let spatialData: [Object];
     
     if (storedDataset) {
       const parsedStoredDataset = JSON.parse(storedDataset);
-      spatialData = parsedStoredDataset.spatial;
+      //Make sure that spatialData is always an array
+      spatialData = [parsedStoredDataset.spatial];
     }
     
     if (!spatialData) {
@@ -523,7 +525,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       ...formValue,
       releaseDate,
       datasetDistribution,
-      // Use user-defined spatial data
       spatial: spatialData
     };
     
@@ -766,19 +767,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     } else {
       this.selectedDistributions = {};
     }
-  }
-
-  private generateRandomId(): string {
-    return `${Math.floor(Math.random() * 10000)}:${Math.floor(Math.random() * 100000000)}`;
-  }
-
-  private generateRandomChecksum(): string {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let result = '';
-    for (let i = 0; i < 4; i++) {
-      result += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    return result + '.';
   }
 
   isFieldInvalid(fieldName: string): boolean {
