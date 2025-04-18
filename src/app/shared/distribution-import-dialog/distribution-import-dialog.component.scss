@@ -1,0 +1,62 @@
+.import-dialog {
+  width: 700px;
+  max-width: 90vw;
+  max-height: 90vh;
+}
+
+.dialog-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.search-container {
+  margin-bottom: 1rem;
+}
+
+.distributions-list {
+  max-height: 50vh;
+  overflow-y: auto;
+  margin-top: 1rem;
+}
+
+.distribution-item {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  
+  .distribution-info {
+    margin-left: 1rem;
+    flex: 1;
+  }
+  
+  .distribution-id {
+    font-size: 0.9rem;
+    color: #666;
+    margin: 0.25rem 0;
+  }
+  
+  .distribution-description {
+    margin: 0.5rem 0;
+    font-size: 0.9rem;
+  }
+  
+  .distribution-details {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #666;
+    margin-top: 0.5rem;
+  }
+}
+
+nb-list-item.selected {
+  background-color: rgba(0, 149, 255, 0.1);
+}
+
+nb-card-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}

@@ -225,3 +225,9 @@ input.ng-invalid.ng-touched {
 .editing-mode {
   background-color: rgba(143, 155, 179, 0.08);
 }
+
+.distribution-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}

@@ -1,0 +1,56 @@
+<nb-card class="import-dialog">
+  <nb-card-header>
+    <div class="dialog-header">
+      <h4>Import Distributions</h4>
+      <button nbButton ghost (click)="cancel()">
+        <nb-icon icon="close-outline"></nb-icon>
+      </button>
+    </div>
+  </nb-card-header>
+  
+  <nb-card-body>
+    <div class="search-container">
+      <input nbInput 
+             [formControl]="searchControl"
+             placeholder="Search distributions..." 
+             fullWidth
+             fieldSize="large">
+    </div>
+
+    <div class="distributions-list">
+      <p *ngIf="loading">Loading distributions...</p>
+      <p *ngIf="!loading && filteredDistributions.length === 0">No distributions found</p>
+
+      <nb-list>
+        <nb-list-item *ngFor="let dist of filteredDistributions" 
+                      (click)="toggleDistribution(dist)"
+                      [class.selected]="isDistributionSelected(dist)">
+          <div class="distribution-item">
+            <!-- Prevent the click event propagation from the checkbox to the row -->
+            <nb-checkbox [checked]="isDistributionSelected(dist)"
+                        (click)="$event.stopPropagation()"
+                        (checkedChange)="toggleDistribution(dist)">
+            </nb-checkbox>
+            <div class="distribution-info">
+              <strong>{{ dist.title }}</strong>
+              <p class="distribution-id">ID: {{ dist.id }}</p>
+              <p class="distribution-description" *ngIf="dist.description">{{ dist.description }}</p>
+              <div class="distribution-details">
+                <span *ngIf="dist.format">Format: {{ dist.format }}</span>
+                <span *ngIf="dist.license">License: {{ dist.license }}</span>
+              </div>
+            </div>
+          </div>
+        </nb-list-item>
+      </nb-list>
+    </div>
+  </nb-card-body>
+  
+  <nb-card-footer>
+    <button nbButton status="basic" (click)="cancel()">Cancel</button>
+    <button nbButton status="primary" (click)="import()" 
+            [disabled]="!hasSelectedDistributions()">
+      Import Selected
+    </button>
+  </nb-card-footer>
+</nb-card>

@@ -7,6 +7,7 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
 import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component';
+import { DistributionImportDialogComponent } from '../../shared/distribution-import-dialog/distribution-import-dialog.component';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -65,19 +66,20 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         // Populate the form with existing data
         this.populateDatasetForm(parsedDataset);
         
-        // Load distributions and select those associated with this dataset
-        this.loadDistributions(parsedDataset);
+        // Load only distributions associated with this dataset
+        this.loadDistributionsForDataset(parsedDataset);
       } catch (error) {
         console.error('Error parsing dataset from localStorage:', error);
         this.isEditing = false;
-        this.loadDistributions();
+        // Start with an empty distributions list for new datasets
+        this.distributions = [];
       }
     } else {
       this.isEditing = false;
-      this.loadDistributions();
+      // Start with an empty distributions list for new datasets
+      this.distributions = [];
     }
   }
-
 
   //open street map tiles
   osm = L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
@@ -475,7 +477,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         }
       });
     } else {
-      // Original create logic
+      // Create new distribution
       this.ngsiDatasetsService.createDistribution(distribution).subscribe({
         next: (response) => {
           console.log('Distribution created successfully:', response);
@@ -551,37 +553,99 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
-  onImportDistributions(): void {
-    this.loadingDistributions = true;
+  /**
+   * Removes a distribution from the local list without deleting it from the system
+   * @param index Index of the distribution to remove
+   */
+  removeDistributionFromList(index: number): void {
+    if (index < 0 || index >= this.distributions.length) {
+      console.error('Invalid distribution index:', index);
+      return;
+    }
     
-    this.ngsiDatasetsService.getDistributions().subscribe({
-      next: (response) => {
-        if (response && response.length > 0) {
-          // Filter out distributions that are already in the list (avoid duplicates)
-          const newDistributions = response.filter(newDist => 
-            !this.distributions.some(existingDist => existingDist.id === newDist.id)
-          );
-          
-          // Add the new distributions to the existing array
-          if (newDistributions.length > 0) {
-            this.distributions = [...this.distributions, ...newDistributions];
-            console.log(`Imported ${newDistributions.length} new distributions`);
-          } else {
-            console.log('No new distributions to import');
-          }
-        } else {
-          console.log('No distributions available to import');
-        }
-        
-        this.loadingDistributions = false;
+    const distributionToRemove = this.distributions[index];
+    
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Remove Distribution',
+        message: `Are you sure you want to remove "${distributionToRemove.title}" from the list? The distribution will not be deleted from the system.`,
       },
-      error: (error) => {
-        console.error('Error loading distributions:', error);
-        this.loadingDistributions = false;
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Rimuove la distribuzione solo dall'array locale senza chiamare l'API di eliminazione
+        this.distributions.splice(index, 1);
+        
+        this.toastrService.info(
+          `Distribution "${distributionToRemove.title}" removed from the list`,
+          'Distribution Removed'
+        );
       }
     });
   }
 
+  onImportDistributions(): void {
+    this.loadingDistributions = true;
+    
+    // Fetch all distributions first
+    this.ngsiDatasetsService.getDistributions().subscribe({
+      next: (allDistributions) => {
+        this.loadingDistributions = false;
+        
+        if (!allDistributions || allDistributions.length === 0) {
+          this.toastrService.info(
+            'No distributions available to import',
+            'No Distributions'
+          );
+          return;
+        }
+        
+        // Filter out distributions that are already in the list
+        const availableDistributions = allDistributions.filter(newDist => 
+          !this.distributions.some(existingDist => existingDist.id === newDist.id)
+        );
+        
+        if (availableDistributions.length === 0) {
+          this.toastrService.info(
+            'All available distributions are already in your list',
+            'No New Distributions'
+          );
+          return;
+        }
+        
+        // Open the import dialog
+        const dialogRef = this.dialogService.open(DistributionImportDialogComponent, {
+          context: {
+            distributions: availableDistributions,
+            filteredDistributions: availableDistributions,
+            selectedDistributions: {} // Start with no selections
+          },
+          closeOnBackdropClick: true,
+          closeOnEsc: true,
+          hasScroll: false
+        });
+        
+        // Handle the dialog result
+        dialogRef.onClose.subscribe(selectedDistributions => {
+          if (selectedDistributions && selectedDistributions.length > 0) {
+            // Add the selected distributions to the existing list
+            this.distributions = [...this.distributions, ...selectedDistributions];
+            this.toastrService.success(
+              `Added ${selectedDistributions.length} distribution(s) to your list`,
+              'Import Successful'
+            );
+          }
+        });
+      },
+      error: (error) => {
+        console.error('Error fetching distributions for import:', error);
+        this.loadingDistributions = false;
+        this.toastrService.danger(
+          'Failed to fetch distributions. Please try again.',
+          'Error'
+        );
+      }
+    });
+  }
 
   // Method to create or update a dataset
   onCreateDataset(): void {
@@ -630,10 +694,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return;
     }
 
-    // Get distribution IDs for the datasetDistribution field
-    const datasetDistribution = this.distributions
-      .filter(dist => this.selectedDistributions[dist.id])
-      .map(dist => dist.id);
+    // Get all distribution IDs from the distributions array 
+    // (all distributions in the list are considered selected)
+    const datasetDistribution = this.distributions.map(dist => dist.id);
 
     // Format date with time component using Moment.js
     const releaseDate = formValue.releaseDate ? 
@@ -673,7 +736,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         // Reset form and navigate back
         this.datasetForm.reset();
         this.distributions = [];
-        this.selectedDistributions = {};
         this.router.navigate(['/pages/datasets-ngsi']);
       },
       error: (error) => {
@@ -948,6 +1010,75 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       setTimeout(() => {
         this.initMap();
       }, 100);
+      }
+    });
+  }
+
+  // New method to load only distributions associated with a dataset
+  loadDistributionsForDataset(dataset: any): void {
+    if (!dataset || !dataset.datasetDistribution) {
+      this.distributions = [];
+      return;
+    }
+
+    this.loadingDistributions = true;
+    
+    // Ensure distributionIds is always an array
+    let distributionIds = dataset.datasetDistribution;
+    if (!Array.isArray(distributionIds)) {
+      distributionIds = typeof distributionIds === 'string' ? [distributionIds] : [];
+    }
+    
+    if (distributionIds.length === 0) {
+      this.loadingDistributions = false;
+      this.distributions = [];
+      return;
+    }
+
+    // Get all distributions and filter them
+    this.ngsiDatasetsService.getDistributions().subscribe({
+      next: (allDistributions) => {
+        if (!allDistributions || allDistributions.length === 0) {
+          this.distributions = [];
+          this.loadingDistributions = false;
+          return;
+        }
+        
+        // Filter to keep only distributions associated with this dataset
+        this.distributions = allDistributions.filter(dist => {
+          return distributionIds.some(datasetId => {
+            // Convert both to strings for consistency
+            const dsId = String(datasetId);
+            const distId = String(dist.id);
+            
+            // Direct match
+            if (dsId === distId) return true;
+            
+            // Extract identifier part after "id:" or "items:" in both IDs
+            const getIdPart = (id: string): string => {
+              if (id.includes(':id:')) {
+                return id.split(':id:')[1];
+              } else if (id.includes(':items:')) {
+                return id.split(':items:')[1];
+              }
+              return id;
+            };
+            
+            const datasetIdPart = getIdPart(dsId);
+            const distributionIdPart = getIdPart(distId);
+            
+            // Compare the extracted identifier parts
+            return datasetIdPart === distributionIdPart;
+          });
+        });
+        
+        console.log(`Loaded ${this.distributions.length} distributions for dataset`);
+        this.loadingDistributions = false;
+      },
+      error: (error) => {
+        console.error('Error loading distributions for dataset:', error);
+        this.distributions = [];
+        this.loadingDistributions = false;
       }
     });
   }
