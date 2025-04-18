@@ -6,7 +6,11 @@
       <div class="step-content">
         <nb-card class="m-0 w-50">
         <!-- Left panel: distribution form -->
-        <form [formGroup]="distributionForm" class="distribution-form">
+        <form [formGroup]="distributionForm" id="distributionForm" class="distribution-form">
+          <nb-card-header>
+            {{ isEditingDistribution ? 'Edit Distribution' : 'Create New Distribution' }}
+          </nb-card-header>
+          
           <label for="distId">ID (Optional)</label>
           <input nbInput id="distId" formControlName="id" type="text" class="full-width-input" />
           
@@ -56,11 +60,21 @@
           <nb-datepicker #releaseDatePicker (dateChange)="onDateSelect($event, 'releaseDate')"></nb-datepicker>
           
           <div class="form-actions">
-            <button nbButton 
-                    status="primary" 
-                    (click)="createDistribution()"
-                    [disabled]="distributionForm.invalid">
-              Create Distribution
+            <button nbButton
+              type="submit"
+              status="primary"
+              [disabled]="distributionForm.invalid"
+              (click)="createDistribution()">
+              {{ isEditingDistribution ? 'Update Distribution' : 'Create Distribution' }}
+            </button>
+            
+            <button *ngIf="isEditingDistribution"
+              nbButton
+              type="button"
+              status="basic"
+              class="ml-2"
+              (click)="cancelEditDistribution()">
+              Cancel
             </button>
           </div>
         </form>
@@ -101,6 +115,10 @@
                       (click)="removeDistribution(i)">
                 <nb-icon *ngIf="!deletingDistributions[dist.id]" icon="trash-2-outline"></nb-icon>
                 <nb-icon *ngIf="deletingDistributions[dist.id]" icon="loader-outline" [spin]="true"></nb-icon>
+              </button>
+              <button nbButton status="info" size="small" (click)="editDistribution(dist)" 
+                      [disabled]="deletingDistributions[dist.id]">
+                <nb-icon icon="edit-outline"></nb-icon> Edit
               </button>
             </li>
           </ul>

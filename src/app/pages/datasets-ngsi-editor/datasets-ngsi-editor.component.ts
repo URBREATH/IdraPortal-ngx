@@ -15,7 +15,6 @@ import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component
 })
 export class DatasetsNgsiEditorComponent implements OnInit {
 
-  // Add this property to your component
   formatOptions: string[] = [
     'JSON',
     'CSV',
@@ -40,6 +39,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   public map: L.Map;
 
+  isEditingDistribution: boolean = false;
+  currentEditingDistributionId: string = null;
 
   constructor(
         private fb: FormBuilder,
@@ -326,6 +327,66 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.spatialPoints.removeAt(index);
   }
 
+  // Add this method to edit a distribution
+  editDistribution(distribution: any): void {
+    this.isEditingDistribution = true;
+    this.currentEditingDistributionId = distribution.id;
+    
+    // Reset and populate the form with existing distribution data
+    this.distributionForm.reset();
+    
+    // Convert arrays to single values for form fields
+    const accessUrl = Array.isArray(distribution.accessUrl) && distribution.accessUrl.length > 0 
+      ? distribution.accessUrl[0] 
+      : '';
+    
+    // Convert string dates to Date objects for the datepicker
+    let releaseDate = null;
+    let modifiedDate = null;
+    
+    if (distribution.releaseDate) {
+      const momentReleaseDate = moment(distribution.releaseDate);
+      if (momentReleaseDate.isValid()) {
+        releaseDate = momentReleaseDate.toDate();
+      }
+    }
+    
+    if (distribution.modifiedDate) {
+      const momentModifiedDate = moment(distribution.modifiedDate);
+      if (momentModifiedDate.isValid()) {
+        modifiedDate = momentModifiedDate.toDate();
+      }
+    }
+    
+    // Populate the form with existing data
+    this.distributionForm.patchValue({
+      id: distribution.id,
+      title: distribution.title,
+      description: distribution.description,
+      accessUrl: accessUrl,
+      downloadURL: distribution.downloadURL,
+      format: distribution.format,
+      byteSize: distribution.byteSize,
+      checksum: distribution.checksum,
+      rights: distribution.rights,
+      mediaType: distribution.mediaType,
+      license: distribution.license,
+      releaseDate: releaseDate,
+      modifiedDate: modifiedDate
+    });
+    
+    // Disable the ID field during editing
+    this.distributionForm.get('id').disable();
+    
+    // Scroll to the form section
+    setTimeout(() => {
+      const formElement = document.getElementById('distributionForm');
+      if (formElement) {
+        formElement.scrollIntoView({ behavior: 'smooth' });
+      }
+    }, 100);
+  }
+
   createDistribution(): void {
     // Mark all fields as touched to trigger validation display
     this.markFormGroupTouched(this.distributionForm);
@@ -340,7 +401,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     const formData = this.distributionForm.value;
     
-    if (!formData.id) {
+    if (!this.isEditingDistribution && !formData.id) {
       this.toastrService.danger(
         'Please provide an ID for the distribution',
         'ID Required'
@@ -349,7 +410,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
 
     // Check if ID contains forbidden strings that could interfere with ID matching
-    if (formData.id.includes(':')) {
+    if (!this.isEditingDistribution && (formData.id.includes(':') || formData.id.includes(':'))) {
       this.toastrService.danger(
         'Distribution ID cannot contain ":" as it is reserved for internal use',
         'Invalid ID Format'
@@ -359,7 +420,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     // Format the distribution object according to API requirements
     const distribution = {
-      id: formData.id || this.generateDistributionId(),
+      id: this.isEditingDistribution ? this.currentEditingDistributionId : formData.id,
       title: formData.title,
       description: formData.description || '',
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
@@ -378,29 +439,79 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         moment().format()
     };
 
-    this.ngsiDatasetsService.createDistribution(distribution).subscribe({
-      next: (response) => {
-        console.log('Distribution created successfully:', response);
-        
-        // Add the created distribution to local array
-        this.distributions.push(distribution);
-        
-        // Reset the form
-        this.distributionForm.reset({
-          format: 'CSV'
-        });
-      },
-      error: (error) => {
-        console.error('Error creating distribution:', error);
-      }
-    });
+    // Choose operation based on editing mode
+    if (this.isEditingDistribution) {
+      this.ngsiDatasetsService.updateDistribution(this.currentEditingDistributionId, distribution).subscribe({
+        next: (response) => {
+          console.log('Distribution updated successfully:', response);
+          
+          // Update the distribution in the local array
+          const index = this.distributions.findIndex(d => d.id === this.currentEditingDistributionId);
+          if (index !== -1) {
+            this.distributions[index] = distribution;
+          }
+          
+          // Reset form and editing state
+          this.distributionForm.reset({
+            format: 'CSV'
+          });
+          this.isEditingDistribution = false;
+          this.currentEditingDistributionId = null;
+          
+          // Enable ID field for next use
+          this.distributionForm.get('id').enable();
+          
+          this.toastrService.success(
+            'The distribution has been updated successfully',
+            'Distribution Updated'
+          );
+        },
+        error: (error) => {
+          console.error('Error updating distribution:', error);
+          this.toastrService.danger(
+            'Failed to update the distribution. Please try again.',
+            'Update Failed'
+          );
+        }
+      });
+    } else {
+      // Original create logic
+      this.ngsiDatasetsService.createDistribution(distribution).subscribe({
+        next: (response) => {
+          console.log('Distribution created successfully:', response);
+          
+          // Add the created distribution to local array
+          this.distributions.push(distribution);
+          
+          // Reset the form
+          this.distributionForm.reset({
+            format: 'CSV'
+          });
+          
+          this.toastrService.success(
+            'New distribution has been created successfully',
+            'Distribution Created'
+          );
+        },
+        error: (error) => {
+          console.error('Error creating distribution:', error);
+          this.toastrService.danger(
+            'Failed to create the distribution. Please try again.',
+            'Creation Failed'
+          );
+        }
+      });
+    }
   }
 
-  generateDistributionId(): string {
-    // Simple ID generator
-    const prefix = 'DIST';
-    const randomNum = Math.floor(Math.random() * 100000000);
-    return `${prefix}:${randomNum}`;
+  // Cancel editing a distribution
+  cancelEditDistribution(): void {
+    this.distributionForm.reset({
+      format: 'CSV'
+    });
+    this.isEditingDistribution = false;
+    this.currentEditingDistributionId = null;
+    this.distributionForm.get('id').enable();
   }
 
   removeDistribution(index: number): void {

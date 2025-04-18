@@ -72,4 +72,11 @@ export class NgsiDatasetsService {
     });
   }
 
+  updateDistribution(distributionId: string, distribution: any) {
+    return this.http.patch(`/api/distributiondcatap/${distributionId}`, distribution, {
+      responseType: 'text',
+      observe: 'response'
+    });
+  }
+
 }

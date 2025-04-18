@@ -212,3 +212,16 @@ input.ng-invalid.ng-touched {
 #map.map-hidden {
   visibility: hidden;
 }
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  margin-top: 1rem;
+}
+
+.editing-mode {
+  background-color: rgba(143, 155, 179, 0.08);
+}
