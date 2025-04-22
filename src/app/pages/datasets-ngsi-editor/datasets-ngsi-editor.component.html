@@ -64,8 +64,8 @@
               type="submit"
               status="primary"
               [disabled]="distributionForm.invalid"
-              (click)="createDistribution()">
-              {{ isEditingDistribution ? 'Update Distribution' : 'Create Distribution' }}
+              (click)="saveDistributionToLocalStorage()">
+              {{ isEditingDistribution ? 'Save Changes' : 'Add to List' }}
             </button>
             
             <button *ngIf="isEditingDistribution"
@@ -88,13 +88,6 @@
               <p *ngIf="distributions.length === 0">No distributions added yet</p>
             </div>
             
-            <button nbButton status="info" 
-                    [disabled]="loadingDistributions"
-                    (click)="onImportDistributions()">
-              <nb-icon *ngIf="loadingDistributions" icon="loader-outline" [spin]="true"></nb-icon>
-              <span *ngIf="!loadingDistributions">Import</span>
-              <span *ngIf="loadingDistributions">Loading...</span>
-            </button>
           </div>
           <ul>
             <li *ngFor="let dist of distributions; let i = index" class="distribution-item">
@@ -104,18 +97,11 @@
               </div>
               <div class="distribution-actions">
                 <button nbButton 
-                      status="warning" 
+                      status="danger"
                       size="small"
-                      ghost
-                      title="Remove from list"
-                      (click)="removeDistributionFromList(i)">
-                  <nb-icon icon="close-outline"></nb-icon>
-                </button>
-                <button nbButton 
-                      status="danger" 
                       [disabled]="deletingDistributions[dist.id]" 
                       (click)="removeDistribution(i)">
-                  <nb-icon *ngIf="!deletingDistributions[dist.id]" icon="trash-2-outline"></nb-icon>
+                  <nb-icon *ngIf="!deletingDistributions[dist.id]" icon="close-outline"></nb-icon>
                   <nb-icon *ngIf="deletingDistributions[dist.id]" icon="loader-outline" [spin]="true"></nb-icon>
                 </button>
                 <button nbButton status="info" size="small" (click)="editDistribution(dist)" 
@@ -278,7 +264,11 @@
         <button nbButton status="primary" (click)="stepper.previous()">
           Back
         </button>
-        <button nbButton status="success" (click)="onCreateDataset()">
+        <button nbButton 
+          status="success" 
+          [disabled]="datasetForm.invalid || distributions.length === 0 || isCreatingDataset"
+          (click)="createDatasetWithDistributions()">
+          <nb-icon *ngIf="isCreatingDataset" icon="loader-outline" [spin]="true"></nb-icon>
           {{ isEditing ? 'Update dataset' : 'Create dataset' }}
         </button>
       </div>

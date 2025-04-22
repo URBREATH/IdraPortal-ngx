@@ -7,7 +7,6 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
 import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component';
-import { DistributionImportDialogComponent } from '../../shared/distribution-import-dialog/distribution-import-dialog.component';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -42,6 +41,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   isEditingDistribution: boolean = false;
   currentEditingDistributionId: string = null;
+
+  isCreatingDataset: boolean = false;
+  pendingDistributions: any[] = [];
 
   constructor(
         private fb: FormBuilder,
@@ -198,7 +200,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   initForms(): void {
     // Initialize distribution form
     this.distributionForm = this.fb.group({
-      id: [''],
+      id: [{value: '', disabled: false}], // Explicitly set to enabled
       title: ['', Validators.required],
       format: ['CSV'],
       description: [''],
@@ -377,8 +379,14 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       modifiedDate: modifiedDate
     });
     
-    // Disable the ID field during editing
-    this.distributionForm.get('id').disable();
+    // Only disable the ID field if this is a server-persisted distribution (not local-only)
+    // Distributions created via API won't have isNew flag, those only in localStorage will
+    if (!distribution.isNew) {
+      this.distributionForm.get('id').disable();
+    } else {
+      // For local-only distributions, enable the ID field
+      this.distributionForm.get('id').enable();
+    }
     
     // Scroll to the form section
     setTimeout(() => {
@@ -389,7 +397,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }, 100);
   }
 
-  createDistribution(): void {
+  saveDistributionToLocalStorage(): void {
     // Mark all fields as touched to trigger validation display
     this.markFormGroupTouched(this.distributionForm);
     
@@ -438,75 +446,207 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         moment().format(),
       modifiedDate: formData.modifiedDate ? 
         moment(formData.modifiedDate).format() : 
-        moment().format()
+        moment().format(),
+      // Modified this section to preserve the isNew flag when editing
+      isNew: this.isEditingDistribution 
+        ? this.distributions.find(d => d.id === this.currentEditingDistributionId)?.isNew || false 
+        : true,
+      isEdited: this.isEditingDistribution
     };
 
-    // Choose operation based on editing mode
     if (this.isEditingDistribution) {
-      this.ngsiDatasetsService.updateDistribution(this.currentEditingDistributionId, distribution).subscribe({
-        next: (response) => {
-          console.log('Distribution updated successfully:', response);
-          
-          // Update the distribution in the local array
-          const index = this.distributions.findIndex(d => d.id === this.currentEditingDistributionId);
-          if (index !== -1) {
-            this.distributions[index] = distribution;
-          }
-          
-          // Reset form and editing state
-          this.distributionForm.reset({
-            format: 'CSV'
-          });
-          this.isEditingDistribution = false;
-          this.currentEditingDistributionId = null;
-          
-          // Enable ID field for next use
-          this.distributionForm.get('id').enable();
-          
-          this.toastrService.success(
-            'The distribution has been updated successfully',
-            'Distribution Updated'
-          );
-        },
-        error: (error) => {
-          console.error('Error updating distribution:', error);
-          this.toastrService.danger(
-            'Failed to update the distribution. Please try again.',
-            'Update Failed'
-          );
-        }
-      });
+      // Replace existing distribution in the array
+      const index = this.distributions.findIndex(d => d.id === this.currentEditingDistributionId);
+      if (index !== -1) {
+        this.distributions[index] = distribution;
+        this.toastrService.success(
+          'The distribution has been updated in the list',
+          'Distribution Updated'
+        );
+      }
     } else {
-      // Create new distribution
-      this.ngsiDatasetsService.createDistribution(distribution).subscribe({
-        next: (response) => {
-          console.log('Distribution created successfully:', response);
-          
-          // Add the created distribution to local array
-          this.distributions.push(distribution);
-          
-          // Reset the form
-          this.distributionForm.reset({
-            format: 'CSV'
-          });
-          
-          this.toastrService.success(
-            'New distribution has been created successfully',
-            'Distribution Created'
-          );
-        },
-        error: (error) => {
-          console.error('Error creating distribution:', error);
-          this.toastrService.danger(
-            'Failed to create the distribution. Please try again.',
-            'Creation Failed'
-          );
-        }
-      });
+      // Check if a distribution with the same ID already exists in the list
+      if (this.distributions.some(d => d.id === distribution.id)) {
+        this.toastrService.danger(
+          'A distribution with this ID already exists in the list',
+          'Duplicate ID'
+        );
+        return;
+      }
+      // Add the new distribution to the local array
+      this.distributions.push(distribution);
+      this.toastrService.success(
+        'Distribution added to the list',
+        'Distribution Added'
+      );
     }
+    
+    // Reset form and editing state
+    this.distributionForm.reset({
+      format: 'CSV'
+    });
+    this.isEditingDistribution = false;
+    this.currentEditingDistributionId = null;
+    this.distributionForm.get('id').enable();
   }
 
-  // Cancel editing a distribution
+  createDatasetWithDistributions(): void {
+    // Validate dataset form first
+    if (this.datasetForm.invalid) {
+      this.toastrService.danger(
+        'Please complete all required dataset fields',
+        'Form Invalid'
+      );
+      return;
+    }
+    
+    if (this.distributions.length === 0) {
+      this.toastrService.danger(
+        'Please add at least one distribution',
+        'No Distributions'
+      );
+      return;
+    }
+    
+    this.isCreatingDataset = true;
+    
+    // Categorize distributions: new ones to create, existing ones that were edited
+    const newDistributions = this.distributions.filter(d => d.isNew === true);
+    const editedDistributions = this.distributions.filter(d => d.isEdited === true);
+    const unchangedDistributions = this.distributions.filter(d => !d.isNew && !d.isEdited);
+    
+    // Create a deep copy of distributions array to avoid modifying the UI list during processing
+    this.pendingDistributions = [...newDistributions, ...editedDistributions];
+    
+    if (this.pendingDistributions.length === 0) {
+      // If no distributions need to be created or updated, proceed directly to dataset creation
+      this.createOrUpdateDataset();
+      return;
+    }
+    
+    // Process distributions sequentially
+    this.processNextDistribution(0, () => {
+      // All distributions processed successfully, now create the dataset
+      this.createOrUpdateDataset();
+    });
+  }
+
+  private processNextDistribution(index: number, onComplete: () => void): void {
+    if (index >= this.pendingDistributions.length) {
+      // All distributions processed successfully
+      onComplete();
+      return;
+    }
+    
+    const distribution = this.pendingDistributions[index];
+    
+    // Remove the flags we added, which aren't needed for the API
+    const { isNew, isEdited, ...distToSend } = distribution;
+    
+    // Modified logic: 
+    // - If isNew=true: Always CREATE, regardless of whether it was edited locally
+    // - Only UPDATE if the distribution exists on server (isNew=false) and was edited (isEdited=true)
+    const operation = isNew 
+      ? this.ngsiDatasetsService.createDistribution(distToSend)
+      : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
+    
+    operation.subscribe({
+      next: (response) => {
+        console.log(`Distribution ${distribution.id} ${isNew ? 'created' : 'updated'} successfully`);
+        // Process the next distribution
+        this.processNextDistribution(index + 1, onComplete);
+      },
+      error: (error) => {
+        console.error(`Error ${isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
+        this.isCreatingDataset = false;
+        this.toastrService.danger(
+          `Failed to ${isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
+          'Distribution Error'
+        );
+        // Do not proceed to dataset creation
+      }
+    });
+  }
+
+  private createOrUpdateDataset(): void {
+    const formValue = this.datasetForm.getRawValue();
+    
+    // Get all distribution IDs from the distributions array
+    const datasetDistribution = this.distributions.map(dist => dist.id);
+    
+    // Check for spatial data in localStorage
+    const storedDataset = localStorage.getItem('dataset_to_edit');
+    let spatialData: [Object];
+    
+    if (storedDataset) {
+      const parsedStoredDataset = JSON.parse(storedDataset);
+      //Make sure that spatialData is always an array
+      spatialData = [parsedStoredDataset.spatial];
+    }
+    
+    if (!spatialData) {
+      this.isCreatingDataset = false;
+      this.toastrService.danger(
+        'Please add a location on the map',
+        'Spatial Data Required'
+      );
+      return;
+    }
+    
+    // Format date with time component using Moment.js
+    const releaseDate = formValue.releaseDate ? 
+      moment(formValue.releaseDate).format() : 
+      null;
+    
+    // Create the dataset object with only user-provided data
+    let dataset = {
+      ...formValue,
+      releaseDate,
+      datasetDistribution,
+      spatial: spatialData
+    };
+    
+    // Remove ID from the payload when updating
+    const datasetId = formValue.id;
+    if (this.isEditing) {
+      const { id, ...datasetWithoutId } = dataset;
+      dataset = datasetWithoutId;
+    }
+    
+    // Choose between create or update
+    let operation;
+    if (this.isEditing) {
+      operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
+    } else {
+      operation = this.ngsiDatasetsService.createDataset(dataset);
+    }
+    
+    operation.subscribe({
+      next: (response) => {
+        console.log(`Dataset ${this.isEditing ? 'updated' : 'created'} successfully:`, response);
+        // Clear localStorage
+        localStorage.removeItem('dataset_to_edit');
+        // Reset form and navigate back
+        this.datasetForm.reset();
+        this.distributions = [];
+        this.isCreatingDataset = false;
+        this.router.navigate(['/pages/datasets-ngsi']);
+        this.toastrService.success(
+          `Dataset ${this.isEditing ? 'updated' : 'created'} successfully`,
+          'Success'
+        );
+      },
+      error: (error) => {
+        console.error(`Error ${this.isEditing ? 'updating' : 'creating'} dataset:`, error);
+        this.isCreatingDataset = false;
+        this.toastrService.danger(
+          `Failed to ${this.isEditing ? 'update' : 'create'} dataset: ${error.message || 'Unknown error'}`,
+          'Dataset Error'
+        );
+      }
+    });
+  }
+
   cancelEditDistribution(): void {
     this.distributionForm.reset({
       format: 'CSV'
@@ -579,167 +719,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           `Distribution "${distributionToRemove.title}" removed from the list`,
           'Distribution Removed'
         );
-      }
-    });
-  }
-
-  onImportDistributions(): void {
-    this.loadingDistributions = true;
-    
-    // Fetch all distributions first
-    this.ngsiDatasetsService.getDistributions().subscribe({
-      next: (allDistributions) => {
-        this.loadingDistributions = false;
-        
-        if (!allDistributions || allDistributions.length === 0) {
-          this.toastrService.info(
-            'No distributions available to import',
-            'No Distributions'
-          );
-          return;
-        }
-        
-        // Filter out distributions that are already in the list
-        const availableDistributions = allDistributions.filter(newDist => 
-          !this.distributions.some(existingDist => existingDist.id === newDist.id)
-        );
-        
-        if (availableDistributions.length === 0) {
-          this.toastrService.info(
-            'All available distributions are already in your list',
-            'No New Distributions'
-          );
-          return;
-        }
-        
-        // Open the import dialog
-        const dialogRef = this.dialogService.open(DistributionImportDialogComponent, {
-          context: {
-            distributions: availableDistributions,
-            filteredDistributions: availableDistributions,
-            selectedDistributions: {} // Start with no selections
-          },
-          closeOnBackdropClick: true,
-          closeOnEsc: true,
-          hasScroll: false
-        });
-        
-        // Handle the dialog result
-        dialogRef.onClose.subscribe(selectedDistributions => {
-          if (selectedDistributions && selectedDistributions.length > 0) {
-            // Add the selected distributions to the existing list
-            this.distributions = [...this.distributions, ...selectedDistributions];
-            this.toastrService.success(
-              `Added ${selectedDistributions.length} distribution(s) to your list`,
-              'Import Successful'
-            );
-          }
-        });
-      },
-      error: (error) => {
-        console.error('Error fetching distributions for import:', error);
-        this.loadingDistributions = false;
-        this.toastrService.danger(
-          'Failed to fetch distributions. Please try again.',
-          'Error'
-        );
-      }
-    });
-  }
-
-  // Method to create or update a dataset
-  onCreateDataset(): void {
-    const formValue = this.datasetForm.getRawValue();
-    
-    // Check for mandatory fields
-    if (!formValue.title) {
-      this.toastrService.danger(
-        'Please provide a title for the dataset',
-        'Title Required'
-      );
-      return;
-    }
-
-    if (!formValue.releaseDate) {
-      this.toastrService.danger(
-        'Please specify a release date',
-        'Release Date Required'
-      );
-      return;
-    }
-
-    if (!this.isEditing && !formValue.id) {
-      this.toastrService.danger(
-        'Please provide an ID for the dataset',
-        'ID Required'
-      );
-      return;
-    }
-    
-    // Check for spatial data in localStorage
-    const storedDataset = localStorage.getItem('dataset_to_edit');
-    let spatialData: [Object];
-    
-    if (storedDataset) {
-      const parsedStoredDataset = JSON.parse(storedDataset);
-      //Make sure that spatialData is always an array
-      spatialData = [parsedStoredDataset.spatial];
-    }
-    
-    if (!spatialData) {
-      this.toastrService.danger(
-        'Please add a location on the map',
-        'Spatial Data Required'
-      );
-      return;
-    }
-
-    // Get all distribution IDs from the distributions array 
-    // (all distributions in the list are considered selected)
-    const datasetDistribution = this.distributions.map(dist => dist.id);
-
-    // Format date with time component using Moment.js
-    const releaseDate = formValue.releaseDate ? 
-      moment(formValue.releaseDate).format() : 
-      null;
-
-    // Create the dataset object with only user-provided data
-    let dataset = {
-      ...formValue,
-      releaseDate,
-      datasetDistribution,
-      spatial: spatialData
-    };
-    
-    // Remove ID from the payload when updating
-    const datasetId = formValue.id;
-    if (this.isEditing) {
-      const { id, ...datasetWithoutId } = dataset;
-      dataset = datasetWithoutId;
-    }
-    
-    console.log(`${this.isEditing ? 'Updating' : 'Creating'} dataset with data:`, JSON.stringify(dataset));
-    
-    // Choose between create or update
-    let operation;
-    if (this.isEditing) {
-      operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
-    } else {
-      operation = this.ngsiDatasetsService.createDataset(dataset);
-    }
-    
-    operation.subscribe({
-      next: (response) => {
-        console.log(`Dataset ${this.isEditing ? 'updated' : 'created'} successfully:`, response);
-        // Clear localStorage
-        localStorage.removeItem('dataset_to_edit');
-        // Reset form and navigate back
-        this.datasetForm.reset();
-        this.distributions = [];
-        this.router.navigate(['/pages/datasets-ngsi']);
-      },
-      error: (error) => {
-        console.error(`Error ${this.isEditing ? 'updating' : 'creating'} dataset:`, error);
       }
     });
   }
