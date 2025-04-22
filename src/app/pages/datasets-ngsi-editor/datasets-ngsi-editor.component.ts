@@ -45,6 +45,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   isCreatingDataset: boolean = false;
   pendingDistributions: any[] = [];
 
+  distributionsToDelete: string[] = []; // Array of distribution IDs to delete
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
@@ -500,20 +502,66 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return;
     }
     
-    if (this.distributions.length === 0) {
-      this.toastrService.danger(
-        'Please add at least one distribution',
-        'No Distributions'
-      );
+    // Count active distributions (not marked for deletion)
+    const activeDistributionsCount = this.distributions.filter(d => !d.markedForDeletion).length;
+    
+    if (activeDistributionsCount === 0) {
+      // Show a dialog instead of just a toastr message
+      this.dialogService.open(ConfirmationDialogComponent, {
+        context: {
+          title: 'Cannot Proceed',
+          message: 'You cannot create or update a dataset without any active distributions. Please add at least one distribution or unmark some for deletion.',
+          confirmButtonText: 'OK',
+          showCancelButton: false
+        },
+      });
       return;
     }
     
     this.isCreatingDataset = true;
     
-    // Categorize distributions: new ones to create, existing ones that were edited
-    const newDistributions = this.distributions.filter(d => d.isNew === true);
-    const editedDistributions = this.distributions.filter(d => d.isEdited === true);
-    const unchangedDistributions = this.distributions.filter(d => !d.isNew && !d.isEdited);
+    // Process deletions first, then proceed with the rest of the workflow
+    if (this.distributionsToDelete.length > 0) {
+      this.processDistributionDeletions(0, () => {
+        this.processDistributionCreationsAndUpdates();
+      });
+    } else {
+      this.processDistributionCreationsAndUpdates();
+    }
+  }
+
+  private processDistributionDeletions(index: number, onComplete: () => void): void {
+    if (index >= this.distributionsToDelete.length) {
+      // All deletions processed
+      onComplete();
+      return;
+    }
+    
+    const distributionId = this.distributionsToDelete[index];
+    
+    this.ngsiDatasetsService.deleteDistribution(distributionId).subscribe({
+      next: () => {
+        console.log(`Distribution ${distributionId} deleted successfully`);
+        // Process next deletion
+        this.processDistributionDeletions(index + 1, onComplete);
+      },
+      error: (error) => {
+        console.error(`Error deleting distribution ${distributionId}:`, error);
+        this.isCreatingDataset = false;
+        this.toastrService.danger(
+          `Failed to delete distribution. Dataset update aborted.`,
+          'Distribution Deletion Error'
+        );
+        // Don't proceed if deletion fails
+      }
+    });
+  }
+
+  private processDistributionCreationsAndUpdates(): void {
+    // Filter out distributions marked for deletion
+    const activeDistributions = this.distributions.filter(d => !d.markedForDeletion);
+    const newDistributions = activeDistributions.filter(d => d.isNew === true);
+    const editedDistributions = activeDistributions.filter(d => d.isEdited === true && !d.isNew);
     
     // Create a deep copy of distributions array to avoid modifying the UI list during processing
     this.pendingDistributions = [...newDistributions, ...editedDistributions];
@@ -541,26 +589,24 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     const distribution = this.pendingDistributions[index];
     
     // Remove the flags we added, which aren't needed for the API
-    const { isNew, isEdited, ...distToSend } = distribution;
+    const { isNew, isEdited, markedForDeletion, ...distToSend } = distribution;
     
-    // Modified logic: 
-    // - If isNew=true: Always CREATE, regardless of whether it was edited locally
-    // - Only UPDATE if the distribution exists on server (isNew=false) and was edited (isEdited=true)
-    const operation = isNew 
+    // Choose between create or update based on the isNew flag
+    const operation = distribution.isNew 
       ? this.ngsiDatasetsService.createDistribution(distToSend)
       : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
     
     operation.subscribe({
       next: (response) => {
-        console.log(`Distribution ${distribution.id} ${isNew ? 'created' : 'updated'} successfully`);
+        console.log(`Distribution ${distribution.id} ${distribution.isNew ? 'created' : 'updated'} successfully`);
         // Process the next distribution
         this.processNextDistribution(index + 1, onComplete);
       },
       error: (error) => {
-        console.error(`Error ${isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
+        console.error(`Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
         this.isCreatingDataset = false;
         this.toastrService.danger(
-          `Failed to ${isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
+          `Failed to ${distribution.isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
           'Distribution Error'
         );
         // Do not proceed to dataset creation
@@ -571,8 +617,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   private createOrUpdateDataset(): void {
     const formValue = this.datasetForm.getRawValue();
     
-    // Get all distribution IDs from the distributions array
-    const datasetDistribution = this.distributions.map(dist => dist.id);
+    // Get only distribution IDs that aren't marked for deletion
+    const datasetDistribution = this.distributions
+      .filter(dist => !dist.markedForDeletion)
+      .map(dist => dist.id);
     
     // Check for spatial data in localStorage
     const storedDataset = localStorage.getItem('dataset_to_edit');
@@ -666,31 +714,54 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete Distribution',
-        message: `Are you sure you want to delete distribution "${distributionToDelete.title}"?`,
+        title: 'Mark Distribution for Deletion',
+        message: `Are you sure you want to delete distribution "${distributionToDelete.title}"? The deletion will be processed when the dataset is updated.`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        // Set loading state for this specific distribution
-        this.deletingDistributions[distributionToDelete.id] = true;
-        
-        this.ngsiDatasetsService.deleteDistribution(distributionToDelete.id).subscribe({
-          next: () => {
-            console.log(`Distribution ${distributionToDelete.id} deleted successfully`);
-            this.distributions.splice(index, 1);
-            delete this.deletingDistributions[distributionToDelete.id];
-          },
-          error: (error) => {
-            console.error(`Error deleting distribution ${distributionToDelete.id}:`, error);
-            delete this.deletingDistributions[distributionToDelete.id];
-            this.toastrService.danger(
-              error.message || 'Unknown error occurred',
-              'Failed to Delete Distribution'
-            );
+        // If it's a new distribution (not yet persisted), just remove it from the list
+        if (distributionToDelete.isNew) {
+          this.distributions.splice(index, 1);
+          this.toastrService.info(
+            `Distribution "${distributionToDelete.title}" removed from the list`,
+            'Distribution Removed'
+          );
+        } else {
+          // Mark existing distribution for deletion
+          distributionToDelete.markedForDeletion = true;
+          
+          // Add to array of distributions to delete
+          if (!this.distributionsToDelete.includes(distributionToDelete.id)) {
+            this.distributionsToDelete.push(distributionToDelete.id);
           }
-        });
+          
+          this.toastrService.info(
+            `Distribution "${distributionToDelete.title}" marked for deletion. The deletion will occur when the dataset is updated.`,
+            'Distribution Marked For Deletion'
+          );
+        }
       }
     });
+  }
+
+  undoDeleteDistribution(index: number): void {
+    const distribution = this.distributions[index];
+    
+    if (distribution) {
+      // Remove the markedForDeletion flag
+      distribution.markedForDeletion = false;
+      
+      // Remove from distributionsToDelete array
+      const deleteIndex = this.distributionsToDelete.indexOf(distribution.id);
+      if (deleteIndex !== -1) {
+        this.distributionsToDelete.splice(deleteIndex, 1);
+      }
+      
+      this.toastrService.success(
+        `Deletion of "${distribution.title}" canceled`,
+        'Distribution Restored'
+      );
+    }
   }
 
   /**
