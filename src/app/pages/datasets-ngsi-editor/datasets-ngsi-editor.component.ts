@@ -462,8 +462,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       if (index !== -1) {
         this.distributions[index] = distribution;
         this.toastrService.success(
-          'The distribution has been updated in the list',
-          'Distribution Updated'
+          'The distribution changes have been registered and will be applied when the dataset is created',
+          'Changes Saved'
         );
       }
     } else {
@@ -478,7 +478,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       // Add the new distribution to the local array
       this.distributions.push(distribution);
       this.toastrService.success(
-        'Distribution added to the list',
+        'Distribution added to the list and will be created when the dataset is saved',
         'Distribution Added'
       );
     }

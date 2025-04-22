@@ -238,6 +238,21 @@ input.ng-invalid.ng-touched {
   background-color: rgba(255, 0, 0, 0.05);
 }
 
+.current-editing {
+  background-color: rgba(0, 149, 255, 0.1);
+  border-left: 3px solid #0095ff;
+}
+
+.editing-badge {
+  display: inline-block;
+  background-color: #0095ff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
 .deletion-badge {
   display: inline-block;
   background-color: #ff3d71;

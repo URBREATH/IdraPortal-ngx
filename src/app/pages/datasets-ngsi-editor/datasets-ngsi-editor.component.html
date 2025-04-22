@@ -91,24 +91,29 @@
           </div>
           <ul>
             <li *ngFor="let dist of distributions; let i = index" class="distribution-item" 
-                [class.marked-for-deletion]="dist.markedForDeletion">
+                [class.marked-for-deletion]="dist.markedForDeletion"
+                [class.current-editing]="isEditingDistribution && currentEditingDistributionId === dist.id">
               <div>
                 <strong>{{ dist.title }} (ID: {{ dist.id }})</strong>
                 <p>{{ dist.description }}</p>
                 <span *ngIf="dist.markedForDeletion" class="deletion-badge">Pending Deletion</span>
+                <span *ngIf="isEditingDistribution && currentEditingDistributionId === dist.id" class="editing-badge">Currently Editing</span>
               </div>
               <div class="distribution-actions">
                 <button nbButton 
                       [status]="dist.markedForDeletion ? 'success' : 'danger'"
                       size="small"
-                      [disabled]="deletingDistributions[dist.id]" 
+                      [disabled]="deletingDistributions[dist.id] || (isEditingDistribution && currentEditingDistributionId === dist.id)" 
                       (click)="dist.markedForDeletion ? undoDeleteDistribution(i) : removeDistribution(i)">
                   <nb-icon *ngIf="!deletingDistributions[dist.id]" 
                            [icon]="dist.markedForDeletion ? 'undo-outline' : 'close-outline'"></nb-icon>
                   <nb-icon *ngIf="deletingDistributions[dist.id]" icon="loader-outline" [spin]="true"></nb-icon>
                 </button>
-                <button nbButton status="info" size="small" (click)="editDistribution(dist)" 
-                      [disabled]="deletingDistributions[dist.id] || dist.markedForDeletion">
+                <button nbButton 
+                       status="info" 
+                       size="small" 
+                       (click)="editDistribution(dist)" 
+                       [disabled]="deletingDistributions[dist.id] || dist.markedForDeletion || (isEditingDistribution && currentEditingDistributionId === dist.id)">
                   <nb-icon icon="edit-outline"></nb-icon> Edit
                 </button>
               </div>
