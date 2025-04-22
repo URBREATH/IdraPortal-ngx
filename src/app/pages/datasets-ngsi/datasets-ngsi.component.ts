@@ -6,7 +6,6 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
 
-
 @Component({
   selector: 'ngx-datasets-ngsi',
   templateUrl: './datasets-ngsi.component.html',
@@ -146,7 +145,10 @@ export class DatasetsNgsiComponent implements OnInit {
         
         // Delete each distribution first
         distributionIds.forEach(distId => {
-          this.ngsiDatasetsService.deleteDistribution(distId).subscribe({
+          // Transform the distribution ID format before sending to API
+          const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
+          
+          this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
             next: () => {
               deletedCount++;
               // When all distributions are processed, delete the dataset
@@ -155,7 +157,7 @@ export class DatasetsNgsiComponent implements OnInit {
               }
             },
             error: (error) => {
-              console.error(`Error deleting distribution ${distId}:`, error);
+              console.error(`Error deleting distribution ${transformedDistId}:`, error);
               errorCount++;
               if (deletedCount + errorCount === distributionIds.length) {
                 if (errorCount > 0) {
@@ -290,43 +292,115 @@ export class DatasetsNgsiComponent implements OnInit {
       return;
     }
 
+    // Raccogli tutti gli ID delle distribuzioni da tutti i dataset
+    const allDistributionIds: string[] = [];
+    this.ngsiDatasetsInfo.forEach(dataset => {
+      if (dataset.datasetDistribution) {
+        const distributionIds = Array.isArray(dataset.datasetDistribution)
+          ? dataset.datasetDistribution
+          : [dataset.datasetDistribution];
+        allDistributionIds.push(...distributionIds);
+      }
+    });
+
     // Show confirmation dialog
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
         title: 'Delete All Datasets',
-        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} datasets. This action cannot be undone. Are you sure you want to proceed?`,
+        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} datasets and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        // Track completed deletions
-        let completedCount = 0;
-        let errorCount = 0;
-        const totalCount = this.ngsiDatasetsInfo.length;
-        
-        // Get all dataset IDs
-        const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
-        
-        // Process each dataset to delete
-        allDatasetIds.forEach(datasetId => {
-          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
-            next: () => {
-              completedCount++;
-              // Check if all operations completed
-              if (completedCount + errorCount === totalCount) {
-                this.finalizeAllDeletion(completedCount, errorCount);
-              }
-            },
-            error: (error) => {
-              console.error(`Error deleting dataset ${datasetId}:`, error);
-              errorCount++;
-              // Check if all operations completed
-              if (completedCount + errorCount === totalCount) {
-                this.finalizeAllDeletion(completedCount, errorCount);
-              }
-            }
-          });
-        });
+        // Prima elimina tutte le distribuzioni
+        if (allDistributionIds.length > 0) {
+          this.deleteAllDistributions(allDistributionIds);
+        } else {
+          // Se non ci sono distribuzioni, procedi direttamente con l'eliminazione dei dataset
+          this.deleteAllDatasetsOnly();
+        }
       }
+    });
+  }
+
+  // Update deleteAllDistributions method to transform distribution IDs
+  private deleteAllDistributions(distributionIds: string[]): void {
+    let completedCount = 0;
+    let errorCount = 0;
+    const totalCount = distributionIds.length;
+    
+    this.toastrService.info(
+      `Deleting ${totalCount} distributions in progress...`,
+      'Deletion in progress'
+    );
+    
+    distributionIds.forEach(distId => {
+      // Transform the distribution ID format before sending to API
+      const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
+      
+      this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
+        next: () => {
+          completedCount++;
+          // Check if all operations completed
+          if (completedCount + errorCount === totalCount) {
+            if (errorCount > 0) {
+              this.toastrService.warning(
+                `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
+                'Partial deletion'
+              );
+            }
+            // Proceed with dataset deletion after all distributions are processed
+            this.deleteAllDatasetsOnly();
+          }
+        },
+        error: (error) => {
+          console.error(`Error deleting distribution ${transformedDistId}:`, error);
+          errorCount++;
+          if (completedCount + errorCount === totalCount) {
+            this.toastrService.warning(
+              `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
+              'Partial deletion'
+            );
+            // Still proceed with dataset deletion even if some distribution deletions failed
+            this.deleteAllDatasetsOnly();
+          }
+        }
+      });
+    });
+  }
+
+  // Metodo modificato per eliminare solo i dataset
+  private deleteAllDatasetsOnly(): void {
+    let completedCount = 0;
+    let errorCount = 0;
+    const totalCount = this.ngsiDatasetsInfo.length;
+    
+    // Get all dataset IDs
+    const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
+    
+    this.toastrService.info(
+      `Deleting ${totalCount} datasets in progress...`,
+      'Deletion in progress'
+    );
+    
+    // Process each dataset to delete
+    allDatasetIds.forEach(datasetId => {
+      this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+        next: () => {
+          completedCount++;
+          // Check if all operations completed
+          if (completedCount + errorCount === totalCount) {
+            this.finalizeAllDeletion(completedCount, errorCount);
+          }
+        },
+        error: (error) => {
+          console.error(`Error deleting dataset ${datasetId}:`, error);
+          errorCount++;
+          // Check if all operations completed
+          if (completedCount + errorCount === totalCount) {
+            this.finalizeAllDeletion(completedCount, errorCount);
+          }
+        }
+      });
     });
   }
 
