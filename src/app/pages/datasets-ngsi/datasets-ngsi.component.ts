@@ -115,30 +115,82 @@ export class DatasetsNgsiComponent implements OnInit {
 
   // Delete a single dataset
   deleteDataset(datasetId: string): void {
+    // Find the dataset to get its distributions
+    const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
+    if (!dataset) {
+      this.toastrService.danger('Dataset not found', 'Error');
+      return;
+    }
+
+    // Ensure datasetDistribution is always an array
+    const distributionIds = Array.isArray(dataset.datasetDistribution) 
+      ? dataset.datasetDistribution 
+      : (dataset.datasetDistribution ? [dataset.datasetDistribution] : []);
+
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
         title: 'Delete Dataset',
-        message: 'Are you sure you want to delete this dataset?',
+        message: `Are you sure you want to delete this dataset${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
-          next: () => {
-            this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
-            this.displayedDatasets = this.displayedDatasets.filter(ds => ds.id !== datasetId);
-            
-            const index = this.datasetsToDelete.indexOf(datasetId);
-            if (index > -1) {
-              this.datasetsToDelete.splice(index, 1);
+        // If no distributions, just delete the dataset
+        if (distributionIds.length === 0) {
+          this.performDatasetDeletion(datasetId);
+          return;
+        }
+
+        // Track distribution deletions
+        let deletedCount = 0;
+        let errorCount = 0;
+        
+        // Delete each distribution first
+        distributionIds.forEach(distId => {
+          this.ngsiDatasetsService.deleteDistribution(distId).subscribe({
+            next: () => {
+              deletedCount++;
+              // When all distributions are processed, delete the dataset
+              if (deletedCount + errorCount === distributionIds.length) {
+                this.performDatasetDeletion(datasetId);
+              }
+            },
+            error: (error) => {
+              console.error(`Error deleting distribution ${distId}:`, error);
+              errorCount++;
+              if (deletedCount + errorCount === distributionIds.length) {
+                if (errorCount > 0) {
+                  this.toastrService.warning(
+                    `Failed to delete ${errorCount} distributions. Proceeding with dataset deletion.`,
+                    'Warning'
+                  );
+                }
+                // Still try to delete the dataset even if some distributions failed
+                this.performDatasetDeletion(datasetId);
+              }
             }
-            
-            this.toastrService.success('Dataset deleted successfully', 'Success');
-          },
-          error: (error) => {
-            console.error('Error deleting dataset:', error);
-            this.toastrService.danger('Failed to delete dataset', 'Error');
-          }
+          });
         });
+      }
+    });
+  }
+
+  // Helper method to delete the dataset and update UI
+  private performDatasetDeletion(datasetId: string): void {
+    this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+      next: () => {
+        this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
+        this.displayedDatasets = this.displayedDatasets.filter(ds => ds.id !== datasetId);
+        
+        const index = this.datasetsToDelete.indexOf(datasetId);
+        if (index > -1) {
+          this.datasetsToDelete.splice(index, 1);
+        }
+        
+        this.toastrService.success('Dataset and associated distributions deleted successfully', 'Success');
+      },
+      error: (error) => {
+        console.error('Error deleting dataset:', error);
+        this.toastrService.danger('Failed to delete dataset: ' + (error.message || 'Unknown error'), 'Error');
       }
     });
   }
