@@ -1164,6 +1164,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     const value = inputElement.value?.trim();
     
     if (value && value.length > 0) {
+      // Check if we've reached the maximum number of keywords
+      if (this.keywordArray.length >= 10) {
+        this.toastrService.warning(
+          'Maximum of 10 keywords reached. Remove some keywords before adding more.',
+          'Keywords Limit'
+        );
+        return;
+      }
+      
       // Check for duplicates (case-insensitive)
       const isDuplicate = this.keywordArray.some(
         keyword => keyword.toLowerCase() === value.toLowerCase()
