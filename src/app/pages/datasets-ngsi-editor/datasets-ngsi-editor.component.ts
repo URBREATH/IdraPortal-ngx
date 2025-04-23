@@ -47,6 +47,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   distributionsToDelete: string[] = []; // Array of distribution IDs to delete
 
+  existingDatasetIds: string[] = []; // Array to store existing dataset IDs
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
@@ -58,6 +60,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   ngOnInit(): void {
     // Initialize form
     this.initForms();
+    
+    // Load existing dataset IDs for validation
+    this.loadExistingDatasetIds();
     
     // Check if we're editing an existing dataset
     const storedDataset = localStorage.getItem('dataset_to_edit');
@@ -219,8 +224,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     // Initialize dataset form with arrays for multi-value fields
     this.datasetForm = this.fb.group({
-      id: [''],
-      title: [''],
+      id: [''], // ID is optional for datasets too
+      title: ['', Validators.required], // Title is required
       datasetDescription: this.fb.array([this.createDescriptionField()]),
       description: [''],
       name: [''],
@@ -236,7 +241,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       version: [''],
       versionNotes: this.fb.array([this.createVersionNoteField()])
     });
-
   }
 
   // Helper methods for form arrays
@@ -399,8 +403,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }, 100);
   }
 
-  // Add this helper method to normalize titles for comparison
-  private normalizeTitle(title: string): string {
+  // Add this helper method to normalize titles or ID for comparison
+  private normalizeString(title: string): string {
     // Remove all spaces and convert to lowercase for consistent comparison
     return title.replace(/\s+/g, '').toLowerCase();
   }
@@ -429,9 +433,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     
     // Modified: Check title uniqueness among distributions not being edited (ignore spaces)
-    const normalizedNewTitle = this.normalizeTitle(formData.title);
+    const normalizedNewTitle = this.normalizeString(formData.title);
     if (!this.isEditingDistribution && 
-        this.distributions.some(d => this.normalizeTitle(d.title) === normalizedNewTitle)) {
+        this.distributions.some(d => this.normalizeString(d.title) === normalizedNewTitle)) {
       this.toastrService.danger(
         'A distribution with this title already exists in the list (ignoring spaces)',
         'Duplicate Title'
@@ -442,9 +446,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Modified: If editing, check if new title conflicts with any other distribution (ignore spaces)
     if (this.isEditingDistribution) {
       const existingDistribution = this.distributions.find(d => d.id === this.currentEditingDistributionId);
-      if (this.normalizeTitle(formData.title) !== this.normalizeTitle(existingDistribution.title) && 
+      if (this.normalizeString(formData.title) !== this.normalizeString(existingDistribution.title) && 
           this.distributions.some(d => 
-            this.normalizeTitle(d.title) === normalizedNewTitle && 
+            this.normalizeString(d.title) === normalizedNewTitle && 
             d.id !== this.currentEditingDistributionId)) {
         this.toastrService.danger(
           'A distribution with this title already exists in the list (ignoring spaces)',
@@ -532,6 +536,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   }
 
   createDatasetWithDistributions(): void {
+    // Mark all fields as touched to trigger validation display
+    this.markFormGroupTouched(this.datasetForm);
+    
     // Validate dataset form first
     if (this.datasetForm.invalid) {
       this.toastrService.danger(
@@ -539,6 +546,28 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         'Form Invalid'
       );
       return;
+    }
+    
+    // Get the dataset ID value, accounting for disabled form controls
+    const datasetId = this.datasetForm.get('id').value;
+    
+    // Only check for uniqueness if it's a new dataset with an ID provided
+    if (!this.isEditing && datasetId && datasetId.trim() !== '') {
+      // Use existing normalizeString method to normalize the dataset ID
+      const normalizedNewId = this.normalizeString(datasetId);
+      
+      // Check if this ID already exists among loaded datasets
+      const isDuplicateId = this.existingDatasetIds.some(existingId => 
+        this.normalizeString(existingId) === normalizedNewId
+      );
+      
+      if (isDuplicateId) {
+        this.toastrService.danger(
+          'A dataset with this ID already exists (ignoring spaces)',
+          'Duplicate ID'
+        );
+        return;
+      }
     }
     
     // Count active distributions (not marked for deletion)
@@ -693,7 +722,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       spatial: spatialData
     };
     
-    // Remove ID from the payload when updating
+    // If ID is empty or just whitespace, remove it from the payload and let backend generate it
+    if (!formValue.id || formValue.id.trim() === '') {
+      delete dataset.id;
+    }
+    
+    // Remove ID from the payload when updating (existing logic)
     const datasetId = formValue.id;
     if (this.isEditing) {
       const { id, ...datasetWithoutId } = dataset;
@@ -1168,6 +1202,19 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         console.error('Error loading distributions for dataset:', error);
         this.distributions = [];
         this.loadingDistributions = false;
+      }
+    });
+  }
+
+  // Add this method to load existing dataset IDs
+  loadExistingDatasetIds(): void {
+    this.ngsiDatasetsService.getDatasets().subscribe({
+      next: (datasets) => {
+        this.existingDatasetIds = datasets.map(dataset => dataset.id);
+      },
+      error: (error) => {
+        console.error('Error loading dataset IDs:', error);
+        this.existingDatasetIds = [];
       }
     });
   }
