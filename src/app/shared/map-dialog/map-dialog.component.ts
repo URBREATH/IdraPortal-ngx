@@ -72,7 +72,7 @@ export class MapDialogComponent implements OnInit {
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
       edit: { featureGroup: this.editableLayers },
-      position: "topright",
+      position: "topleft",
       draw: {
         rectangle: false,
         circle: false,
