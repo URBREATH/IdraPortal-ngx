@@ -287,3 +287,23 @@ nb-tag {
   margin-right: 6px;
   margin-bottom: 6px;
 }
+
+.contact-points-container {
+  margin-bottom: 15px;
+}
+
+.contact-points-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.contact-points-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.contact-input {
+  flex: 1;
+}

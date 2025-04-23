@@ -52,6 +52,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   // Array to store the keywords
   keywordArray: string[] = [];
 
+  // Array to store the contact points
+  contactPointArray: string[] = [];
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
@@ -235,7 +238,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       spatial: this.fb.array([]),
       releaseDate: [''],
       theme: this.fb.array([this.createThemeField()]),
-      contactPoint: this.fb.array([this.createContactPointField()]),
       creator: [''],
       accessRights: ['non-public'],
       frequency: [''],
@@ -248,17 +250,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return this.fb.control('');
   }
 
-  createContactPointField() {
-    return this.fb.control('');
-  }
-
   // Form array getters
   get themes() {
     return this.datasetForm.get('theme') as FormArray;
-  }
-
-  get contactPoints() {
-    return this.datasetForm.get('contactPoint') as FormArray;
   }
 
   get spatialPoints() {
@@ -270,17 +264,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.themes.push(this.createThemeField());
   }
 
-  addContactPoint() {
-    this.contactPoints.push(this.createContactPointField());
-  }
-
   // Methods to remove items from arrays
   removeTheme(index: number) {
     this.themes.removeAt(index);
-  }
-
-  removeContactPoint(index: number) {
-    this.contactPoints.removeAt(index);
   }
 
   removeSpatialPoint(index: number) {
@@ -665,12 +651,13 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       null;
     
     // Create the dataset object including keywords from keywordArray
-    // If keywordArray is empty, send [""] instead of an empty array
+    // If keywordArray or contactPoint are empty, send [""] instead of an empty array
     let dataset = {
       ...formValue,
       releaseDate,
       datasetDistribution,
       spatial: spatialData,
+      contactPoint: this.contactPointArray.length === 0 ? [""] : this.contactPointArray,
       keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray
     };
     
@@ -927,9 +914,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     while (this.themes.length > 0) {
       this.themes.removeAt(0);
     }
-    while (this.contactPoints.length > 0) {
-      this.contactPoints.removeAt(0);
-    }
     while (this.spatialPoints.length > 0) {
       this.spatialPoints.removeAt(0);
     }
@@ -974,12 +958,18 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.addTheme();
     }
     
-    if (dataset.contactPoint && dataset.contactPoint.length > 0) {
-      dataset.contactPoint.forEach((contact: string) => {
-        this.contactPoints.push(this.fb.control(contact));
-      });
+    // Set contact points using contactPointArray
+    if (dataset.contactPoint) {
+      if (Array.isArray(dataset.contactPoint)) {
+        this.contactPointArray = [...dataset.contactPoint];
+      } else if (typeof dataset.contactPoint === 'string') {
+        this.contactPointArray = [dataset.contactPoint];
+      } else {
+        this.contactPointArray = [];
+      }
+  
     } else {
-      this.addContactPoint();
+      this.contactPointArray = [];
     }
     
     // Debug log for keywords
@@ -1204,6 +1194,50 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.keywordArray.splice(index, 1);
       console.log('Removed keyword:', keyword);
       console.log('Current keywords:', this.keywordArray);
+    }
+  }
+
+  // Method to add a contact point from the input field
+  addContactPointFromInput(inputElement: HTMLInputElement): void {
+    const value = inputElement.value?.trim();
+    
+    if (value && value.length > 0) {
+      // Check if we've reached the maximum number of contact points
+      if (this.contactPointArray.length >= 5) {
+        this.toastrService.warning(
+          'Maximum of 5 contact points reached. Remove some contact points before adding more.',
+          'Contact Points Limit'
+        );
+        return;
+      }
+      
+      // Check for duplicates (case-insensitive)
+      const isDuplicate = this.contactPointArray.some(
+        contact => contact.toLowerCase() === value.toLowerCase()
+      );
+      
+      if (!isDuplicate) {
+        this.contactPointArray.push(value);
+      } else {
+        this.toastrService.warning(
+          `Contact point "${value}" already exists`,
+          'Duplicate Contact Point'
+        );
+      }
+      
+      // Clear the input
+      inputElement.value = '';
+      
+      // Focus back on the input for easy addition of multiple contact points
+      inputElement.focus();
+    }
+  }
+
+  // Method to remove a contact point from the array
+  removeContactPointTag(contact: string): void {
+    const index = this.contactPointArray.indexOf(contact);
+    if (index !== -1) {
+      this.contactPointArray.splice(index, 1);
     }
   }
 }

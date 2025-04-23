@@ -187,16 +187,32 @@
             <input nbInput id="publisher" formControlName="publisher" type="text" class="full-width-input" />
             
             <label>Contact Points</label>
-            <div formArrayName="contactPoint" class="array-field">
-              <div *ngFor="let cp of contactPoints.controls; let i = index" class="array-item">
-                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
-                <button nbButton status="danger" size="tiny" (click)="removeContactPoint(i)">
-                  <nb-icon icon="close-outline"></nb-icon>
+            <div class="contact-points-container">
+              <!-- Display tags -->
+              <div class="contact-points-tags" *ngIf="contactPointArray.length > 0">
+                <nb-tag *ngFor="let contact of contactPointArray"
+                        [text]="contact"
+                        status="info" 
+                        appearance="filled"
+                        size="medium"
+                        removable
+                        (remove)="removeContactPointTag(contact)">
+                </nb-tag>
+              </div>
+              
+              <!-- Input field and button -->
+              <div class="contact-points-input-group">
+                <input nbInput
+                       #contactInput
+                       placeholder="Type contact point"
+                       class="contact-input" />
+                <button nbButton
+                        status="info"
+                        size="small"
+                        (click)="addContactPointFromInput(contactInput)">
+                  <nb-icon icon="plus-outline"></nb-icon>
                 </button>
               </div>
-              <button nbButton status="info" size="small" (click)="addContactPoint()">
-                <nb-icon icon="plus-outline"></nb-icon> Add Contact Point
-              </button>
             </div>
             
             <label for="creator">Creator</label>
