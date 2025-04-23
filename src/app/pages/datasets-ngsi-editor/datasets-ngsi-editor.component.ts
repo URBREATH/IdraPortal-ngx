@@ -226,7 +226,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.datasetForm = this.fb.group({
       id: [''], // ID is optional for datasets too
       title: ['', Validators.required], // Title is required
-      datasetDescription: this.fb.array([this.createDescriptionField()]),
       description: [''],
       name: [''],
       publisher: [''],
@@ -238,16 +237,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       keyword: this.fb.array([this.createKeywordField()]),
       accessRights: ['non-public'],
       frequency: [''],
-      version: [''],
-      versionNotes: this.fb.array([this.createVersionNoteField()])
+      version: ['']
     });
   }
 
   // Helper methods for form arrays
-  createDescriptionField() {
-    return this.fb.control('');
-  }
-
   createThemeField() {
     return this.fb.control('');
   }
@@ -260,17 +254,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return this.fb.control('');
   }
 
-  createVersionNoteField() {
-    return this.fb.control('');
-  }
-
-  
-
   // Form array getters
-  get datasetDescriptions() {
-    return this.datasetForm.get('datasetDescription') as FormArray;
-  }
-
   get themes() {
     return this.datasetForm.get('theme') as FormArray;
   }
@@ -283,19 +267,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return this.datasetForm.get('keyword') as FormArray;
   }
 
-  get versionNotesArray() {
-    return this.datasetForm.get('versionNotes') as FormArray;
-  }
-
   get spatialPoints() {
     return this.datasetForm.get('spatial') as FormArray;
   }
 
   // Methods to add new items to arrays
-  addDatasetDescription() {
-    this.datasetDescriptions.push(this.createDescriptionField());
-  }
-
   addTheme() {
     this.themes.push(this.createThemeField());
   }
@@ -308,15 +284,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.keywords.push(this.createKeywordField());
   }
 
-  addVersionNote() {
-    this.versionNotesArray.push(this.createVersionNoteField());
-  }
-
   // Methods to remove items from arrays
-  removeDatasetDescription(index: number) {
-    this.datasetDescriptions.removeAt(index);
-  }
-
   removeTheme(index: number) {
     this.themes.removeAt(index);
   }
@@ -327,10 +295,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   removeKeyword(index: number) {
     this.keywords.removeAt(index);
-  }
-
-  removeVersionNote(index: number) {
-    this.versionNotesArray.removeAt(index);
   }
 
   removeSpatialPoint(index: number) {
@@ -972,9 +936,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     console.log('Populating form with dataset:', dataset);
     
     // Clear existing form arrays
-    while (this.datasetDescriptions.length > 0) {
-      this.datasetDescriptions.removeAt(0);
-    }
     while (this.themes.length > 0) {
       this.themes.removeAt(0);
     }
@@ -983,9 +944,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     while (this.keywords.length > 0) {
       this.keywords.removeAt(0);
-    }
-    while (this.versionNotesArray.length > 0) {
-      this.versionNotesArray.removeAt(0);
     }
     while (this.spatialPoints.length > 0) {
       this.spatialPoints.removeAt(0);
@@ -1023,14 +981,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     
     // Set array fields
-    if (dataset.datasetDescription && dataset.datasetDescription.length > 0) {
-      dataset.datasetDescription.forEach((desc: string) => {
-        this.datasetDescriptions.push(this.fb.control(desc));
-      });
-    } else {
-      this.addDatasetDescription();
-    }
-    
     if (dataset.theme && dataset.theme.length > 0) {
       dataset.theme.forEach((theme: string) => {
         this.themes.push(this.fb.control(theme));
@@ -1054,15 +1004,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     } else {
       this.addKeyword();
     }
-    
-    if (dataset.versionNotes && dataset.versionNotes.length > 0) {
-      dataset.versionNotes.forEach((note: string) => {
-        this.versionNotesArray.push(this.fb.control(note));
-      });
-    } else {
-      this.addVersionNote();
-    }
-    
   }
 
   // Check if all distributions are selected
