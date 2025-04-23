@@ -97,8 +97,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Check if we're leaving step 2 (index 1) and clean up the map
     if (this.selectedStepIndex === 1 && stepperIndex !== 1) {
       this.cleanupMap();
-    }
-    
+    }    
+
     this.selectedStepIndex = stepperIndex;
     
     // Call initMap specifically when we reach step 2 (index 1)
@@ -399,6 +399,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }, 100);
   }
 
+  // Add this helper method to normalize titles for comparison
+  private normalizeTitle(title: string): string {
+    // Remove all spaces and convert to lowercase for consistent comparison
+    return title.replace(/\s+/g, '').toLowerCase();
+  }
+
   saveDistributionToLocalStorage(): void {
     // Mark all fields as touched to trigger validation display
     this.markFormGroupTouched(this.distributionForm);
@@ -413,16 +419,47 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     const formData = this.distributionForm.value;
     
-    if (!this.isEditingDistribution && !formData.id) {
+    // Title is required and must be unique
+    if (!formData.title.trim()) {
       this.toastrService.danger(
-        'Please provide an ID for the distribution',
-        'ID Required'
+        'Please provide a title for the distribution',
+        'Title Required'
       );
       return;
     }
+    
+    // Modified: Check title uniqueness among distributions not being edited (ignore spaces)
+    const normalizedNewTitle = this.normalizeTitle(formData.title);
+    if (!this.isEditingDistribution && 
+        this.distributions.some(d => this.normalizeTitle(d.title) === normalizedNewTitle)) {
+      this.toastrService.danger(
+        'A distribution with this title already exists in the list (ignoring spaces)',
+        'Duplicate Title'
+      );
+      return;
+    }
+    
+    // Modified: If editing, check if new title conflicts with any other distribution (ignore spaces)
+    if (this.isEditingDistribution) {
+      const existingDistribution = this.distributions.find(d => d.id === this.currentEditingDistributionId);
+      if (this.normalizeTitle(formData.title) !== this.normalizeTitle(existingDistribution.title) && 
+          this.distributions.some(d => 
+            this.normalizeTitle(d.title) === normalizedNewTitle && 
+            d.id !== this.currentEditingDistributionId)) {
+        this.toastrService.danger(
+          'A distribution with this title already exists in the list (ignoring spaces)',
+          'Duplicate Title'
+        );
+        return;
+      }
+    }
 
-    // Check if ID contains forbidden strings that could interfere with ID matching
-    if (!this.isEditingDistribution && (formData.id.includes(':') || formData.id.includes(':'))) {
+    // Use the ID provided by the user or null (let backend generate it)
+    const distributionId = formData.id || null;
+    
+    // Check if ID contains forbidden characters
+    if (formData.id && (!this.isEditingDistribution || this.distributionForm.get('id').enabled) && 
+        (formData.id.includes(':') || formData.id.includes(':'))) {
       this.toastrService.danger(
         'Distribution ID cannot contain ":" as it is reserved for internal use',
         'Invalid ID Format'
@@ -430,9 +467,19 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return;
     }
 
+    // Find the existing distribution if we're editing
+    let existingDistribution = null;
+    if (this.isEditingDistribution) {
+      existingDistribution = this.distributions.find(d => d.id === this.currentEditingDistributionId);
+    }
+
     // Format the distribution object according to API requirements
     const distribution = {
-      id: this.isEditingDistribution ? this.currentEditingDistributionId : formData.id,
+      // Use the ID from the form if provided, otherwise null for new distributions
+      // For editing, keep the original ID unless a new one is provided
+      id: this.isEditingDistribution 
+        ? (existingDistribution?.isNew && formData.id ? formData.id : this.currentEditingDistributionId)
+        : distributionId,
       title: formData.title,
       description: formData.description || '',
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
@@ -449,15 +496,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       modifiedDate: formData.modifiedDate ? 
         moment(formData.modifiedDate).format() : 
         moment().format(),
-      // Modified this section to preserve the isNew flag when editing
       isNew: this.isEditingDistribution 
-        ? this.distributions.find(d => d.id === this.currentEditingDistributionId)?.isNew || false 
+        ? existingDistribution?.isNew || false 
         : true,
       isEdited: this.isEditingDistribution
     };
 
     if (this.isEditingDistribution) {
-      // Replace existing distribution in the array
+      // When editing a local-storage-only distribution, the ID might have changed
+      // So we need to update the ID reference for finding the index
       const index = this.distributions.findIndex(d => d.id === this.currentEditingDistributionId);
       if (index !== -1) {
         this.distributions[index] = distribution;
@@ -467,14 +514,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         );
       }
     } else {
-      // Check if a distribution with the same ID already exists in the list
-      if (this.distributions.some(d => d.id === distribution.id)) {
-        this.toastrService.danger(
-          'A distribution with this ID already exists in the list',
-          'Duplicate ID'
-        );
-        return;
-      }
       // Add the new distribution to the local array
       this.distributions.push(distribution);
       this.toastrService.success(
@@ -707,8 +746,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   removeDistribution(index: number): void {
     const distributionToDelete = this.distributions[index];
     
-    if (!distributionToDelete || !distributionToDelete.id) {
-      console.error('Invalid distribution or missing ID');
+    if (!distributionToDelete || !distributionToDelete.title) {
+      console.error('Invalid distribution or missing title');
       return;
     }
     
