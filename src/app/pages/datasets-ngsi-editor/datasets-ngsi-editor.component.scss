@@ -262,3 +262,28 @@ input.ng-invalid.ng-touched {
   font-size: 12px;
   margin-top: 4px;
 }
+
+.keywords-container {
+  margin-bottom: 15px;
+}
+
+.keywords-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.keywords-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.keyword-input {
+  flex: 1;
+}
+
+nb-tag {
+  margin-right: 6px;
+  margin-bottom: 6px;
+}

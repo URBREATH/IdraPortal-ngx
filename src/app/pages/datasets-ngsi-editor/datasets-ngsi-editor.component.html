@@ -150,16 +150,32 @@
             <input nbInput id="version" formControlName="version" type="text" class="full-width-input" />
             
             <label>Keywords</label>
-            <div formArrayName="keyword" class="array-field">
-              <div *ngFor="let kw of keywords.controls; let i = index" class="array-item">
-                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
-                <button nbButton status="danger" size="tiny" (click)="removeKeyword(i)">
-                  <nb-icon icon="close-outline"></nb-icon>
+            <div class="keywords-container">
+              <!-- Display tags -->
+              <div class="keywords-tags" *ngIf="keywordArray.length > 0">
+                <nb-tag *ngFor="let keyword of keywordArray; let i = index"
+                        [text]="keyword"
+                        status="primary"
+                        appearance="filled"
+                        size="medium"
+                        removable
+                        (remove)="removeKeywordTag(keyword)">
+                </nb-tag>
+              </div>
+              
+              <!-- Input field and button -->
+              <div class="keywords-input-group">
+                <input nbInput
+                       #keywordInput
+                       placeholder="Type keyword"
+                       class="keyword-input" />
+                <button nbButton
+                        status="info"
+                        size="small"
+                        (click)="addKeywordFromInput(keywordInput)">
+                  <nb-icon icon="plus-outline"></nb-icon> Add Keyword
                 </button>
               </div>
-              <button nbButton status="info" size="small" (click)="addKeyword()">
-                <nb-icon icon="plus-outline"></nb-icon> Add Keyword
-              </button>
             </div>
           </div>
           

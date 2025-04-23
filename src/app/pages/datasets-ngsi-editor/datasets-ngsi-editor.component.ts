@@ -49,6 +49,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   existingDatasetIds: string[] = []; // Array to store existing dataset IDs
 
+  // Array to store the keywords
+  keywordArray: string[] = [];
+
   constructor(
         private fb: FormBuilder,
         private ngsiDatasetsService: NgsiDatasetsService,
@@ -222,7 +225,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       modifiedDate: ['']
     });
 
-    // Initialize dataset form with arrays for multi-value fields
+    // Initialize dataset form
     this.datasetForm = this.fb.group({
       id: [''], // ID is optional for datasets too
       title: ['', Validators.required], // Title is required
@@ -234,7 +237,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       theme: this.fb.array([this.createThemeField()]),
       contactPoint: this.fb.array([this.createContactPointField()]),
       creator: [''],
-      keyword: this.fb.array([this.createKeywordField()]),
       accessRights: ['non-public'],
       frequency: [''],
       version: ['']
@@ -250,10 +252,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return this.fb.control('');
   }
 
-  createKeywordField() {
-    return this.fb.control('');
-  }
-
   // Form array getters
   get themes() {
     return this.datasetForm.get('theme') as FormArray;
@@ -261,10 +259,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   get contactPoints() {
     return this.datasetForm.get('contactPoint') as FormArray;
-  }
-
-  get keywords() {
-    return this.datasetForm.get('keyword') as FormArray;
   }
 
   get spatialPoints() {
@@ -280,10 +274,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     this.contactPoints.push(this.createContactPointField());
   }
 
-  addKeyword() {
-    this.keywords.push(this.createKeywordField());
-  }
-
   // Methods to remove items from arrays
   removeTheme(index: number) {
     this.themes.removeAt(index);
@@ -291,10 +281,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   removeContactPoint(index: number) {
     this.contactPoints.removeAt(index);
-  }
-
-  removeKeyword(index: number) {
-    this.keywords.removeAt(index);
   }
 
   removeSpatialPoint(index: number) {
@@ -678,12 +664,14 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       moment(formValue.releaseDate).format() : 
       null;
     
-    // Create the dataset object with only user-provided data
+    // Create the dataset object including keywords from keywordArray
+    // If keywordArray is empty, send [""] instead of an empty array
     let dataset = {
       ...formValue,
       releaseDate,
       datasetDistribution,
-      spatial: spatialData
+      spatial: spatialData,
+      keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray
     };
     
     // If ID is empty or just whitespace, remove it from the payload and let backend generate it
@@ -942,9 +930,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     while (this.contactPoints.length > 0) {
       this.contactPoints.removeAt(0);
     }
-    while (this.keywords.length > 0) {
-      this.keywords.removeAt(0);
-    }
     while (this.spatialPoints.length > 0) {
       this.spatialPoints.removeAt(0);
     }
@@ -997,13 +982,27 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.addContactPoint();
     }
     
-    if (dataset.keyword && dataset.keyword.length > 0) {
-      dataset.keyword.forEach((keyword: string) => {
-        this.keywords.push(this.fb.control(keyword));
-      });
+    // Debug log for keywords
+    console.log('Dataset keywords before processing:', dataset.keyword);
+    
+    // Set keywords using keywordArray - handle different possible formats
+    if (dataset.keyword) {
+      if (Array.isArray(dataset.keyword)) {
+        // It's already an array, use it directly
+        this.keywordArray = [...dataset.keyword];
+      } else if (typeof dataset.keyword === 'string') {
+        // It's a string, try to split it if it contains commas
+        this.keywordArray = dataset.keyword.split(',').map(k => k.trim()).filter(k => k);
+      } else {
+        // Unknown format, initialize empty array
+        this.keywordArray = [];
+      }
     } else {
-      this.addKeyword();
+      // No keywords, initialize empty array
+      this.keywordArray = [];
     }
+    
+    console.log('Populated keywordArray:', this.keywordArray);
   }
 
   // Check if all distributions are selected
@@ -1158,5 +1157,44 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.existingDatasetIds = [];
       }
     });
+  }
+
+  // Method to add a keyword from the input field
+  addKeywordFromInput(inputElement: HTMLInputElement): void {
+    const value = inputElement.value?.trim();
+    
+    if (value && value.length > 0) {
+      // Check for duplicates (case-insensitive)
+      const isDuplicate = this.keywordArray.some(
+        keyword => keyword.toLowerCase() === value.toLowerCase()
+      );
+      
+      if (!isDuplicate) {
+        this.keywordArray.push(value);
+        console.log('Added keyword:', value);
+        console.log('Current keywords:', this.keywordArray);
+      } else {
+        this.toastrService.warning(
+          `Keyword "${value}" already exists`,
+          'Duplicate Keyword'
+        );
+      }
+      
+      // Clear the input
+      inputElement.value = '';
+      
+      // Focus back on the input for easy addition of multiple tags
+      inputElement.focus();
+    }
+  }
+
+  // Method to remove a keyword from the array
+  removeKeywordTag(keyword: string): void {
+    const index = this.keywordArray.indexOf(keyword);
+    if (index !== -1) {
+      this.keywordArray.splice(index, 1);
+      console.log('Removed keyword:', keyword);
+      console.log('Current keywords:', this.keywordArray);
+    }
   }
 }
