@@ -631,8 +631,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       moment(formValue.releaseDate).format() : 
       null;
     
-    // Check if the theme array is empty and apply the same pattern as keywords and contact points
+    // Check if the theme array is empty and apply the [""]
     const themeValue = !formValue.theme || formValue.theme.length === 0 ? [""] : formValue.theme;
+    
+    // Check if frequency is null or undefined and apply ""
+    const frequencyValue = !formValue.frequency ? "" : formValue.frequency;
     
     // Create the dataset object including keywords, contact points, and themes
     let dataset = {
@@ -643,6 +646,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       contactPoint: this.contactPointArray.length === 0 ? [""] : this.contactPointArray,
       keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray,
       theme: themeValue, // Override the theme with our handled value
+      frequency: frequencyValue, // Override the frequency with our handled value
       accessRights: 'public' // Always set to public
     };
     
