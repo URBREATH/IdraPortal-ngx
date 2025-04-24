@@ -314,3 +314,7 @@ label nb-icon {
   cursor: help;
   vertical-align: middle;
 }
+
+::ng-deep nb-tag {
+  text-transform: none;
+}
