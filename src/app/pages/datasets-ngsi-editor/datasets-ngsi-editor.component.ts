@@ -239,7 +239,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       releaseDate: [''],
       theme: [[]],  // Initialize as empty array
       creator: [''],
-      accessRights: ['non-public'],
       frequency: [''],
       version: ['']
     });
@@ -643,7 +642,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       spatial: spatialData,
       contactPoint: this.contactPointArray.length === 0 ? [""] : this.contactPointArray,
       keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray,
-      theme: themeValue // Override the theme with our handled value
+      theme: themeValue, // Override the theme with our handled value
+      accessRights: 'public' // Always set to public
     };
     
     // If ID is empty or just whitespace, remove it from the payload and let backend generate it
@@ -931,7 +931,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       publisher: dataset.publisher || '',
       releaseDate: releaseDate, 
       creator: dataset.creator || '',
-      accessRights: dataset.accessRights || 'non-public',
       frequency: dataset.frequency || '',
       version: dataset.version || '',
       theme: themeValue 
