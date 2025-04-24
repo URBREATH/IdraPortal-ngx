@@ -43,33 +43,6 @@ nb-card-footer {
   height: 100%;
   width: 100%;
   
-  .nb-overlay-container {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
-    overflow: auto;
-    z-index: 1050;
-    
-    .nb-dialog-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100%;
-      width: 100%;
-    }
-  }
-}
-
-/* Ensure Leaflet map in dialog displays properly */
-::ng-deep .leaflet-container {
-  z-index: 1052 !important;
-}
-
-/* Make background semi-transparent instead of hidden */
-::ng-deep .overlay-backdrop {
-  background-color: rgba(0, 0, 0, 0.5) !important;
 }
 
 /* Prevent scrolling but keep content visible */
