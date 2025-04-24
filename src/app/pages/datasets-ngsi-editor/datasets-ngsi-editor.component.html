@@ -39,17 +39,16 @@
             Download URL is required
           </div>
           
-          <div class="form-group">
-            <label for="format">Format</label>
-            <select 
-              id="format"
-              formControlName="format"
-              class="form-control">
-              <option *ngFor="let option of formatOptions" [value]="option">
-                {{ option }}
-              </option>
-            </select>
-          </div>
+          
+          <label for="format">Format</label>
+          <nb-select 
+            id="format"
+            formControlName="format"
+            class="form-control">
+            <nb-option *ngFor="let option of formatOptions" [value]="option">
+              {{ option }}
+            </nb-option>
+          </nb-select>
           
           <label for="license">License</label>
           <input nbInput id="license" formControlName="license" type="text" class="full-width-input" />
@@ -131,187 +130,182 @@
     <!-- Step 2: Create Dataset -->
     <nb-step label="Create dataset">
       <div class="step-content">
-        <form [formGroup]="datasetForm" class="dataset-form">
-          <div class="left-column">
-            <div class="form-group">
-              <label for="title">Title <span class="required-indicator">*</span></label>
+          <form [formGroup]="datasetForm" class="dataset-form">
+            <div class="left-column">
+              <label for="title" class="required-field">Title </label>
               <input nbInput fullWidth id="title" formControlName="title">
-            </div>
-
-            <div class="form-group">
-              <label for="datasetId">ID (optional)</label>
+                        
+              <label for="datasetId" class="required-field">ID (optional)</label>
               <input nbInput fullWidth id="datasetId" formControlName="id">
-            </div>
+                       
+              <label for="description">Description</label>
+              <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
             
-            <label for="description">Description</label>
-            <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
-            
-            <label for="version">
-              Version
-              <nb-icon
-                icon="info-outline"
-                status="primary" 
-                [nbTooltip]="'The version number or identifier of the dataset'"
-                nbTooltipStatus="primary">
-              </nb-icon>
-            </label>
-            <input nbInput id="version" formControlName="version" type="text" class="full-width-input" />
-            
-            <label>
-              Keywords
-              <nb-icon
-                icon="info-outline"
-                status="primary" 
-                [nbTooltip]="'Descriptive terms that might help other users in discovering the dataset'"
-                nbTooltipStatus="primary">
-              </nb-icon>
-            </label>
-            <div class="keywords-container">
-              <!-- Display tags -->
-              <div class="keywords-tags" *ngIf="keywordArray.length > 0">
-                <nb-tag *ngFor="let keyword of keywordArray; let i = index"
-                        [text]="keyword"
-                        appearance="filled"
-                        size="medium"
-                        removable
-                        (remove)="removeKeywordTag(keyword)">
-                </nb-tag>
-              </div>
-              
-              <!-- Input field and button -->
-              <div class="keywords-input-group">
-                <input nbInput
-                       #keywordInput
-                       placeholder="Type keyword"
-                       class="keyword-input" />
-                <button nbButton
-                        status="info"
-                        size="small"
-                        (click)="addKeywordFromInput(keywordInput)">
-                  <nb-icon icon="plus-outline"></nb-icon>
-                </button>
-              </div>
-            </div>
-          </div>
-          
-          <div class="mid-column">
-            <label for="name">Name</label>
-            <input nbInput id="name" formControlName="name" type="text" class="full-width-input" />
-            
-            <label for="publisher">Publisher</label>
-            <input nbInput id="publisher" formControlName="publisher" type="text" class="full-width-input" />
-            
-            <label>Contact Points</label>
-            <div class="contact-points-container">
-              <!-- Display tags -->
-              <div class="contact-points-tags" *ngIf="contactPointArray.length > 0">
-                <nb-tag *ngFor="let contact of contactPointArray"
-                        [text]="contact"
-                        appearance="filled"
-                        size="medium"
-                        removable
-                        (remove)="removeContactPointTag(contact)">
-                </nb-tag>
-              </div>
-              
-              <!-- Input field and button -->
-              <div class="contact-points-input-group">
-                <input nbInput
-                       #contactInput
-                       placeholder="Type contact point"
-                       class="contact-input" />
-                <button nbButton
-                        status="info"
-                        size="small"
-                        (click)="addContactPointFromInput(contactInput)">
-                  <nb-icon icon="plus-outline"></nb-icon>
-                </button>
-              </div>
-            </div>
-            
-            <label for="creator">Creator</label>
-            <input nbInput id="creator" formControlName="creator" type="text" class="full-width-input" />
-            
-            <div class="form-group">
-              <label for="releaseDate">Release Date <span class="required-indicator">*</span></label>
-              <input nbInput fullWidth id="releaseDate" formControlName="releaseDate"
-                     [nbDatepicker]="datepicker">
-              <nb-datepicker #datepicker></nb-datepicker>
-            </div>
-          </div>
-          <div class="right-column">
-            <label>
-              Themes
-              <nb-icon
-                icon="info-outline"
-                status="primary" 
-                [nbTooltip]="'EU Categories that classify the dataset content'"
-                nbTooltipStatus="primary">
-              </nb-icon>
-            </label>
-            <nb-select multiple fullWidth formControlName="theme" placeholder="Select themes">
-              <nb-option value="AGRI">Agriculture</nb-option>
-              <nb-option value="ECON">Economy</nb-option>
-              <nb-option value="EDUC">Education</nb-option>
-              <nb-option value="ENVI">Environment</nb-option>
-              <nb-option value="ENER">Energy</nb-option>
-              <nb-option value="GOVE">Government</nb-option>
-              <nb-option value="HEAL">Health</nb-option>
-              <nb-option value="JUST">Justice</nb-option>
-              <nb-option value="INTR">International</nb-option>
-              <nb-option value="REGI">Regions</nb-option>
-              <nb-option value="SOCI">Society</nb-option>
-              <nb-option value="TECH">Technology</nb-option>
-              <nb-option value="TRAN">Transportation</nb-option>
-            </nb-select>
-            
-            <div class="form-group">
-              <label for="frequency">
-                Frequency
+              <label for="version">
+                Version
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
-                  [nbTooltip]="'The frequency with which this dataset gets updated'"
+                  [nbTooltip]="'The version number or identifier of the dataset'"
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
-              <nb-select id="frequency" formControlName="frequency" class="full-width-input">
-                <nb-option>none</nb-option>
-                <nb-option value="DAILY">Daily</nb-option>
-                <nb-option value="WEEKLY">Weekly</nb-option>
-                <nb-option value="MONTHLY">Monthly</nb-option>
-              </nb-select>
-            </div>
+              <input nbInput id="version" formControlName="version" type="text" class="full-width-input" />
             
-            <!-- Spatial / map area -->
-            <div class="spatial-section">
-              <strong>
-                Spatial:
+              <label>
+                Keywords
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
-                  [nbTooltip]="'Geographic location that the dataset covers'"
+                  [nbTooltip]="'Descriptive terms that might help other users in discovering the dataset'"
                   nbTooltipStatus="primary">
                 </nb-icon>
-              </strong>
-              <span class="required-indicator">*</span>
-              <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
-                <div [formGroupName]="i" class="spatial-point">
-                  <div formArrayName="coordinates" class="coordinates-input">
-                    <div class="coordinate">
-                      <label>Longitude:</label>
-                      <input nbInput type="number" step="0.000001" [formControlName]="0" class="full-width-input" />
-                    </div>
-                    <div class="coordinate">
-                      <label>Latitude:</label>
-                      <input nbInput type="number" step="0.000001" [formControlName]="1" class="full-width-input" />
+              </label>
+              <div class="keywords-container">
+                <!-- Display tags -->
+                <div class="keywords-tags" *ngIf="keywordArray.length > 0">
+                  <nb-tag *ngFor="let keyword of keywordArray; let i = index"
+                          [text]="keyword"
+                          appearance="filled"
+                          size="medium"
+                          removable
+                          (remove)="removeKeywordTag(keyword)">
+                  </nb-tag>
+                </div>
+              
+                <!-- Input field and button -->
+                <div class="keywords-input-group">
+                  <input nbInput
+                        #keywordInput
+                        placeholder="Type keyword"
+                        class="keyword-input" />
+                  <button nbButton
+                          status="info"
+                          size="small"
+                          (click)="addKeywordFromInput(keywordInput)">
+                    <nb-icon icon="plus-outline"></nb-icon>
+                  </button>
+                </div>
+              </div>
+            </div>
+          
+            <div class="mid-column">
+              <label for="name">Name</label>
+              <input nbInput id="name" formControlName="name" type="text" class="full-width-input" />
+              
+              <label for="publisher">Publisher</label>
+              <input nbInput id="publisher" formControlName="publisher" type="text" class="full-width-input" />
+              
+              <label>Contact Points</label>
+              <div class="contact-points-container">
+                <!-- Display tags -->
+                <div class="contact-points-tags" *ngIf="contactPointArray.length > 0">
+                  <nb-tag *ngFor="let contact of contactPointArray"
+                          [text]="contact"
+                          appearance="filled"
+                          size="medium"
+                          removable
+                          (remove)="removeContactPointTag(contact)">
+                  </nb-tag>
+                </div>
+                
+                <!-- Input field and button -->
+                <div class="contact-points-input-group">
+                  <input nbInput
+                        #contactInput
+                        placeholder="Type contact point"
+                        class="contact-input" />
+                  <button nbButton
+                          status="info"
+                          size="small"
+                          (click)="addContactPointFromInput(contactInput)">
+                    <nb-icon icon="plus-outline"></nb-icon>
+                  </button>
+                </div>
+              </div>
+              
+              <label for="creator">Creator</label>
+              <input nbInput id="creator" formControlName="creator" type="text" class="full-width-input" />
+              
+              <div class="form-group">
+                <label for="releaseDate" class="required-field">Release Date</label>
+                <input nbInput fullWidth id="releaseDate" formControlName="releaseDate"
+                      [nbDatepicker]="datepicker">
+                <nb-datepicker #datepicker></nb-datepicker>
+              </div>
+            </div>
+            <div class="right-column">
+              <label>
+                Themes
+                <nb-icon
+                  icon="info-outline"
+                  status="primary" 
+                  [nbTooltip]="'EU Categories that classify the dataset content'"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
+              <nb-select multiple fullWidth formControlName="theme" placeholder="Select themes">
+                <nb-option value="AGRI">Agriculture</nb-option>
+                <nb-option value="ECON">Economy</nb-option>
+                <nb-option value="EDUC">Education</nb-option>
+                <nb-option value="ENVI">Environment</nb-option>
+                <nb-option value="ENER">Energy</nb-option>
+                <nb-option value="GOVE">Government</nb-option>
+                <nb-option value="HEAL">Health</nb-option>
+                <nb-option value="JUST">Justice</nb-option>
+                <nb-option value="INTR">International</nb-option>
+                <nb-option value="REGI">Regions</nb-option>
+                <nb-option value="SOCI">Society</nb-option>
+                <nb-option value="TECH">Technology</nb-option>
+                <nb-option value="TRAN">Transportation</nb-option>
+              </nb-select>
+              
+              <div class="form-group">
+                <label for="frequency">
+                  Frequency
+                  <nb-icon
+                    icon="info-outline"
+                    status="primary" 
+                    [nbTooltip]="'The frequency with which this dataset gets updated'"
+                    nbTooltipStatus="primary">
+                  </nb-icon>
+                </label>
+                <nb-select id="frequency" formControlName="frequency" class="full-width-input" placeholder="Select frequency">
+                  <nb-option>none</nb-option>
+                  <nb-option value="DAILY">Daily</nb-option>
+                  <nb-option value="WEEKLY">Weekly</nb-option>
+                  <nb-option value="MONTHLY">Monthly</nb-option>
+                </nb-select>
+              </div>
+              
+              <!-- Spatial / map area -->
+              <div class="spatial-section">
+                <strong class="required-field">
+                  Spatial:
+                  <nb-icon
+                    icon="info-outline"
+                    status="primary" 
+                    [nbTooltip]="'Geographic location that the dataset covers'"
+                    nbTooltipStatus="primary">
+                  </nb-icon>
+                </strong>
+                <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
+                  <div [formGroupName]="i" class="spatial-point">
+                    <div formArrayName="coordinates" class="coordinates-input">
+                      <div class="coordinate">
+                        <label>Longitude:</label>
+                        <input nbInput type="number" step="0.000001" [formControlName]="0" class="full-width-input" />
+                      </div>
+                      <div class="coordinate">
+                        <label>Latitude:</label>
+                        <input nbInput type="number" step="0.000001" [formControlName]="1" class="full-width-input" />
+                      </div>
                     </div>
                   </div>
                 </div>
+                <div id="map"></div>
               </div>
-              <div id="map"></div>
             </div>
-          </div>
         </form>
       </div>
       <div class="step-controls">
