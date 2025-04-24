@@ -146,10 +146,26 @@
             <label for="description">Description</label>
             <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
             
-            <label for="version">Version</label>
+            <label for="version">
+              Version
+              <nb-icon
+                icon="info-outline"
+                status="primary" 
+                [nbTooltip]="'The version number or identifier of the dataset'"
+                nbTooltipStatus="primary">
+              </nb-icon>
+            </label>
             <input nbInput id="version" formControlName="version" type="text" class="full-width-input" />
             
-            <label>Keywords</label>
+            <label>
+              Keywords
+              <nb-icon
+                icon="info-outline"
+                status="primary" 
+                [nbTooltip]="'Descriptive terms that might help other users in discovering the dataset'"
+                nbTooltipStatus="primary">
+              </nb-icon>
+            </label>
             <div class="keywords-container">
               <!-- Display tags -->
               <div class="keywords-tags" *ngIf="keywordArray.length > 0">
@@ -226,7 +242,15 @@
             </div>
           </div>
           <div class="right-column">
-            <label>Themes</label>
+            <label>
+              Themes
+              <nb-icon
+                icon="info-outline"
+                status="primary" 
+                [nbTooltip]="'EU Categories that classify the dataset content'"
+                nbTooltipStatus="primary">
+              </nb-icon>
+            </label>
             <nb-select multiple fullWidth formControlName="theme" placeholder="Select themes">
               <nb-option value="AGRI">Agriculture</nb-option>
               <nb-option value="ECON">Economy</nb-option>
@@ -243,17 +267,36 @@
               <nb-option value="TRAN">Transportation</nb-option>
             </nb-select>
             
-            <label for="frequency">Frequency</label>
-            <nb-select id="frequency" formControlName="frequency" class="full-width-input">
-              <nb-option>none</nb-option>
-              <nb-option value="DAILY">Daily</nb-option>
-              <nb-option value="WEEKLY">Weekly</nb-option>
-              <nb-option value="MONTHLY">Monthly</nb-option>
-            </nb-select>
+            <div class="form-group">
+              <label for="frequency">
+                Frequency
+                <nb-icon
+                  icon="info-outline"
+                  status="primary" 
+                  [nbTooltip]="'The frequency with which this dataset gets updated'"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
+              <nb-select id="frequency" formControlName="frequency" class="full-width-input">
+                <nb-option>none</nb-option>
+                <nb-option value="DAILY">Daily</nb-option>
+                <nb-option value="WEEKLY">Weekly</nb-option>
+                <nb-option value="MONTHLY">Monthly</nb-option>
+              </nb-select>
+            </div>
             
             <!-- Spatial / map area -->
             <div class="spatial-section">
-              <strong>Spatial:</strong><span class="required-indicator">*</span>
+              <strong>
+                Spatial:
+                <nb-icon
+                  icon="info-outline"
+                  status="primary" 
+                  [nbTooltip]="'Geographic location that the dataset covers'"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </strong>
+              <span class="required-indicator">*</span>
               <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
                 <div [formGroupName]="i" class="spatial-point">
                   <div formArrayName="coordinates" class="coordinates-input">
