@@ -227,17 +227,21 @@
           </div>
           <div class="right-column">
             <label>Themes</label>
-            <div formArrayName="theme" class="array-field">
-              <div *ngFor="let themeItem of themes.controls; let i = index" class="array-item">
-                <input nbInput [formControlName]="i" type="text" class="full-width-input" />
-                <button nbButton status="danger" size="tiny" (click)="removeTheme(i)">
-                  <nb-icon icon="close-outline"></nb-icon>
-                </button>
-              </div>
-              <button nbButton status="info" size="small" (click)="addTheme()">
-                <nb-icon icon="plus-outline"></nb-icon> Add Theme
-              </button>
-            </div>
+            <nb-select multiple fullWidth formControlName="theme" placeholder="Select themes">
+              <nb-option value="AGRI">Agriculture</nb-option>
+              <nb-option value="ECON">Economy</nb-option>
+              <nb-option value="EDUC">Education</nb-option>
+              <nb-option value="ENVI">Environment</nb-option>
+              <nb-option value="ENER">Energy</nb-option>
+              <nb-option value="GOVE">Government</nb-option>
+              <nb-option value="HEAL">Health</nb-option>
+              <nb-option value="JUST">Justice</nb-option>
+              <nb-option value="INTR">International</nb-option>
+              <nb-option value="REGI">Regions</nb-option>
+              <nb-option value="SOCI">Society</nb-option>
+              <nb-option value="TECH">Technology</nb-option>
+              <nb-option value="TRAN">Transportation</nb-option>
+            </nb-select>
             
             <label for="accessRights">Access Rights</label>
             <nb-select id="accessRights" formControlName="accessRights" class="full-width-input">

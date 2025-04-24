@@ -237,7 +237,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       publisher: [''],
       spatial: this.fb.array([]),
       releaseDate: [''],
-      theme: this.fb.array([this.createThemeField()]),
+      theme: [[]],  // Initialize as empty array
       creator: [''],
       accessRights: ['non-public'],
       frequency: [''],
@@ -245,30 +245,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
-  // Helper methods for form arrays
-  createThemeField() {
-    return this.fb.control('');
-  }
-
   // Form array getters
-  get themes() {
-    return this.datasetForm.get('theme') as FormArray;
-  }
-
   get spatialPoints() {
     return this.datasetForm.get('spatial') as FormArray;
   }
 
-  // Methods to add new items to arrays
-  addTheme() {
-    this.themes.push(this.createThemeField());
-  }
-
   // Methods to remove items from arrays
-  removeTheme(index: number) {
-    this.themes.removeAt(index);
-  }
-
   removeSpatialPoint(index: number) {
     this.spatialPoints.removeAt(index);
   }
@@ -650,15 +632,18 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       moment(formValue.releaseDate).format() : 
       null;
     
-    // Create the dataset object including keywords from keywordArray
-    // If keywordArray or contactPoint are empty, send [""] instead of an empty array
+    // Check if the theme array is empty and apply the same pattern as keywords and contact points
+    const themeValue = !formValue.theme || formValue.theme.length === 0 ? [""] : formValue.theme;
+    
+    // Create the dataset object including keywords, contact points, and themes
     let dataset = {
       ...formValue,
       releaseDate,
       datasetDistribution,
       spatial: spatialData,
       contactPoint: this.contactPointArray.length === 0 ? [""] : this.contactPointArray,
-      keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray
+      keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray,
+      theme: themeValue // Override the theme with our handled value
     };
     
     // If ID is empty or just whitespace, remove it from the payload and let backend generate it
@@ -910,10 +895,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   populateDatasetForm(dataset: any): void {
     console.log('Populating form with dataset:', dataset);
     
-    // Clear existing form arrays
-    while (this.themes.length > 0) {
-      this.themes.removeAt(0);
-    }
+    // Clear existing form arrays (keep only spatial)
     while (this.spatialPoints.length > 0) {
       this.spatialPoints.removeAt(0);
     }
@@ -930,6 +912,16 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       }
     }
     
+    // Set theme correctly based on type
+    let themeValue = [];
+    if (dataset.theme) {
+      if (Array.isArray(dataset.theme)) {
+        themeValue = dataset.theme;
+      } else if (typeof dataset.theme === 'string') {
+        themeValue = [dataset.theme]; // Convert single string to array with one element
+      }
+    }
+    
     // Set simple fields
     this.datasetForm.patchValue({
       id: dataset.id || '',
@@ -937,25 +929,17 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       description: dataset.description || '',
       name: dataset.name || '',
       publisher: dataset.publisher || '',
-      releaseDate: releaseDate, // Use our properly parsed date
+      releaseDate: releaseDate, 
       creator: dataset.creator || '',
       accessRights: dataset.accessRights || 'non-public',
       frequency: dataset.frequency || '',
-      version: dataset.version || ''
+      version: dataset.version || '',
+      theme: themeValue 
     });
 
       // Disable the ID field when editing
     if (this.isEditing) {
       this.datasetForm.get('id').disable();
-    }
-    
-    // Set array fields
-    if (dataset.theme && dataset.theme.length > 0) {
-      dataset.theme.forEach((theme: string) => {
-        this.themes.push(this.fb.control(theme));
-      });
-    } else {
-      this.addTheme();
     }
     
     // Set contact points using contactPointArray
