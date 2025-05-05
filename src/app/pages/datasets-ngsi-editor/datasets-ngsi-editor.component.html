@@ -33,7 +33,7 @@
                  id="downloadURL" 
                  formControlName="downloadURL" 
                  type="text" 
-                 class="full-width-input"
+                 class="w-100"
                  [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
             Download URL is required
@@ -139,7 +139,7 @@
               <input nbInput fullWidth id="datasetId" formControlName="id">
                        
               <label for="description">Description</label>
-              <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
+              <textarea nbInput id="description" formControlName="description" fullWidth></textarea>
             
               <label for="version">
                 Version
@@ -150,7 +150,7 @@
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
-              <input nbInput id="version" formControlName="version" type="text" class="full-width-input" />
+              <input nbInput id="version" formControlName="version" type="text" fullWidth />
             
               <label>
                 Keywords
@@ -176,6 +176,7 @@
                 <!-- Input field and button -->
                 <div class="keywords-input-group">
                   <input nbInput
+                        fullWidth
                         #keywordInput
                         placeholder="Type keyword"
                         class="keyword-input" />
@@ -191,10 +192,10 @@
           
             <div class="mid-column">
               <label for="name">Name</label>
-              <input nbInput id="name" formControlName="name" type="text" class="full-width-input" />
+              <input nbInput id="name" formControlName="name" type="text" fullWidth />
               
               <label for="publisher">Publisher</label>
-              <input nbInput id="publisher" formControlName="publisher" type="text" class="full-width-input" />
+              <input nbInput id="publisher" formControlName="publisher" type="text" fullWidth />
               
               <label>Contact Points</label>
               <div class="contact-points-container">
@@ -212,6 +213,7 @@
                 <!-- Input field and button -->
                 <div class="contact-points-input-group">
                   <input nbInput
+                        fullWidth
                         #contactInput
                         placeholder="Type contact point"
                         class="contact-input" />
@@ -225,7 +227,7 @@
               </div>
               
               <label for="creator">Creator</label>
-              <input nbInput id="creator" formControlName="creator" type="text" class="full-width-input" />
+              <input nbInput id="creator" formControlName="creator" type="text" fullWidth />
               
               <div class="form-group">
                 <label for="releaseDate" class="required-field">Release Date</label>
