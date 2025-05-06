@@ -1227,4 +1227,28 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.contactPointArray.splice(index, 1);
     }
   }
+
+  isDatasetFormValid(): boolean {
+    // Check if form is valid
+    if (this.datasetForm.invalid) {
+      return false;
+    }
+    
+    // Check required fields explicitly
+    const title = this.datasetForm.get('title');
+    const releaseDate = this.datasetForm.get('releaseDate');
+    
+    if (!title?.value || !releaseDate?.value) {
+      return false;
+    }
+    
+    // Check spatial data validity
+    const spatialArray = JSON.parse(localStorage.getItem('dataset_to_edit') || '{}').spatial;
+    if (!spatialArray || spatialArray.length === 0) {
+      return false;
+    }
+    
+    // Check if there are any distributions
+    return this.distributions.length > 0;
+  }
 }

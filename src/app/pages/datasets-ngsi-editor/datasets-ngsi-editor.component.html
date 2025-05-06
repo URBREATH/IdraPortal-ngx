@@ -135,7 +135,7 @@
               <label for="title" class="required-field">Title </label>
               <input nbInput fullWidth id="title" formControlName="title">
                         
-              <label for="datasetId" class="required-field">ID (optional)</label>
+              <label for="datasetId" >ID (optional)</label>
               <input nbInput fullWidth id="datasetId" formControlName="id">
                        
               <label for="description">Description</label>
@@ -316,7 +316,7 @@
         </button>
         <button nbButton 
           status="success" 
-          [disabled]="datasetForm.invalid || distributions.length === 0 || isCreatingDataset"
+          [disabled]="!isDatasetFormValid() || isCreatingDataset"
           (click)="createDatasetWithDistributions()">
           <nb-icon *ngIf="isCreatingDataset" icon="loader-outline" [spin]="true"></nb-icon>
           {{ isEditing ? 'Update dataset' : 'Create dataset' }}
