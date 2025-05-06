@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbTagComponent, NbTagInputAddEvent, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
 
@@ -15,15 +15,32 @@ export class DatasetsNgsiComponent implements OnInit {
 
   // Store all fetched data here
   ngsiDatasetsInfo: any[] = [];
-  // Store the data to be displayed
+  // Store the data to be displayed after filtering
+  filteredDatasets: any[] = [];
+  // Store the displayed datasets (paginated)
   displayedDatasets: any[] = [];
   // Store the datasets to be deleted
   datasetsToDelete: any[] = [];
   totalDatasets: number = 0;
-  pageSize = 3;
+  currentDatasets: number = 0;
+  
+  // Pagination settings
+  pageSize = 10;
   currentPage = 1;
   loading = false;
-  allItemsLoaded = false;
+  
+  // Filter tags
+  filters: Array<string> = [];
+  filtersTags: Array<string> = [];
+  
+  searchResponse: any = {
+    results: [],
+    facets: [],
+    count: 0
+  };
+  
+  // For facet limits
+  facetLimits: {[key: string]: number} = {};
 
   constructor(
     private router: Router,
@@ -49,16 +66,18 @@ export class DatasetsNgsiComponent implements OnInit {
         console.log('Response from server:', response);
         // Save the fetched data into a component property
         this.ngsiDatasetsInfo = response;
-        // Initialize displayed datasets with first page
-        this.displayedDatasets = this.ngsiDatasetsInfo.slice(0, this.pageSize);
-        // Example: if the response is an array, you can count it
+        this.filteredDatasets = [...this.ngsiDatasetsInfo];
         this.totalDatasets = this.ngsiDatasetsInfo.length;
-        this.loading = false;
+        this.currentDatasets = this.totalDatasets;
         
-        // Check if all items are already loaded (if data is less than page size)
-        if (this.displayedDatasets.length >= this.ngsiDatasetsInfo.length) {
-          this.allItemsLoaded = true;
-        }
+        // Update search response for template
+        this.searchResponse.results = this.ngsiDatasetsInfo;
+        this.searchResponse.count = this.ngsiDatasetsInfo.length;
+        
+        // Example facets - you would need to generate real facets from your data
+        this.searchResponse.facets = this.generateFacets(this.ngsiDatasetsInfo);
+        
+        this.loading = false;
       },
       error: (error) => {
         console.error('Error in GET request:', error);
@@ -66,33 +85,108 @@ export class DatasetsNgsiComponent implements OnInit {
       }
     });
   }
-
-  loadMoreDatasets(): void {
-    // If already loading or all items are loaded, don't do anything
-    if (this.loading || this.allItemsLoaded) {
-      return;
+  
+  // Generate facets from datasets
+  generateFacets(datasets: any[]): any[] {
+    // Example implementation - customize based on your data structure
+    const facets = [];
+    
+    // Example: themes facet
+    const themes = new Set<string>();
+    datasets.forEach(dataset => {
+      if (dataset.theme) {
+        if (Array.isArray(dataset.theme)) {
+          dataset.theme.forEach(t => themes.add(t));
+        } else {
+          themes.add(dataset.theme);
+        }
+      }
+    });
+    
+    if (themes.size > 0) {
+      facets.push({
+        displayName: 'Themes',
+        search_parameter: 'theme',
+        values: Array.from(themes).map(theme => ({
+          facet: theme,
+          search_value: theme
+        }))
+      });
     }
     
-    this.loading = true;
-    
-    // Calculate the next batch of items to display
-    const nextBatch = this.ngsiDatasetsInfo.slice(
-      this.displayedDatasets.length, 
-      this.displayedDatasets.length + this.pageSize
-    );
-    
-    // Simulate network delay for smoother UX
-    setTimeout(() => {
-      // Add the next batch to displayed datasets
-      this.displayedDatasets.push(...nextBatch);
-      
-      // Check if we've loaded all available items
-      if (this.displayedDatasets.length >= this.ngsiDatasetsInfo.length) {
-        this.allItemsLoaded = true;
+    // Example: keywords facet
+    // Add similar code for other facets (keywords, publishers, etc.)
+
+    const keywords = new Set<string>();
+    datasets.forEach(dataset => {
+      if (dataset.keyword) {
+        if (Array.isArray(dataset.keyword)) {
+          dataset.keyword.forEach(k => keywords.add(k));
+        } else {
+          keywords.add(dataset.keyword);
+        }
       }
+    });
+
+    if (keywords.size > 0) {
+      facets.push({
+        displayName: 'Keywords',
+        search_parameter: 'keyword',
+        values: Array.from(keywords).map(keyword => ({
+          facet: keyword,
+          search_value: keyword
+        }))
+      });
+    }
+
+    const publishers = new Set<string>();
+    datasets.forEach(dataset => {
+      if (dataset.publisher) {
+        if (Array.isArray(dataset.publisher)) {
+          dataset.publisher.forEach(p => publishers.add(p));
+        } else {
+          publishers.add(dataset.publisher);
+        }
+      }
+    });
+
+    if (publishers.size > 0) {
+      facets.push({
+        displayName: 'Publishers',
+        search_parameter: 'publisher',
+        values: Array.from(publishers).map(publisher => ({
+          facet: publisher,
+          search_value: publisher
+        }))
+      });
+    }
+
+
+
+
       
-      this.loading = false;
-    }, 500);
+    
+    return facets;
+  }
+
+  onTagRemove(tagToRemove: NbTagComponent): void {
+    this.filters = this.filters.filter(tag => tag !== tagToRemove.text);
+    this.currentPage = 1;
+    // Apply filters to data
+    this.applyFilters();
+  }
+
+  onTagAdd({ value, input }: NbTagInputAddEvent): void {
+    setTimeout(() => {
+      if (input) {
+        input.nativeElement.value = '';
+      }
+      if (value && value.trim() !== '') {
+        this.filters.push(value.trim());
+        this.currentPage = 1;
+        this.applyFilters();
+      }
+    }, 50);
   }
 
   dynamicUrl(): string {
@@ -111,6 +205,14 @@ export class DatasetsNgsiComponent implements OnInit {
   isChecked(datasetId: string): boolean {
     return this.datasetsToDelete.includes(datasetId);
   }
+
+   // Add filter removal method
+   onFilterRemove(tagToRemove: NbTagComponent): void {
+    this.filtersTags = this.filtersTags.filter(tag => tag !== tagToRemove.text);
+    this.currentPage = 1;
+    this.applyFilters();
+  }
+
 
   // Delete a single dataset
   deleteDataset(datasetId: string): void {
@@ -284,6 +386,109 @@ export class DatasetsNgsiComponent implements OnInit {
     }
   }
 
+    // Add page change handler
+    pageChanged(pageNumber: number): void {
+      this.currentPage = pageNumber;
+      // Update displayed datasets based on current page
+      const startIndex = (this.currentPage - 1) * this.pageSize;
+      const endIndex = startIndex + this.pageSize;
+      this.displayedDatasets = this.filteredDatasets.slice(startIndex, endIndex);
+    }
+    
+    // For facet methods
+    getFacetsLimit(facet: string): number {
+      if(this.facetLimits[facet] === undefined) {
+        this.facetLimits[facet] = 10;
+      }
+      return this.facetLimits[facet];
+    }
+    
+    setFacetsLimit(facet: string, value: number): void {
+      this.facetLimits[facet] = value;
+    }
+    
+    // Filter facets based on search parameter
+    filterFacets(search_parameter: string, values: any[]): any[] {
+      // Example implementation - customize based on your needs
+      return values || [];
+    }
+    
+    // Method to filter by facet
+    getDatasetByFacet(search_parameter: string, search_value: string): void {
+      // Add facet filter tag
+      const facetIndex = this.searchResponse.facets.findIndex(
+        (x: any) => x.search_parameter === search_parameter
+      );
+      
+      if (facetIndex >= 0) {
+        const facet = this.searchResponse.facets[facetIndex];
+        const filterTag = `${facet.displayName}: ${search_value}`;
+        
+        if (!this.filtersTags.includes(filterTag)) {
+          this.filtersTags.push(filterTag);
+          this.applyFilters();
+        }
+      }
+    }
+    
+    // Apply filters to datasets
+    applyFilters(): void {
+      // Reset to all datasets if no filters
+      if (this.filters.length === 0 && this.filtersTags.length === 0) {
+        this.filteredDatasets = [...this.ngsiDatasetsInfo];
+        this.searchResponse.results = this.filteredDatasets;
+        this.currentDatasets = this.filteredDatasets.length;
+        return;
+      }
+      
+      // Apply text filters from this.filters
+      let datasets = this.ngsiDatasetsInfo;
+      
+      if (this.filters.length > 0) {
+        datasets = datasets.filter(dataset => {
+          return this.filters.some(filter => {
+            const filterLower = filter.toLowerCase();
+            return (
+              (dataset.title && dataset.title.toLowerCase().includes(filterLower)) || 
+              (dataset.description && dataset.description.toLowerCase().includes(filterLower)) ||
+              (this.checkArrayContains(dataset.keyword, filterLower))
+            );
+          });
+        });
+      }
+      
+      // Apply facet filters from this.filtersTags
+      if (this.filtersTags.length > 0) {
+        datasets = datasets.filter(dataset => {
+          return this.filtersTags.every(tagFilter => {
+            if (!tagFilter.includes(': ')) return true;
+            
+            const [facetName, facetValue] = tagFilter.split(': ');
+            
+            // Find the actual field name from facet display name
+            let fieldName = facetName.toLowerCase();
+            const facet = this.searchResponse.facets.find(
+              (f: any) => f.displayName.toLowerCase() === fieldName
+            );
+            
+            if (facet) {
+              fieldName = facet.search_parameter;
+            }
+            
+            // Check dataset property based on field name
+            return this.checkFieldContains(dataset, fieldName, facetValue);
+          });
+        });
+      }
+      
+      this.filteredDatasets = datasets;
+      this.searchResponse.results = this.filteredDatasets;
+      this.currentDatasets = this.filteredDatasets.length;
+      
+      // Update displayed datasets for pagination
+      this.pageChanged(1);
+    }
+
   // Function to delete all datasets
   deleteAllDatasets(): void {
     // If no datasets to delete, show warning
@@ -291,6 +496,9 @@ export class DatasetsNgsiComponent implements OnInit {
       this.toastrService.warning('No datasets available to delete', 'Warning');
       return;
     }
+
+
+    
 
     // Raccogli tutti gli ID delle distribuzioni da tutti i dataset
     const allDistributionIds: string[] = [];
@@ -411,7 +619,6 @@ export class DatasetsNgsiComponent implements OnInit {
       this.ngsiDatasetsInfo = [];
       this.displayedDatasets = [];
       this.datasetsToDelete = [];
-      this.allItemsLoaded = true;
       
       this.toastrService.success(`Successfully deleted all ${successCount} datasets`, 'Success');
     } else if (successCount === 0) {
@@ -421,6 +628,76 @@ export class DatasetsNgsiComponent implements OnInit {
       // Reload datasets to get accurate state from server
       this.loadDatasets();
       this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
+    }
+  }
+
+  private checkArrayContains(arr: any, value: string): boolean {
+    if (!arr) return false;
+    if (Array.isArray(arr)) {
+      return arr.some(item => item.toLowerCase().includes(value));
+    }
+    if (typeof arr === 'string') {
+      return arr.toLowerCase().includes(value);
+    }
+    return false;
+  }
+
+  private checkFieldContains(obj: any, field: string, value: string): boolean {
+    if (!obj || !obj[field]) return false;
+    
+    const fieldValue = obj[field];
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.includes(value);
+    }
+    return fieldValue === value;
+  }
+
+  getColor(format:string):string{
+    switch(format){
+      case 'AGRI':
+        return '#74cbec';
+      case 'ECON':
+        return '#2db55d';
+      case 'EDUC':
+        return '#ef7100';
+      case 'ENVI':
+        return '#dfb100';
+      case 'ENER':
+        return '#55a1ce';
+      case 'GOVE':
+        return '#2db55d';
+      case 'HEAL':
+        return '#686868';
+      case 'JUST':
+        return '#ec96be';
+      case 'INTR':
+        return '#e0051e';
+      case 'REGI':
+        return '#fd455f';
+      case 'SOCI':
+        return '#d00666';
+      case 'TECH':
+        return '#fg4a52';
+      case 'TRAN':
+        return '#bfa500';
+    }
+  }
+
+  isThemeArray(theme: string | []): [] | string[] {
+    // Check if theme is an array or a string and return accordingly
+    if (Array.isArray(theme)) {
+      return theme;
+    } else if (typeof theme === 'string') {
+      return [theme];
+    }
+  }
+
+  isKeywordArray(keyword: string | []): [] | string[] {
+    // Check if keyword is an array or a string and return accordingly
+    if (Array.isArray(keyword)) {
+      return keyword;
+    } else if (typeof keyword === 'string') {
+      return [keyword];
     }
   }
 }

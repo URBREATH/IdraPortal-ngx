@@ -1,79 +1,102 @@
 <section class="jumbotron">
     <nb-card class="p-4">
         <span class="d-flex flex-row justify-content-between align-items-center pb-2">
-            <h5>{{ 'HOME_SEARCH_TITLE' | translate }} {{totalDatasets}} {{ 'HOME_DATASETS_FROM' | translate }} {{ngsiDatasetsInfo.length}} {{ 'HOME_CATALOGUES' | translate }}!</h5>
             <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">   
                 <button nbButton status="primary" 
                 [routerLink]="dynamicUrl()">Create New Dataset</button>
                 <button nbButton status="danger" (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button"><nb-icon icon="trash-2-outline"></nb-icon> Delete All Datasets </button>
                 <button nbButton status="danger" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()" ><nb-icon icon="trash-2-outline"></nb-icon>Delete Selected ({{datasetsToDelete.length}})</button>
-                
             </span>
         </span>
-        <div>
-            <input type="text" class="pb-2" nbInput fieldSize="medium" placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" fullWidth>
-        </div>
+        <!-- Tag input for filtering -->
+        <nb-tag-list (tagRemove)="onTagRemove($event)">
+            <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
+            <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
+        </nb-tag-list>
+        <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'DATALET_DATASETS_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
     </nb-card>
+
     <div class="ngsi-datasets-body d-flex flex-row justify-content-between align-items-start mt-4" style="gap:1rem;">
         <div class="left-column w-25 p-0 d-flex flex-column">
-            <nb-accordion class="mb-2">
-                <nb-accordion-item>
-                    <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
-                    <nb-accordion-item-body>
-                        Item Content
-                    </nb-accordion-item-body>
-                </nb-accordion-item>
-            </nb-accordion>
-            <nb-accordion class="mb-2">
-                <nb-accordion-item>
-                    <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
-                    <nb-accordion-item-body>
-                        Item Content
-                    </nb-accordion-item-body>
-                </nb-accordion-item>
-            </nb-accordion>
-            <nb-accordion class="mb-2">
-                <nb-accordion-item>
-                    <nb-accordion-item-header class="accordion-header">Product Details</nb-accordion-item-header>
-                    <nb-accordion-item-body>
-                        Item Content
-                    </nb-accordion-item-body>
-                </nb-accordion-item>
-            </nb-accordion>
+            <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
+                <nb-card-header class="d-flex justify-content-between">
+                  {{facet.displayName}}
+                  <span *ngIf="facet.values.length>10" class="d-flex flex-row-reverse">
+                    <nb-icon *ngIf="getFacetsLimit(facet.displayName.toLowerCase())==10" icon="arrowhead-down-outline" (click)="setFacetsLimit(facet.displayName.toLowerCase(),facet.values.length)" nbTooltip="{{ 'DATALET_SHOW_ALL' | translate }}"></nb-icon>
+                    <nb-icon *ngIf="getFacetsLimit(facet.displayName.toLowerCase())>10" icon="arrowhead-up-outline" (click)="setFacetsLimit(facet.displayName.toLowerCase(),10)" nbTooltip="{{ 'DATALET_SHOW_TOP_10' | translate }}"></nb-icon>
+                  </span>
+                </nb-card-header>
+                <nb-card-body>
+                  <nb-list class="no-border">
+                    <nb-list-item *ngFor="let item of filterFacets(facet.search_parameter,facet.values) | slice:0:getFacetsLimit(facet.displayName.toLowerCase())" class="p-1 no-border">
+                      <a href="javascript:void(0)" (click)="getDatasetByFacet(facet.search_parameter,item.search_value)">{{item.facet}}</a>
+                    </nb-list-item>
+                  </nb-list>
+                </nb-card-body>
+            </nb-card>
         </div>
+
         <div class="right-column w-75 p-0 d-flex flex-column">
             <div class="datasets-card">
-                <nb-list
-                    nbInfiniteList
-                    [threshold]="500"
-                    (bottomThreshold)="loadMoreDatasets()">
-                    <nb-list-item class="list-item" *ngFor="let dataset of displayedDatasets">
-                        <nb-card class="w-100">
-                            <nb-card-header class="d-flex flex-row justify-content-between align-items-center">
-                                <h5>{{dataset.title}}</h5>
-                                <span class="dataset-actions d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">
-                                    <nb-checkbox class="dataset-checkbox" 
-                                                [checked]="isChecked(dataset.id)" 
-                                                (checkedChange)="toggle(dataset.id)"></nb-checkbox>
-                                    <button nbButton status="primary" (click)="editDataset(dataset.id)">
-                                        <nb-icon icon="edit-2-outline"></nb-icon>
-                                    </button>
-                                    <button nbButton status="danger" (click)="deleteDataset(dataset.id)">
-                                        <nb-icon icon="trash-2-outline"></nb-icon>
-                                    </button>
-                                </span>                              
-                            </nb-card-header>
-                            <nb-card-body class="p-4">
-                                <p>{{dataset.description}}</p>
-                            </nb-card-body>
-                        </nb-card>
-                    </nb-list-item>
-                    <nb-list-item *ngIf="loading">
-                        <div class="loading-spinner">
-                            <nb-spinner></nb-spinner>
-                        </div>
-                    </nb-list-item>
-                </nb-list>
+                <!-- Pagination controls at top -->
+                <div class="pagination-container mb-3">
+                    <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+                </div>
+                <div class="row m-1">
+                    <nb-tag-list (tagRemove)="onFilterRemove($event)">
+                      <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
+                    </nb-tag-list>
+                  </div>
+                
+                <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: 10, currentPage: 1, totalItems: 100 }" class="minicard">
+                    <nb-card-header class="d-flex justify-content-between">
+                      <h5>{{dataset.title}}</h5>
+                      <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.3rem;">
+                        
+                          <nb-checkbox class="dataset-checkbox" 
+                          [checked]="isChecked(dataset.id)" 
+                          (checkedChange)="toggle(dataset.id)">
+                        </nb-checkbox>
+                        <button nbButton status="primary" (click)="editDataset(dataset.id)">
+                            <nb-icon icon="edit-2-outline"></nb-icon>
+                        </button>
+                        <button nbButton status="danger" (click)="deleteDataset(dataset.id)">
+                            <nb-icon icon="trash-2-outline"></nb-icon>
+                        </button>
+                      </span>
+                    </nb-card-header>
+                    <nb-card-body>
+                      <span *ngIf="dataset.description === ''" class="no-description">{{'no_description' | translate}}</span>
+                      <span class="truncated">{{dataset.description}}</span>
+                    </nb-card-body>
+                    <nb-card-footer>
+                      <nb-tag-list *ngIf="dataset.theme !== ''" size="small">
+                            <nb-tag *ngFor="let theme of isThemeArray(dataset.theme)"
+                                [text]="theme"
+                                size="tiny" 
+                                [style.background]="getColor(theme)">
+                            </nb-tag>
+                      </nb-tag-list>
+                      
+                      <nb-tag-list *ngIf="dataset.keyword !== ''" size="small">
+                        <nb-tag *ngFor="let keyword of isKeywordArray(dataset.keyword)"
+                            [text]="keyword"
+                            size="tiny">
+                        </nb-tag>
+                  </nb-tag-list>
+                    </nb-card-footer>
+                  </nb-card>
+                
+                <!-- Pagination controls at bottom -->
+                <div class="pagination-container mt-3">
+                    <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+                </div>
+
+                <!-- Empty state message -->
+                <div *ngIf="!loading && filteredDatasets.length === 0" class="d-flex flex-column align-items-center justify-content-center p-4">
+                    <h3>No datasets found matching your filters</h3>
+                    <p>Try adjusting your filter criteria</p>
+                </div>
             </div>
         </div>
     </div>

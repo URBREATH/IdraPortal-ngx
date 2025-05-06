@@ -120,7 +120,8 @@ $surface-dark: #25262E;
 }
 
 .right-column {
-  height: calc(100vh - 200px); // Adjust this value based on your layout
+  height: auto;
+  min-height: 400px;
 }
 
 .datasets-card {
@@ -130,10 +131,14 @@ $surface-dark: #25262E;
 }
 
 nb-list {
-  min-height: 400px;
-  overflow-y: auto;
-  height: 100%;
+  height: auto;
+  overflow-y: visible;
+  min-height: 200px;
   scrollbar-width: thin; // For Firefox
+}
+
+nb-list-item {
+  border: none;
 }
 
 nb-card {
@@ -222,3 +227,29 @@ nb-list-item nb-card {
   }
 }
 
+// Add these new styles for tags and pagination
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+nb-tag-list {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.truncated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size:  large;
+  display: block;
+}
+
+.no-description {
+  color: $primary-dark;
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+}
