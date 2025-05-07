@@ -161,11 +161,6 @@ export class DatasetsNgsiComponent implements OnInit {
       });
     }
 
-
-
-
-      
-    
     return facets;
   }
 
@@ -212,7 +207,6 @@ export class DatasetsNgsiComponent implements OnInit {
     this.currentPage = 1;
     this.applyFilters();
   }
-
 
   // Delete a single dataset
   deleteDataset(datasetId: string): void {
@@ -282,9 +276,31 @@ export class DatasetsNgsiComponent implements OnInit {
   private performDatasetDeletion(datasetId: string): void {
     this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
       next: () => {
+        // Remove dataset from all dataset collections
         this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
-        this.displayedDatasets = this.displayedDatasets.filter(ds => ds.id !== datasetId);
+        this.filteredDatasets = this.filteredDatasets.filter(ds => ds.id !== datasetId);
         
+        // Update counts
+        this.totalDatasets = this.ngsiDatasetsInfo.length;
+        this.currentDatasets = this.filteredDatasets.length;
+        
+        // Update search response
+        this.searchResponse.results = this.filteredDatasets;
+        this.searchResponse.count = this.filteredDatasets.length;
+        
+        // Regenerate facets as they may have changed
+        this.searchResponse.facets = this.generateFacets(this.ngsiDatasetsInfo);
+        
+        // Check if we need to adjust current page
+        const totalPages = Math.ceil(this.filteredDatasets.length / this.pageSize);
+        if (this.currentPage > totalPages && totalPages > 0) {
+          this.currentPage = totalPages;
+        }
+        
+        // Apply pagination
+        this.pageChanged(this.currentPage);
+        
+        // Remove from delete selection if it was there
         const index = this.datasetsToDelete.indexOf(datasetId);
         if (index > -1) {
           this.datasetsToDelete.splice(index, 1);
@@ -496,9 +512,6 @@ export class DatasetsNgsiComponent implements OnInit {
       this.toastrService.warning('No datasets available to delete', 'Warning');
       return;
     }
-
-
-    
 
     // Raccogli tutti gli ID delle distribuzioni da tutti i dataset
     const allDistributionIds: string[] = [];
