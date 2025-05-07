@@ -9,7 +9,7 @@ import { NbDialogRef } from '@nebular/theme';
       <nb-card-body>
         <p>{{ message }}</p>
       </nb-card-body>
-      <nb-card-footer class="d-flex justify-content-end">
+      <nb-card-footer class="d-flex justify-content-end gap-2">
         <button nbButton *ngIf="showCancelButton" status="basic" class="mr-2" (click)="cancel()">Cancel</button>
         <button nbButton status="danger" (click)="confirm()">{{ confirmButtonText || 'Confirm' }}</button>
       </nb-card-footer>

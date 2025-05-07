@@ -121,7 +121,10 @@
         </nb-card>
       </div>
       <div class="step-controls">
-        <button nbButton status="primary" (click)="stepper.next()">
+        <button nbButton [routerLink]="['/pages/datasets-ngsi']" >
+          Back
+        </button>
+        <button nbButton  (click)="stepper.next()">
           Next
         </button>
       </div>
@@ -315,6 +318,7 @@
           Back
         </button>
         <button nbButton 
+          class="green-button"
           status="success" 
           [disabled]="!isDatasetFormValid() || isCreatingDataset"
           (click)="createDatasetWithDistributions()">

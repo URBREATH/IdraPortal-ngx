@@ -9,7 +9,7 @@ $primary-dark: #1d7097;
 $primary-light: #91d0ee;
 $secondary: #3f3368;
 $secondary-dark: #2b2347;
-$secondary-light: #9b95b0;
+$secondary-light: #5a42b1;
 $surface: #cdd9e0;
 $surface-dark: #25262E;
 
@@ -36,16 +36,6 @@ $surface-dark: #25262E;
     margin-right: 1rem;
   }
   
-  ::ng-deep .custom-select:hover .select-button {
-    background-color: $secondary !important;
-  }
-  ::ng-deep .custom-select:focus .select-button {
-    background-color: #119bd6 !important;
-  }
-  ::ng-deep .custom-select:focus-visible .select-button {
-    background-color: $secondary !important;
-  }
-
   nb-action {
     height: auto;
     display: flex;
@@ -225,6 +215,16 @@ nb-list-item nb-card {
     align-items: center !important;
     justify-content: center !important;
   }
+}
+
+.delete-button:not(:disabled) {
+  background-color: $secondary !important; ;
+  color: white !important;
+}
+
+.delete-button:not(:disabled):hover {
+  background-color: $secondary-light !important;
+  color: white !important;
 }
 
 // Add these new styles for tags and pagination

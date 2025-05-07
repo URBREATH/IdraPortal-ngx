@@ -3,9 +3,9 @@
         <span class="d-flex flex-row justify-content-between align-items-center pb-2">
             <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">   
                 <button nbButton status="primary" 
-                [routerLink]="dynamicUrl()">Create New Dataset</button>
-                <button nbButton status="danger" (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button"><nb-icon icon="trash-2-outline"></nb-icon> Delete All Datasets </button>
-                <button nbButton status="danger" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()" ><nb-icon icon="trash-2-outline"></nb-icon>Delete Selected ({{datasetsToDelete.length}})</button>
+                [routerLink]="['/pages/datasets-ngsi/editor']">Create New Dataset</button>
+                <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button"><nb-icon icon="trash-2-outline"></nb-icon> Delete All Datasets </button>
+                <button nbButton class="delete-button" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()" ><nb-icon icon="trash-2-outline"></nb-icon>Delete Selected ({{datasetsToDelete.length}})</button>
             </span>
         </span>
         <!-- Tag input for filtering -->
@@ -60,7 +60,7 @@
                         <button nbButton status="primary" (click)="editDataset(dataset.id)">
                             <nb-icon icon="edit-2-outline"></nb-icon>
                         </button>
-                        <button nbButton status="danger" (click)="deleteDataset(dataset.id)">
+                        <button nbButton class="delete-button" (click)="deleteDataset(dataset.id)">
                             <nb-icon icon="trash-2-outline"></nb-icon>
                         </button>
                       </span>

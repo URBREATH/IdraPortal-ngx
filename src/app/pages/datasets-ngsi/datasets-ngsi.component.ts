@@ -184,9 +184,6 @@ export class DatasetsNgsiComponent implements OnInit {
     }, 50);
   }
 
-  dynamicUrl(): string {
-    return 1 > 0 ? "/pages/datasets-ngsi/editor" : "/pages/datasets-ngsi/editor";
-  }
 
   toggle(datasetId: string): void {
     const index = this.datasetsToDelete.indexOf(datasetId);

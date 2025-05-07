@@ -1,3 +1,15 @@
+
+//urbreath theme colors
+$primary: #2BA5DE;
+$primary-dark: #1d7097;
+$primary-light: #91d0ee;
+$secondary: #3f3368;
+$secondary-dark: #2b2347;
+$secondary-light: #9b95b0;
+$surface: #cdd9e0;
+$surface-dark: #25262E;
+
+
 :host ::ng-deep .custom-stepper .header {
   margin: 0 10rem;
 }
@@ -97,9 +109,17 @@
   justify-content: space-between;
   margin-top: 20px;
 
-  button {
+  button:not(.green-button) {
     min-width: 100px;
+    background-color: $primary !important;
+    color: #fff !important;
   }
+
+  button:hover:not(.green-button) {
+    background-color: $primary-dark !important;
+    
+  }
+
 }
 
 .left-column,
