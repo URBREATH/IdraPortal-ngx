@@ -402,108 +402,109 @@ export class DatasetsNgsiComponent implements OnInit {
     }
   }
 
-    // Add page change handler
-    pageChanged(pageNumber: number): void {
-      this.currentPage = pageNumber;
-      // Update displayed datasets based on current page
-      const startIndex = (this.currentPage - 1) * this.pageSize;
-      const endIndex = startIndex + this.pageSize;
-      this.displayedDatasets = this.filteredDatasets.slice(startIndex, endIndex);
-    }
+  // Add page change handler
+  pageChanged(pageNumber: number): void {
+    this.currentPage = pageNumber;
+    // Update displayed datasets based on current page
+    const startIndex = (this.currentPage - 1) * this.pageSize;
+    const endIndex = startIndex + this.pageSize;
+    this.displayedDatasets = this.filteredDatasets.slice(startIndex, endIndex);
+    this.searchResponse.results = this.displayedDatasets; // Update search results
+  }
     
-    // For facet methods
-    getFacetsLimit(facet: string): number {
-      if(this.facetLimits[facet] === undefined) {
-        this.facetLimits[facet] = 10;
-      }
-      return this.facetLimits[facet];
+  // For facet methods
+  getFacetsLimit(facet: string): number {
+    if(this.facetLimits[facet] === undefined) {
+      this.facetLimits[facet] = 10;
     }
+    return this.facetLimits[facet];
+  }
     
-    setFacetsLimit(facet: string, value: number): void {
-      this.facetLimits[facet] = value;
-    }
+  setFacetsLimit(facet: string, value: number): void {
+    this.facetLimits[facet] = value;
+  }
     
-    // Filter facets based on search parameter
-    filterFacets(search_parameter: string, values: any[]): any[] {
-      // Example implementation - customize based on your needs
-      return values || [];
-    }
+  // Filter facets based on search parameter
+  filterFacets(search_parameter: string, values: any[]): any[] {
+    // Example implementation - customize based on your needs
+    return values || [];
+  }
     
-    // Method to filter by facet
-    getDatasetByFacet(search_parameter: string, search_value: string): void {
-      // Add facet filter tag
-      const facetIndex = this.searchResponse.facets.findIndex(
-        (x: any) => x.search_parameter === search_parameter
-      );
+  // Method to filter by facet
+  getDatasetByFacet(search_parameter: string, search_value: string): void {
+    // Add facet filter tag
+    const facetIndex = this.searchResponse.facets.findIndex(
+      (x: any) => x.search_parameter === search_parameter
+    );
       
-      if (facetIndex >= 0) {
-        const facet = this.searchResponse.facets[facetIndex];
-        const filterTag = `${facet.displayName}: ${search_value}`;
+    if (facetIndex >= 0) {
+      const facet = this.searchResponse.facets[facetIndex];
+      const filterTag = `${facet.displayName}: ${search_value}`;
         
-        if (!this.filtersTags.includes(filterTag)) {
-          this.filtersTags.push(filterTag);
-          this.applyFilters();
-        }
+      if (!this.filtersTags.includes(filterTag)) {
+        this.filtersTags.push(filterTag);
+        this.applyFilters();
       }
     }
+  }
     
-    // Apply filters to datasets
-    applyFilters(): void {
-      // Reset to all datasets if no filters
-      if (this.filters.length === 0 && this.filtersTags.length === 0) {
-        this.filteredDatasets = [...this.ngsiDatasetsInfo];
-        this.searchResponse.results = this.filteredDatasets;
-        this.currentDatasets = this.filteredDatasets.length;
-        return;
-      }
-      
-      // Apply text filters from this.filters
-      let datasets = this.ngsiDatasetsInfo;
-      
-      if (this.filters.length > 0) {
-        datasets = datasets.filter(dataset => {
-          return this.filters.some(filter => {
-            const filterLower = filter.toLowerCase();
-            return (
-              (dataset.title && dataset.title.toLowerCase().includes(filterLower)) || 
-              (dataset.description && dataset.description.toLowerCase().includes(filterLower)) ||
-              (this.checkArrayContains(dataset.keyword, filterLower))
-            );
-          });
-        });
-      }
-      
-      // Apply facet filters from this.filtersTags
-      if (this.filtersTags.length > 0) {
-        datasets = datasets.filter(dataset => {
-          return this.filtersTags.every(tagFilter => {
-            if (!tagFilter.includes(': ')) return true;
-            
-            const [facetName, facetValue] = tagFilter.split(': ');
-            
-            // Find the actual field name from facet display name
-            let fieldName = facetName.toLowerCase();
-            const facet = this.searchResponse.facets.find(
-              (f: any) => f.displayName.toLowerCase() === fieldName
-            );
-            
-            if (facet) {
-              fieldName = facet.search_parameter;
-            }
-            
-            // Check dataset property based on field name
-            return this.checkFieldContains(dataset, fieldName, facetValue);
-          });
-        });
-      }
-      
-      this.filteredDatasets = datasets;
+  // Apply filters to datasets
+  applyFilters(): void {
+    // Reset to all datasets if no filters
+    if (this.filters.length === 0 && this.filtersTags.length === 0) {
+      this.filteredDatasets = [...this.ngsiDatasetsInfo];
       this.searchResponse.results = this.filteredDatasets;
       this.currentDatasets = this.filteredDatasets.length;
-      
-      // Update displayed datasets for pagination
-      this.pageChanged(1);
+      return;
     }
+      
+    // Apply text filters from this.filters
+    let datasets = this.ngsiDatasetsInfo;
+      
+    if (this.filters.length > 0) {
+      datasets = datasets.filter(dataset => {
+        return this.filters.some(filter => {
+          const filterLower = filter.toLowerCase();
+          return (
+            (dataset.title && dataset.title.toLowerCase().includes(filterLower)) || 
+            (dataset.description && dataset.description.toLowerCase().includes(filterLower)) ||
+            (this.checkArrayContains(dataset.keyword, filterLower))
+          );
+        });
+      });
+    }
+      
+    // Apply facet filters from this.filtersTags
+    if (this.filtersTags.length > 0) {
+      datasets = datasets.filter(dataset => {
+        return this.filtersTags.every(tagFilter => {
+          if (!tagFilter.includes(': ')) return true;
+            
+          const [facetName, facetValue] = tagFilter.split(': ');
+            
+          // Find the actual field name from facet display name
+          let fieldName = facetName.toLowerCase();
+          const facet = this.searchResponse.facets.find(
+            (f: any) => f.displayName.toLowerCase() === fieldName
+          );
+            
+          if (facet) {
+            fieldName = facet.search_parameter;
+          }
+            
+          // Check dataset property based on field name
+          return this.checkFieldContains(dataset, fieldName, facetValue);
+        });
+      });
+    }
+      
+    this.filteredDatasets = datasets;
+    this.searchResponse.results = this.filteredDatasets;
+    this.currentDatasets = this.filteredDatasets.length;
+      
+    // Update displayed datasets for pagination
+    this.pageChanged(1);
+  }
 
   // Function to delete all datasets
   deleteAllDatasets(): void {

@@ -48,7 +48,7 @@
                     </nb-tag-list>
                   </div>
                 
-                <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: 10, currentPage: 1, totalItems: 100 }" class="minicard">
+                <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: filteredDatasets.length }" class="minicard">
                     <nb-card-header class="d-flex justify-content-between">
                       <h5>{{dataset.title}}</h5>
                       <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.3rem;">
