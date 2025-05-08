@@ -64,6 +64,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
+
     // Initialize form
     this.initForms();
     
@@ -326,6 +327,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return title.replace(/\s+/g, '').toLowerCase();
   }
 
+  private hasInvalidIdCharacters(id: string): boolean {
+    // Check if the ID contains ":,/;" characters or spaces
+    const forbiddenChars = /[:\/; ]/;
+    return forbiddenChars.test(id);
+  }
+
   saveDistributionToLocalStorage(): void {
     // Mark all fields as touched to trigger validation display
     this.markFormGroupTouched(this.distributionForm);
@@ -375,14 +382,14 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       }
     }
 
-    // Use the ID provided by the user or null (let backend generate it)
-    const distributionId = formData.id || null;
+    // Use the ID provided by the user or generate a new one
+    const distributionId = formData.id || createUniqueId();
     
     // Check if ID contains forbidden characters
     if (formData.id && (!this.isEditingDistribution || this.distributionForm.get('id').enabled) && 
-        (formData.id.includes(':') || formData.id.includes(':'))) {
+       this.hasInvalidIdCharacters(distributionId)) {
       this.toastrService.danger(
-        'Distribution ID cannot contain ":" as it is reserved for internal use',
+        'Distribution ID cannot contain ":,/;" or spaces',
         'Invalid ID Format'
       );
       return;
@@ -396,7 +403,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     // Format the distribution object according to API requirements
     const distribution = {
-      // Use the ID from the form if provided, otherwise null for new distributions
+      // Use the ID from the form if provided, otherwise generate a new one
       // For editing, keep the original ID unless a new one is provided
       id: this.isEditingDistribution 
         ? (existingDistribution?.isNew && formData.id ? formData.id : this.currentEditingDistributionId)
@@ -422,6 +429,13 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         : true,
       isEdited: this.isEditingDistribution
     };
+
+    
+
+    function createUniqueId() {
+      return `${formData.title.replace(/\s+/g, '')}-${moment(Date.now()).format().replace(/[-:+]/g, '')}`;
+    }
+  
 
     if (this.isEditingDistribution) {
       // When editing a local-storage-only distribution, the ID might have changed
@@ -468,7 +482,16 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Get the dataset ID value, accounting for disabled form controls
     const datasetId = this.datasetForm.get('id').value;
     
-    // Only check for uniqueness if it's a new dataset with an ID provided
+    // Validate dataset ID format if provided
+    if (datasetId && datasetId.trim() !== '' && this.hasInvalidIdCharacters(datasetId)) {
+      this.toastrService.danger(
+        'Dataset ID cannot contain ":", "/", or spaces as they are reserved for internal use',
+        'Invalid ID Format'
+      );
+      return;
+    }
+
+    // Only continue with the existing uniqueness check if the format is valid
     if (!this.isEditing && datasetId && datasetId.trim() !== '') {
       // Use existing normalizeString method to normalize the dataset ID
       const normalizedNewId = this.normalizeString(datasetId);
