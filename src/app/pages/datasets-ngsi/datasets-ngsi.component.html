@@ -84,6 +84,14 @@
                             size="tiny">
                         </nb-tag>
                   </nb-tag-list>
+
+                  <label *ngIf="dataset.publisher !== ''" class="publisher-label">Publisher:</label>
+                  <nb-tag-list *ngIf="dataset.publisher !== ''" size="small">
+                        <nb-tag *ngFor="let publisher of isPublisherArray(dataset.publisher)"
+                            [text]="publisher"
+                            size="tiny">
+                        </nb-tag>
+                  </nb-tag-list>
                     </nb-card-footer>
                   </nb-card>
                 

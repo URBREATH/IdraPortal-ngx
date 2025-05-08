@@ -711,4 +711,14 @@ export class DatasetsNgsiComponent implements OnInit {
       return [keyword];
     }
   }
+
+  isPublisherArray(publisher: string | []): [] | string[] {
+    // Check if publisher is an array or a string and return accordingly
+    if (Array.isArray(publisher)) {
+      return publisher;
+    } else if (typeof publisher === 'string') {
+      return [publisher];
+    } 
+  }
+
 }
