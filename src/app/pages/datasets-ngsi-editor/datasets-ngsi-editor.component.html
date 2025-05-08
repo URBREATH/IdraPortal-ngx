@@ -12,7 +12,16 @@
           </nb-card-header>
           
           <label for="distId">ID (optional)</label>
-          <input nbInput id="distId" formControlName="id" type="text" class="full-width-input" />
+          <input nbInput 
+                 id="distId" 
+                 formControlName="id" 
+                 type="text" 
+                 class="full-width-input"
+                 [status]="distributionForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
+          <div *ngIf="distributionForm.get('id')?.errors?.['forbiddenChars']" 
+               class="error-message">
+            ID cannot contain ":", "/", ";", or spaces
+          </div>
           
           <label for="title" class="required-field">Title</label>
           <input nbInput 
@@ -138,8 +147,16 @@
               <label for="title" class="required-field">Title </label>
               <input nbInput fullWidth id="title" formControlName="title">
                         
-              <label for="datasetId" >ID (optional)</label>
-              <input nbInput fullWidth id="datasetId" formControlName="id">
+              <label for="datasetId">ID (optional)</label>
+              <input nbInput 
+                     fullWidth 
+                     id="datasetId" 
+                     formControlName="id"
+                     [status]="datasetForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
+              <div *ngIf="datasetForm.get('id')?.errors?.['forbiddenChars']" 
+                   class="error-message">
+                ID cannot contain ":", "/", ";", or spaces
+              </div>
                        
               <label for="description">Description</label>
               <textarea nbInput id="description" formControlName="description" fullWidth></textarea>

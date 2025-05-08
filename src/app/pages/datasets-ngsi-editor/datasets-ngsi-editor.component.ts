@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
@@ -217,9 +217,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Initialize forms
   initForms(): void {
-    // Initialize distribution form
+    // Add validator to distribution form
     this.distributionForm = this.fb.group({
-      id: [{value: '', disabled: false}], // Explicitly set to enabled
+      id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required],
       format: ['CSV'],
       description: [''],
@@ -234,9 +234,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       modifiedDate: ['']
     });
 
-    // Initialize dataset form
+    // Add validator to dataset form
     this.datasetForm = this.fb.group({
-      id: [''], // ID is optional for datasets too
+      id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required], // Title is required
       description: [''],
       name: [''],
@@ -332,10 +332,18 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     return title.replace(/\s+/g, '').toLowerCase();
   }
 
-  private hasInvalidIdCharacters(id: string): boolean {
-    // Check if the ID contains ":,/;" characters or spaces
-    const forbiddenChars = /[:\/; ]/;
-    return forbiddenChars.test(id);
+  private forbiddenCharsValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) {
+        return null; // Skip validation for empty values
+      }
+      
+      // Check for forbidden characters: colon, slash, semicolon, and spaces
+      const forbidden = /[:\/;, ]/;
+      const isInvalid = forbidden.test(control.value);
+      
+      return isInvalid ? { forbiddenChars: { value: control.value } } : null;
+    };
   }
 
   saveDistributionToLocalStorage(): void {
@@ -387,18 +395,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       }
     }
 
-    // Use the ID provided by the user or generate a new one
+    // Use the ID provided by the user or pass null
     const distributionId = formData.id || createUniqueId();
-    
-    // Check if ID contains forbidden characters
-    if (formData.id && (!this.isEditingDistribution || this.distributionForm.get('id').enabled) && 
-       this.hasInvalidIdCharacters(distributionId)) {
-      this.toastrService.danger(
-        'Distribution ID cannot contain ":,/;" or spaces',
-        'Invalid ID Format'
-      );
-      return;
-    }
 
     // Find the existing distribution if we're editing
     let existingDistribution = null;
@@ -434,7 +432,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         : true,
       isEdited: this.isEditingDistribution
     };
-
     
 
     function createUniqueId() {
@@ -486,15 +483,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Get the dataset ID value, accounting for disabled form controls
     const datasetId = this.datasetForm.get('id').value;
-    
-    // Validate dataset ID format if provided
-    if (datasetId && datasetId.trim() !== '' && this.hasInvalidIdCharacters(datasetId)) {
-      this.toastrService.danger(
-        'Dataset ID cannot contain ":", "/", or spaces as they are reserved for internal use',
-        'Invalid ID Format'
-      );
-      return;
-    }
 
     // Only continue with the existing uniqueness check if the format is valid
     if (!this.isEditing && datasetId && datasetId.trim() !== '') {
