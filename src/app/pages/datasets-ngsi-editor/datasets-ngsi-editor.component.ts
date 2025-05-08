@@ -131,7 +131,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
   }
 
-  // Update initMap to remove the redundant check since we'll only call it at the right time
+  // Update initMap to handle null spatial data
   private initMap(): void {
 
     // Fix marker icon issue by setting the default icon using CDN URLs
@@ -171,43 +171,48 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     const geometry = new L.FeatureGroup();
     
     // Check if we have spatial data in localStorage
-      const storedDataset = localStorage.getItem('dataset_to_edit');
-      if (storedDataset !== null) {
-        let spatial = JSON.parse(storedDataset).spatial;
-            // Handle different geometry types
-            if (spatial.type === 'Point') {
-              // Create a marker for Point geometry
-              const [longitude, latitude] = spatial.coordinates;
-              L.marker([latitude, longitude])
-                .bindPopup(`Point: [${latitude}, ${longitude}]`)
-                .addTo(geometry);
-            } 
-            else if (spatial.type === 'LineString') {
-              // Create a polyline for LineString geometry
-              // Convert from GeoJSON [lng, lat] to Leaflet [lat, lng] format
-              const latLngs = spatial.coordinates.map(coord => [coord[1], coord[0]]);
-              L.polyline(latLngs, { color: 'blue' })
-                .bindPopup('LineString')
-                .addTo(geometry);
-            }
-            else if (spatial.type === 'Polygon') {
-              // Create a polygon for Polygon geometry
-              // For polygons, coordinates are nested arrays where the first array contains the outer ring
-              const latLngs = spatial.coordinates[0].map(coord => [coord[1], coord[0]]);
-              L.polygon(latLngs, { color: 'green' })
-                .bindPopup('Polygon')
-                .addTo(geometry);
-            }
+    const storedDataset = localStorage.getItem('dataset_to_edit');
+    if (storedDataset !== null) {
+      const parsedData = JSON.parse(storedDataset);
+      let spatial = parsedData.spatial;
+      
+      // Only add to map if spatial data exists
+      if (spatial) {
+        // Handle different geometry types
+        if (spatial.type === 'Point') {
+          // Create a marker for Point geometry
+          const [longitude, latitude] = spatial.coordinates;
+          L.marker([latitude, longitude])
+            .bindPopup(`Point: [${latitude}, ${longitude}]`)
+            .addTo(geometry);
+        } 
+        else if (spatial.type === 'LineString') {
+          // Create a polyline for LineString geometry
+          const latLngs = spatial.coordinates.map(coord => [coord[1], coord[0]]);
+          L.polyline(latLngs, { color: 'blue' })
+            .bindPopup('LineString')
+            .addTo(geometry);
+        }
+        else if (spatial.type === 'Polygon') {
+          // Create a polygon for Polygon geometry
+          const latLngs = spatial.coordinates[0].map(coord => [coord[1], coord[0]]);
+          L.polygon(latLngs, { color: 'green' })
+            .bindPopup('Polygon')
+            .addTo(geometry);
+        }
         
         // Add the FeatureGroup to the map
         geometry.addTo(this.map);
         
-         // Fit the map to the bounds of the geometry
-         this.map.fitBounds(geometry.getBounds(), {
-          padding: [50, 50],
-          maxZoom: 5
-        });
+        // Fit the map to the bounds of the geometry
+        if (geometry.getLayers().length > 0) {
+          this.map.fitBounds(geometry.getBounds(), {
+            padding: [50, 50],
+            maxZoom: 5
+          });
+        }
       }
+    }
   }
 
   // Initialize forms
@@ -1265,13 +1270,52 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return false;
     }
     
-    // Check spatial data validity
-    const spatialArray = JSON.parse(localStorage.getItem('dataset_to_edit') || '{}').spatial;
-    if (!spatialArray || spatialArray.length === 0) {
-      return false;
-    }
-    
     // Check if there are any distributions
     return this.distributions.length > 0;
+  }
+
+  /**
+   * Reset spatial data and clear map markers
+   */
+  resetSpatial(): void {
+    // Show confirmation dialog
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Reset Spatial Data',
+        message: 'Are you sure you want to clear the spatial data? This will remove the location from the map.',
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Clear the spatial form array
+        while (this.spatialPoints.length > 0) {
+          this.spatialPoints.removeAt(0);
+        }
+        
+        // Clear the map by removing all layers
+        if (this.map) {
+          this.map.eachLayer(layer => {
+            if (layer instanceof L.Marker || layer instanceof L.Polygon || layer instanceof L.Polyline) {
+              this.map.removeLayer(layer);
+            }
+          });
+        //recenter the map to the default position
+        this.map.setView([47, 6], 3); // Adjust the coordinates and zoom level as needed
+        }
+
+
+        
+        // Update localStorage if editing
+        if (this.isEditing) {
+          const storedDataset = localStorage.getItem('dataset_to_edit');
+          if (storedDataset) {
+            const parsedDataset = JSON.parse(storedDataset);
+            parsedDataset.spatial = null;
+            localStorage.setItem('dataset_to_edit', JSON.stringify(parsedDataset));
+          }
+        }
+        
+        this.toastrService.success('Spatial data has been cleared', 'Success');
+      }
+    });
   }
 }

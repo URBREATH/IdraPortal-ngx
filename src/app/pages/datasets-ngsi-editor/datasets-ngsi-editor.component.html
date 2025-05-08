@@ -285,15 +285,23 @@
               
               <!-- Spatial / map area -->
               <div class="spatial-section">
-                <strong class="required-field">
-                  Spatial:
-                  <nb-icon
-                    icon="info-outline"
-                    status="primary" 
-                    [nbTooltip]="'Geographic location that the dataset covers'"
-                    nbTooltipStatus="primary">
-                  </nb-icon>
-                </strong>
+                <div class="d-flex justify-content-between align-items-center">
+                  <strong>
+                    Spatial:
+                    <nb-icon
+                      icon="info-outline"
+                      status="primary" 
+                      [nbTooltip]="'Geographic location that the dataset covers'"
+                      nbTooltipStatus="primary">
+                    </nb-icon>
+                  </strong>
+                  <button nbButton 
+                        status="danger"
+                        size="small"
+                        (click)="resetSpatial()">
+                    <nb-icon icon="close-outline"></nb-icon>
+                  </button>
+                </div>
                 <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
                   <div [formGroupName]="i" class="spatial-point">
                     <div formArrayName="coordinates" class="coordinates-input">
