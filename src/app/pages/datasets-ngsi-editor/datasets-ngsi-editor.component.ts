@@ -635,23 +635,16 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       .filter(dist => !dist.markedForDeletion)
       .map(dist => dist.id);
     
-    // Check for spatial data in localStorage
+    // Get spatial data from localStorage, but don't require it
     const storedDataset = localStorage.getItem('dataset_to_edit');
-    let spatialData: [Object];
+    let spatialData = null; // Default to null
     
     if (storedDataset) {
       const parsedStoredDataset = JSON.parse(storedDataset);
-      //Make sure that spatialData is always an array
-      spatialData = [parsedStoredDataset.spatial];
-    }
-    
-    if (!spatialData) {
-      this.isCreatingDataset = false;
-      this.toastrService.danger(
-        'Please add a location on the map',
-        'Spatial Data Required'
-      );
-      return;
+      if (parsedStoredDataset.spatial) {
+        // Make sure that spatialData is always an array if it exists
+        spatialData = [parsedStoredDataset.spatial];
+      }
     }
     
     // Format date with time component using Moment.js
@@ -670,12 +663,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       ...formValue,
       releaseDate,
       datasetDistribution,
-      spatial: spatialData,
+      spatial: spatialData, // This can now be null
       contactPoint: this.contactPointArray.length === 0 ? [""] : this.contactPointArray,
       keyword: this.keywordArray.length === 0 ? [""] : this.keywordArray,
-      theme: themeValue, // Override the theme with our handled value
-      frequency: frequencyValue, // Override the frequency with our handled value
-      accessRights: 'public' // Always set to public
+      theme: themeValue,
+      frequency: frequencyValue,
+      accessRights: 'public'
     };
     
     // If ID is empty or just whitespace, remove it from the payload and let backend generate it
