@@ -4,7 +4,7 @@ import * as L from 'leaflet';
 import 'leaflet-draw';
 
 @Component({
-  selector: 'app-map-dialog',
+  selector: 'ngx-map-dialog',
   templateUrl: './map-dialog.component.html',
   styleUrls: ['./map-dialog.component.scss']
 })
@@ -20,6 +20,7 @@ export class MapDialogComponent implements OnInit {
   
   ngOnInit() {
     setTimeout(() => this.initMap(), 100);
+    console.log("MapDialogComponent initialized");
   }
   
   private initMap() {
@@ -52,7 +53,7 @@ export class MapDialogComponent implements OnInit {
     const storedSpatial = localStorage.getItem("dataset_to_edit");
     if (storedSpatial) {
       // Parse the stored spatial data from local storage
-      const parsedData = JSON.parse(storedSpatial).spatial;
+      const parsedData = JSON.parse(storedSpatial).spatial !== null ? JSON.parse(storedSpatial).spatial : {};
       // Check the type of the stored spatial data and create the corresponding layer
       if (parsedData.type === "Point") {
         this.marker = L.marker([parsedData.coordinates[1], parsedData.coordinates[0]], { draggable: true }).addTo(this.editableLayers);
@@ -67,7 +68,7 @@ export class MapDialogComponent implements OnInit {
         const polyline = L.polyline(latlngs, { color: 'red' }).addTo(this.editableLayers);
         this.map.fitBounds(polyline.getBounds());
       } 
-    }
+    } 
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers
     var drawControl = new L.Control.Draw({
@@ -122,10 +123,12 @@ export class MapDialogComponent implements OnInit {
     let newSpatial: object;
 
     if (this.editableLayers.getLayers().length === 0) {
-      this.toastrService.warning(
-        'Aggiungi una geometria sulla mappa',
-        'Nessuna geometria'
-      );
+      // Save spatial data as null if no layers are present
+      newSpatial = null;
+      const datasetToEdit = JSON.parse(localStorage.getItem("dataset_to_edit")) || {};
+      datasetToEdit.spatial = newSpatial;
+      localStorage.setItem("dataset_to_edit", JSON.stringify(datasetToEdit));
+      this.dialogRef.close(true);
       return;
     }
     

@@ -1267,10 +1267,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        // Clear the spatial form array
-        while (this.spatialPoints.length > 0) {
-          this.spatialPoints.removeAt(0);
-        }
         
         // Clear the map by removing all layers
         if (this.map) {
@@ -1283,17 +1279,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.map.setView([47, 6], 3); // Adjust the coordinates and zoom level as needed
         }
 
-
-        
-        // Update localStorage if editing
-        if (this.isEditing) {
-          const storedDataset = localStorage.getItem('dataset_to_edit');
+        const storedDataset = localStorage.getItem('dataset_to_edit');
           if (storedDataset) {
             const parsedDataset = JSON.parse(storedDataset);
-            parsedDataset.spatial = null;
+            parsedDataset.spatial = {};
             localStorage.setItem('dataset_to_edit', JSON.stringify(parsedDataset));
           }
-        }
         
         this.toastrService.success('Spatial data has been cleared', 'Success');
       }
