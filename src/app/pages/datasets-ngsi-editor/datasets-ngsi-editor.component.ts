@@ -234,7 +234,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       modifiedDate: ['']
     });
 
-    // Add validator to dataset form
+    // Add validator to dataset form with today's date as default for new datasets
     this.datasetForm = this.fb.group({
       id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required], // Title is required
@@ -242,7 +242,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       name: [''],
       publisher: [''],
       spatial: this.fb.array([]),
-      releaseDate: [''],
+      releaseDate: [this.isEditing ? '' : new Date()],  // Only set default for new datasets
       theme: [[]],  // Initialize as empty array
       creator: [''],
       frequency: [''],
@@ -914,14 +914,49 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     
     // Parse the date properly using Moment.js
-    let releaseDate = null;
+    let releaseDate = new Date(); // Default to today for new datasets
+
     if (dataset.releaseDate) {
-      const momentDate = moment(dataset.releaseDate);
-      if (momentDate.isValid()) {
-        releaseDate = momentDate.toDate(); // Convert to Date object for Angular datepicker
+      console.log('Original releaseDate from dataset:', dataset.releaseDate);
+      
+      // Check if date is in JSON-LD format with @value property
+      if (typeof dataset.releaseDate === 'object' && dataset.releaseDate['@value']) {
+        // Extract the date string from @value
+        const dateString = dataset.releaseDate['@value'];
+        console.log('Found JSON-LD date format, extracting value:', dateString);
+        
+        // Parse the extracted date string
+        const momentDate = moment(dateString);
+        if (momentDate.isValid()) {
+          releaseDate = momentDate.toDate();
+          console.log('Parsed JSON-LD date to:', momentDate.format('YYYY-MM-DD'));
+        }
       } else {
-        console.warn('Invalid date format from server:', dataset.releaseDate);
-        releaseDate = null;
+        // Process as regular string format (existing code)
+        const momentDate = moment(dataset.releaseDate);
+        
+        if (momentDate.isValid()) {
+          console.log('Valid date found:', momentDate.format('YYYY-MM-DD'));
+          releaseDate = momentDate.toDate();
+        } else {
+          // Try alternative format parsing
+          const formats = ['YYYY-MM-DD', 'YYYY/MM/DD', 'DD-MM-YYYY', 'MM/DD/YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ'];
+          
+          for (const format of formats) {
+            const parsedDate = moment(dataset.releaseDate, format, true);
+            if (parsedDate.isValid()) {
+              console.log(`Date parsed with format ${format}:`, parsedDate.format('YYYY-MM-DD'));
+              releaseDate = parsedDate.toDate();
+              break;
+            }
+          }
+          
+          // If still not valid, log warning but keep original string for debugging
+          if (!moment(releaseDate).isValid()) {
+            console.warn('Could not parse date:', dataset.releaseDate);
+            // Keep today's date as fallback
+          }
+        }
       }
     }
     
