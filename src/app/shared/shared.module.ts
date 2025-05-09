@@ -11,13 +11,11 @@ import {
 } from '@nebular/theme';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { MapDialogComponent } from './map-dialog/map-dialog.component';
-import { DistributionImportDialogComponent } from './distribution-import-dialog/distribution-import-dialog.component';
 
 @NgModule({
   declarations: [
     ConfirmationDialogComponent,
     MapDialogComponent,
-    DistributionImportDialogComponent
   ],
   imports: [
     CommonModule,
@@ -32,7 +30,6 @@ import { DistributionImportDialogComponent } from './distribution-import-dialog/
   exports: [
     ConfirmationDialogComponent,
     MapDialogComponent,
-    DistributionImportDialogComponent
   ]
 })
 export class SharedModule { }
