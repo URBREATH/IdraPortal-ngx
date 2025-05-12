@@ -2,16 +2,16 @@
   <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper" (stepChange)="onStepChange($event.index)">
     
     <!-- Step 1: Add Distributions -->
-    <nb-step label="Add distributions">
+    <nb-step label="{{'ADD_DISTRIBUTIONS' | translate}}">
       <div class="step-content">
         <nb-card class="m-0 w-50">
         <!-- Left panel: distribution form -->
         <form [formGroup]="distributionForm" id="distributionForm" class="distribution-form">
           <nb-card-header>
-            {{ isEditingDistribution ? 'Edit Distribution' : 'Create New Distribution' }}
+            {{ isEditingDistribution ? ('SAVE_CHANGES' | translate) : ('ADD_TO_LIST' | translate) }}
           </nb-card-header>
           
-          <label for="distId">ID (optional)</label>
+          <label for="distId">{{'ID_OPTIONAL' | translate}}</label>
           <input nbInput 
                  id="distId" 
                  formControlName="id" 
@@ -20,10 +20,10 @@
                  [status]="distributionForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
           <div *ngIf="distributionForm.get('id')?.errors?.['forbiddenChars']" 
                class="error-message">
-            ID cannot contain ":", "/", ";", or spaces
+            {{'ID_INVALID_CHARS' | translate}}
           </div>
           
-          <label for="title" class="required-field">Title</label>
+          <label for="title" class="required-field">{{'TITLE' | translate}}</label>
           <input nbInput 
                  id="title" 
                  formControlName="title" 
@@ -31,13 +31,13 @@
                  class="full-width-input"
                  [status]="isFieldInvalid('title') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('title')" class="error-message">
-            Title is required
+            {{'TITLE_REQUIRED' | translate}}
           </div>
           
-          <label for="description">Description</label>
+          <label for="description">{{'DESCRIPTION' | translate}}</label>
           <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
           
-          <label for="downloadURL" class="required-field">Download URL</label>
+          <label for="downloadURL" class="required-field">{{'DOWNLOAD_URL' | translate}}</label>
           <input nbInput 
                  id="downloadURL" 
                  formControlName="downloadURL" 
@@ -45,11 +45,11 @@
                  class="w-100"
                  [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
-            Download URL is required
+            {{'DOWNLOAD_URL_REQUIRED' | translate}}
           </div>
           
           
-          <label for="format">Format</label>
+          <label for="format">{{'FORMAT' | translate}}</label>
           <nb-select 
             id="format"
             formControlName="format"
@@ -59,10 +59,10 @@
             </nb-option>
           </nb-select>
           
-          <label for="license">License</label>
+          <label for="license">{{'LICENSE' | translate}}</label>
           <input nbInput id="license" formControlName="license" type="text" class="full-width-input" />
           
-          <label for="releaseDate">Release Date</label>
+          <label for="releaseDate">{{'RELEASE_DATE' | translate}}</label>
           <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
                  [nbDatepicker]="releaseDatePicker" class="full-width-input" />
           <nb-datepicker #releaseDatePicker (dateChange)="onDateSelect($event, 'releaseDate')"></nb-datepicker>
@@ -73,7 +73,7 @@
               status="primary"
               [disabled]="distributionForm.invalid"
               (click)="saveDistributionToLocalStorage()">
-              {{ isEditingDistribution ? 'Save Changes' : 'Add to List' }}
+              {{ isEditingDistribution ? ('SAVE_CHANGES' | translate) : ('ADD_TO_LIST' | translate) }}
             </button>
             
             <button *ngIf="isEditingDistribution"
@@ -82,7 +82,7 @@
               status="basic"
               class="ml-2"
               (click)="cancelEditDistribution()">
-              Cancel
+              {{'CANCEL' | translate}}
             </button>
           </div>
         </form>
@@ -92,8 +92,8 @@
         <nb-card class="distribution-list-panel m-0">
           <div class="distribution-list-header">
             <div>
-              <h4>Distribution list</h4>
-              <p *ngIf="distributions.length === 0">No distributions added yet</p>
+              <h4>{{'DISTRIBUTION_LIST' | translate}}</h4>
+              <p *ngIf="distributions.length === 0">{{'NO_DISTRIBUTIONS' | translate}}</p>
             </div>
             
           </div>
@@ -104,8 +104,8 @@
               <div>
                 <strong>{{ dist.title }} (ID: {{ dist.id }})</strong>
                 <p>{{ dist.description }}</p>
-                <span *ngIf="dist.markedForDeletion" class="deletion-badge">Pending Deletion</span>
-                <span *ngIf="isEditingDistribution && currentEditingDistributionId === dist.id" class="editing-badge">Currently Editing</span>
+                <span *ngIf="dist.markedForDeletion" class="deletion-badge">{{'PENDING_DELETION' | translate}}</span>
+                <span *ngIf="isEditingDistribution && currentEditingDistributionId === dist.id" class="editing-badge">{{'CURRENTLY_EDITING' | translate}}</span>
               </div>
               <div class="distribution-actions">
                 <button nbButton 
@@ -122,7 +122,7 @@
                        size="small" 
                        (click)="editDistribution(dist)" 
                        [disabled]="deletingDistributions[dist.id] || dist.markedForDeletion || (isEditingDistribution && currentEditingDistributionId === dist.id)">
-                  <nb-icon icon="edit-outline"></nb-icon> Edit
+                  <nb-icon icon="edit-outline"></nb-icon> {{'edit' | translate}}
                 </button>
               </div>
             </li>
@@ -131,10 +131,10 @@
       </div>
       <div class="step-controls">
         <button nbButton [routerLink]="['/pages/datasets-ngsi']" >
-          Back
+          {{'BACK' | translate}}
         </button>
         <button nbButton  (click)="stepper.next()">
-          Next
+          {{'NEXT' | translate}}
         </button>
       </div>
     </nb-step>
@@ -144,10 +144,10 @@
       <div class="step-content">
           <form [formGroup]="datasetForm" class="dataset-form">
             <div class="left-column">
-              <label for="title" class="required-field">Title </label>
+              <label for="title" class="required-field">{{'TITLE' | translate}}</label>
               <input nbInput fullWidth id="title" formControlName="title">
                         
-              <label for="datasetId">ID (optional)</label>
+              <label for="datasetId">{{'ID_OPTIONAL' | translate}}</label>
               <input nbInput 
                      fullWidth 
                      id="datasetId" 
@@ -155,14 +155,14 @@
                      [status]="datasetForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
               <div *ngIf="datasetForm.get('id')?.errors?.['forbiddenChars']" 
                    class="error-message">
-                ID cannot contain ":", "/", ";", or spaces
+                {{'ID_INVALID_CHARS' | translate}}
               </div>
                        
-              <label for="description">Description</label>
+              <label for="description">{{'DESCRIPTION' | translate}}</label>
               <textarea nbInput id="description" formControlName="description" fullWidth></textarea>
             
               <label for="version">
-                Version
+                {{'VERSION' | translate}}
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
@@ -173,7 +173,7 @@
               <input nbInput id="version" formControlName="version" type="text" fullWidth />
             
               <label>
-                Keywords
+                {{'KEYWORDS' | translate}}
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
@@ -198,7 +198,7 @@
                   <input nbInput
                         fullWidth
                         #keywordInput
-                        placeholder="Type keyword"
+                        placeholder="{{'TYPE_KEYWORD' | translate}}"
                         class="keyword-input" />
                   <button nbButton
                           status="info"
@@ -211,13 +211,13 @@
             </div>
           
             <div class="mid-column">
-              <label for="name">Name</label>
+              <label for="name">{{'NAME' | translate}}</label>
               <input nbInput id="name" formControlName="name" type="text" fullWidth />
               
-              <label for="publisher">Publisher</label>
+              <label for="publisher">{{'PUBLISHER' | translate}}</label>
               <input nbInput id="publisher" formControlName="publisher" type="text" fullWidth />
               
-              <label>Contact Points</label>
+              <label>{{'CONTACT_POINTS' | translate}}</label>
               <div class="contact-points-container">
                 <!-- Display tags -->
                 <div class="contact-points-tags" *ngIf="contactPointArray.length > 0">
@@ -235,7 +235,7 @@
                   <input nbInput
                         fullWidth
                         #contactInput
-                        placeholder="Type contact point"
+                        placeholder="{{'TYPE_CONTACT_POINT' | translate}}"
                         class="contact-input" />
                   <button nbButton
                           status="info"
@@ -246,11 +246,11 @@
                 </div>
               </div>
               
-              <label for="creator">Creator</label>
+              <label for="creator">{{'CREATOR' | translate}}</label>
               <input nbInput id="creator" formControlName="creator" type="text" fullWidth />
               
               <div class="form-group">
-                <label for="releaseDate" class="required-field">Release Date</label>
+                <label for="releaseDate" class="required-field">{{'RELEASE_DATE' | translate}}</label>
                 <input nbInput fullWidth id="releaseDate" formControlName="releaseDate"
                       [nbDatepicker]="datepicker">
                 <nb-datepicker #datepicker></nb-datepicker>
@@ -258,7 +258,7 @@
             </div>
             <div class="right-column">
               <label>
-                Themes
+                {{'THEMES' | translate}}
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
@@ -266,25 +266,25 @@
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
-              <nb-select multiple fullWidth formControlName="theme" placeholder="Select themes">
-                <nb-option value="AGRI">Agriculture</nb-option>
-                <nb-option value="ECON">Economy</nb-option>
-                <nb-option value="EDUC">Education</nb-option>
-                <nb-option value="ENVI">Environment</nb-option>
-                <nb-option value="ENER">Energy</nb-option>
-                <nb-option value="GOVE">Government</nb-option>
-                <nb-option value="HEAL">Health</nb-option>
-                <nb-option value="JUST">Justice</nb-option>
-                <nb-option value="INTR">International</nb-option>
-                <nb-option value="REGI">Regions</nb-option>
-                <nb-option value="SOCI">Society</nb-option>
-                <nb-option value="TECH">Technology</nb-option>
-                <nb-option value="TRAN">Transportation</nb-option>
+              <nb-select multiple fullWidth formControlName="theme" placeholder="{{'SELECT_THEMES' | translate}}">
+                <nb-option value="AGRI">{{'AGRICULTURE' | translate}}</nb-option>
+                <nb-option value="ECON">{{'ECONOMY' | translate}}</nb-option>
+                <nb-option value="EDUC">{{'EDUCATION' | translate}}</nb-option>
+                <nb-option value="ENVI">{{'ENVIRONMENT' | translate}}</nb-option>
+                <nb-option value="ENER">{{'ENERGY' | translate}}</nb-option>
+                <nb-option value="GOVE">{{'GOVERNMENT' | translate}}</nb-option>
+                <nb-option value="HEAL">{{'HEALTH' | translate}}</nb-option>
+                <nb-option value="JUST">{{'JUSTICE' | translate}}</nb-option>
+                <nb-option value="INTR">{{'INTERNATIONAL' | translate}}</nb-option>
+                <nb-option value="REGI">{{'REGIONS' | translate}}</nb-option>
+                <nb-option value="SOCI">{{'SOCIETY' | translate}}</nb-option>
+                <nb-option value="TECH">{{'TECHNOLOGY' | translate}}</nb-option>
+                <nb-option value="TRAN">{{'TRANSPORTATION' | translate}}</nb-option>
               </nb-select>
               
               <div class="form-group">
                 <label for="frequency">
-                  Frequency
+                  {{'FREQUENCY' | translate}}
                   <nb-icon
                     icon="info-outline"
                     status="primary" 
@@ -292,11 +292,11 @@
                     nbTooltipStatus="primary">
                   </nb-icon>
                 </label>
-                <nb-select id="frequency" formControlName="frequency" class="full-width-input" placeholder="Select frequency">
-                  <nb-option>none</nb-option>
-                  <nb-option value="DAILY">Daily</nb-option>
-                  <nb-option value="WEEKLY">Weekly</nb-option>
-                  <nb-option value="MONTHLY">Monthly</nb-option>
+                <nb-select id="frequency" formControlName="frequency" class="full-width-input" placeholder="{{'SELECT_FREQUENCY' | translate}}">
+                  <nb-option>{{'NONE' | translate}}</nb-option>
+                  <nb-option value="DAILY">{{'DAILY' | translate}}</nb-option>
+                  <nb-option value="WEEKLY">{{'WEEKLY' | translate}}</nb-option>
+                  <nb-option value="MONTHLY">{{'MONTHLY' | translate}}</nb-option>
                 </nb-select>
               </div>
               
@@ -304,7 +304,7 @@
               <div class="spatial-section">
                 <div class="d-flex justify-content-between align-items-center">
                   <strong>
-                    Spatial:
+                    {{'SPATIAL' | translate}}:
                     <nb-icon
                       icon="info-outline"
                       status="primary" 
@@ -323,11 +323,11 @@
                   <div [formGroupName]="i" class="spatial-point">
                     <div formArrayName="coordinates" class="coordinates-input">
                       <div class="coordinate">
-                        <label>Longitude:</label>
+                        <label>{{'LONGITUDE' | translate}}:</label>
                         <input nbInput type="number" step="0.000001" [formControlName]="0" class="full-width-input" />
                       </div>
                       <div class="coordinate">
-                        <label>Latitude:</label>
+                        <label>{{'LATITUDE' | translate}}:</label>
                         <input nbInput type="number" step="0.000001" [formControlName]="1" class="full-width-input" />
                       </div>
                     </div>
@@ -340,7 +340,7 @@
       </div>
       <div class="step-controls">
         <button nbButton status="primary" (click)="stepper.previous()">
-          Back
+          {{'BACK' | translate}}
         </button>
         <button nbButton 
           class="green-button"
@@ -348,7 +348,7 @@
           [disabled]="!isDatasetFormValid() || isCreatingDataset"
           (click)="createDatasetWithDistributions()">
           <nb-icon *ngIf="isCreatingDataset" icon="loader-outline" [spin]="true"></nb-icon>
-          {{ isEditing ? 'Update dataset' : 'Create dataset' }}
+          {{ isEditing ? ('UPDATE_DATASET' | translate) : ('CREATE_DATASET' | translate) }}
         </button>
       </div>
     </nb-step>

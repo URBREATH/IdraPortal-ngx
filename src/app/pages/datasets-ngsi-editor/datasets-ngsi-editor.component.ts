@@ -7,6 +7,7 @@ import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
 import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -60,7 +61,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         private ngsiDatasetsService: NgsiDatasetsService,
         private router: Router,
         private dialogService: NbDialogService,
-        private toastrService: NbToastrService 
+        private toastrService: NbToastrService,
+        public translation: TranslateService
   ) { }
 
   ngOnInit(): void {

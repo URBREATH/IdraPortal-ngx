@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import * as L from 'leaflet';
 import 'leaflet-draw';
+import { TranslateService } from '@ngx-translate/core';
+
 
 @Component({
   selector: 'ngx-map-dialog',
@@ -15,7 +17,8 @@ export class MapDialogComponent implements OnInit {
   
   constructor(
     private dialogRef: NbDialogRef<MapDialogComponent>,
-    private toastrService: NbToastrService
+    private toastrService: NbToastrService,
+    public translation: TranslateService,
   ) { }
   
   ngOnInit() {

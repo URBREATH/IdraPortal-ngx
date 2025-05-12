@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-
+import { TranslateModule } from '@ngx-translate/core';
 import { DatasetsNgsiEditorRoutingModule } from './datasets-ngsi-editor-routing.module';
 import { DatasetsNgsiEditorComponent } from '../datasets-ngsi-editor/datasets-ngsi-editor.component';
 
@@ -18,7 +18,7 @@ import {
   NbDatepickerModule, 
   NbCheckboxModule,
   NbTagModule,
-  NbTooltipModule
+  NbTooltipModule,  
 } from '@nebular/theme';
 
 @NgModule({
@@ -38,7 +38,8 @@ import {
     NbDatepickerModule,
     NbCheckboxModule,
     NbTagModule,
-    NbTooltipModule
+    NbTooltipModule,
+    TranslateModule,
   ]
 })
 export class DatasetsNgsiEditorModule { }

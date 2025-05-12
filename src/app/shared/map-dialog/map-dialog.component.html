@@ -1,6 +1,6 @@
 <nb-card>
     <nb-card-header>
-      Select Location
+      {{'SELECT_LOCATION' | translate}}
       <button nbButton ghost (click)="close()" class="close-button">
         <nb-icon icon="close-outline"></nb-icon>
       </button>
@@ -9,7 +9,7 @@
       <div id="dialog-map" class="dialog-map"></div>
     </nb-card-body>
     <nb-card-footer>
-      <button nbButton status="primary" (click)="saveLocation()">Save Location</button>
-      <button nbButton status="basic" (click)="close()">Cancel</button>
+      <button nbButton status="primary" (click)="saveLocation()">{{'SAVE_LOCATION' | translate}}</button>
+      <button nbButton status="basic" (click)="close()">{{'DIALOGS_CANCEL' | translate}}</button>
     </nb-card-footer>
   </nb-card>

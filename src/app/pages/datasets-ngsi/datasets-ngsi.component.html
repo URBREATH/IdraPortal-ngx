@@ -3,9 +3,13 @@
         <span class="d-flex flex-row justify-content-between align-items-center pb-2">
             <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">   
                 <button nbButton status="primary" 
-                [routerLink]="['/pages/datasets-ngsi/editor']">Create New Dataset</button>
-                <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button"><nb-icon icon="trash-2-outline"></nb-icon> Delete All Datasets </button>
-                <button nbButton class="delete-button" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()" ><nb-icon icon="trash-2-outline"></nb-icon>Delete Selected ({{datasetsToDelete.length}})</button>
+                [routerLink]="['/pages/datasets-ngsi/editor']">{{'CREATE_NEW_DATASET' | translate}}</button>
+                <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button">
+                    <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_DATASETS' | translate}} 
+                </button>
+                <button nbButton class="delete-button" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()">
+                    <nb-icon icon="trash-2-outline"></nb-icon>{{'DELETE_SELECTED' | translate}} ({{datasetsToDelete.length}})
+                </button>
             </span>
         </span>
         <!-- Tag input for filtering -->
@@ -66,7 +70,7 @@
                       </span>
                     </nb-card-header>
                     <nb-card-body>
-                      <span *ngIf="dataset.description === ''" class="no-description">{{'no_description' | translate}}</span>
+                      <span *ngIf="dataset.description === ''" class="no-description">{{'NO_DESCRIPTION' | translate}}</span>
                       <span class="truncated">{{dataset.description}}</span>
                     </nb-card-body>
                     <nb-card-footer>
@@ -85,7 +89,7 @@
                         </nb-tag>
                   </nb-tag-list>
 
-                  <label *ngIf="dataset.publisher !== ''" class="publisher-label">Publisher:</label>
+                  <label *ngIf="dataset.publisher !== ''" class="publisher-label">{{'PUBLISHER' | translate}}:</label>
                   <nb-tag-list *ngIf="dataset.publisher !== ''" size="small">
                         <nb-tag *ngFor="let publisher of isPublisherArray(dataset.publisher)"
                             [text]="publisher"
@@ -102,8 +106,8 @@
 
                 <!-- Empty state message -->
                 <div *ngIf="!loading && filteredDatasets.length === 0" class="d-flex flex-column align-items-center justify-content-center p-4">
-                    <h3>No datasets found matching your filters</h3>
-                    <p>Try adjusting your filter criteria</p>
+                    <h3>{{'NO_DATASETS_FOUND' | translate}}</h3>
+                    <p>{{'TRY_ADJUSTING_FILTERS' | translate}}</p>
                 </div>
             </div>
         </div>

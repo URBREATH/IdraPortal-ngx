@@ -11,6 +11,7 @@ import {
 } from '@nebular/theme';
 import { ConfirmationDialogComponent } from './confirmation-dialog/confirmation-dialog.component';
 import { MapDialogComponent } from './map-dialog/map-dialog.component';
+import { TranslateModule } from '@ngx-translate/core';
 
 @NgModule({
   declarations: [
@@ -25,7 +26,8 @@ import { MapDialogComponent } from './map-dialog/map-dialog.component';
     NbIconModule,
     NbListModule,
     NbCheckboxModule,
-    NbInputModule
+    NbInputModule,
+    TranslateModule,
   ],
   exports: [
     ConfirmationDialogComponent,
