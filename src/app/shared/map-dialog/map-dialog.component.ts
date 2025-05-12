@@ -50,24 +50,26 @@ export class MapDialogComponent implements OnInit {
     this.editableLayers = new L.FeatureGroup();
     this.map.addLayer(this.editableLayers);
 
-    const storedSpatial = localStorage.getItem("dataset_to_edit");
-    if (storedSpatial) {
-      // Parse the stored spatial data from local storage
-      const parsedData = JSON.parse(storedSpatial).spatial !== null ? JSON.parse(storedSpatial).spatial : {};
-      // Check the type of the stored spatial data and create the corresponding layer
-      if (parsedData.type === "Point") {
-        this.marker = L.marker([parsedData.coordinates[1], parsedData.coordinates[0]], { draggable: true }).addTo(this.editableLayers);
-        this.map.setView([parsedData.coordinates[1], parsedData.coordinates[0]], 5);
-      } else if (parsedData.type === "Polygon") {
-        const latlngs = parsedData.coordinates[0].map((coord: number[]) => [coord[1], coord[0]]);
-        const polygon = L.polygon(latlngs, { color: 'red' }).addTo(this.editableLayers);
-        this.map.fitBounds(polygon.getBounds());
+    const storedDataset = localStorage.getItem("dataset_to_edit");
+    if (storedDataset) {
+        if(JSON.parse(storedDataset).spatial) {
+        // Parse the stored spatial data from local storage
+        const parsedData = JSON.parse(storedDataset).spatial;
+        // Check the type of the stored spatial data and create the corresponding layer
+        if (parsedData.type === "Point") {
+          this.marker = L.marker([parsedData.coordinates[1], parsedData.coordinates[0]], { draggable: true }).addTo(this.editableLayers);
+          this.map.setView([parsedData.coordinates[1], parsedData.coordinates[0]], 5);
+        } else if (parsedData.type === "Polygon") {
+          const latlngs = parsedData.coordinates[0].map((coord: number[]) => [coord[1], coord[0]]);
+          const polygon = L.polygon(latlngs, { color: 'red' }).addTo(this.editableLayers);
+          this.map.fitBounds(polygon.getBounds());
+        }
+        else if (parsedData.type === "LineString") {
+          const latlngs = parsedData.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
+          const polyline = L.polyline(latlngs, { color: 'red' }).addTo(this.editableLayers);
+          this.map.fitBounds(polyline.getBounds());
+        }
       }
-      else if (parsedData.type === "LineString") {
-        const latlngs = parsedData.coordinates.map((coord: number[]) => [coord[1], coord[0]]);
-        const polyline = L.polyline(latlngs, { color: 'red' }).addTo(this.editableLayers);
-        this.map.fitBounds(polyline.getBounds());
-      } 
     } 
 
     // Initialise the draw control and pass it the FeatureGroup of editable layers

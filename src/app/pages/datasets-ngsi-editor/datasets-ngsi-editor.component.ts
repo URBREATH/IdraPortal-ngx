@@ -625,13 +625,16 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Get spatial data from localStorage, but don't require it
     const storedDataset = localStorage.getItem('dataset_to_edit');
-    let spatialData = null; // Default to null
+    let spatialData = {};
     
     if (storedDataset) {
       const parsedStoredDataset = JSON.parse(storedDataset);
-      if (parsedStoredDataset.spatial) {
+      // Check if spatial data exists and is not empty
+      if (parsedStoredDataset.spatial && JSON.stringify(parsedStoredDataset.spatial) !== '{}') {
         // Make sure that spatialData is always an array if it exists
         spatialData = [parsedStoredDataset.spatial];
+      } else {
+        spatialData = {}; 
       }
     }
     
