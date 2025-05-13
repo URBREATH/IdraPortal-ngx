@@ -63,7 +63,6 @@ export class DatasetsNgsiComponent implements OnInit {
     // Subscribe to the Observable from your service
     this.ngsiDatasetsService.getDatasets().subscribe({
       next: (response) => {
-        console.log('Response from server:', response);
         // Save the fetched data into a component property
         this.ngsiDatasetsInfo = response;
         this.filteredDatasets = [...this.ngsiDatasetsInfo];
@@ -388,7 +387,6 @@ export class DatasetsNgsiComponent implements OnInit {
         datasetToEdit.datasetDistribution = [];
       } else if (!Array.isArray(datasetToEdit.datasetDistribution)) {
         datasetToEdit.datasetDistribution = [datasetToEdit.datasetDistribution];
-        console.log('Converted datasetDistribution to array:', datasetToEdit.datasetDistribution);
       }
       
       // Save the dataset to localStorage

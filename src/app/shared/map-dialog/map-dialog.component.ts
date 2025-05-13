@@ -113,10 +113,6 @@ export class MapDialogComponent implements OnInit {
       }
     })
     
-    // Listen for delete events to keep track of layers
-    this.map.on("draw:deleted", (e: any) => {
-      console.log("Layer deleted");
-    });
 
     // Force map to recalculate its size after being displayed in dialog
     setTimeout(() => {

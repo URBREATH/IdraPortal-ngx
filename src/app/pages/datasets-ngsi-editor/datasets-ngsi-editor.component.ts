@@ -34,8 +34,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   deletingDistributions: { [key: string]: boolean } = {};
 
-  selectedDistributions: {[id: string]: boolean} = {};
-
   isEditing: boolean = false;
 
   public map: L.Map;
@@ -79,7 +77,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       try {
         const parsedDataset = JSON.parse(storedDataset);
         this.isEditing = true; // Set editing flag to true
-        console.log('Editing existing dataset:', parsedDataset.id);
         
         // Populate the form with existing data
         this.populateDatasetForm(parsedDataset);
@@ -127,7 +124,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   // Method to properly clean up the map
   private cleanupMap(): void {
     if (this.map) {
-      console.log('Cleaning up map resources');
       this.map.remove();
       this.map = null;
     }
@@ -534,7 +530,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     this.ngsiDatasetsService.deleteDistribution(distributionId).subscribe({
       next: () => {
-        console.log(`Distribution ${distributionId} deleted successfully`);
         // Process next deletion
         this.processDistributionDeletions(index + 1, onComplete);
       },
@@ -590,8 +585,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
     
     operation.subscribe({
-      next: (response) => {
-        console.log(`Distribution ${distribution.id} ${distribution.isNew ? 'created' : 'updated'} successfully`);
+      next: () => {
         // Process the next distribution
         this.processNextDistribution(index + 1, onComplete);
       },
@@ -675,8 +669,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     
     operation.subscribe({
-      next: (response) => {
-        console.log(`Dataset ${this.isEditing ? 'updated' : 'created'} successfully:`, response);
+      next: () => {
         // Clear localStorage
         localStorage.removeItem('dataset_to_edit');
         // Reset form and navigate back
@@ -820,8 +813,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         if (response && response.length > 0) {
           this.distributions = response;
           
-          // Clear all selections first
-          this.selectedDistributions = {};
           
           if (existingDataset && existingDataset.datasetDistribution) {
             // For editing: select only distributions that were part of the dataset
@@ -840,53 +831,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
               }
             }
             
-            // Debug logging to check what's happening
-            console.log('Dataset distribution IDs (processed):', distributionIds);
-            console.log('Available distributions:', this.distributions.map(d => d.id));
-            
-            // Now safely use forEach on the distributions
-            this.distributions.forEach(dist => {
-              // Check if distribution ID matches any ID in distributionIds by extracting the identifier part
-              const isSelected = distributionIds.some(datasetId => {
-                // Convert both to strings for consistency
-                const dsId = String(datasetId);
-                const distId = String(dist.id);
-                
-                // Direct match
-                if (dsId === distId) return true;
-                
-                // Extract identifier part after "id:" or "items:" in both IDs
-                const getIdPart = (id: string): string => {
-                  if (id.includes(':id:')) {
-                    return id.split(':id:')[1];
-                  } else if (id.includes(':items:')) {
-                    return id.split(':items:')[1];
-                  }
-                  return id;
-                };
-                
-                const datasetIdPart = getIdPart(dsId);
-                const distributionIdPart = getIdPart(distId);
-                
-                // Compare the extracted identifier parts
-                return datasetIdPart === distributionIdPart;
-              });
-              
-              this.selectedDistributions[dist.id] = isSelected;
-              
-              if (isSelected) {
-                console.log(`Selected distribution: ${dist.id} - ${dist.title}`);
-              }
-            });
-            
-            console.log(`Loaded ${this.distributions.length} distributions, selected ${distributionIds.length}`);
-          } else {
-            // For new datasets, select all by default
-            response.forEach(dist => {
-              this.selectedDistributions[dist.id] = true;
-            });
-            console.log(`Loaded ${this.distributions.length} distributions, selected all`);
-          }
+          } 
         } else {
           console.log('No distributions available');
         }
@@ -901,32 +846,27 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Add a method to populate the form with existing dataset data
   populateDatasetForm(dataset: any): void {
-    console.log('Populating form with dataset:', dataset);
     
     // Parse the date properly using Moment.js
     let releaseDate = new Date(); // Default to today for new datasets
 
     if (dataset.releaseDate) {
-      console.log('Original releaseDate from dataset:', dataset.releaseDate);
       
       // Check if date is in JSON-LD format with @value property
       if (typeof dataset.releaseDate === 'object' && dataset.releaseDate['@value']) {
         // Extract the date string from @value
         const dateString = dataset.releaseDate['@value'];
-        console.log('Found JSON-LD date format, extracting value:', dateString);
         
         // Parse the extracted date string
         const momentDate = moment(dateString);
         if (momentDate.isValid()) {
           releaseDate = momentDate.toDate();
-          console.log('Parsed JSON-LD date to:', momentDate.format('YYYY-MM-DD'));
         }
       } else {
         // Process as regular string format (existing code)
         const momentDate = moment(dataset.releaseDate);
         
         if (momentDate.isValid()) {
-          console.log('Valid date found:', momentDate.format('YYYY-MM-DD'));
           releaseDate = momentDate.toDate();
         } else {
           // Try alternative format parsing
@@ -935,7 +875,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           for (const format of formats) {
             const parsedDate = moment(dataset.releaseDate, format, true);
             if (parsedDate.isValid()) {
-              console.log(`Date parsed with format ${format}:`, parsedDate.format('YYYY-MM-DD'));
               releaseDate = parsedDate.toDate();
               break;
             }
@@ -993,8 +932,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       this.contactPointArray = [];
     }
     
-    // Debug log for keywords
-    console.log('Dataset keywords before processing:', dataset.keyword);
     
     // Set keywords using keywordArray - handle different possible formats
     if (dataset.keyword) {
@@ -1011,25 +948,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     } else {
       // No keywords, initialize empty array
       this.keywordArray = [];
-    }
-    
-    console.log('Populated keywordArray:', this.keywordArray);
-  }
-
-  // Check if all distributions are selected
-  areAllDistributionsSelected(): boolean {
-    return this.distributions.length > 0 && 
-           this.distributions.every(dist => this.selectedDistributions[dist.id]);
-  }
-
-  // Toggle selection for all distributions
-  toggleAllDistributions(checked: boolean): void {
-    if (checked) {
-      this.distributions.forEach(dist => {
-        this.selectedDistributions[dist.id] = true;
-      });
-    } else {
-      this.selectedDistributions = {};
     }
   }
 
@@ -1146,7 +1064,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           });
         });
         
-        console.log(`Loaded ${this.distributions.length} distributions for dataset`);
         this.loadingDistributions = false;
       },
       error: (error) => {
@@ -1191,8 +1108,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       
       if (!isDuplicate) {
         this.keywordArray.push(value);
-        console.log('Added keyword:', value);
-        console.log('Current keywords:', this.keywordArray);
       } else {
         this.toastrService.warning(
           `Keyword "${value}" already exists`,
@@ -1213,8 +1128,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     const index = this.keywordArray.indexOf(keyword);
     if (index !== -1) {
       this.keywordArray.splice(index, 1);
-      console.log('Removed keyword:', keyword);
-      console.log('Current keywords:', this.keywordArray);
     }
   }
 
