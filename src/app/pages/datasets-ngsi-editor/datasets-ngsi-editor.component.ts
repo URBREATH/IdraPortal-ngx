@@ -472,25 +472,42 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Get the dataset ID value, accounting for disabled form controls
     const datasetId = this.datasetForm.get('id').value;
 
-    // Only continue with the existing uniqueness check if the format is valid
+    // Check if ID exists and is not empty
     if (!this.isEditing && datasetId && datasetId.trim() !== '') {
-      // Use existing normalizeString method to normalize the dataset ID
-      const normalizedNewId = this.normalizeString(datasetId);
+      // First check if dataset with this ID already exists using getSingleEntity
+      this.isCreatingDataset = true;
       
-      // Check if this ID already exists among loaded datasets
-      const isDuplicateId = this.existingDatasetIds.some(existingId => 
-        this.normalizeString(existingId) === normalizedNewId
-      );
-      
-      if (isDuplicateId) {
-        this.toastrService.danger(
-          'A dataset with this ID already exists (ignoring spaces)',
-          'Duplicate ID'
-        );
-        return;
-      }
+      this.ngsiDatasetsService.getSingleEntity(datasetId).subscribe({
+        next: (existingDataset) => {
+          // Dataset with this ID already exists
+          this.isCreatingDataset = false;
+          this.toastrService.danger(
+            `A dataset with ID "${datasetId}" already exists in the system. Please use a different ID.`,
+            'Duplicate Dataset ID'
+          );
+        },
+        error: (error) => {
+          // 404 error means dataset doesn't exist, which is good - continue with creation
+          if (error.status === 404) {
+            this.proceedWithDatasetCreation();
+          } else {
+            // Other error occurred during the check
+            this.isCreatingDataset = false;
+            console.error('Error checking dataset existence:', error);
+            this.toastrService.danger(
+              'A dataset with this ID already exists. Please change the ID.',
+              'Error'
+            );
+          }
+        }
+      });
+    } else {
+      // No ID provided or we're in edit mode, proceed normally
+      this.proceedWithDatasetCreation();
     }
-    
+  }
+
+  private proceedWithDatasetCreation(): void {
     // Count active distributions (not marked for deletion)
     const activeDistributionsCount = this.distributions.filter(d => !d.markedForDeletion).length;
     
@@ -504,10 +521,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           showCancelButton: false
         },
       });
+      this.isCreatingDataset = false;
       return;
     }
-    
-    this.isCreatingDataset = true;
     
     // Process deletions first, then proceed with the rest of the workflow
     if (this.distributionsToDelete.length > 0) {
@@ -590,12 +606,21 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.processNextDistribution(index + 1, onComplete);
       },
       error: (error) => {
-        console.error(`Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
         this.isCreatingDataset = false;
-        this.toastrService.danger(
-          `Failed to ${distribution.isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
-          'Distribution Error'
-        );
+        
+        // Handle 409 Conflict error specifically
+        if (error.status === 409) {
+          this.toastrService.danger(
+            `Cannot create distribution "${distribution.title}". A distribution with the same ID or title already exists in the system.`,
+            'Duplicate Distribution'
+          );
+        } else {
+          console.error(`Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
+          this.toastrService.danger(
+            `Failed to ${distribution.isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
+            'Distribution Error'
+          );
+        }
         // Do not proceed to dataset creation
       }
     });

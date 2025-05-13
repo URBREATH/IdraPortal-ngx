@@ -18,6 +18,15 @@ export class NgsiDatasetsService {
     });
   }
 
+  getSingleEntity(id: string): Observable<any> {
+    return this.http.get(`/api/entity/${id}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+      }
+    });
+  }
+
   createDataset(dataset: any) {
     return this.http.post('/api/dataset', dataset, {
       responseType: 'text',
