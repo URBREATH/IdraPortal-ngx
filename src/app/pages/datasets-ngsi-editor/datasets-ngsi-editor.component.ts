@@ -239,7 +239,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       description: [''],
       name: [''],
       publisher: [''],
-      spatial: this.fb.array([]),
       releaseDate: [this.isEditing ? '' : new Date()],  // Only set default for new datasets
       theme: [[]],  // Initialize as empty array
       creator: [''],
@@ -636,17 +635,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Get spatial data from localStorage, but don't require it
     const storedDataset = localStorage.getItem('dataset_to_edit');
-    let spatialData = {};
+    let spatialData = null;
     
     if (storedDataset) {
       const parsedStoredDataset = JSON.parse(storedDataset);
       // Check if spatial data exists and is not empty
-      if (parsedStoredDataset.spatial && JSON.stringify(parsedStoredDataset.spatial) !== '{}') {
+      if (parsedStoredDataset.spatial && parsedStoredDataset.spatial !== null) {
         // Make sure that spatialData is always an array if it exists
         spatialData = [parsedStoredDataset.spatial];
-      } else {
-        spatialData = {}; 
-      }
+      };
     }
     
     // Format date with time component using Moment.js
@@ -678,7 +675,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       delete dataset.id;
     }
     
-    // Remove ID from the payload when updating (existing logic)
+    // Remove ID from the payload when updating
     const datasetId = formValue.id;
     if (this.isEditing) {
       const { id, ...datasetWithoutId } = dataset;
@@ -686,7 +683,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     
     // Choose between create or update
-    let operation;
+    let operation: any;
     if (this.isEditing) {
       operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
     } else {
@@ -1247,7 +1244,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         const storedDataset = localStorage.getItem('dataset_to_edit');
           if (storedDataset) {
             const parsedDataset = JSON.parse(storedDataset);
-            parsedDataset.spatial = {};
+            parsedDataset.spatial = null;
             localStorage.setItem('dataset_to_edit', JSON.stringify(parsedDataset));
           }
         
