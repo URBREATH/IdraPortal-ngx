@@ -325,6 +325,14 @@ nb-tag {
   flex: 1;
 }
 
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  color: #8f9bb3;
+  margin-top: 0.25rem;
+}
+
 label nb-icon {
   font-size: 1rem;
   margin-left: 5px;

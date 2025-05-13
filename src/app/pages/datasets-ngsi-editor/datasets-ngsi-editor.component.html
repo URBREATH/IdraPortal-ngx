@@ -16,6 +16,7 @@
                  id="distId" 
                  formControlName="id" 
                  type="text" 
+                 maxlength="50"
                  class="full-width-input"
                  [status]="distributionForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
           <div *ngIf="distributionForm.get('id')?.errors?.['forbiddenChars']" 
@@ -27,7 +28,8 @@
           <input nbInput 
                  id="title" 
                  formControlName="title" 
-                 type="text" 
+                 type="text"
+                 maxlength="100" 
                  class="full-width-input"
                  [status]="isFieldInvalid('title') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('title')" class="error-message">
@@ -35,13 +37,17 @@
           </div>
           
           <label for="description">{{'DESCRIPTION' | translate}}</label>
-          <textarea nbInput id="description" formControlName="description" class="full-width-input"></textarea>
+          <textarea nbInput id="description" formControlName="description" maxlength="500" class="full-width-input"></textarea>
+          <span class="char-count">
+            {{distributionForm.get('description').value?.length || 0}}/500
+          </span>
           
           <label for="downloadURL" class="required-field">{{'DOWNLOAD_URL' | translate}}</label>
           <input nbInput 
                  id="downloadURL" 
                  formControlName="downloadURL" 
-                 type="text" 
+                 type="text"
+                 maxlength="200" 
                  class="w-100"
                  [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
@@ -60,7 +66,7 @@
           </nb-select>
           
           <label for="license">{{'LICENSE' | translate}}</label>
-          <input nbInput id="license" formControlName="license" type="text" class="full-width-input" />
+          <input nbInput id="license" formControlName="license" type="text" maxlength="100" class="full-width-input" />
           
           <label for="releaseDate">{{'RELEASE_DATE' | translate}}</label>
           <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
@@ -145,21 +151,36 @@
           <form [formGroup]="datasetForm" class="dataset-form">
             <div class="left-column">
               <label for="title" class="required-field">{{'TITLE' | translate}}</label>
-              <input nbInput fullWidth id="title" formControlName="title">
+              <input nbInput 
+                     fullWidth 
+                     id="title" 
+                     formControlName="title"
+                     maxlength="100">
                         
               <label for="datasetId">{{'ID_OPTIONAL' | translate}}</label>
               <input nbInput 
                      fullWidth 
                      id="datasetId" 
                      formControlName="id"
+                     maxlength="50"
                      [status]="datasetForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
               <div *ngIf="datasetForm.get('id')?.errors?.['forbiddenChars']" 
                    class="error-message">
                 {{'ID_INVALID_CHARS' | translate}}
               </div>
                        
-              <label for="description">{{'DESCRIPTION' | translate}}</label>
-              <textarea nbInput id="description" formControlName="description" fullWidth></textarea>
+              <!-- Description with character counter -->
+              <div class="form-group">
+                <label for="description">{{'DESCRIPTION' | translate}}</label>
+                <textarea nbInput 
+                          id="description" 
+                          formControlName="description"
+                          maxlength="1000"
+                          fullWidth></textarea>
+                <span class="char-count">
+                  {{datasetForm.get('description').value?.length || 0}}/1000
+                </span>
+              </div>
             
               <label for="version">
                 {{'VERSION' | translate}}
@@ -170,7 +191,12 @@
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
-              <input nbInput id="version" formControlName="version" type="text" fullWidth />
+              <input nbInput 
+                     id="version" 
+                     formControlName="version" 
+                     type="text" 
+                     maxlength="20"
+                     fullWidth />
             
               <label>
                 {{'KEYWORDS' | translate}}
@@ -199,6 +225,7 @@
                         fullWidth
                         #keywordInput
                         placeholder="{{'TYPE_KEYWORD' | translate}}"
+                        maxlength="25"
                         class="keyword-input" />
                   <button nbButton
                           status="info"
@@ -206,16 +233,29 @@
                           (click)="addKeywordFromInput(keywordInput)">
                     <nb-icon icon="plus-outline"></nb-icon>
                   </button>
-                </div>
+                </div>                
+                  <span class="char-count me-5">
+                    {{keywordInput.value?.length || 0}}/25
+                  </span>
               </div>
             </div>
           
             <div class="mid-column">
               <label for="name">{{'NAME' | translate}}</label>
-              <input nbInput id="name" formControlName="name" type="text" fullWidth />
+              <input nbInput 
+                     id="name" 
+                     formControlName="name" 
+                     type="text"
+                     maxlength="100" 
+                     fullWidth />
               
               <label for="publisher">{{'PUBLISHER' | translate}}</label>
-              <input nbInput id="publisher" formControlName="publisher" type="text" fullWidth />
+              <input nbInput 
+                     id="publisher" 
+                     formControlName="publisher" 
+                     type="text"
+                     maxlength="100" 
+                     fullWidth />
               
               <label>{{'CONTACT_POINTS' | translate}}</label>
               <div class="contact-points-container">
@@ -236,6 +276,7 @@
                         fullWidth
                         #contactInput
                         placeholder="{{'TYPE_CONTACT_POINT' | translate}}"
+                        maxlength="100"
                         class="contact-input" />
                   <button nbButton
                           status="info"
@@ -247,7 +288,12 @@
               </div>
               
               <label for="creator">{{'CREATOR' | translate}}</label>
-              <input nbInput id="creator" formControlName="creator" type="text" fullWidth />
+              <input nbInput 
+                     id="creator" 
+                     formControlName="creator" 
+                     type="text"
+                     maxlength="100" 
+                     fullWidth />
               
               <div class="form-group">
                 <label for="releaseDate" class="required-field">{{'RELEASE_DATE' | translate}}</label>
