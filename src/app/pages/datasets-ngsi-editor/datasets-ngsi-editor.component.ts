@@ -340,8 +340,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     if (this.distributionForm.invalid) {
       this.toastrService.danger(
-        'Please fill in all required fields',
-        'Form Invalid'
+        this.translation.instant('TOAST_FILL_REQUIRED_FIELDS'),
+        this.translation.instant('TOAST_FORM_INVALID')
       );
       return;
     }
@@ -351,8 +351,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Title is required and must be unique
     if (!formData.title.trim()) {
       this.toastrService.danger(
-        'Please provide a title for the distribution',
-        'Title Required'
+        this.translation.instant('TOAST_TITLE_REQUIRED'),
+        this.translation.instant('TOAST_TITLE_REQUIRED_TITLE')
       );
       return;
     }
@@ -362,8 +362,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     if (!this.isEditingDistribution && 
         this.distributions.some(d => this.normalizeString(d.title) === normalizedNewTitle)) {
       this.toastrService.danger(
-        'A distribution with this title already exists in the list (ignoring spaces)',
-        'Duplicate Title'
+        this.translation.instant('TOAST_DUPLICATE_TITLE'),
+        this.translation.instant('TOAST_DUPLICATE_TITLE_TITLE')
       );
       return;
     }
@@ -376,8 +376,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
             this.normalizeString(d.title) === normalizedNewTitle && 
             d.id !== this.currentEditingDistributionId)) {
         this.toastrService.danger(
-          'A distribution with this title already exists in the list (ignoring spaces)',
-          'Duplicate Title'
+          this.translation.instant('TOAST_DUPLICATE_TITLE'),
+          this.translation.instant('TOAST_DUPLICATE_TITLE_TITLE')
         );
         return;
       }
@@ -434,16 +434,16 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       if (index !== -1) {
         this.distributions[index] = distribution;
         this.toastrService.success(
-          'The distribution changes have been registered and will be applied when the dataset is created',
-          'Changes Saved'
+          this.translation.instant('TOAST_CHANGES_SAVED'),
+          this.translation.instant('TOAST_CHANGES_SAVED_TITLE')
         );
       }
     } else {
       // Add the new distribution to the local array
       this.distributions.push(distribution);
       this.toastrService.success(
-        'Distribution added to the list and will be created when the dataset is saved',
-        'Distribution Added'
+        this.translation.instant('TOAST_DISTRIBUTION_ADDED'),
+        this.translation.instant('TOAST_DISTRIBUTION_ADDED_TITLE')
       );
     }
     
@@ -463,8 +463,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Validate dataset form first
     if (this.datasetForm.invalid) {
       this.toastrService.danger(
-        'Please complete all required dataset fields',
-        'Form Invalid'
+        this.translation.instant('TOAST_COMPLETE_DATASET_FIELDS'),
+        this.translation.instant('TOAST_FORM_INVALID')
       );
       return;
     }
@@ -482,8 +482,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           // Dataset with this ID already exists
           this.isCreatingDataset = false;
           this.toastrService.danger(
-            `A dataset with ID "${datasetId}" already exists in the system. Please use a different ID.`,
-            'Duplicate Dataset ID'
+            this.translation.instant('TOAST_DUPLICATE_DATASET_ID', {id: datasetId}),
+            this.translation.instant('TOAST_DUPLICATE_DATASET_ID_TITLE')
           );
         },
         error: (error) => {
@@ -553,8 +553,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         console.error(`Error deleting distribution ${distributionId}:`, error);
         this.isCreatingDataset = false;
         this.toastrService.danger(
-          `Failed to delete distribution. Dataset update aborted.`,
-          'Distribution Deletion Error'
+          this.translation.instant('TOAST_DELETE_DISTRIBUTION_FAILED'),
+          this.translation.instant('TOAST_DISTRIBUTION_DELETION_ERROR')
         );
         // Don't proceed if deletion fails
       }
@@ -611,8 +611,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         // Handle 409 Conflict error specifically
         if (error.status === 409) {
           this.toastrService.danger(
-            `Cannot create distribution "${distribution.title}". A distribution with the same ID or title already exists in the system.`,
-            'Duplicate Distribution'
+            this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION', {title: distribution.title}),
+            this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION_TITLE')
           );
         } else {
           console.error(`Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
@@ -703,8 +703,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.isCreatingDataset = false;
         this.router.navigate(['/pages/datasets-ngsi']);
         this.toastrService.success(
-          `Dataset ${this.isEditing ? 'updated' : 'created'} successfully`,
-          'Success'
+          this.isEditing ? 
+            this.translation.instant('TOAST_DATASET_UPDATED') : 
+            this.translation.instant('TOAST_DATASET_CREATED'),
+          this.translation.instant('TOAST_SUCCESS')
         );
       },
       error: (error) => {
@@ -746,8 +748,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         if (distributionToDelete.isNew) {
           this.distributions.splice(index, 1);
           this.toastrService.info(
-            `Distribution "${distributionToDelete.title}" removed from the list`,
-            'Distribution Removed'
+            this.translation.instant('TOAST_DISTRIBUTION_REMOVED', {title: distributionToDelete.title}),
+            this.translation.instant('TOAST_DISTRIBUTION_REMOVED_TITLE')
           );
         } else {
           // Mark existing distribution for deletion
@@ -759,8 +761,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
           }
           
           this.toastrService.info(
-            `Distribution "${distributionToDelete.title}" marked for deletion. The deletion will occur when the dataset is updated.`,
-            'Distribution Marked For Deletion'
+            this.translation.instant('TOAST_DISTRIBUTION_MARKED_DELETION', {title: distributionToDelete.title}),
+            this.translation.instant('TOAST_DISTRIBUTION_MARKED_DELETION_TITLE')
           );
         }
       }
@@ -781,8 +783,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       }
       
       this.toastrService.success(
-        `Deletion of "${distribution.title}" canceled`,
-        'Distribution Restored'
+        this.translation.instant('TOAST_DISTRIBUTION_RESTORED', {title: distribution.title}),
+        this.translation.instant('TOAST_DISTRIBUTION_RESTORED_TITLE')
       );
     }
   }
@@ -810,8 +812,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.distributions.splice(index, 1);
         
         this.toastrService.info(
-          `Distribution "${distributionToRemove.title}" removed from the list`,
-          'Distribution Removed'
+          this.translation.instant('TOAST_DISTRIBUTION_REMOVED', {title: distributionToRemove.title}),
+          this.translation.instant('TOAST_DISTRIBUTION_REMOVED_TITLE')
         );
       }
     });
@@ -1120,8 +1122,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       // Check if we've reached the maximum number of keywords
       if (this.keywordArray.length >= 10) {
         this.toastrService.warning(
-          'Maximum of 10 keywords reached. Remove some keywords before adding more.',
-          'Keywords Limit'
+          this.translation.instant('TOAST_KEYWORDS_LIMIT'),
+          this.translation.instant('TOAST_KEYWORDS_LIMIT_TITLE')
         );
         return;
       }
@@ -1135,8 +1137,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.keywordArray.push(value);
       } else {
         this.toastrService.warning(
-          `Keyword "${value}" already exists`,
-          'Duplicate Keyword'
+          this.translation.instant('TOAST_DUPLICATE_KEYWORD', {value: value}),
+          this.translation.instant('TOAST_DUPLICATE_KEYWORD_TITLE')
         );
       }
       
@@ -1164,8 +1166,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       // Check if we've reached the maximum number of contact points
       if (this.contactPointArray.length >= 5) {
         this.toastrService.warning(
-          'Maximum of 5 contact points reached. Remove some contact points before adding more.',
-          'Contact Points Limit'
+          this.translation.instant('TOAST_CONTACT_POINTS_LIMIT'),
+          this.translation.instant('TOAST_CONTACT_POINTS_LIMIT_TITLE')
         );
         return;
       }
@@ -1249,7 +1251,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
             localStorage.setItem('dataset_to_edit', JSON.stringify(parsedDataset));
           }
         
-        this.toastrService.success('Spatial data has been cleared', 'Success');
+        this.toastrService.success(
+          this.translation.instant('TOAST_SPATIAL_CLEARED'),
+          this.translation.instant('TOAST_SUCCESS')
+        );
       }
     });
   }
