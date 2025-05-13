@@ -319,20 +319,6 @@
                     <nb-icon icon="close-outline"></nb-icon>
                   </button>
                 </div>
-                <div formArrayName="spatial" *ngFor="let point of spatialPoints.controls; let i = index">
-                  <div [formGroupName]="i" class="spatial-point">
-                    <div formArrayName="coordinates" class="coordinates-input">
-                      <div class="coordinate">
-                        <label>{{'LONGITUDE' | translate}}:</label>
-                        <input nbInput type="number" step="0.000001" [formControlName]="0" class="full-width-input" />
-                      </div>
-                      <div class="coordinate">
-                        <label>{{'LATITUDE' | translate}}:</label>
-                        <input nbInput type="number" step="0.000001" [formControlName]="1" class="full-width-input" />
-                      </div>
-                    </div>
-                  </div>
-                </div>
                 <div id="map"></div>
               </div>
             </div>

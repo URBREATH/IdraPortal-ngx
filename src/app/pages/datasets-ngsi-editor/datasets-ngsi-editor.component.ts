@@ -252,16 +252,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
-  // Form array getters
-  get spatialPoints() {
-    return this.datasetForm.get('spatial') as FormArray;
-  }
-
-  // Methods to remove items from arrays
-  removeSpatialPoint(index: number) {
-    this.spatialPoints.removeAt(index);
-  }
-
   // Add this method to edit a distribution
   editDistribution(distribution: any): void {
     this.isEditingDistribution = true;
@@ -437,7 +427,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
 
     function createUniqueId() {
-      return `${formData.title.replace(/\s+/g, '')}-${moment(Date.now()).format().replace(/[-:+]/g, '')}`;
+      return `${formData.title.replace(/\s+/g, '')}${moment(Date.now()).format().replace(/[-:+]/g, '')}`;
     }
   
 
@@ -912,11 +902,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   // Add a method to populate the form with existing dataset data
   populateDatasetForm(dataset: any): void {
     console.log('Populating form with dataset:', dataset);
-    
-    // Clear existing form arrays (keep only spatial)
-    while (this.spatialPoints.length > 0) {
-      this.spatialPoints.removeAt(0);
-    }
     
     // Parse the date properly using Moment.js
     let releaseDate = new Date(); // Default to today for new datasets
