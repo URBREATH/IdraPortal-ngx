@@ -136,3 +136,50 @@ ul.cloud li:nth-child(9n+1) div { color: rgb(126, 78, 15); }
     margin-right: 0.75rem;
     // border-radius: 10px;
 }
+
+
+/* Card per l'editor */
+.editor-card {
+  height: 70vh;
+}
+
+.editor-card-body {
+  height: 70vh;
+}
+
+/* Editor di codice */
+.code-editor {
+  height: 65vh;
+}
+
+/* Etichetta formato output */
+.output-format-label {
+  min-width: fit-content;
+  margin-right: 0.5rem;
+}
+
+/* Margine destro per pulsanti */
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+/* Stile per il jumbotron e il contenitore principale */
+.jumbotron {
+  padding: 2rem 1rem;
+  margin-bottom: 2rem;
+  background-color: #e9ecef;
+  border-radius: 0.3rem;
+}
+
+.mb-4 {
+  margin-bottom: 1.5rem;
+}
+
+/* Organizzazione spazio */
+.justify-content-end {
+  justify-content: flex-end;
+}
+
+.d-flex {
+  display: flex;
+}

@@ -10,17 +10,17 @@
       <nb-card-body>
         <button routerLink="../" nbButton outline status="success">{{ 'REMOTE_CATALOGUE_ADMIN_BACK_BUTTON' | translate }}</button>
   
-        <div class="row show-grid" style="padding-bottom: 10px">
+        <div class="row show-grid pb-10">
           <div class="col-md-2">
-            <label class="search-label" for="search" style="padding-top: 30px">{{ 'REMOTE_CATALOGUE_ADMIN_SEARCH_LABEL' | translate }}</label>
-            <input nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px">
+            <label class="search-label  pb-30" for="search">{{ 'REMOTE_CATALOGUE_ADMIN_SEARCH_LABEL' | translate }}</label>
+            <input nbInput [nbFilterInput]="dataSource" id="search" class="search-input" >
           </div>
           <div class="col-md-2">
-            <label class="search-label" style="padding-top: 60px; margin-left: 30px">{{ 'REMOTE_CATALOGUE_ADMIN_REMOTE_CATALOGUE_LABEL' | translate }}</label>
+            <label class="search-label pt-60 ml-30" >{{ 'REMOTE_CATALOGUE_ADMIN_REMOTE_CATALOGUE_LABEL' | translate }}</label>
           </div>
           <div class="col-md-1">
-            <nb-select placeholder="{{ 'REMOTE_CATALOGUE_ADMIN_JSON_CATALOGUE_PLACEHOLDER' | translate }}" style="padding-top: 50px">
-              <nb-option *ngFor="let cat of allRemCat" [value]="cat.catalogueName">{{ cat.catalogueName }}</nb-option>
+            <nb-select placeholder="{{ 'REMOTE_CATALOGUE_ADMIN_JSON_CATALOGUE_PLACEHOLDER' | translate }}" class="pt-50" (selectedChange)="onCatalogueChange($event)">
+              <nb-option *ngFor="let cat of allRemCat" [value]="cat.id">{{ cat.catalogueName }}</nb-option>
             </nb-select>
           </div>
         </div>
@@ -30,22 +30,22 @@
           <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 300px">{{ defaultColumns[0] }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-300">{{ defaultColumns[0] }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{ defaultColumns[1] }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ defaultColumns[1] }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{ defaultColumns[2] }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ defaultColumns[2] }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[2]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[3]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{ defaultColumns[3] }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-70">{{ defaultColumns[3] }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[3]] }}</td>
           </ng-container>
   
@@ -57,7 +57,7 @@
           <ng-container [nbTreeGridColumnDef]="iconColumn">
             <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ 'REMOTE_CATALOGUE_ADMIN_ACTIONS' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-action>
+              <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline" nbTooltip="Add Catalogue" nbTooltipPlacement="right" [options]="{ animation: { type: 'zoom' } }" (click)="row.data.alreadyLoaded ? $event.stopPropagation() : addRemoteCatalogue(row.data.index)"></nb-action>
             </td>
           </ng-container>
         </table>

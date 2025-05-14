@@ -3,8 +3,12 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { CataloguesServiceService } from '../catalogues-service.service';
 import { SharedService } from '../../services/shared.service';
 import { DomSanitizer} from '@angular/platform-browser';
-import { NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { RefreshService } from '../../services/refresh.service';
+import { PrefixDialogComponent } from '../admin-configurations/dialog/prefix-dialog/prefix-dialog.component';
+import { EditorDialogComponent } from './dialog/editor-dialog/editor-dialog.component';
 
 export interface Node {
 	id : string ;
@@ -414,7 +418,9 @@ export class AddCatalogueComponent implements OnInit {
 		private route: ActivatedRoute, 
 		private sanitizer: DomSanitizer, 
 		private toastrService: NbToastrService,
-		public translation: TranslateService
+		public translation: TranslateService,
+		private refreshService: RefreshService,
+		private dialogService: NbDialogService
 	) {}
 
 	receivedMode : string = "";
@@ -422,7 +428,26 @@ export class AddCatalogueComponent implements OnInit {
 	loading: boolean = false;
 	modifyMode : boolean = false;
 
+	handleOpenEditorDialog() {
+		console.log(this.node)
+			this.dialogService.open(EditorDialogComponent, {
+			  context: {
+				model: {
+					language: 'json',
+					uri: 'main.json',
+					value: this.node.dumpString,
+				}
+			  },
+			}).onClose.subscribe(res => {
+			  if(res != false) {
+				console.log(res);
+				this.node.dumpString = res;
+			  }
+			});
+	}
+
     ngOnInit(): void {
+		this.refreshService.refreshPageOnce('admin-configuration');
 		this.route.queryParams
 			.subscribe(params => {
 			if(params.modifyId != null && params.modifyId != undefined && params.modifyId != ''){
@@ -532,83 +557,103 @@ export class AddCatalogueComponent implements OnInit {
 
 	public async createNode(){
 		this.loading = true;
-		if(this.node.name==''){
-			this.node.nameInvalid=true;
-		} else if (this.node.publisherName=='') {
-			this.node.pubNameInvalid=true;
-		}else {
-			this.node.nameInvalid=false;
-			this.node.pubNameInvalid=false;
-		}
 
-		if(this.node.host == ''){
-			this.node.hostInvalid=true;
+		this.node.nameInvalid = this.node.name.trim() === '' ? true : false;
+		this.node.pubNameInvalid = this.node.publisherName.trim() === '' ? true : false;
+
+		if(this.node.host.trim() === ''){
+			this.node.hostInvalid = this.node.nodeType === 'DCATDUMP' ? false : true;	
+ 			if(this.node.nodeType == 'ZENODO'){
+ 				if(this.node.communities == '')
+ 				{
+ 					this.node.hostInvalid=true;
+ 					this.toastrService.danger('Catalogue communities field required for complete url', 'Error');
+ 				}
+ 				else
+ 				{
+ 					this.node.hostInvalid=false;
+ 					this.node.host = 'https://zenodo.org/api/records?communities='+this.node.communities;
+ 				}
+ 			}			
 		}else{
 			this.node.hostInvalid=false;
+			if(this.node.nodeType == 'ZENODO'){
+				if(this.node.communities == '')
+				{
+					this.node.hostInvalid=true;
+					this.toastrService.danger('Catalogue communities field required for complete url', 'Error');
+				}
+				else
+				{
+					this.node.hostInvalid=false;
+					this.node.host = 'https://zenodo.org/api/records?communities='+this.node.communities;
+				}
+			}
 		}
 		
-		if(this.node.homepage == ''){
-			this.node.homepageInvalid=true;
+		if(this.node.homepage.trim() === ''){
+			this.node.homepageInvalid = this.node.nodeType === 'DCATDUMP' ? false : true;
 		}else{
 			this.node.homepageInvalid=false;
 		}
 
-		if(this.node.nameInvalid || this.node.pubNameInvalid || this.node.hostInvalid) return;
-
-
-/*
-		if(!validateUrl(node.homepage)){
-			this.node.homepageInvalid=true;
-			this.showMessageUrl = true;
-			this.messageHomepage =this.catalogueValidUrl;
+		if(this.node.nameInvalid || this.node.pubNameInvalid || this.node.hostInvalid || this.node.homepageInvalid) {
+			if(this.node.nameInvalid) this.toastrService.danger('Catalogue name required', 'Error');
+			if(this.node.pubNameInvalid) this.toastrService.danger('Publisher name required', 'Error');
+			if(this.node.hostInvalid) this.toastrService.danger('Catalogue url required', 'Error');
+			if(this.node.homepageInvalid) this.toastrService.danger('Catalogue homepage required', 'Error');			
+			this.loading = false;
+			return;
 		}
-		*/
-		
-		//if(validateUrl(node.host)){
+			
+		  // Validate URL format for homepage if provided
+		  if (!this.validateUrl(this.node.homepage)) {
+			if (this.node.nodeType !== 'DCATDUMP') {
+			  this.node.homepageInvalid = true;
+			  this.toastrService.danger('Please insert a valid url', 'Error');
+			  this.loading = false;
+			  return;
+			}
+		  }
 
+		// Validate URL format for host if provided
+		if (!this.validateUrl(this.node.host)) {
+			if (this.node.nodeType !== 'DCATDUMP') {
+				this.node.hostInvalid = true;
+				this.toastrService.danger('Please insert a valid url', 'Error');
+				this.loading = false;
+				return;
+			}
+		}
+
+		//if(validateUrl(node.host)){
 		switch(this.node.nodeType){
 			case 'CKAN':
-				this.node.federationLevel='LEVEL_3';
-				break;
 			case 'ZENODO':	
 				this.node.federationLevel='LEVEL_3';
 				break;
 			case 'DKAN':
-				this.node.federationLevel='LEVEL_2';
-				break;
 			case 'SOCRATA':
-				this.node.federationLevel='LEVEL_2';
-				break;
 			case 'SPOD':
-				this.node.federationLevel='LEVEL_2';
-				break;
 			case 'WEB':
+			case 'NGSILD_CB':
+			case 'OPATASOFT':
+			case 'JUNAR':
 				this.node.federationLevel='LEVEL_2';
 				break;
 			case 'DCATDUMP':
-				if(this.node.dumpURL!='')
-					this.node.federationLevel='LEVEL_2';
-				else
-					this.node.federationLevel='LEVEL_4';
+				this.node.federationLevel = this.node.dumpURL.trim() !== '' ? 'LEVEL_2' : 'LEVEL_4';
 				break;
 			case 'ORION':
-				this.node.federationLevel='LEVEL_4';
-				break;
-			case 'NGSILD_CB':
-				this.node.federationLevel='LEVEL_2';
-				break;
 			case 'SPARQL':
 				this.node.federationLevel='LEVEL_4';
-				break;
-			case 'OPATASOFT':
-			case 'JUNAR':	
-				this.node.federationLevel='LEVEL_2';
 				break;
 			default:
 				break;
 		}
-/*
-		if(this.node.refreshPeriod==''){
+
+
+		if(this.node.refreshPeriod === ''){
 			if((this.node.federationLevel=='LEVEL_3' || this.node.federationLevel=='LEVEL_2')){
 				//this.node.refreshPeriod=this.refreshPeriod;
 				this.node.refreshPeriod="0";
@@ -616,7 +661,7 @@ export class AddCatalogueComponent implements OnInit {
 				this.node.refreshPeriod="0";
 			}
 		}
-*/
+
 		/*
 		if(this.node.nodeType == 'WEB'){
 			if(angular.equals({}, node.sitemap)){
@@ -653,6 +698,26 @@ export class AddCatalogueComponent implements OnInit {
 		/* ************ Create the multipart request *****************/
 
 		var fd = new FormData();   
+		if (this.node.nodeType === 'DCATDUMP') {
+			if (this.node.dumpURL.trim() === '' && this.node.dumpString.trim() === '') {
+			  this.toastrService.danger("Please upload the dump file or a dump url!", "Error");
+			  this.loading = false;
+			  return;
+			} else {
+			  if (this.node.dumpURL.trim() !== '' && !this.validateUrl(this.node.dumpURL)) {
+				this.toastrService.danger('Invalid dump URL', 'Error');
+				this.loading = false;
+				return;
+			  } else if (this.node.dumpURL.trim() === '' && this.node.dumpString.trim() !== '') {
+				this.node.dumpURL = null;
+			  }
+
+				fd.append("dump", '');
+			  
+			}
+		  } else {
+			fd.append("dump", '');
+		  }
 	/*
 		if(this.node.nodeType == 'DCATDUMP'){
 			if(this.dump==null && node.dumpURL=='' && node.dumpString==''){
@@ -676,7 +741,7 @@ export class AddCatalogueComponent implements OnInit {
 			}
 		}else{
 			*/
-			fd.append("dump",'');
+			//fd.append("dump",''); //for this part it was only uncommented
 		//}
 		
 
@@ -692,10 +757,10 @@ export class AddCatalogueComponent implements OnInit {
 				this.restApi.modODMSNode(fd, params.modifyId).subscribe(infos =>{
 					this.loading = false;
 					this.router.navigate(['/catalogues']);
-				},err=>{
+				},(err: HttpErrorResponse)=>{
+					console.log(err);					
+					this.toastrService.danger('Could not update catalogue: '+err.error.userMessage,'Error');
 					this.loading = false;
-					this.toastrService.danger('Could not update catalogue','Error');
-					console.log(err);
 				})
 	
 			} else {
@@ -712,16 +777,20 @@ export class AddCatalogueComponent implements OnInit {
 					this.router.navigate(['/catalogues']);
 					this.loading = false;
 				
-				},err=>{
+				},(err: HttpErrorResponse)=>{
 					console.log(err);
-					this.toastrService.danger('Could not create catalogue','Error');
+					this.toastrService.danger('Could not create catalogue: '+err.error.userMessage,'Error');
 					this.loading = false;
 				})
 				
 			}
 		});
 	}
-	
+
+	validateUrl(url: string): boolean {
+		const reg = /^(http|https):\/\/[^ "]+$/;
+		return reg.test(url);
+	}
 
 	imageUrl: string = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAYAAABw4pVUAAAAAXNSR0IArs4c6QAAAVlpVFh0WE1MOmNvbS5hZG9iZS54bXAAAAAAADx4OnhtcG1ldGEgeG1sbnM6eD0iYWRvYmU6bnM6bWV0YS8iIHg6eG1wdGs9IlhNUCBDb3JlIDUuNC4wIj4KICAgPHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIj4KICAgICAgPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9IiIKICAgICAgICAgICAgeG1sbnM6dGlmZj0iaHR0cDovL25zLmFkb2JlLmNvbS90aWZmLzEuMC8iPgogICAgICAgICA8dGlmZjpPcmllbnRhdGlvbj4xPC90aWZmOk9yaWVudGF0aW9uPgogICAgICA8L3JkZjpEZXNjcmlwdGlvbj4KICAgPC9yZGY6UkRGPgo8L3g6eG1wbWV0YT4KTMInWQAABuNJREFUeAHtXFtIV00QHzUtTeyeaT4oFUU3kJIkItGXyhcftCftoYiih3osCo3oqUwIQugCQpF5IVIQNIIsiEA0RBC7WFApWJlleUkrzfPtzMf6eU5H17/9v3GDWag9uzN7Zvb325md8w8K6e/vd0CaNQiEWuOJOEIICCGWHQQhRAixDAHL3JEIEUIsQ8AydyRChBDLELDMHYkQIcQyBCxzRyJECLEMAcvckQgRQixDwDJ3JEKEEMsQsMwdiRAhxDIELHNHIkQIsQwBy9yRCBFCLEPAMnckQoQQyxCwzB2JECHEMgQsc0ciRAixDAHL3JEIEUIsQ8AydyRChBDLELDMHYkQIcQyBCxzRyJECLEMAcvckQgRQixDwDJ3JEKEEMsQsMwdiRAhJDAEHj16BMePH4eenp7AFv6l2tZHyNmzZ+HKlStQXV39l0IcmNtzAlPn1z5x4gTU1NRAVlYWv/FZsBgi//nMLKA+hcmwkydPnplCbhQdO3YMXrx4Ad+/f4eCggJoamqCHTt2wJw57uBra2sDTD+3bt2Cnz9/wqZNm4zvRoW7d+/CpUuXICkpCZYtWza+Rs/Hx8fD5cuX4fr167By5UoYGRmB/Px8uHfvHqBsxYoV42vw4e3bt4BR9/DhQ1iwYAGcP38ewsLCYPXq1S69kpISuHDhAkREREBdXR2UlZVBZmamS2d0dBSKiorIv5cvX0Jqaiq9y6UU6AAj5E/+KHvO0qVLHQWYo0jA/+rJOXXqlOudz58/dxYuXEgytUHqi4uLXTqT+aAODOnfuXPHpa/nV61a5SxevJh0FPjOmjVrnOjoaBpv2LDBtQZtpKSkkAz9WL58OT0rAl16VVVVNI97iYmJof3hs9fHAwcOkJ46KNTn5ub+puNdYxoH5VLHk9LY2Ag3b95UfgPgaZnYysvL4evXr3RyHz9+DAowuHbt2kSVGT/v2bOHTj1G5YcPHyA7OxvevHlDEfX06VP49OnT+LvfvXsHT548AUUaYMQqcsZlEx8wIrAVFhZShE58h9b79u0b4L52795N+921axdUVlbCly9ftMqM+qAQgulk3rx5sHnzZnJiaGjI5UxDQwON9+7dC+vWrYONGzdCa2sr/Pjxw6U3k8H27dtp2dq1a6lPTk6GuXPnEug4gSlMt1evXtFjRkYGpbKcnBwtcvUqommM/mJqxVTobUj28PAwoH1MedjjwWxubvaqBjR2J/qAlv6nHB4eTgMEwq/pbwiVtkisUgz1nz9/pjzvt2a6c5GRkaSq7yw99vOlr6+PdLUfS5Ys8TWj0grNaz/xHurq6nLp6qgpLS2FBw8eAEYfNj3vUg5gEBRCtL2QkBD96OrxwseGJwlbaOi/gYknjLP9+vWLzGnydO/1Af3Fvej94MXubTq6MXow4jGSMG0lJiZ6VQMaB5WQySyrS59EmMrUJQk6pen5ydYFex6rKmyY/7ENDg5S7/0L9RzHIb358+dTBenV0dGzbds2UEUM9Pb2Qnt7+3iq9OpPdxyUO8RkTFVCpIJ5F/MsOo4b0gCZ1gdLHhcXR6/SRcezZ898Xx0bG0vzePGPjY1BR0fHb3oJCQk09/r1a+orKiooQnBvf9KCGiE6xL0O4eV448YN2L9/P+Dli/n40KFDXrX/fYwFBX7LYBWVl5cH9fX1vjbT0tKgtrYWVBkL69ev962c8JCpshpu375NhwvfuWjRovHCxvfF05hkiZCdO3eC+m6gqgTLY9zw6dOnp+FecFXwwJw7d44+9u7fvw9Hjx71NbBv3z7YunUrfPz4EaKiomDLli2+elevXgWMOvytDctd9W1FJb2v8jQnWX86wS90zN94kmazoQ94oftVYhP9wnsBU2t6ejq0tLTQt9REuX7u7u4GvA910aLnZ9KzRIh2DKuV2SYDfcGLeioyjhw5QvfbwMAAud7Z2UnFiN6Ht8c7Jxhk4HtZCfFuxNYxfjBilXXw4EE4fPgw/VsMVlMcjTVlcWwoGDawsrp48SL9NPL+/Xv60RDvC44yXQgxMIiRMln1aFg6I7GkLANsnGSgK0KIgRBusRDCjbjBnhBiAIhbLIRwI26wJ4QYAOIWCyHciBvsCSEGgLjFQgg34gZ7QogBIG6xEMKNuMGeEGIAiFsshHAjbrAnhBgA4hYLIdyIG+wJIQaAuMVCCDfiBntCiAEgbrEQwo24wZ4QYgCIWyyEcCNusCeEGADiFgsh3Igb7AkhBoC4xUIIN+IGe0KIASBusRDCjbjBnhBiAIhbLIRwI26wJ4QYAOIWCyHciBvsCSEGgLjFQgg34gZ7QogBIG6xEMKNuMGeEGIAiFsshHAjbrAnhBgA4hYLIdyIG+z9A3SkySJaRUI8AAAAAElFTkSuQmCC";
 

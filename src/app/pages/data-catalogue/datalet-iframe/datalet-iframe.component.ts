@@ -15,6 +15,7 @@ export class DataletIframeComponent implements OnInit {
   nodeID:string;
   distributionID:string;
   url:string;
+  loading: boolean = true;
 
   private dataletBaseUrl:string;
 
@@ -30,6 +31,14 @@ export class DataletIframeComponent implements OnInit {
 
   ngOnInit(): void {
     this.iframeUrl=`${this.dataletBaseUrl}?ln=en&format=${this.format}&nodeID=${this.nodeID}&distributionID=${this.distributionID}&datasetID=${this.datasetID}&url=${encodeURIComponent(this.url)}`
+    // check when the iframe is loaded
+    let iframe = document.getElementById('iframe') as HTMLIFrameElement;
+    iframe.onload = (event: Event) => {
+      this.loading = false;
+    }
+    iframe.onerror = (event: Event) => {
+      this.loading = false;
+    }
   }
 
   close() {

@@ -1,11 +1,80 @@
-    .container {
-      width:1000px;
-    }
-    .left {
-      width:500px;
-      float:left;
-    }
-    .right {
-      width:500px;
-      float:right;
+.container {
+  width:1000px;
+}
+.left {
+  width:500px;
+  float:left;
+}
+.right {
+  width:500px;
+  float:right;
+}
+
+.ml-1{
+  margin-left: 0.5rem;
+}
+
+.ml-2{
+  margin-left: 1rem;
+}
+
+.mt-1{
+  margin-top: 0.5rem;
+}
+
+.mt-2{
+  margin-top: 1rem;
+}
+
+.padding-bottom-20{
+  padding-bottom: 20px;
+}
+
+/* Stili per input di ricerca */
+.search-input {
+  width: 200px;
+  height: 30px;
+  margin-left: 0.5rem;
+}
+
+/* Padding per contenitori */
+.pb-20 {
+  padding-bottom: 20px;
+}
+
+/* Larghezze colonne tabella */
+.col-w-200 {
+  width: 200px;
+}
+
+.col-w-75 {
+  width: 75px;
+}
+
+.col-w-120 {
+  width: 120px;
+}
+
+/* Stili per modali */
+.modal-container {
+  max-height: 90vh;
+}
+
+.modal-body {
+  overflow-y: auto;
+  max-height: calc(90vh - 130px);
+}
+
+/* Bottoni pieni larghezza */
+.btn-full-width {
+  width: 100%;
+}
+
+.table-layout-container {
+  width: 100%; 
+  table-layout: auto;
+}
+
+.work-break-style{
+  word-break: break-word;
     }

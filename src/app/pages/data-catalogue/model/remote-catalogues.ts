@@ -5,4 +5,6 @@ export class RemoteCatalogues {
     URL: string;
     editable:boolean;
     isIdra:boolean;
+    username: string;
+    password: string;
 }

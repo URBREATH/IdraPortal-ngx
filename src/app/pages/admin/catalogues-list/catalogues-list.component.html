@@ -8,9 +8,9 @@
   
     <nb-card>
       <nb-card-body>
-        <div style="padding-bottom: 20px">
+        <div class="pb-20">
           <label class="search-label" for="search">{{ 'CATALOGUE_LIST_SEARCH_LABEL' | translate }}</label>
-          <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" style="width: 200px; height: 30px; margin-left: 0.5rem">
+          <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
         </div>
   
         <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
@@ -18,78 +18,80 @@
           <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns" [ngClass]="{'disabled' : row.data[defaultColumns[4]] == 'LOADING' }"></tr>
   
           <ng-container [nbTreeGridColumnDef]="customColumn">
-            <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn)" *nbTreeGridHeaderCellDef style="width: 75px">{{ 'CATALOGUE_LIST_ACTIVE' | translate }}</th>
+            <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(customColumn)" *nbTreeGridHeaderCellDef class="col-w-75">{{ 'CATALOGUE_LIST_ACTIVE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
               <nb-toggle [checked]="row.data[customColumn]" status="success" (click)="activeCatalogue(row.data[defaultColumns[8]], row.data.index, row.data[customColumn])"></nb-toggle>
             </td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 200px">{{ 'CATALOGUE_LIST_NAME' | translate }}</th>
-            <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'CATALOGUE_LIST_NAME' | translate }}</th>
+            <td nbTreeGridCell *nbTreeGridCellDef="let row"> 
+              <a href="{{row.data.catalogueUrl}}" target="_blank">{{ row.data[defaultColumns[0]] }}</a>
+            </td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 75px">{{ 'CATALOGUE_LIST_COUNTRY' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'CATALOGUE_LIST_COUNTRY' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 150px">{{ 'CATALOGUE_LIST_TYPE' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-150">{{ 'CATALOGUE_LIST_TYPE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[2]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[3]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{ 'CATALOGUE_LIST_LEVEL' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-70">{{ 'CATALOGUE_LIST_LEVEL' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[3]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{ 'CATALOGUE_LIST_STATUS' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-70">{{ 'CATALOGUE_LIST_STATUS' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
               <ng-template #online>
-                <nb-icon icon="checkmark-outline" style="color: #64B728;"></nb-icon>
+                <nb-icon icon="checkmark-outline" class="text-success"></nb-icon>
               </ng-template>
               <nb-icon *ngIf="row.data['synchLock'] == 'PERIODIC' || row.data[defaultColumns[4]] == 'LOADING'; else offline" class="rotate_icon" icon="loader-outline"></nb-icon>
               <ng-template #offline>
-                <nb-icon *ngIf="row.data[defaultColumns[4]] === 'OFFLINE'; else online" icon="close-outline" style="color: crimson;"></nb-icon>
+                <nb-icon *ngIf="row.data[defaultColumns[4]] === 'OFFLINE'; else online" icon="close-outline" class="text-danger"></nb-icon>
               </ng-template>
             </td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[5]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 90px">{{ 'CATALOGUE_LIST_DATASETS' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-90">{{ 'CATALOGUE_LIST_DATASETS' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[5]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[6]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 120px">{{ 'CATALOGUE_LIST_UPDATE_PERIOD' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-120">{{ 'CATALOGUE_LIST_UPDATE_PERIOD' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[6]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[7]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 120px">{{ 'CATALOGUE_LIST_LAST_UPDATE' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-120">{{ 'CATALOGUE_LIST_LAST_UPDATE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[7]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[8]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid" style="width: 50px">{{ 'CATALOGUE_LIST_ID' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid col-w-75" >{{ 'CATALOGUE_LIST_ID' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row" class="hid">{{ row.data[defaultColumns[8]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[9]" *ngIf="CB_enabled == true">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef style="width: 70px">{{ 'CATALOGUE_LIST_CB' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-70">{{ 'CATALOGUE_LIST_CB' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
               <ng-template #offline >
-                <nb-icon icon="close-outline" style="color: crimson;"></nb-icon>
+                <nb-icon icon="close-outline" class="text-danger"></nb-icon>
               </ng-template>
-              <nb-icon *ngIf="row.data[defaultColumns[9]] == true; else offline" icon="checkmark-outline" style="color: #64B728;"></nb-icon>
+              <nb-icon *ngIf="row.data[defaultColumns[9]] == true; else offline" icon="checkmark-outline" class="text-success"></nb-icon>
             </td>
           </ng-container>
   
           <!-- ICONS -->
           <ng-container [nbTreeGridColumnDef]="iconColumn">
-            <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef style="width: 120px">
+            <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef class="col-w-120">
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_ADD_CATALOGUE' | translate }}" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_REMOTE_CATALOGUE_LIST' | translate }}" icon="list-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./remoteCatalogues"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump()"></nb-icon>
@@ -105,7 +107,4 @@
         </table>
       </nb-card-body>
     </nb-card>
-    <div class="row">
-      <div class="col-9"></div>
-    </div>
   </div>

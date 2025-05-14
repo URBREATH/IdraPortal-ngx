@@ -6,55 +6,55 @@
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
             <input [disabled]="advancedSearch" type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydown($event)" fullWidth>
           </nb-tag-list>
-          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" style="margin-left: 0.5rem;"></nb-icon>
-          <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" style="margin-left: 0.5rem;"></nb-icon>
+          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" class="ml-2"></nb-icon>
+          <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" class="ml-2"></nb-icon>
         </div>
       </div>
       <nb-card class="d-flex mb-2" *ngIf="advancedSearch">
-        <nb-card-body>
+        <nb-card-body  class="d-flex flex-column gap-1">
           <div class="row mb-1" *ngFor="let item of Filters; index as i">
-            <div class="col-2 d-flex align-items-center">
-              <span style="min-width: fit-content;">{{ 'HOME_FILTER' | translate }} {{i+1}}</span>
-              <nb-select [(selected)]="item.type" placeholder="{{ 'HOME_SELECT_FILTER' | translate }}" [disabled]="i == 0 || i != Filters.length -1" style="margin-left: 0.5rem;">
+            <div class="col-lg-2 col-md-3 col-12 d-flex align-items-center">
+              <span class="minwidth-fit-content" >{{ 'HOME_FILTER' | translate }} {{i+1}}</span>
+              <nb-select [(selected)]="item.type" placeholder="{{ 'HOME_SELECT_FILTER' | translate }}" [disabled]="i == 0 || i != Filters.length -1" class="ml-2">
                 <nb-option *ngIf="i == 0" value="ALL">{{ 'HOME_ALL' | translate }}</nb-option>
                 <nb-option *ngFor="let val of selectableOptions" [value]="val">{{ val }}</nb-option>
               </nb-select>
             </div>
-            <div class="col-10 d-flex align-items-center">
+            <div class="col-lg-10 col-md-9 col-12  d-flex align-items-center">
               <nb-tag-list (tagRemove)="onTagRemoveOnFilter($event,i)">
                 <nb-tag appearance="outline" status="primary" *ngFor="let filter of item.tags" [text]="filter" removable></nb-tag>
                 <input type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydownFilters($event,i)" fullWidth>
               </nb-tag-list>
-              <button nbButton status="primary" shape="round" (click)="addFilter(i)" *ngIf="i == Filters.length -1 && i != 3" style="margin-left: 0.5rem;width: 30px;height: 30px;display: flex;flex-direction: column;align-items: center;"><nb-icon nbTooltip="{{ 'HOME_ADD_FILTER' | translate }}" icon="plus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
-              <button nbButton status="primary" shape="round" (click)="removeFilter(i)" *ngIf="i != 0" style="margin-left: 0.5rem;width: 30px;height: 30px;display: flex;flex-direction: column;align-items: center;"><nb-icon nbTooltip="{{ 'HOME_REMOVE_FILTER' | translate }}" icon="minus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
+              <button nbButton status="primary" shape="round" (click)="addFilter(i)" *ngIf="i == Filters.length -1 && i != 3" class="filter-button"><nb-icon nbTooltip="{{ 'HOME_ADD_FILTER' | translate }}" icon="plus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
+              <button nbButton status="primary" shape="round" (click)="removeFilter(i)" *ngIf="i != 0" class="filter-button"><nb-icon nbTooltip="{{ 'HOME_REMOVE_FILTER' | translate }}" icon="minus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
             </div>
           </div>
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span style="min-width: fit-content;">{{ 'HOME_RELEASED_DATE' | translate }}</span>
+              <span class="minwidth-fit-content">{{ 'HOME_RELEASED_DATE' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
-              <input style="width: 12rem;" nbInput fieldSize="small" [nbDatepicker]="releasedDate">
+              <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="releasedDate">
               <nb-rangepicker #releasedDate (rangeChange)="updateDate($event,0)"></nb-rangepicker>
-              <nb-icon icon="calendar-outline" style="margin-left: 0.5rem;"></nb-icon>
+              <nb-icon icon="calendar-outline" class="ml-2"></nb-icon>
             </div>
           </div>
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span style="min-width: fit-content;">{{ 'HOME_UPDATED_DATE' | translate }}</span>
+              <span class="minwidth-fit-content">{{ 'HOME_UPDATED_DATE' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
-              <input style="width: 12rem;" nbInput fieldSize="small" [nbDatepicker]="updatedDate">
+              <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="updatedDate">
               <nb-rangepicker #updatedDate (rangeChange)="updateDate($event,1)"></nb-rangepicker>
-              <nb-icon icon="calendar-outline" style="margin-left: 0.5rem;"></nb-icon>
+              <nb-icon icon="calendar-outline" class="ml-2"></nb-icon>
             </div>
           </div>
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span style="min-width: fit-content;">{{ 'HOME_CATALOGUES' | translate }}</span>
+              <span class="minwidth-fit-content">{{ 'HOME_CATALOGUES' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
-              <nb-select style="max-width: -webkit-fill-available !important;" multiple [(selected)]="selectedCatalogues" (selectedChange)="handleCataloguesChange($event)" placeholder="{{ 'HOME_SELECT_CATALOGUE' | translate }}">
+              <nb-select class="max-width-webkitfill min-width-100" multiple [(selected)]="selectedCatalogues" (selectedChange)="handleCataloguesChange($event)" placeholder="{{ 'HOME_SELECT_CATALOGUE' | translate }}">
                 <nb-option [value]="0">{{ 'HOME_ALL_SELECTED' | translate }}</nb-option>
                 <nb-option *ngFor="let catalogue of cataloguesInfos" [value]="catalogue.id">{{ catalogue.name }}</nb-option>
               </nb-select>
@@ -65,22 +65,22 @@
               <nb-checkbox (checkedChange)="toggleMultiLanguage($event)">{{ 'HOME_MULTI_LANGUAGE' | translate }}</nb-checkbox>
             </div>
             <div class="col-2 d-flex align-items-center" *ngIf="multiLanguageChecked">
-              <nb-select [(selected)]="sourceLanguage" placeholder="{{ 'HOME_SOURCE' | translate }}" style="width: 150px;">
+              <nb-select [(selected)]="sourceLanguage" placeholder="{{ 'HOME_SOURCE' | translate }}" class="width-150">
                 <nb-option *ngFor="let lang of languages" [value]="lang.value">{{ lang.text }}</nb-option>
               </nb-select>
             </div>
             <div class="col-8 d-flex align-items-center" *ngIf="multiLanguageChecked">
-              <nb-select multiple [(selected)]="targetsLanguage" placeholder="{{ 'HOME_TARGETS' | translate }}" style="max-width: -webkit-fill-available !important;">
+              <nb-select multiple [(selected)]="targetsLanguage" placeholder="{{ 'HOME_TARGETS' | translate }}" class="max-width-webkitfill min-width-100">
                 <nb-option *ngFor="let lang of languages" [value]="lang.value">{{ lang.text }}</nb-option>
               </nb-select>
             </div>
           </div>
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span style="min-width: fit-content;">{{ 'HOME_SORT_BY' | translate }}</span>
+              <span class="minwidth-fit-content">{{ 'HOME_SORT_BY' | translate }}</span>
             </div>
             <div class="col-3 d-flex align-items-center">
-              <nb-select [(selected)]="sortyBy" placeholder="{{ 'HOME_SORT_BY' | translate }}" style="width: 150px;">
+              <nb-select [(selected)]="sortyBy" placeholder="{{ 'HOME_SORT_BY' | translate }}" class="width-150">
                 <nb-option [value]="0">{{ 'HOME_RELEASE_DATE' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_UPDATE_DATE' | translate }}</nb-option>
                 <nb-option [value]="2">{{ 'HOME_CATALOGUES' | translate }}</nb-option>
@@ -89,16 +89,16 @@
               </nb-select>
             </div>
             <div class="col-3 d-flex align-items-center">
-              <nb-select [(selected)]="order" placeholder="{{ 'HOME_ORDER' | translate }}" style="width: 150px;">
+              <nb-select [(selected)]="order" placeholder="{{ 'HOME_ORDER' | translate }}" class="width-150">
                 <nb-option [value]="0">{{ 'HOME_ASCENDENT' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_DESCENDENT' | translate }}</nb-option>
               </nb-select>
             </div>
             <div class="col-2 d-flex align-items-center">
-              <span style="min-width: fit-content;">{{ 'HOME_MAX_RESULTS_PER_PAGE' | translate }}</span>
+              <span class="minwidth-fit-content">{{ 'HOME_MAX_RESULTS_PER_PAGE' | translate }}</span>
             </div>
             <div class="col-2 d-flex align-items-center">
-              <nb-select [(selected)]="maxResultPerPage" placeholder="25" style="width: 150px;">
+              <nb-select [(selected)]="maxResultPerPage" placeholder="25" class="width-150">
                 <nb-option [value]="5">5</nb-option>
                 <nb-option [value]="10">10</nb-option>
                 <nb-option [value]="25">25</nb-option>

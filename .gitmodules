@@ -1,0 +1,3 @@
+[submodule "IdraPortal-ngx-Translations"]
+	path = IdraPortal-ngx-Translations
+	url = https://github.com/OPSILab/IdraPortal-ngx-Translations

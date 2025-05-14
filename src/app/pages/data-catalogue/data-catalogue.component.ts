@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-data-catalogue',
@@ -8,9 +9,12 @@ import { Component, OnInit } from '@angular/core';
 })
 export class DataCatalogueComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private refreshService: RefreshService,
+  ) { }
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
   }
 
 }
