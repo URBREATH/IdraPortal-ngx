@@ -314,17 +314,42 @@ export class DatasetsNgsiComponent implements OnInit {
   // Delete all selected datasets
   deleteSelectedDatasets(): void {
     if (this.datasetsToDelete.length === 0) {
-      this.toastrService.warning('No datasets selected for deletion', 'Warning');
+      this.toastrService.warning(
+        this.translation.instant('TOAST_NO_DATASETS_SELECTED'),
+        this.translation.instant('TOAST_WARNING')
+      );
       return;
     }
 
+    // Count how many distributions will be deleted
+    let distributionCount = 0;
+    this.datasetsToDelete.forEach(datasetId => {
+      const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
+      if (dataset && dataset.datasetDistribution) {
+        if (Array.isArray(dataset.datasetDistribution)) {
+          distributionCount += dataset.datasetDistribution.length;
+        } else {
+          distributionCount += 1; // Single distribution
+        }
+      }
+    });
+
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete Selected Datasets',
-        message: `Are you sure you want to delete ${this.datasetsToDelete.length} selected datasets?`,
+        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATASETS'),
+        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATASETS_MESSAGE', {
+          datasetCount: this.datasetsToDelete.length,
+          distributionCount: distributionCount
+        }),
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
+        // Show deletion in progress
+        this.toastrService.info(
+          this.translation.instant('TOAST_DELETION_IN_PROGRESS'),
+          this.translation.instant('TOAST_PLEASE_WAIT')
+        );
+        
         // Track completed deletions
         let completedCount = 0;
         let errorCount = 0;
@@ -355,25 +380,32 @@ export class DatasetsNgsiComponent implements OnInit {
 
   // Helper to finalize batch deletion and update UI
   private finalizeBatchDeletion(successCount: number, errorCount: number): void {
-    // Remove deleted datasets from the displayed lists
-    this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(
-      ds => !this.datasetsToDelete.includes(ds.id)
-    );
-    this.displayedDatasets = this.displayedDatasets.filter(
-      ds => !this.datasetsToDelete.includes(ds.id)
-    );
-    
     // Clear the deletion list
     this.datasetsToDelete = [];
     
     // Show appropriate message
     if (errorCount === 0) {
-      this.toastrService.success(`Successfully deleted ${successCount} datasets`, 'Success');
+      this.toastrService.success(
+        this.translation.instant('TOAST_DELETED_DATASETS_SUCCESS', {count: successCount}),
+        this.translation.instant('TOAST_SUCCESS')
+      );
     } else if (successCount === 0) {
-      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
+      this.toastrService.danger(
+        this.translation.instant('TOAST_DELETE_DATASETS_FAILED'),
+        this.translation.instant('TOAST_ERROR')
+      );
     } else {
-      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
+      this.toastrService.warning(
+        this.translation.instant('TOAST_DELETE_DATASETS_PARTIAL', {
+          successCount: successCount,
+          errorCount: errorCount
+        }),
+        this.translation.instant('TOAST_PARTIAL_SUCCESS')
+      );
     }
+    
+    // Refresh the dataset list
+    this.loadDatasets();
   }
 
   // Edit a dataset
