@@ -20,7 +20,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     'JSON',
     'CSV',
     'XML',
-    'TXT'
+    'TXT',
+    'XLSX',
+    'PDF',
+    'GeoJSON',
+    'WMS'
   ];
 
   selectedStepIndex = 0;
