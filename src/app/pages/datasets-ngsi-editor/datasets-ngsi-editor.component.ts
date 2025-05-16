@@ -24,8 +24,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     'XLSX',
     'PDF',
     'GeoJSON',
-    'WMS'
+    'WMS',
+    'Other'
   ];
+
+  // Add this property to track if "Other" format is selected
+  isOtherFormatSelected: boolean = false;
 
   selectedStepIndex = 0;
   
@@ -224,6 +228,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required],
       format: ['CSV'],
+      otherFormat: ['', [
+        Validators.maxLength(10), 
+        this.notEqualToOtherValidator()
+      ]],
       description: [''],
       accessUrl: [''],
       downloadURL: ['', Validators.required], 
@@ -234,6 +242,25 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       license: ['CC-BY'],
       releaseDate: [''],
       modifiedDate: ['']
+    });
+
+    // Monitor format changes to toggle otherFormat field
+    this.distributionForm.get('format').valueChanges.subscribe(format => {
+      this.isOtherFormatSelected = format === 'Other';
+      
+      const otherFormatControl = this.distributionForm.get('otherFormat');
+      if (this.isOtherFormatSelected) {
+        otherFormatControl.enable();
+        otherFormatControl.setValidators([
+          Validators.required, 
+          Validators.maxLength(10),
+          this.notEqualToOtherValidator()
+        ]);
+      } else {
+        otherFormatControl.disable();
+        otherFormatControl.setValidators(null);
+      }
+      otherFormatControl.updateValueAndValidity();
     });
 
     // Add validator to dataset form with today's date as default for new datasets
@@ -251,6 +278,17 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
+  // Validator to ensure otherFormat isn't 'Other' (case insensitive)
+  notEqualToOtherValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      
+      // Check if the value equals "Other" (case-insensitive and ignoring spaces)
+      const normalized = control.value.replace(/\s+/g, '').toLowerCase();
+      return normalized === 'other' ? { equalToOther: true } : null;
+    };
+  }
+
   // Add this method to edit a distribution
   editDistribution(distribution: any): void {
     this.isEditingDistribution = true;
@@ -258,6 +296,21 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Reset and populate the form with existing distribution data
     this.distributionForm.reset();
+    
+    // Check if this distribution has a custom format
+    let format = distribution.format || 'CSV';
+    let otherFormat = '';
+    
+    // If format doesn't match any standard option (case insensitive and ignore spaces)
+    const normalizedFormat = format.replace(/\s+/g, '').toLowerCase();
+    const isStandardFormat = this.formatOptions.some(opt => 
+      opt.replace(/\s+/g, '').toLowerCase() === normalizedFormat
+    );
+    
+    if (!isStandardFormat) {
+      otherFormat = format;
+      format = 'Other';
+    }
     
     // Convert arrays to single values for form fields
     const accessUrl = Array.isArray(distribution.accessUrl) && distribution.accessUrl.length > 0 
@@ -289,7 +342,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       description: distribution.description,
       accessUrl: accessUrl,
       downloadURL: distribution.downloadURL,
-      format: distribution.format,
+      format: format,
+      otherFormat: otherFormat,
       byteSize: distribution.byteSize,
       checksum: distribution.checksum,
       rights: distribution.rights,
@@ -351,6 +405,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     const formData = this.distributionForm.value;
     
+    // Use otherFormat value if format is 'Other'
+    const actualFormat = formData.format === 'Other' ? formData.otherFormat : formData.format;
+
     // Title is required and must be unique
     if (!formData.title.trim()) {
       this.toastrService.danger(
@@ -406,7 +463,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       description: formData.description || '',
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
       downloadURL: formData.downloadURL,
-      format: formData.format || 'CSV',
+      format: actualFormat || 'CSV',
       byteSize: formData.byteSize || 0,
       checksum: formData.checksum || '',
       rights: formData.rights || '',
@@ -730,7 +787,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   cancelEditDistribution(): void {
     this.distributionForm.reset({
-      format: 'CSV'
+      format: 'CSV',
+      otherFormat: ''
     });
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
