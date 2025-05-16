@@ -6,7 +6,7 @@
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
             <input [disabled]="advancedSearch" type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydown($event)" fullWidth>
           </nb-tag-list>
-          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" class="ml-2"></nb-icon>
+          <nb-icon nbTooltip="{{ 'SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" class="ml-2"></nb-icon>
           <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" class="ml-2"></nb-icon>
         </div>
       </div>
@@ -82,7 +82,7 @@
                 <nb-option [value]="0">{{ 'HOME_RELEASE_DATE' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_UPDATE_DATE' | translate }}</nb-option>
                 <nb-option [value]="2">{{ 'HOME_CATALOGUES' | translate }}</nb-option>
-                <nb-option [value]="3">{{ 'HOME_PUBLISHER_NAME' | translate }}</nb-option>
+                <nb-option [value]="3">{{ 'PUBLISHER_NAME' | translate }}</nb-option>
                 <nb-option [value]="4">{{ 'HOME_TITLE' | translate }}</nb-option>
               </nb-select>
             </div>
@@ -110,7 +110,7 @@
                 size="small"
                 [class.btn-pulse]="submitted"
                 (click)="toggleAdvancedSearch()">
-                {{ 'HOME_SEARCH' | translate }}
+                {{ 'SEARCH' | translate }}
             </button>
             </div>
           </div>

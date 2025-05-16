@@ -12,7 +12,7 @@
   
         <div class="row show-grid pb-10">
           <div class="col-md-2">
-            <label class="search-label pt-30" for="search">{{ 'REMOTE_CATALOGUE_ADMIN_SEARCH_LABEL' | translate }}</label>
+            <label class="search-label pt-30" for="search">{{ 'SEARCH' | translate }}:</label>
             <input nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
           </div>
           <div class="col-md-2">
@@ -55,7 +55,7 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="iconColumn">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ 'REMOTE_CATALOGUE_ADMIN_ACTIONS' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ 'ACTIONS' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
               <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-action>
             </td>

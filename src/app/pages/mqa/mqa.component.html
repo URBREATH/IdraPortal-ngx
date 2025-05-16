@@ -54,7 +54,7 @@
           </div>
           <nb-card>
       <nb-card-body class="scrollable-card">
-        <label class="search-label" for="search_list">{{ 'MQA_SEARCH' | translate }}:</label>
+        <label class="search-label" for="search_list">{{ 'SEARCH' | translate }}:</label>
                 <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
                 <button size="small" class="ml-2" nbButton (click)="loadList()"><nb-icon icon="refresh-outline"></nb-icon></button>
         <table [nbTreeGrid]="dataSource_list" [nbSort]="dataSource_list" (sort)="updateSort($event)">
@@ -114,7 +114,7 @@
         </div>
         <nb-card>
             <nb-card-body>
-        <label class="search-label" for="search">{{ 'MQA_SEARCH' | translate }}:</label>
+        <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
                             <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
           
               <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
@@ -150,7 +150,7 @@
         </div>
         <nb-card>
             <nb-card-body>
-        <label class="search-label" for="search">{{ 'MQA_SEARCH' | translate }}:</label>
+        <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
                             <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
           
               <table [nbTreeGrid]="dataSource_dat" [nbSort]="dataSource_dat" (sort)="updateSort($event)">

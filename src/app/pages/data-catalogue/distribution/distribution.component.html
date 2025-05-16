@@ -5,87 +5,87 @@
     <nb-card-body class="content-truncated">
         
         <span *ngIf="distribution.description!=''" class="d-flex flex-column mb-2">
-            <label class="label">Description:</label>
+            <label class="label">{{ 'DESCRIPTION' | translate }}:</label>
             <p class="truncated">{{distribution.description}}</p>
         </span>
 
         <span *ngIf="distribution.format!=''" class="d-flex flex-column mb-2">
-            <label class="label">Format:</label>
+            <label class="label">{{ 'FORMAT' | translate }}:</label>
             <p class="truncated">{{distribution.format}}</p>
         </span>
 
         <span *ngIf="distribution.accessURL!=''" class="d-flex flex-column mb-2">
-            <label class="label">Access URL:</label>
+            <label class="label">{{ 'ACCESS_URL' | translate }}:</label>
             <p class="truncated">
                 <a [href]="distribution.accessURL" target="_blank">{{distribution.accessURL}}</a>
             </p>
         </span>
 
         <span *ngIf="distribution.downloadURL!=''" class="d-flex flex-column mb-2">
-            <label class="label">Download URL:</label>
+            <label class="label">{{ 'DOWNLOAD_URL' | translate }}:</label>
             <p class="truncated">
                 <a [href]="distribution.downloadURL" target="_blank">{{distribution.downloadURL}}</a>
             </p>
         </span>
 
         <span *ngIf="distribution.mediaType!=''" class="d-flex flex-column mb-2">
-            <label class="label">Media Type:</label>
+            <label class="label">{{ 'MEDIA_TYPE' | translate }}:</label>
             <p class="truncated">{{distribution.mediaType}}</p>
         </span>
 
         <span *ngIf="distribution.license.name!='' || distribution.license.uri!=''" class="d-flex flex-column mb-2">
-            <label class="label">License:</label>
+            <label class="label">{{ 'LICENSE' | translate }}:</label>
             <p class="truncated"><a [href]="distribution.license.uri" target="_blank">
                 {{distribution.license.name || distribution.license.uri}}</a></p>
         </span>
 
         <span *ngIf="distribution.releaseDate!='' && showDate(distribution.releaseDate)" class="d-flex flex-column mb-2">
-            <label class="label">Release Date:</label>
+            <label class="label">{{ 'RELEASE_DATE' | translate }}:</label>
             <p class="truncated">{{distribution.releaseDate |  date}}</p>
         </span>
 
         <span *ngIf="distribution.updateDate!='' && showDate(distribution.updateDate)" class="d-flex flex-column mb-2">
-            <label class="label">Update Date:</label>
+            <label class="label">{{ 'UPDATE_DATE' | translate }}:</label>
             <p class="truncated">{{distribution.updateDate |  date}}</p>
         </span>
         
         <span *ngIf="distribution.language!=undefined && (distribution.language.length>1 || (distribution.language.length==1 && distribution.language[0]!='' && distribution.language[0]!=undefined ))" class="d-flex flex-column mb-2">
-            <label class="label">Languages:</label>
+            <label class="label">{{ 'LANGUAGES' | translate }}Languages:</label>
             <p class="truncated">{{distribution.language.join(',')}}</p>
         </span>
 
         <span *ngIf="distribution.linkedSchemas!=undefined && (distribution.linkedSchemas.length>1 || (distribution.linkedSchemas.length==1 && distribution.linkedSchemas[0]!=undefined && distribution.linkedSchemas[0].title!='' ))" class="d-flex flex-column mb-2">
-            <label class="label">Linked Schemas:</label>
+            <label class="label">{{ 'LINKED_SCHEMAS' | translate }}:</label>
             <p class="truncated">{{printStandard(distribution.linkedSchemas)}}</p>
         </span>
         
         <span *ngIf="distribution.rights!=''" class="d-flex flex-column mb-2">
-            <label class="label">Rights:</label>
+            <label class="label">{{ 'RIGHTS' | translate }}:</label>
             <p class="truncated">{{distribution.rights}}</p>
         </span>
         
         <span *ngIf="distribution.status!=undefined" class="d-flex flex-column mb-2">
-            <label class="label">Status:</label>
+            <label class="label">{{ 'STATUS' | translate }}:</label>
             <p class="truncated">{{printConcepts(distribution.status)}}</p>
         </span>
 
         <span *ngIf="distribution.byteSize!='' && distribution.byteSize!='0'" class="d-flex flex-column mb-2">
-            <label class="label">Byte Size:</label>
+            <label class="label">{{ 'BYTE_SIZE' | translate }}:</label>
             <p class="truncated">{{distribution.byteSize}} B</p>
         </span>
 
         <span *ngIf="distribution.checksum!=undefined && distribution.checksum.algorithm!=''" class="d-flex flex-column mb-2">
-            <label class="label">Checksum Algorithm:</label>
+            <label class="label">{{ 'CHECKSUM_ALGORITHM' | translate }}:</label>
             <p class="truncated">{{distribution.checksum.algorithm}}</p>
         </span>
 
         <span *ngIf="distribution.checksum!=undefined && distribution.checksum.checksumValue!=''" class="d-flex flex-column mb-2">
-            <label class="label">Checksum Value:</label>
+            <label class="label">{{ 'CHECKSUM_VALUE' | translate }}:</label>
             <p class="truncated">{{distribution.checksum.checksumValue}}</p>
         </span>
 
         <span *ngIf="distribution.documentation!=undefined && (distribution.documentation.length>1 || (distribution.documentation.length==1 && distribution.documentation[0]!='' && distribution.documentation[0]!=undefined ))" class="d-flex flex-column mb-2">
-            <label class="label">Documentation:</label>
+            <label class="label">{{ 'DOCUMENTATION' | translate }}:</label>
             <p class="truncated">{{distribution.documentation.join(',')}}</p>
         </span>
     </nb-card-body>

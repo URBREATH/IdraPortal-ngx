@@ -3,6 +3,7 @@ import * as echarts from 'echarts';
 import { CoolTheme } from './cool-theme';
 import { StatisticsService } from './statistics.service';
 import { RefreshService } from '../services/refresh.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'ngx-statistics',
@@ -13,6 +14,7 @@ export class StatisticsComponent implements OnInit {
 
   constructor(
     private statisticsService : StatisticsService,
+    public translation: TranslateService,
         private refreshService: RefreshService,
   ) { }
 

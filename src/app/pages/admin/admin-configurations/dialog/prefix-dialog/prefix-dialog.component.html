@@ -1,5 +1,5 @@
 <nb-card>
-  <nb-card-header>{{ 'DIALOG_TITLE' | translate }}</nb-card-header>
+  <nb-card-header>{{ 'DIALOG_PREFIX_TITLE' | translate }}</nb-card-header>
   <nb-card-body>
     <h6 class="jumbotron-heading">{{ 'DIALOG_PREFIX' | translate }}</h6>
     <input class="mb-3" type="text" nbInput fullWidth status="primary" placeholder="{{ 'DIALOG_INSERT_PREFIX' | translate }}" [(ngModel)]="prefix">
@@ -8,8 +8,8 @@
   </nb-card-body>
   <nb-card-footer>
     <div class="button-container">
-      <button nbButton status="primary" (click)="dismiss(0,0)">{{ 'DIALOG_CLOSE' | translate }}</button>
-      <button nbButton status="primary" (click)="dismiss(prefix, namespace)">{{ 'DIALOG_ACTION' | translate }}</button>
+      <button nbButton status="primary" (click)="dismiss(0,0)">{{ 'CLOSE' | translate }}</button>
+      <button nbButton status="primary" (click)="dismiss(prefix, namespace)">{{ 'APPLY' | translate }}</button>
     </div>
   </nb-card-footer>
 </nb-card>
