@@ -689,6 +689,13 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Choose between create or update
     let operation: any;
     if (this.isEditing) {
+      // if editing, remove "urn:ngsi-ld:DistributionDCAT-AP:id:" prefix from the distributuions ID
+      const updatedDistributions = dataset.datasetDistribution.map((distId: string) => {
+        return distId.replace('urn:ngsi-ld:DistributionDCAT-AP:id:', '');
+      });
+
+      dataset.datasetDistribution = updatedDistributions;
+
       operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
     } else {
       operation = this.ngsiDatasetsService.createDataset(dataset);
