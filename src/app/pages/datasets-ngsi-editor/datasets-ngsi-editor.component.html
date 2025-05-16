@@ -187,7 +187,7 @@
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
-                  [nbTooltip]="'The version number or identifier of the dataset'"
+                  [nbTooltip]="'VERSION_TOOLTIP' | translate"
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
@@ -203,7 +203,7 @@
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
-                  [nbTooltip]="'Descriptive terms that might help other users in discovering the dataset'"
+                  [nbTooltip]="'KEYWORDS_TOOLTIP' | translate"
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
@@ -239,24 +239,27 @@
                   </span>
               </div>
             </div>
+
+            <!-- Middle column -->
           
+            <!-- contact person-->
             <div class="mid-column">
-              <label for="name">{{'NAME' | translate}}</label>
+              <label for="name">{{'NAME' | translate}}
+                <nb-icon
+                  icon="info-outline"
+                  status="primary" 
+                  [nbTooltip]="'NAME_TOOLTIP' | translate"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
               <input nbInput 
                      id="name" 
                      formControlName="name" 
                      type="text"
                      maxlength="100" 
                      fullWidth />
-              
-              <label for="publisher">{{'PUBLISHER' | translate}}</label>
-              <input nbInput 
-                     id="publisher" 
-                     formControlName="publisher" 
-                     type="text"
-                     maxlength="100" 
-                     fullWidth />
-              
+
+              <!-- list of contacts-->
               <label>{{'CONTACT_POINTS' | translate}}</label>
               <div class="contact-points-container">
                 <!-- Display tags -->
@@ -287,6 +290,14 @@
                 </div>
               </div>
               
+              <label for="publisher">{{'PUBLISHER' | translate}}</label>
+              <input nbInput 
+                     id="publisher" 
+                     formControlName="publisher" 
+                     type="text"
+                     maxlength="100" 
+                     fullWidth />
+              
               <label for="creator">{{'CREATOR' | translate}}</label>
               <input nbInput 
                      id="creator" 
@@ -308,7 +319,7 @@
                 <nb-icon
                   icon="info-outline"
                   status="primary" 
-                  [nbTooltip]="'EU Categories that classify the dataset content'"
+                  [nbTooltip]="'THEMES_TOOLTIP' | translate"
                   nbTooltipStatus="primary">
                 </nb-icon>
               </label>
@@ -334,7 +345,7 @@
                   <nb-icon
                     icon="info-outline"
                     status="primary" 
-                    [nbTooltip]="'The frequency with which this dataset gets updated'"
+                    [nbTooltip]="'FREQUENCY_TOOLTIP' | translate"
                     nbTooltipStatus="primary">
                   </nb-icon>
                 </label>
@@ -354,7 +365,7 @@
                     <nb-icon
                       icon="info-outline"
                       status="primary" 
-                      [nbTooltip]="'Geographic location that the dataset covers'"
+                      [nbTooltip]="'SPATIAL_TOOLTIP' | translate"
                       nbTooltipStatus="primary">
                     </nb-icon>
                   </strong>
