@@ -10,16 +10,16 @@
       <nb-card-body>
         <button routerLink="../" nbButton outline status="success">{{ 'REMOTE_CATALOGUE_ADMIN_BACK_BUTTON' | translate }}</button>
   
-        <div class="row show-grid pb-10">
-          <div class="col-md-2">
-            <label class="search-label pt-30" for="search">{{ 'SEARCH' | translate }}:</label>
+        <div class="row show-grid pb-10 align-items-center">
+          <div class="col-sm-12 col-md-4 col-lg-3">
+            <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
             <input nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
           </div>
-          <div class="col-md-2">
-            <label class="search-label pt-60 ml-30">{{ 'REMOTE_CATALOGUE_ADMIN_REMOTE_CATALOGUE_LABEL' | translate }}</label>
+          <div class="col-sm-4 col-md-4 col-lg-2">
+            <label class="search-label">{{ 'REMOTE_CATALOGUE_ADMIN_REMOTE_CATALOGUE_LABEL' | translate }}</label>
           </div>
-          <div class="col-md-1">
-            <nb-select placeholder="{{ 'REMOTE_CATALOGUE_ADMIN_JSON_CATALOGUE_PLACEHOLDER' | translate }}" class="pt-50">
+          <div class="col-sm-2 col-md-2 col-lg-1">
+            <nb-select placeholder="{{ 'REMOTE_CATALOGUE_ADMIN_JSON_CATALOGUE_PLACEHOLDER' | translate }}">
               <nb-option *ngFor="let cat of allRemCat" [value]="cat.catalogueName">{{ cat.catalogueName }}</nb-option>
             </nb-select>
           </div>
@@ -50,12 +50,12 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[4]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumns[4] }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ defaultColumns[4] }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[4]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="iconColumn">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ 'ACTIONS' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-120">{{ 'ACTIONS' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
               <nb-action [disabled]="row.data.alreadyLoaded" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addRemoteCatalogue(row.data.index)"></nb-action>
             </td>
@@ -63,7 +63,4 @@
         </table>
       </nb-card-body>
     </nb-card>
-    <div class="row">
-      <div class="col-9"></div>
-    </div>
   </div>

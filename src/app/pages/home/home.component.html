@@ -132,7 +132,7 @@
           <div class="display-flex">
             <div class="justify-center">
               <div class="row">
-                <div class="col-4">
+                <div class="col-md-4 col-sm-6 col-12">
                   <nb-list>
                     <nb-list-item *ngFor="let category of dcatThemes | slice:0:4">
                       <button nbButton ghost status="primary" (click)="searchCategory(category)">
@@ -141,7 +141,7 @@
                     </nb-list-item>
                   </nb-list>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4 col-sm-6 col-12">
                   <nb-list>
                     <nb-list-item *ngFor="let category of dcatThemes | slice:4:8">
                       <button nbButton ghost status="primary" (click)="searchCategory(category)">
@@ -150,7 +150,7 @@
                     </nb-list-item>
                   </nb-list>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4 col-sm-6 col-12">
                   <nb-list>
                     <nb-list-item *ngFor="let category of dcatThemes | slice:8:13">
                       <button nbButton ghost status="primary" (click)="searchCategory(category)">

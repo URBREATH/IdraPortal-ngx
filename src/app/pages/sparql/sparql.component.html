@@ -13,18 +13,18 @@
             </nb-card-body>
         </nb-card>
         <div class="row">
-          <div class="col-4">
+          <div class="col-md-4 col-12 mb-1">
             <span class="output-format-label">{{ 'OUTPUT_FORMAT' | translate }}:</span>
             <nb-select [(selected)]="outputFormat" placeholder="{{ 'OUTPUT_FORMAT' | translate }}">
               <nb-option value="XML">{{ 'XML' | translate }}</nb-option>
               <nb-option value="JSON">{{ 'JSON' | translate }}</nb-option>
             </nb-select>
           </div>
-          <div class="col-8 d-flex justify-content-end" *ngIf="query_bck == ''">
+          <div class="col-md-8 col-12 d-flex justify-content-end" *ngIf="query_bck == ''">
             <button nbButton status="success" (click)="clear()" class="mr-2">{{ 'CLEAR' | translate }}</button>
             <button nbButton status="primary" (click)="executeQuery()">{{ 'EXECUTE' | translate }}</button>
           </div>
-          <div class="col-8 d-flex justify-content-end" *ngIf="query_bck != ''">
+          <div class="col-md-8 col-12 d-flex justify-content-end" *ngIf="query_bck != ''">
             <button nbButton status="success" (click)="back()" class="mr-2">{{ 'BACK' | translate }}</button>
             <button nbButton status="success" (click)="copy()" class="mr-2">{{ 'COPY' | translate }}</button>
             <button nbButton status="primary" (click)="download()">{{ 'DOWNLOAD' | translate }}</button>
