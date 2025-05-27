@@ -77,7 +77,7 @@
           </div>
           <div class="row mb-1">
             <div class="col-md-3 col-12 d-flex align-items-center">
-              <span class="minwidth-fit-content" >{{ 'HOME_SORT_BY' | translate }}</span>
+              <span class="minwidth-fit-content mr-1" >{{ 'HOME_SORT_BY' | translate }}</span>
               <nb-select [(selected)]="sortyBy" placeholder="{{ 'HOME_SORT_BY' | translate }}" class="width-150">
                 <nb-option [value]="0">{{ 'HOME_RELEASE_DATE' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_UPDATE_DATE' | translate }}</nb-option>
@@ -87,14 +87,14 @@
               </nb-select>
             </div>
             <div class="col-md-3 col-12 d-flex align-items-center">
-              <span class="minwidth-fit-content" >{{ 'HOME_ORDER' | translate }}</span>
+              <span class="minwidth-fit-content mr-1" >{{ 'HOME_ORDER' | translate }}</span>
               <nb-select [(selected)]="order" placeholder="{{ 'HOME_ORDER' | translate }}" class="width-150">
                 <nb-option [value]="0">{{ 'HOME_ASCENDENT' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_DESCENDENT' | translate }}</nb-option>
               </nb-select>
             </div>
             <div class="col-md-3 col-12 d-flex align-items-center">
-              <span class="minwidth-fit-content" >{{ 'HOME_MAX_RESULTS_PER_PAGE' | translate }}</span>
+              <span class="minwidth-fit-content mr-1" >{{ 'HOME_MAX_RESULTS_PER_PAGE' | translate }}</span>
               <nb-select [(selected)]="maxResultPerPage" placeholder="25" class="width-150">
                 <nb-option [value]="5">5</nb-option>
                 <nb-option [value]="10">10</nb-option>
