@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { CataloguesService } from './catalogues.service';
 import { TranslateService } from '@ngx-translate/core';
 import { RefreshService } from '../services/refresh.service';
-import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-catalogues',

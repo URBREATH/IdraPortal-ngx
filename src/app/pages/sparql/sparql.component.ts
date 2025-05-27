@@ -2,7 +2,6 @@ import { Component, Input, OnInit } from '@angular/core';
 import { DataCataglogueAPIService } from '../data-catalogue/services/data-cataglogue-api.service';
 import { CodeModel } from '@ngstack/code-editor';
 import { RefreshService } from '../services/refresh.service';
-import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-sparql',

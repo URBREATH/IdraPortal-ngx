@@ -8,7 +8,6 @@ import { Router } from '@angular/router';
 import { NbTagComponent, NbTagInputAddEvent } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { RefreshService } from '../services/refresh.service';
-import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-home',
