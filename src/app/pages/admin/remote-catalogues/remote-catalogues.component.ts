@@ -8,6 +8,7 @@ import * as remoteCatalogueData from '../../../../assets/remoteCatalogues.json';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { RefreshService } from '../../services/refresh.service';
+import { RefreshService } from '../../services/refresh.service';
 
 
 interface TreeNode<T> {

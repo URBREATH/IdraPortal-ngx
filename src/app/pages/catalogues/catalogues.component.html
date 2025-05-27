@@ -2,20 +2,22 @@
   <div class="container">
     <div class="row mb-1">
       <div class="col-12">
-        <h1>{{ 'CATALOGUES_TITLE' | translate }}</h1>
+        <h1>{{ 'Catalogues' | translate }}</h1>
       </div>
     </div>
-    <div class="row">
+    <div class="row mb-3">
       <div class="col-12">
         <div [nbSpinner]="loadingPrevious"></div>
         <div class="row" *ngFor="let row of catalogues | slice:0:catalogues.length; let i = index">
           <span *ngIf="catalogues?.length == 0 || error">{{ 'CATALOGUES_NO_CATALOGUES_FOUND' | translate }}</span>
-          <div class="col-12 col-md-4 card-container" *ngFor="let catalogue of catalogues.slice(i * 3, i * 3 + 3)">
+          <div class="col-12 col-md-6 col-lg-4 card-container" *ngFor="let catalogue of catalogues.slice(i * 3, i * 3 + 3)">
             <nb-card class="height-card">
               <nb-card-header>
                 <div class="row">
-                  <div class="col-12 d-flex align-items-center">
+                  <div class="col-sm-12 col-md-2 col-lg-4 d-flex align-items-center">
                     <img [src]="catalogue.image.imageData" alt="" class="catalogue-image">
+                  </div>
+                  <div class="col-sm-12 col-md-10 col-lg-8 d-flex ">
                     <a class="catalogue-link" [href]="[catalogue.homepage]" target="_blank"><h4>{{ catalogue.name }}</h4></a>
                     <nb-icon nbTooltip="{{ 'CATALOGUES_SHOW_DATASETS' | translate }}" icon="search-outline" class="icon-card" [options]="{ animation: { type: 'zoom' } }" [routerLink]="['/pages/datasets']" [queryParams]="{ search_value: catalogue.name, name: catalogue.name, type: 'catalogues' }"></nb-icon>
                   </div>
@@ -24,7 +26,7 @@
               <nb-card-body>
                 <div class="row">
                   <div class="col-12">
-                    <span><strong>{{ 'CATALOGUES_COUNTRY' | translate }}: </strong>{{ catalogue.country }}</span>
+                    <span><strong>{{ 'COUNTRY' | translate }}: </strong>{{ catalogue.country }}</span>
                   </div>
                 </div>
                 <div class="row">
@@ -39,7 +41,7 @@
                 </div>
                 <div class="row">
                   <div class="col-12">
-                    <p><strong>{{ 'CATALOGUES_CATEGORY' | translate }}: </strong>{{ catalogue.category }}</p>
+                    <p><strong>{{ 'CATEGORY' | translate }}: </strong>{{ catalogue.category }}</p>
                   </div>
                 </div>
                 <div class="row">

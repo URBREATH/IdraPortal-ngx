@@ -9,7 +9,7 @@
     <nb-card>
       <nb-card-body>
         <div class="pb-20">
-          <label class="search-label" for="search">{{ 'CATALOGUE_LIST_SEARCH_LABEL' | translate }}</label>
+          <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
           <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
         </div>
   
@@ -25,19 +25,19 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'CATALOGUE_LIST_NAME' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'NAME' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row"> 
-              <a href="{{row.data.catalogueUrl}}" target="_blank">{{ row.data[defaultColumns[0]] }}</a>
+              <a href="{{row.data.catalogueUrl}}" target="_blank" >{{ row.data[defaultColumns[0]] }}</a>
             </td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'CATALOGUE_LIST_COUNTRY' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'COUNTRY' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-150">{{ 'CATALOGUE_LIST_TYPE' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-150">{{ 'TYPE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[2]] }}</td>
           </ng-container>
   
@@ -75,7 +75,7 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[8]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid col-w-75" >{{ 'CATALOGUE_LIST_ID' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid col-w-50">{{ 'CATALOGUE_LIST_ID' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row" class="hid">{{ row.data[defaultColumns[8]] }}</td>
           </ng-container>
   
@@ -92,14 +92,14 @@
           <!-- ICONS -->
           <ng-container [nbTreeGridColumnDef]="iconColumn">
             <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef class="col-w-120">
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_ADD_CATALOGUE' | translate }}" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue"></nb-icon>
+              <nb-icon nbTooltip="{{ 'ADD_CATALOGUE' | translate }}" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_REMOTE_CATALOGUE_LIST' | translate }}" icon="list-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./remoteCatalogues"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump()"></nb-icon>
             </th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SEND_MQA_ANALYSIS' | translate }}" icon="bar-chart-outline" [options]="{ animation: { type: 'zoom' } }" (click)="sendMqaAnalisysCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SYNCHRONIZE_CATALOGUE' | translate }}" icon="sync-outline" [options]="{ animation: { type: 'zoom' } }" (click)="syncCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_MODIFY_CATALOGUE' | translate }}" icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data[defaultColumns[8]])"></nb-icon>
+              <nb-icon nbTooltip="{{ 'MODIFY_CATALOGUE' | translate }}" icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data[defaultColumns[8]])"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DELETE_CATALOGUE' | translate }}" icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump(row.data[defaultColumns[0]], row.data[defaultColumns[8]])"></nb-icon>
             </td>

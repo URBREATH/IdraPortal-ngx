@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { CataloguesService } from './catalogues.service';
 import { TranslateService } from '@ngx-translate/core';
 import { RefreshService } from '../services/refresh.service';
+import { RefreshService } from '../services/refresh.service';
 
 @Component({
   selector: 'ngx-catalogues',
@@ -23,6 +24,7 @@ export class CataloguesComponent implements OnInit {
   error = false;
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
     this.refreshService.refreshPageOnce('admin-configuration');
     this.loadingPrevious = true;
     this.cataloguesService.getCatalogueList().then((data)=>{

@@ -23,7 +23,6 @@
         *ngFor="let lang of languages"
         [value]="lang.lan"
         class="d-flex flex-row align-items-center white-background"
-        style="background-color: rgb(255, 255, 255);"
       >
         <nb-user
           size="small"
@@ -34,6 +33,36 @@
         </nb-user>
       </nb-option>
     </nb-select>
+  </div>
+  <div>
+    <!-- theme selection -->
+    <nb-select
+    [selected]="currentTheme"
+    (selectedChange)="changeTheme($event)"
+    status="primary"
+    shape="semi-round"
+    filled
+    style="margin-right: 3%;"
+  >
+    <nb-option *ngFor="let theme of themes" [value]="theme.value">
+      {{ theme.name }}</nb-option
+    >
+  </nb-select>
+  </div>
+  <div>
+    <!-- theme selection -->
+    <nb-select
+    [selected]="currentTheme"
+    (selectedChange)="changeTheme($event)"
+    status="primary"
+    shape="semi-round"
+    filled
+    style="margin-right: 3%;"
+  >
+    <nb-option *ngFor="let theme of themes" [value]="theme.value">
+      {{ theme.name }}</nb-option
+    >
+  </nb-select>
   </div>
 </div>
 
@@ -90,7 +119,7 @@
       </nb-user>
     </nb-action>
   </nb-actions>
-  <div class="login-container m-left-16" fxFlex="none" style="margin-left: 16px;">
+  <div class="login-container m-left-16" fxFlex="none" >
     <ng-template #login>
       <button nbButton (click)="logIn()">Login</button>
     </ng-template>

@@ -4,6 +4,7 @@ import { CataloguesServiceService } from '../catalogues-service.service';
 import { SharedService } from '../../services/shared.service';
 import { DomSanitizer} from '@angular/platform-browser';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { TranslateService } from '@ngx-translate/core';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RefreshService } from '../../services/refresh.service';
@@ -421,6 +422,9 @@ export class AddCatalogueComponent implements OnInit {
 		public translation: TranslateService,
 		private refreshService: RefreshService,
 		private dialogService: NbDialogService
+		public translation: TranslateService,
+		private refreshService: RefreshService,
+		private dialogService: NbDialogService
 	) {}
 
 	receivedMode : string = "";
@@ -446,7 +450,26 @@ export class AddCatalogueComponent implements OnInit {
 			});
 	}
 
+	handleOpenEditorDialog() {
+		console.log(this.node)
+			this.dialogService.open(EditorDialogComponent, {
+			  context: {
+				model: {
+					language: 'json',
+					uri: 'main.json',
+					value: this.node.dumpString,
+				}
+			  },
+			}).onClose.subscribe(res => {
+			  if(res != false) {
+				console.log(res);
+				this.node.dumpString = res;
+			  }
+			});
+	}
+
     ngOnInit(): void {
+		this.refreshService.refreshPageOnce('admin-configuration');
 		this.refreshService.refreshPageOnce('admin-configuration');
 		this.route.queryParams
 			.subscribe(params => {

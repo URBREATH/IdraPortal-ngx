@@ -1,6 +1,6 @@
 <nb-card>
-  <nb-card-header> {{ catalogueName ? 'Modify Remote Catalogue' : 'Create New Remote Catalogue' }}</nb-card-header><!--{{ 'REMOTE_CATALOG_TITLE' | translate }}-->
-  <nb-card-body class="card-container">
+  <nb-card-header>{{ 'REMOTE_CATALOG_TITLE' | translate }}</nb-card-header>
+  <nb-card-body class="card-container max-width-min-content">
     <div class="row">
       <div class="col-md-12">
         <h6 class="jumbotron-heading">{{ 'REMOTE_CATALOG_TYPE' | translate }}</h6>
@@ -22,23 +22,21 @@
       </div>
       <div class="col-md-12">
         <h6 *ngIf="catalogueType == true && (authMethod == '1' || authMethod == '2')" class="jumbotron-heading">{{ 'REMOTE_CATALOG_USERNAME' | translate }}</h6>
-        <input *ngIf="catalogueType == true && (authMethod == '1' || authMethod == '2')" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_USERNAME' | translate }}" [(ngModel)]="username">
+        <input class="mb-3"  *ngIf="catalogueType == true && (authMethod == '1' || authMethod == '2')" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_USERNAME' | translate }}" [(ngModel)]="username">
         <h6 *ngIf="catalogueType == true && (authMethod == '1' || authMethod == '2')" class="jumbotron-heading">{{ 'REMOTE_CATALOG_PASSWORD' | translate }}</h6>
-        <input *ngIf="catalogueType == true && (authMethod == '1' || authMethod == '2')" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_PASSWORD' | translate }}" [(ngModel)]="password">
+        <input class="mb-3"  *ngIf="catalogueType == true && (authMethod == '1' || authMethod == '2')" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_PASSWORD' | translate }}" [(ngModel)]="password">
 
         <h6 *ngIf="catalogueType == true && authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_CLIENT_ID' | translate }}</h6>
-        <input *ngIf="catalogueType == true && authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_CLIENT_ID' | translate }}" [(ngModel)]="clientID">
+        <input class="mb-3"  *ngIf="catalogueType == true && authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_CLIENT_ID' | translate }}" [(ngModel)]="clientID">
         <h6 *ngIf="catalogueType == true && authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_CLIENT_SECRET' | translate }}</h6>
-        <input *ngIf="catalogueType == true && authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_CLIENT_SECRET' | translate }}" [(ngModel)]="clientSecret">
+        <input class="mb-3"  *ngIf="catalogueType == true && authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_CLIENT_SECRET' | translate }}" [(ngModel)]="clientSecret">
         <h6 *ngIf="catalogueType == true && authMethod == '2'" class="jumbotron-heading">{{ 'REMOTE_CATALOG_PORTAL_URL' | translate }}</h6>
         <input *ngIf="catalogueType == true && authMethod == '2'" type="text" nbInput fullWidth status="primary" placeholder="{{ 'REMOTE_CATALOG_PORTAL_URL' | translate }}" [(ngModel)]="portalURL">
       </div>
     </div>
   </nb-card-body>
-  <nb-card-footer>
-    <div class="d-flex justify-content-between">
-      <button nbButton status="primary" (click)="dismiss(0,0,0,0,0,0,0,0,0)">{{ 'REMOTE_CATALOG_CLOSE' | translate }}</button>
-      <button nbButton status="primary" (click)="dismiss(catalogueName, catalogueURL, catalogueType, authMethod, username, password, clientID, clientSecret, portalURL)">{{ catalogueName ? 'UPDATE' : 'CREATE' }}</button><!--{{ 'REMOTE_CATALOG_ACTION' | translate }}-->
-    </div>
+  <nb-card-footer class="d-flex justify-content-between">
+    <button nbButton status="primary" (click)="dismiss(0,0,0,0,0,0,0,0,0)">{{ 'CLOSE' | translate }}</button>
+    <button nbButton status="primary" (click)="dismiss(catalogueName, catalogueURL, catalogueType, authMethod, username, password, clientID, clientSecret, portalURL)">{{ 'APPLY' | translate }}</button>
   </nb-card-footer>
 </nb-card>

@@ -14,11 +14,11 @@
     </nb-card>
     <nb-card *ngIf="dataset.distributions!=undefined && dataset.distributions.length>0">
         <nb-card-header class="d-flex justify-content-between">
-            <h5>Resources ({{dataset.distributions.length}})</h5>
+            <h5>{{ 'RESOURCES' | translate }} ({{dataset.distributions.length}})</h5>
             <pagination-controls *ngIf="dataset.distributions.length>distributionPerPage" id="distributions"
                 (pageChange)="distributionPage = $event" maxSize="4" directionLinks="true" autoHide="true"
-                responsive="true" previousLabel="Previous" nextLabel="Next" screenReaderPaginationLabel="Pagination"
-                screenReaderPageLabel="page" screenReaderCurrentLabel="You're on page">
+                responsive="true" previousLabel="{{ 'PREVIOUS' | translate }}" nextLabel="{{ 'NEXT' | translate }}" screenReaderPaginationLabel="{{ 'PAGINATION' | translate }}"
+                screenReaderPageLabel="page" screenReaderCurrentLabel="{{ 'CURRENT_PAGE' | translate }}">
             </pagination-controls>
         </nb-card-header>
         <nb-card-body class="row">
@@ -34,11 +34,11 @@
                             </div>
                             <div class="col-12">
                                 <nb-actions size="small" class="d-flex justify-content-start">
-                                    <nb-action icon="file-text-outline" nbTooltip="Preview File" [disabled]="!checkDistributionFormat(distribution.format)" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
-                                    <nb-action icon="eye" nbTooltip="View Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
-                                    <nb-action icon="bar-chart-outline" *ngIf="enableDatalet" nbTooltip="Create Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
-                                    <nb-action icon="download-outline" nbTooltip="Dowload" (click)="downloadUrl(distribution)"></nb-action>
-                                    <nb-action icon="info" nbTooltip="Details" (click)="openDistributionDetails(distribution)"></nb-action>
+                                    <nb-action icon="file-text-outline" nbTooltip="{{ 'PREVIEW_FILE' | translate }}" [disabled]="!checkDistributionFormat(distribution.format)" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
+                                    <nb-action icon="eye" nbTooltip="{{ 'VIEW_DATALET' | translate }}" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
+                                    <nb-action icon="bar-chart-outline" *ngIf="enableDatalet" nbTooltip="{{ 'CREATE_DATALET' | translate }}" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
+                                    <nb-action icon="download-outline" nbTooltip="{{ 'DOWNLOAD' | translate }}" (click)="downloadUrl(distribution)"></nb-action>
+                                    <nb-action icon="info" nbTooltip="{{ 'DETAILS' | translate }}" (click)="openDistributionDetails(distribution)"></nb-action>
                                 </nb-actions>
                             </div>
                         </div>
@@ -50,180 +50,178 @@
 
     <nb-card>
         <nb-card-header>
-            <h5>Additional Information</h5>
+            <h5>{{ 'ADDITIONAL_INFORMATIONS' | translate }}</h5>
         </nb-card-header>
         <nb-card-body class="content-truncated">
 
             <span *ngIf="dataset.landingPage!=''" class="d-flex flex-column mb-2">
-                <label class="label">Landing Page:</label>
+                <label class="label">{{ 'LANDING_PAGE' | translate }}:</label>
                 <p class="truncated" ><a [href]="dataset.landingPage" target="_blank">{{dataset.landingPage}}</a></p>
             </span>
 
             <span *ngIf="dataset.publisher!=undefined && dataset.publisher.name!=''" class="d-flex flex-column mb-2">
-                <label class="label">Publisher Name:</label>
+                <label class="label">{{ 'PUBLISHER_NAME' | translate }}:</label>
                 <p class="truncated" class="truncated">{{dataset.publisher.name}}</p>
             </span>
                             
             <span *ngIf="dataset.publisher!=undefined && dataset.publisher.mbox!=''" class="d-flex flex-column mb-2">
-                <label class="label">Publisher Mail:</label>
+                <label class="label">{{ 'PUBLISHER_MAIL' | translate }}:</label>
                 <p class="truncated">{{dataset.publisher.mbox}}</p>
             </span>
 
             <span *ngIf="dataset.publisher!=undefined && dataset.publisher.homepage!=''" class="d-flex flex-column mb-2">
-                <label class="label">Publisher Homepage:</label>
+                <label class="label">{{ 'PUBLISHER_HOMEPAGE' | translate }}:</label>
                 <p class="truncated">{{dataset.publisher.homepage}}</p>
             </span>
 
             <span *ngIf="dataset.publisher!=undefined && dataset.publisher.type!=''" class="d-flex flex-column mb-2">
-                <label class="label">Publisher Type:</label>
+                <label class="label">{{ 'PUBLISHER_TYPE' | translate }}:</label>
                 <p class="truncated">{{dataset.publisher.type}}</p>
             </span>
 
             <span *ngIf="licenses!=undefined && licenses.length>0" class="d-flex flex-column mb-2">
-                <label class="label">Licenses:</label>
+                <label class="label">{{ 'LICENSES' | translate }}:</label>
                 <p class="truncated" *ngFor="let l of licenses"><a  [href]="l.uri">{{l.name}}</a></p>
             </span>
 
             <span *ngIf="dataset.releaseDate!='' && showDate(dataset.releaseDate)" class="d-flex flex-column mb-2">
-                <label class="label">Release Date:</label>
+                <label class="label">{{ 'RELEASE_DATE' | translate }}:</label>
                 <p class="truncated">{{dataset.releaseDate |  date}}</p>
             </span>
 
             <span *ngIf="dataset.updateDate!='' && showDate(dataset.updateDate)" class="d-flex flex-column mb-2">
-                <label class="label">Update Date:</label>
+                <label class="label">{{ 'UPDATE_DATE' | translate }}:</label>
                 <p class="truncated">{{dataset.updateDate |  date}}</p>
             </span>
 
             <span *ngIf="dataset.frequency!=''" class="d-flex flex-column mb-2">
-                <label class="label">Frequency:</label>
+                <label class="label">{{ 'FREQUENCY' | translate }}:</label>
                 <p class="truncated">{{dataset.frequency}}</p>
             </span>
 
             <span *ngIf="dataset.temporalCoverage!=undefined" class="d-flex flex-column mb-2">
-                <label class="label">Temporal Coverage:</label>
+                <label class="label">{{ 'TEMPORAL_COVERAGE' | translate }}:</label>
                 <p class="truncated">{{dataset.temporalCoverage.startDate | date}} - {{dataset.temporalCoverage.endDate | date}}</p>
             </span>
 
             <span *ngIf="dataset.language!=undefined && (dataset.language.length>1 || (dataset.language.length==1 && dataset.language[0]!='' && dataset.language[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Languages:</label>
+                <label class="label">{{ 'LANGUAGES' | translate }}:</label>
                 <p class="truncated">{{dataset.language.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.provenance!=undefined && (dataset.provenance.length>1 || (dataset.provenance.length==1 && dataset.provenance[0]!='' && dataset.provenance[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Provenances:</label>
+                <label class="label">{{ 'PROVENANCES' | translate }}:</label>
                 <p class="truncated">{{dataset.provenance.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.accessRights!=''" class="d-flex flex-column mb-2">
-                <label class="label">Access Rights:</label>
+                <label class="label">{{ 'ACCESS_RIGHTS' | translate }}:</label>
                 <p class="truncated">{{dataset.accessRights}}</p>
             </span>
 
             <span *ngIf="dataset.identifier!=''" class="d-flex flex-column mb-2">
-                <label class="label">Identifier:</label>
+                <label class="label">{{ 'IDENTIFIER' | translate }}:</label>
                 <p class="truncated">{{dataset.identifier}}</p>
             </span>
 
-            
-
             <span *ngIf="dataset.rightsHolder!=undefined && dataset.rightsHolder.name!=''" class="d-flex flex-column mb-2">
-                <label class="label">Rights Holder Name:</label>
+                <label class="label">{{ 'RIGHTS_HOLDER_NAME' | translate }}:</label>
                 <p class="truncated">{{dataset.rightsHolder.name}}</p>
             </span>
                             
             <span *ngIf="dataset.rightsHolder!=undefined && dataset.rightsHolder.mbox!=''" class="d-flex flex-column mb-2">
-                <label class="label">Rights Holder Mail:</label>
+                <label class="label">{{ 'RIGHTS_HOLDER_MAIL' | translate }}:</label>
                 <p class="truncated">{{dataset.rightsHolder.mbox}}</p>
             </span>
 
             <span *ngIf="dataset.rightsHolder!=undefined && dataset.rightsHolder.homepage!=''" class="d-flex flex-column mb-2">
-                <label class="label">Rights Holder Homepage:</label>
+                <label class="label">{{ 'RIGHTS_HOLDER_HOMEPAGE' | translate }}:</label>
                 <p class="truncated">{{dataset.rightsHolder.homepage}}</p>
             </span>
 
             <span *ngIf="dataset.rightsHolder!=undefined && dataset.rightsHolder.type!=''" class="d-flex flex-column mb-2">
-                <label class="label">Rights Holder Type:</label>
+                <label class="label">{{ 'RIGHTS_HOLDER_TYPE' | translate }}:</label>
                 <p class="truncated">{{dataset.rightsHolder.type}}</p>
             </span>
             
         
             <span *ngIf="dataset.creator!=undefined && dataset.creator.name!=''" class="d-flex flex-column mb-2">
-                <label class="label">Creator Name:</label>
+                <label class="label">{{ 'CREATOR_NAME' | translate }}:</label>
                 <p class="truncated">{{dataset.creator.name}}</p>
             </span>
                             
             <span *ngIf="dataset.creator!=undefined && dataset.creator.mbox!=''" class="d-flex flex-column mb-2">
-                <label class="label">Creator Mail:</label>
+                <label class="label">{{ 'CREATOR_MAIL' | translate }}:</label>
                 <p class="truncated">{{dataset.creator.mbox}}</p>
             </span>
 
             <span *ngIf="dataset.creator!=undefined && dataset.creator.homepage!=''" class="d-flex flex-column mb-2">
-                <label class="label">Creator Homepage:</label>
+                <label class="label">{{ 'CREATOR_HOMEPAGE' | translate }}:</label>
                 <p class="truncated">{{dataset.creator.homepage}}</p>
             </span>
 
             <span *ngIf="dataset.creator!=undefined && dataset.creator.type!=''" class="d-flex flex-column mb-2">
-                <label class="label">Creator Type:</label>
+                <label class="label">{{ 'CREATOR_TYPE' | translate }}:</label>
                 <p class="truncated">{{dataset.creator.type}}</p>
             </span>
 
             <span *ngIf="dataset.theme!=undefined && (dataset.theme.length>1 || (dataset.theme.length==1 && dataset.theme[0].prefLabel.length!=0 && dataset.theme[0].prefLabel[0].value!=''))" class="d-flex flex-column mb-2">
-                <label class="label">Themes:</label>
+                <label class="label">{{ 'THEMES' | translate }}:</label>
                 <p class="truncated">{{printConcepts(dataset.theme)}}</p>
             </span>
 
             <span *ngIf="dataset.subject!=undefined && (dataset.subject.length>1 || (dataset.subject.length==1 && dataset.subject[0].prefLabel.length!=0 && dataset.subject[0].prefLabel[0].value!=''))" class="d-flex flex-column mb-2">
-                <label class="label">Subjects:</label>
+                <label class="label">{{ 'SUBJETS' | translate }}:</label>
                 <p class="truncated">{{printConcepts(dataset.subject)}}</p>
             </span>
 
             <span *ngIf="dataset.source!=undefined && (dataset.source.length>1 || (dataset.source.length==1 && dataset.source[0]!='' && dataset.source[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Source:</label>
+                <label class="label">{{ 'SOURCE' | translate }}:</label>
                 <p class="truncated">{{dataset.source.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.documentation!=undefined && (dataset.documentation.length>1 || (dataset.documentation.length==1 && dataset.documentation[0]!='' && dataset.documentation[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Documentation:</label>
+                <label class="label">{{ 'DOCUMENTATION' | translate }}Documentation:</label>
                 <p class="truncated">{{dataset.documentation.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.otherIdentifier!=undefined && (dataset.otherIdentifier.length>1 || (dataset.otherIdentifier.length==1 && dataset.otherIdentifier[0]!='' && dataset.otherIdentifier[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Other Identifiers:</label>
+                <label class="label">{{ 'OTHER_IDENTIFIERS' | translate }}:</label>
                 <p class="truncated">{{dataset.otherIdentifier.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.version!=''" class="d-flex flex-column mb-2">
-                <label class="label">Version:</label>
+                <label class="label">{{ 'VERSION' | translate }}:</label>
                 <p class="truncated">{{dataset.version}}</p>
             </span>
 
             <span *ngIf="dataset.versionNotes!=undefined && (dataset.versionNotes.length>1 || (dataset.versionNotes.length==1 && dataset.versionNotes[0]!='' && dataset.versionNotes[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Version Notes:</label>
+                <label class="label">{{ 'VERSION_NOTES' | translate }}:</label>
                 <p class="truncated">{{dataset.versionNotes.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.hasVersion!=undefined && (dataset.hasVersion.length>1 || (dataset.hasVersion.length==1 && dataset.hasVersion[0]!='' && dataset.hasVersion[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Has Version:</label>
+                <label class="label">{{ 'HAS_VERISON' | translate }}:</label>
                 <p class="truncated">{{dataset.hasVersion.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.isVersionOf!=undefined && (dataset.isVersionOf.length>1 || (dataset.isVersionOf.length==1 && dataset.isVersionOf[0]!='' && dataset.isVersionOf[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Is Version Of:</label>
+                <label class="label">{{ 'IS_VERSION_OF' | translate }}:</label>
                 <p class="truncated">{{dataset.isVersionOf.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.sample!=undefined && (dataset.sample.length>1 || (dataset.sample.length==1 && dataset.sample[0]!='' && dataset.sample[0]!=undefined ))" class="d-flex flex-column mb-2">
-                <label class="label">Sample:</label>
+                <label class="label">{{ 'SAMPLE' | translate }}:</label>
                 <p class="truncated">{{dataset.sample.join(',')}}</p>
             </span>
 
             <span *ngIf="dataset.spatialCoverage != undefined && dataset.spatialCoverage.geographicalName!=''" class="d-flex flex-column mb-2">
-                <label class="label">Spatial Coverage Ggeographical Name:</label>
+                <label class="label">{{ 'SPATIAL_COVERAGE_GEOGRAPHICAL_NAME' | translate }}:</label>
                 <p class="truncated">{{dataset.spatialCoverage.geographicalName}}</p>
             </span>
 
             <span *ngIf="dataset.spatialCoverage != undefined && dataset.spatialCoverage.geometry!=''" class="d-flex flex-column mb-2">
-                <label class="label">Spatial Coverage Geometry:</label>
+                <label class="label">{{ 'SPATIAL_COVERAGE_GEOMETRY' | translate }}:</label>
                 <p class="truncated">{{dataset.spatialCoverage.geometry}}</p>
             </span>
 
@@ -231,7 +229,7 @@
                 dataset.conformsTo.length==1 && (dataset.conformsTo[0].identifier!='' 
                 || dataset.conformsTo[0].title!='' 
                 || dataset.conformsTo[0].description!='')))">
-                <p class="truncated"><span class="label">Conforms To:</span></p>
+                <p class="truncated"><span class="label">{{ 'CONFORMS_TO' | translate }}:</span></p>
                  <nb-list>
                     <nb-list-item *ngFor="let tmp of dataset.conformsTo" class="d-flex flex-column">
                         <span *ngIf="tmp.identifier!=''">{{tmp.identifier}}</span> 
@@ -247,7 +245,7 @@
                  dataset.contactPoint[0].hasEmail!=''
                  || dataset.contactPoint[0].hasURL!=''
                  || dataset.contactPoint[0].hasTelephoneValue!='')))">
-                <p class="truncated"><span class="label">Contact Points:</span></p>
+                <p class="truncated"><span class="label">{{ 'CONTACT_POINTS' | translate }}:</span></p>
                  <nb-list>
                     <nb-list-item *ngFor="let contact of dataset.contactPoint" class="d-flex flex-column">
                         <span *ngIf="contact.fn!=''"><strong>{{contact.fn}}</strong></span>
