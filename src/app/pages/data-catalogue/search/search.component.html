@@ -16,7 +16,7 @@
     <h3 class="jumbotron-heading">{{ 'DATALET_NO_DATASET_FOUND' | translate }}</h3>
   </div>
   <div class="row" *ngIf="searchResponse.count>0">
-    <div class="col-3">
+    <div class="col-md-3 col-12">
       <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
         <nb-card-header class="d-flex justify-content-between">
           {{facet.displayName}}
@@ -34,7 +34,7 @@
         </nb-card-body>
       </nb-card>
     </div>
-    <div class="col-9">
+    <div class="col-md-9 col-12">
       <div class="row m-1">
         <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
       </div>

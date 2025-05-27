@@ -24,6 +24,7 @@ export class CataloguesComponent implements OnInit {
 
   ngOnInit(): void {
     this.refreshService.refreshPageOnce('admin-configuration');
+    this.refreshService.refreshPageOnce('admin-configuration');
     this.loadingPrevious = true;
     this.cataloguesService.getCatalogueList().then((data)=>{
       this.catalogues = data.catalogues;

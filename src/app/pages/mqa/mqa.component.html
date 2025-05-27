@@ -1,5 +1,3 @@
-
-
 <div class="container">
   <h3>{{ 'MQA_TITLE' | translate }}</h3>
   <br />
@@ -21,6 +19,7 @@
                     <input 
                       #XML_sub_local 
                       nbInput 
+                      class="input-bg-white"
                       class="input-bg-white"
                       type="file" 
                       class="form-control" 
@@ -56,7 +55,7 @@
           </div>
           <nb-card>
       <nb-card-body class="scrollable-card">
-        <label class="search-label" for="search_list">{{ 'MQA_SEARCH' | translate }}:</label>
+        <label class="search-label" for="search_list">{{ 'SEARCH' | translate }}:</label>
                 <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
                 <button size="small" class="ml-2" nbButton (click)="loadList()"><nb-icon icon="refresh-outline"></nb-icon></button>
         <table [nbTreeGrid]="dataSource_list" [nbSort]="dataSource_list" (sort)="updateSort($event)">
@@ -173,12 +172,13 @@
                   <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(column)" *nbTreeGridHeaderCellDef>
                     {{ defaultColumns_dat[index] }} 
                     <nb-icon class="ml-icon" *ngIf="index == 0" nbTooltip="{{ 'MQA_DATASET_TABLE_INFO_TOOLTIP_VALUE' | translate }}" icon="info" [options]="{ animation: { type: 'zoom' } }"></nb-icon>
+                    <nb-icon class="ml-icon" *ngIf="index == 0" nbTooltip="{{ 'MQA_DATASET_TABLE_INFO_TOOLTIP_VALUE' | translate }}" icon="info" [options]="{ animation: { type: 'zoom' } }"></nb-icon>
                   </th>
                   
                   <td nbTreeGridCell *nbTreeGridCellDef="let row">
                     <div *ngIf="index == 0 && row.data[column] !== 'true' && row.data[column] !== 'false' && row.data[column]!=='-' && !row.data[column].startsWith('code:') ;then content else rowColumnStandard"></div>
                     <ng-template #content>
-                      <span [style.color]="row.data[column] > 100 ? 'red' : 'black'">{{ row.data[column] }}%</span>
+                      <span [ngClass]="{'text-danger': row.data[column] > 100}">{{ row.data[column] }}%</span>
                     </ng-template>    
                     <ng-template #rowColumnStandard>{{ row.data[column] }}</ng-template>
                     

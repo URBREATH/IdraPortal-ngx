@@ -29,12 +29,30 @@ export class HeaderComponent implements OnInit, OnDestroy {
   user: UserClaims;
   userMenuDefault: NbMenuItem[] = [];
   authenticationEnabled:boolean=false;
-  currentTheme = 'default';
   typeLogin = "";
   userMenu: NbMenuItem[] = [];
   public idraUserLanguage: string;
   public readonly materialTheme$: Observable<boolean>;
   public languages = [];
+  public themes = [
+    {
+      value: 'default',
+      name: 'Light',
+    },
+    {
+      value: 'dark',
+      name: 'Dark',
+    },
+    {
+      value: 'cosmic',
+      name: 'Cosmic',
+    },
+    {
+      value: 'corporate',
+      name: 'Corporate',
+    },
+  ];
+  public currentTheme: string = 'default';
 
   constructor(private sidebarService: NbSidebarService,
               private menuService: NbMenuService,
@@ -76,6 +94,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   
   ngOnInit() {
+    this.changeTheme(this.currentTheme);
     this.idraUserLanguage = 'en';
 
     let lan = this.configService.config['languages'];

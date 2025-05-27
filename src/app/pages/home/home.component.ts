@@ -203,22 +203,37 @@ export class HomeComponent implements OnInit {
     this.selectedCatalogues_prev = this.selectedCatalogues;
   }
 
-	dcatThemes=[{value:"AGRI",icon:"agri",text:"Agriculture"},
-		{value:"ECON",icon:"econ",text:"Economy"},
-		{value:"EDUC",icon:"educ",text:"Education"},
-		{value:"ENER",icon:"ener",text:"Energy"},
-		{value:"ENVI",icon:"envi",text:"Environment"},
-		{value:"GOVE",icon:"gove",text:"Government"},
-		{value:"HEAL",icon:"heal",text:"Health"},
-		{value:"INTR",icon:"intr",text:"International"},
-		{value:"JUST",icon:"just",text:"Justice"},
-		{value:"REGI",icon:"regi",text:"Regions"},
-		{value:"SOCI",icon:"soci",text:"Population"},
-		{value:"TECH",icon:"tech",text:"Technology"},
-		{value:"TRAN",icon:"tran",text:"Transport"}];
+	// dcatThemes=[{value:"AGRI",icon:"agri",text:"Agriculture"},
+	// 	{value:"ECON",icon:"econ",text:"Economy"},
+	// 	{value:"EDUC",icon:"educ",text:"Education"},
+	// 	{value:"ENER",icon:"ener",text:"Energy"},
+	// 	{value:"ENVI",icon:"envi",text:"Environment"},
+	// 	{value:"GOVE",icon:"gove",text:"Government"},
+	// 	{value:"HEAL",icon:"heal",text:"Health"},
+	// 	{value:"INTR",icon:"intr",text:"International"},
+	// 	{value:"JUST",icon:"just",text:"Justice"},
+	// 	{value:"REGI",icon:"regi",text:"Regions"},
+	// 	{value:"SOCI",icon:"soci",text:"Population"},
+	// 	{value:"TECH",icon:"tech",text:"Technology"},
+	// 	{value:"TRAN",icon:"tran",text:"Transport"}];
+
+	dcatThemes=[{value:"Agriculture, fisheries, forestry and food",icon:"agri",text:"Agriculture"},
+		{value:"Economy and finance",icon:"econ",text:"Economy"},
+		{value:"Education, culture and sport",icon:"educ",text:"Education"},
+		{value:"Energy",icon:"ener",text:"Energy"},
+		{value:"Environment",icon:"envi",text:"Environment"},
+		{value:"Government and public sector",icon:"gove",text:"Government"},
+		{value:"Health",icon:"heal",text:"Health"},
+		{value:"International issues",icon:"intr",text:"International"},
+		{value:"Justice, legal system and public safety",icon:"just",text:"Justice"},
+		{value:"Regions and cities",icon:"regi",text:"Regions"},
+		{value:"Population and society",icon:"soci",text:"Population"},
+		{value:"Science and technology",icon:"tech",text:"Technology"},
+		{value:"Transport",icon:"tran",text:"Transport"}];
 
     
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
     this.refreshService.refreshPageOnce('admin-configuration');
     
     this.restApi.getCataloguesInfo().subscribe(infos =>{
@@ -297,6 +312,7 @@ export class HomeComponent implements OnInit {
   }
 
   searchCategory(category:any){
-    this.router.navigate(['/pages/datasets'], {queryParams:category})
+    console.log(category)
+    this.router.navigate(['/pages/datasets'], {queryParams:{search_value: category.text, text: category.value}})
   }
 }
