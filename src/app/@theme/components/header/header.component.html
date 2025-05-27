@@ -49,21 +49,6 @@
     >
   </nb-select>
   </div>
-  <div>
-    <!-- theme selection -->
-    <nb-select
-    [selected]="currentTheme"
-    (selectedChange)="changeTheme($event)"
-    status="primary"
-    shape="semi-round"
-    filled
-    style="margin-right: 3%;"
-  >
-    <nb-option *ngFor="let theme of themes" [value]="theme.value">
-      {{ theme.name }}</nb-option
-    >
-  </nb-select>
-  </div>
 </div>
 
 
