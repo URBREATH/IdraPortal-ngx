@@ -74,6 +74,15 @@ export const MENU_ITEMS: MenuItem[] = [
     key: 'Datasets NGSI'
   },
   {
+    title: 'Models and Tools',
+    icon: 'tools-outline',
+    link: "/pages/models-tools",
+    data: {
+      name: "models-tools"
+    },
+    key: 'Models and Tools'
+  },
+  {
     title: 'Administration',
     icon: 'settings-2-outline',
     children: [

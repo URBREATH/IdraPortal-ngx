@@ -51,6 +51,11 @@ const routes: Routes = [{
         loadChildren: () => import('./datasets-ngsi/datasets-ngsi.module')
           .then(m => m.DatasetsNgsiModule),
       },
+      {
+        path: 'models-tools',
+        loadChildren: () => import('./models-tools/models-tools.module')
+          .then(m => m.ModelsToolsModule),
+      },
      {
       path: 'administration',
       loadChildren: () => import('./admin/admin-module.module')
