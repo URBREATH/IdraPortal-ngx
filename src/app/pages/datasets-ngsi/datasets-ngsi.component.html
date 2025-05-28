@@ -1,27 +1,26 @@
 <section class="jumbotron">
-    <nb-card class="p-4">
-        <span class="d-flex flex-row justify-content-between align-items-center pb-2">
-            <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.5rem;">   
+    <nb-card class="p-4 mb-2">
+      <span class="buttons-row">   
                 <button nbButton status="primary" 
-                [routerLink]="['/pages/datasets-ngsi/editor']">{{'CREATE_NEW_DATASET' | translate}}</button>
+                [routerLink]="['/pages/datasets-ngsi/editor']">{{'CREATE_NEW_DATASET' | translate}}
+                </button>
                 <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button">
                     <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_DATASETS' | translate}} 
                 </button>
                 <button nbButton class="delete-button" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()">
                     <nb-icon icon="trash-2-outline"></nb-icon>{{'DELETE_SELECTED' | translate}} ({{datasetsToDelete.length}})
                 </button>
-            </span>
-        </span>
+      </span>
         <!-- Tag input for filtering -->
         <nb-tag-list (tagRemove)="onTagRemove($event)">
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
             <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
         </nb-tag-list>
         <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'DATALET_DATASETS_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
-    </nb-card>
+      </nb-card>
 
-    <div class="ngsi-datasets-body d-flex flex-row justify-content-between align-items-start mt-4" style="gap:1rem;">
-        <div class="left-column w-25 p-0 d-flex flex-column">
+    <div class="ngsi-datasets-body">
+        <div  class="left-column">
             <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
                 <nb-card-header class="d-flex justify-content-between">
                   {{facet.displayName}}
@@ -38,9 +37,9 @@
                   </nb-list>
                 </nb-card-body>
             </nb-card>
-        </div>
+          </div>
 
-        <div class="right-column w-75 p-0 d-flex flex-column">
+        <div class="right-column">
             <div class="datasets-card">
                 <!-- Pagination controls at top -->
                 <div class="pagination-container mb-3">
