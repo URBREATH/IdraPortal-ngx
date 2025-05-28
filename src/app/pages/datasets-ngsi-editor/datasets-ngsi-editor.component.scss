@@ -343,3 +343,23 @@ label nb-icon {
 ::ng-deep nb-tag {
   text-transform: none;
 }
+
+
+@media (max-width: 820px) {
+.dataset-form {
+  flex-direction: column;
+}
+
+  .left-column,
+  .mid-column,
+  .right-column {
+    width: 100%;
+    max-width: none;
+  }
+
+  
+::ng-deep .header {
+  margin: 0 2rem !important;
+}
+
+}
