@@ -288,6 +288,30 @@ nb-tag-list {
   margin-bottom: 0.5rem;
 }
 
+// Mobile filter toggle styles
+.mobile-toggle-container {
+  display: none;
+}
+
+.filter-toggle-input {
+  display: none;
+}
+
+.filter-toggle-label {
+  display: none;
+  align-items: center;
+  background-color: $primary;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  
+  nb-icon {
+    margin-right: 0.5rem;
+  }
+}
+
 @media (max-width: 820px) {
   .buttons-row {
     flex-direction: column;
@@ -299,10 +323,35 @@ nb-tag-list {
     align-items: center;
   }
 
-  .left-column {
-   display: none;
+  .filter-toggle-label {
+  display: inline-flex;
   }
+  
+  .left-column {
+    display: none;
+    width: 100%;
+    margin-bottom: 0;
+    nb-card {
+      width: 30%;
+       nb-card-body {
+      overflow: hidden;
+      padding: 0.5rem;
+       }
+
+      nb-card-header {
+        padding: 0.5rem;
+      }
+    }
+  }
+  
   .right-column {
     width: 100%;
+  }
+  
+  // This is the magic - show left column when checkbox is checked
+  #filter-toggle:checked + label + .left-column {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 }
