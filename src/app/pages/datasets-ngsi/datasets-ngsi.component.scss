@@ -340,6 +340,10 @@ nb-tag-list {
 
       nb-card-header {
         padding: 0.5rem;
+        h5 {
+          margin: 0;
+          font-size: 1rem;
+        }
       }
     }
   }
