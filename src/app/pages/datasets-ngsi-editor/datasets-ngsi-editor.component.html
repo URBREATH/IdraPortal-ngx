@@ -3,8 +3,8 @@
     
     <!-- Step 1: Add Distributions -->
     <nb-step label="{{'ADD_DISTRIBUTIONS' | translate}}">
-      <div class="step-content">
-        <nb-card class="m-0 w-50">
+      <div class="distribution-step-content">
+        <nb-card class="distribution-form-card">
         <!-- Left panel: distribution form -->
         <form [formGroup]="distributionForm" id="distributionForm" class="distribution-form">
           <nb-card-header>
@@ -170,7 +170,7 @@
     
     <!-- Step 2: Create Dataset -->
     <nb-step label="Create dataset">
-      <div class="step-content">
+      <div class="dataset-distribution-step-content">
           <form [formGroup]="datasetForm" class="dataset-form">
             <div class="left-column">
               <label for="title" class="required-field">{{'TITLE' | translate}}</label>
