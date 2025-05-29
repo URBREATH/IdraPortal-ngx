@@ -1,8 +1,8 @@
   import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
-import { DatasetsNgsiEditorRoutingModule } from './datasets-ngsi-editor-routing.module';
-import { DatasetsNgsiEditorComponent } from '../datasets-ngsi-editor/datasets-ngsi-editor.component';
+import { ModelsToolsEditorRoutingModule } from './models-tools-editor-routing.module';
+import { ModelsToolsEditorComponent } from './models-tools-editor.component';
 
 // Reactive Forms module
 import { ReactiveFormsModule } from '@angular/forms';
@@ -23,11 +23,11 @@ import {
 
 @NgModule({
   declarations: [
-    DatasetsNgsiEditorComponent
+    ModelsToolsEditorComponent
   ],
   imports: [
     CommonModule,
-    DatasetsNgsiEditorRoutingModule,
+    ModelsToolsEditorRoutingModule,
     ReactiveFormsModule,
     NbIconModule,
     NbButtonModule,
@@ -42,4 +42,4 @@ import {
     TranslateModule,
   ]
 })
-export class DatasetsNgsiEditorModule { }
+export class ModelsToolsEditorModule { }

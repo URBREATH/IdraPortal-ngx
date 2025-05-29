@@ -52,6 +52,11 @@ const routes: Routes = [{
           .then(m => m.DatasetsNgsiModule),
       },
       {
+        path: 'models-tools/editor',
+        loadChildren: () => import('./models-tools-editor/models-tools-editor.module')
+          .then(m => m.ModelsToolsEditorModule),
+      },
+      {
         path: 'models-tools',
         loadChildren: () => import('./models-tools/models-tools.module')
           .then(m => m.ModelsToolsModule),

@@ -75,7 +75,7 @@ export const MENU_ITEMS: MenuItem[] = [
   },
   {
     title: 'Models and Tools',
-    icon: 'tools-outline',
+    icon: 'pantone-outline',
     link: "/pages/models-tools",
     data: {
       name: "models-tools"
