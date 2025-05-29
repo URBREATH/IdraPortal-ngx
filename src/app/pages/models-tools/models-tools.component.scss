@@ -1,0 +1,359 @@
+@import 'bootstrap/scss/mixins/breakpoints';
+@import '@nebular/theme/styles/global/breakpoints';
+@import '../../@theme/styles/themes.scss';
+
+//urbreath theme colors
+$primary: #2BA5DE;
+$primary-dark: #1d7097;
+$primary-light: #91d0ee;
+$secondary: #3f3368;
+$secondary-dark: #2b2347;
+$secondary-light: #5a42b1;
+$surface: #cdd9e0;
+$surface-dark: #25262E;
+
+@include nb-install-component() {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+
+
+  .right-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .language-select-container {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+  }
+  
+  nb-action {
+    height: auto;
+    display: flex;
+    align-content: center;
+  }
+
+  nb-user {
+    cursor: pointer;
+  }
+
+  ::ng-deep nb-search button {
+    padding: 0!important;
+  }
+  
+  
+  .header-container {
+    display: flex;
+    align-items: center;
+    width: auto;
+
+
+    nb-icon{
+      color: $primary;
+    }
+
+    nb-icon:hover{
+      color: $secondary;
+    }
+
+  }
+
+  .accordion-header {
+    background-color: $primary;
+    color: white;
+    font-size: 1.25rem;
+  }
+
+  @include media-breakpoint-down(sm) {
+    .control-item {
+      display: none;
+    }
+    .user-action {
+      border: none;
+      padding: 0;
+    }
+  }
+
+  @include media-breakpoint-down(is) {
+    nb-select {
+      display: none;
+    }
+  }
+}
+
+.buttons-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-bottom: 2rem;
+  gap: 0.5rem;
+}
+
+.ngsi-datasets-body {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.left-column {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+}
+
+.right-column {
+  width: 75%;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  height: auto;
+  min-height: 400px;
+}
+
+.datasets-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+nb-list {
+  height: auto;
+  overflow-y: visible;
+  min-height: 200px;
+  scrollbar-width: thin; // For Firefox
+}
+
+nb-list-item {
+  border: none;
+}
+
+nb-card {
+  border-radius: 0;
+}
+
+.list-item {
+  padding: 0 1rem 0 0;
+  border: none;
+}
+
+// For Chrome, Edge, and Safari
+nb-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+nb-list::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+nb-list::-webkit-scrollbar-thumb {
+  background: #c5c5c5;
+  border-radius: 4px;
+}
+
+nb-list::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+.loading-spinner {
+  display: flex;
+  justify-content: center;
+  padding: 1rem;
+}
+
+// Make sure card in list item takes full width
+nb-list-item nb-card {
+  width: 100%;
+}
+
+// Styling for checkbox to match button height
+::ng-deep nb-checkbox.dataset-checkbox {
+  display: block !important;
+  height: 40px !important;
+  
+  .nb-checkbox {
+    width: 40px !important;
+    height: 40px !important;
+    border-radius: 4px !important;
+    line-height: 40px !important;
+  }
+  
+  .nb-checkbox-input {
+    width: 40px !important;
+    height: 40px !important;
+  }
+  
+  .custom-checkbox {
+    width: 40px !important;
+    height: 40px !important;
+    background-color: $surface !important;
+    border: 1px solid $primary-dark !important;
+  }
+  
+  nb-icon {
+    font-size: 1.5rem !important;
+    width: 20px !important;
+    height: 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    line-height: 40px !important;
+  }
+}
+
+// Make sure buttons have consistent height
+::ng-deep .dataset-actions {
+  display: flex !important;
+  align-items: center !important;
+  
+  button {
+    height: 40px !important;
+    width: 40px !important;
+    padding: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+  }
+}
+
+.delete-button:not(:disabled) {
+  background-color: $secondary !important;
+  color: white !important;
+}
+
+.delete-button:not(:disabled):hover {
+  background-color: $secondary-light !important;
+  color: white !important;
+}
+
+// Add these new styles for tags and pagination
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+nb-tag-list {
+  width: 100%;
+  margin-bottom: 0.5rem;
+}
+
+.truncated {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: large;
+  display: block;
+}
+
+.no-description {
+  color: $primary-dark;
+  font-size: 0.9rem;
+  font-style: italic;
+  text-align: center;
+}
+
+.publisher-label {
+  font-size: 0.75rem;
+  color: $surface-dark;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+}
+
+// Mobile filter toggle styles
+.mobile-toggle-container {
+  display: none;
+}
+
+.filter-toggle-input {
+  display: none;
+}
+
+.filter-toggle-label {
+  display: none;
+  align-items: center;
+  background-color: $primary;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  cursor: pointer;
+  
+  nb-icon {
+    margin-right: 0.5rem;
+  }
+}
+
+// Card styles
+.minicard {
+  width: 100%;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  nb-card-header {
+    background-color: $primary-light;
+    color: $surface-dark;
+  }
+}
+
+@media (max-width: 820px) {
+  .buttons-row {
+    flex-direction: column;
+    justify-content: center;
+  } 
+
+  .ngsi-datasets-body {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .filter-toggle-label {
+    display: inline-flex;
+  }
+  
+  .left-column {
+    display: none;
+    width: 100%;
+    margin-bottom: 1rem;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 1rem;
+    
+    nb-card {
+      width: 30%;
+      margin-bottom: 0;
+      
+      nb-card-body {
+        overflow: hidden;
+        padding: 0.5rem;
+      }
+
+      nb-card-header {
+        padding: 0.5rem;
+        h5 {
+          margin: 0;
+          font-size: 1rem;
+        }
+      }
+    }
+  }
+  
+  .right-column {
+    width: 100%;
+  }
+  
+ #filter-toggle:checked + label + .left-column {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+}
