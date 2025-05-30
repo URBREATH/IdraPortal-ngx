@@ -1,0 +1,377 @@
+//urbreath theme colors
+$primary: #2BA5DE;
+$primary-dark: #1d7097;
+$primary-light: #91d0ee;
+$secondary: #3f3368;
+$secondary-dark: #2b2347;
+$secondary-light: #9b95b0;
+$surface: #cdd9e0;
+$surface-dark: #25262E;
+
+
+:host ::ng-deep .custom-stepper .header {
+  margin: 0 10rem;
+}
+
+:host ::ng-deep .custom-stepper .header .label {
+  font-size: large;
+}
+
+.stepper-container {
+  margin: 20px auto;
+  max-width: 1200px;
+}
+
+.distribution-step-content, .dataset-step-content {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  padding: 0;
+}
+
+.distribution-form-card {
+  width: 40%;
+  margin: 0 auto;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  background-color: #fff;
+}
+
+.distribution-form{
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 15px;
+  align-items: center;
+}
+
+.dataset-form {
+  display: flex;
+  flex-direction: row;
+  gap: 15px;
+  padding: 15px;
+  width: 100%;
+}
+
+.distribution-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+
+  h4 {
+    margin: 0;
+  }
+
+}
+
+.distribution-list-panel {
+  flex: 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  background-color: #f9f9f9;
+
+  h4 {
+    margin-bottom: 10px;
+  }
+
+  ul {
+    list-style: none;
+    padding: 0;
+
+    .distribution-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px;
+      border-bottom: 1px solid #e0e0e0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      strong {
+        font-size: 14px;
+      }
+
+      p {
+        margin: 0;
+        font-size: 12px;
+        color: #666;
+      }
+
+      button {
+        margin-left: 10px;
+      }
+    }
+  }
+}
+
+.step-controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+
+  button:not(.green-button) {
+    min-width: 100px;
+    background-color: $primary !important;
+    color: #fff !important;
+  }
+
+  button:hover:not(.green-button) {
+    background-color: $primary-dark !important;
+    
+  }
+
+}
+
+.left-column,
+.mid-column,
+.right-column {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.right-column {
+  max-width: 29%;
+}
+
+.map-placeholder {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  background-color: #f9f9f9;
+
+  strong {
+    display: block;
+    margin-bottom: 10px;
+  }
+}
+
+button[nbButton] {
+  &.status-primary {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  &.status-success {
+    background-color: #28a745;
+    color: #fff;
+  }
+
+  &.status-danger {
+    background-color: #dc3545;
+    color: #fff;
+  }
+
+  &.status-info {
+    background-color: #17a2b8;
+    color: #fff;
+  }
+}
+
+.spatial-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 1px solid #eee;
+  border-radius: 4px;
+}
+
+.coordinates-input {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.coordinate {
+  flex: 1;
+}
+
+.full-width-input {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.required-field::after {
+  content: " *";
+  color: red;
+}
+
+.error-message {
+  color: #ff3d71;
+  font-size: 1rem;
+  margin-top: 0.25rem;
+  margin-left: 0.25rem;
+}
+
+// Style for required form controls that are invalid and touched
+.ng-invalid.ng-touched {
+  border-color: #ff3d71;
+}
+
+input.ng-invalid.ng-touched {
+  border-color: #ff3d71;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+#map { 
+  height: 300px; 
+  width: 100%;
+  margin-top: 15px;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+}
+
+/* Style for hidden map */
+#map.map-hidden {
+  visibility: hidden;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  margin-top: 1rem;
+}
+
+.editing-mode {
+  background-color: rgba(143, 155, 179, 0.08);
+}
+
+.distribution-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.marked-for-deletion {
+  opacity: 0.6;
+  text-decoration: line-through;
+  background-color: rgba(255, 0, 0, 0.05);
+}
+
+.current-editing {
+  background-color: rgba(0, 149, 255, 0.1);
+  border-left: 3px solid #0095ff;
+}
+
+.editing-badge {
+  display: inline-block;
+  background-color: #0095ff;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.deletion-badge {
+  display: inline-block;
+  background-color: #ff3d71;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.keywords-container {
+  margin-bottom: 15px;
+}
+
+.keywords-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.keywords-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.keyword-input {
+  flex: 1;
+}
+
+nb-tag {
+  margin-right: 6px;
+  margin-bottom: 6px;
+}
+
+.contact-points-container {
+  margin-bottom: 15px;
+}
+
+.contact-points-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+
+.contact-points-input-group {
+  display: flex;
+  gap: 10px;
+}
+
+.contact-input {
+  flex: 1;
+}
+
+.char-count {
+  display: block;
+  text-align: right;
+  font-size: 0.8rem;
+  color: #8f9bb3;
+  margin-top: 0.25rem;
+}
+
+label nb-icon {
+  font-size: 1rem;
+  margin-left: 5px;
+  cursor: help;
+  vertical-align: middle;
+}
+
+::ng-deep nb-tag {
+  text-transform: none;
+}
+
+
+@media (max-width: 820px) { 
+::ng-deep .header {
+  margin: 0 2rem !important;
+}
+
+.distribution-step-content, .dataset-step-content {
+  flex-direction: column;
+}
+
+.distribution-form-card {
+  width: 100%;
+}
+
+.dataset-form {
+  flex-direction: column;
+}
+
+  .left-column,
+  .mid-column,
+  .right-column {
+    width: 100%;
+    max-width: none;
+  }
+
+}
