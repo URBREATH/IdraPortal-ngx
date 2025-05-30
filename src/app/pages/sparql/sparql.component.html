@@ -1,7 +1,7 @@
 <section class="jumbotron">
     <div class="mb-4">
-      <nb-card class="editor-card">
-          <nb-card-body class="editor-card-body">
+        <nb-card class="editor-card">
+            <nb-card-body class="editor-card-body">
               <ngs-code-editor 
                 theme="vs-light" 
                 language="typescript"
@@ -13,21 +13,21 @@
             </nb-card-body>
         </nb-card>
         <div class="row">
-          <div class="col-4">
-            <span class="output-format-label">Output format:</span>
-            <nb-select [(selected)]="outputFormat" placeholder="Output format">
-              <nb-option value="XML">XML</nb-option>
-              <nb-option value="JSON">JSON</nb-option>
+          <div class="col-md-4 col-12 mb-1">
+            <span class="output-format-label">{{ 'OUTPUT_FORMAT' | translate }}:</span>
+            <nb-select [(selected)]="outputFormat" placeholder="{{ 'OUTPUT_FORMAT' | translate }}">
+              <nb-option value="XML">{{ 'XML' | translate }}</nb-option>
+              <nb-option value="JSON">{{ 'JSON' | translate }}</nb-option>
             </nb-select>
           </div>
-          <div class="col-8 d-flex justify-content-end" *ngIf="query_bck == ''">
-            <button nbButton status="success" (click)="clear()" class="mr-2" >Clear</button>
-            <button nbButton status="primary" (click)="executeQuery()">Execute</button>
+          <div class="col-md-8 col-12 d-flex justify-content-end" *ngIf="query_bck == ''">
+            <button nbButton status="success" (click)="clear()" class="mr-2">{{ 'CLEAR' | translate }}</button>
+            <button nbButton status="primary" (click)="executeQuery()">{{ 'EXECUTE' | translate }}</button>
           </div>
-          <div class="col-8 d-flex justify-content-end" *ngIf="query_bck != ''">
-            <button nbButton status="success" (click)="back()" class="mr-2" >Back</button>
-            <button nbButton status="success" (click)="copy()" class="mr-2" >Copy</button>
-            <button nbButton status="primary" (click)="download()">Download</button>
+          <div class="col-md-8 col-12 d-flex justify-content-end" *ngIf="query_bck != ''">
+            <button nbButton status="success" (click)="back()" class="mr-2">{{ 'BACK' | translate }}</button>
+            <button nbButton status="success" (click)="copy()" class="mr-2">{{ 'COPY' | translate }}</button>
+            <button nbButton status="primary" (click)="download()">{{ 'DOWNLOAD' | translate }}</button>
           </div>
         </div>
     </div>

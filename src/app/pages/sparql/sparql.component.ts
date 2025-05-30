@@ -88,6 +88,7 @@ LIMIT 50`,
 
   ngOnInit(): void {
     this.refreshService.refreshPageOnce('admin-configuration');
+    this.refreshService.refreshPageOnce('admin-configuration');
   }
 
 }

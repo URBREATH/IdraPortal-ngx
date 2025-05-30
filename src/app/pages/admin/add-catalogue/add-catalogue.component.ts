@@ -429,24 +429,24 @@ export class AddCatalogueComponent implements OnInit {
 	modifyMode : boolean = false;
 
 	handleOpenEditorDialog() {
-		console.log(this.node)
-			this.dialogService.open(EditorDialogComponent, {
-			  context: {
-				model: {
-					language: 'json',
-					uri: 'main.json',
-					value: this.node.dumpString,
-				}
-			  },
-			}).onClose.subscribe(res => {
-			  if(res != false) {
-				console.log(res);
-				this.node.dumpString = res;
-			  }
-			});
+		this.dialogService.open(EditorDialogComponent, {
+			context: {
+			model: {
+				language: 'json',
+				uri: 'main.json',
+				value: this.node.dumpString,
+			}
+			},
+		}).onClose.subscribe(res => {
+			if(res != false) {
+			console.log(res);
+			this.node.dumpString = res;
+			}
+		});
 	}
 
     ngOnInit(): void {
+		this.refreshService.refreshPageOnce('admin-configuration');
 		this.refreshService.refreshPageOnce('admin-configuration');
 		this.route.queryParams
 			.subscribe(params => {

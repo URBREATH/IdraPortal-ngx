@@ -3,6 +3,7 @@ import * as echarts from 'echarts';
 import { CoolTheme } from './cool-theme';
 import { StatisticsService } from './statistics.service';
 import { RefreshService } from '../services/refresh.service';
+import { TranslateService } from '@ngx-translate/core';
 
 @Component({
   selector: 'ngx-statistics',
@@ -13,7 +14,8 @@ export class StatisticsComponent implements OnInit {
 
   constructor(
     private statisticsService : StatisticsService,
-    private refreshService: RefreshService,
+    public translation: TranslateService,
+        private refreshService: RefreshService,
   ) { }
 
   options: echarts.EChartsOption = {
@@ -137,6 +139,7 @@ export class StatisticsComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.refreshService.refreshPageOnce('admin-configuration');
     this.refreshService.refreshPageOnce('admin-configuration');
 
     this.statisticsService.getCatalogueList().then((data)=>{

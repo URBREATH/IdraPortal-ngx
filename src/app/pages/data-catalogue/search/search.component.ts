@@ -49,7 +49,8 @@ export class SearchComponent implements OnInit {
       this.loading=false
 
       let searchParam = this.router.routerState.snapshot.root.queryParams
-      
+
+      console.log(searchParam)
       if(searchParam['advancedSearch'] == 'true'){
         this.searchRequest = JSON.parse(searchParam['params']);
         // this.filtersTags = searchParam['params'].filters.map(x=>x.value);
@@ -66,7 +67,7 @@ export class SearchComponent implements OnInit {
         }
         else if(searchParam['text']!=undefined){
           // this.filtersTags.push(searchParam.value)
-          this.searchRequest.filters.push(new SearchFilter('datasetThemes',searchParam.value))
+          this.searchRequest.filters.push(new SearchFilter('datasetThemes',searchParam.search_value))
           this.searchDataset(true)
         }
         else if(searchParam['tags']!=undefined){
@@ -99,6 +100,11 @@ export class SearchComponent implements OnInit {
   }
 
   searchDataset(isFirst=false) : Observable<SearchResult>{
+    console.log(this.searchRequest)
+    console.log(this.filters)
+    console.log(this.filtersTags)
+    console.log(this.searchResponse)
+    console.log(this.searchResponse.facets)
     this.loading=true
     this.filtersTags=[];
 

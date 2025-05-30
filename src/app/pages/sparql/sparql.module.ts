@@ -8,12 +8,14 @@ import { MatCardModule } from '@angular/material/card';
 import { CarouselModule } from 'ngx-owl-carousel-o';
 import { NgdCodeBlockComponent } from './code-block/code-block.component';
 import { CodeEditorModule } from '@ngstack/code-editor';
+import { TranslateModule } from '@ngx-translate/core';
 
 
 @NgModule({
   declarations: [SparqlComponent, NgdCodeBlockComponent],
   imports: [
     CommonModule,
+    TranslateModule,
     SparqlRoutingModule,
     NbCardModule,
     MatCardModule,
