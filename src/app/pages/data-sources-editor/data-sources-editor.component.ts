@@ -15,22 +15,6 @@ import { TranslateService } from '@ngx-translate/core';
   styleUrls: ['./data-sources-editor.component.scss']
 })
 export class DataSourcesEditorComponent {
-
-  formatOptions: string[] = [
-    'JSON',
-    'CSV',
-    'XML',
-    'TXT',
-    'XLSX',
-    'PDF',
-    'GeoJSON',
-    'WMS',
-    'Other'
-  ];
-
-  // Add this property to track if "Other" format is selected
-  isOtherFormatSelected: boolean = false;
-
   selectedStepIndex = 0;
   
   distributionForm: FormGroup;
@@ -225,13 +209,7 @@ export class DataSourcesEditorComponent {
   initForms(): void {
     // Add validator to distribution form
     this.distributionForm = this.fb.group({
-      id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required],
-      format: ['CSV'],
-      otherFormat: ['', [
-        Validators.maxLength(10), 
-        this.notEqualToOtherValidator()
-      ]],
       description: [''],
       accessUrl: [''],
       downloadURL: ['', Validators.required], 
@@ -239,33 +217,13 @@ export class DataSourcesEditorComponent {
       checksum: [''],
       rights: [''],
       mediaType: [''],
-      license: ['CC-BY'],
       releaseDate: [''],
       modifiedDate: ['']
     });
 
-    // Monitor format changes to toggle otherFormat field
-    this.distributionForm.get('format').valueChanges.subscribe(format => {
-      this.isOtherFormatSelected = format === 'Other';
-      
-      const otherFormatControl = this.distributionForm.get('otherFormat');
-      if (this.isOtherFormatSelected) {
-        otherFormatControl.enable();
-        otherFormatControl.setValidators([
-          Validators.required, 
-          Validators.maxLength(10),
-          this.notEqualToOtherValidator()
-        ]);
-      } else {
-        otherFormatControl.disable();
-        otherFormatControl.setValidators(null);
-      }
-      otherFormatControl.updateValueAndValidity();
-    });
 
     // Add validator to dataset form with today's date as default for new datasets
     this.datasetForm = this.fb.group({
-      id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required], // Title is required
       description: [''],
       name: [''],
@@ -297,20 +255,6 @@ export class DataSourcesEditorComponent {
     // Reset and populate the form with existing distribution data
     this.distributionForm.reset();
     
-    // Check if this distribution has a custom format
-    let format = distribution.format || 'CSV';
-    let otherFormat = '';
-    
-    // If format doesn't match any standard option (case insensitive and ignore spaces)
-    const normalizedFormat = format.replace(/\s+/g, '').toLowerCase();
-    const isStandardFormat = this.formatOptions.some(opt => 
-      opt.replace(/\s+/g, '').toLowerCase() === normalizedFormat
-    );
-    
-    if (!isStandardFormat) {
-      otherFormat = format;
-      format = 'Other';
-    }
     
     // Convert arrays to single values for form fields
     const accessUrl = Array.isArray(distribution.accessUrl) && distribution.accessUrl.length > 0 
@@ -342,13 +286,10 @@ export class DataSourcesEditorComponent {
       description: distribution.description,
       accessUrl: accessUrl,
       downloadURL: distribution.downloadURL,
-      format: format,
-      otherFormat: otherFormat,
       byteSize: distribution.byteSize,
       checksum: distribution.checksum,
       rights: distribution.rights,
       mediaType: distribution.mediaType,
-      license: distribution.license,
       releaseDate: releaseDate,
       modifiedDate: modifiedDate
     });
@@ -375,20 +316,6 @@ export class DataSourcesEditorComponent {
   private normalizeString(title: string): string {
     // Remove all spaces and convert to lowercase for consistent comparison
     return title.replace(/\s+/g, '').toLowerCase();
-  }
-
-  private forbiddenCharsValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null; // Skip validation for empty values
-      }
-      
-      // Check for forbidden characters: colon, slash, semicolon, and spaces
-      const forbidden = /[:\/;, ]/;
-      const isInvalid = forbidden.test(control.value);
-      
-      return isInvalid ? { forbiddenChars: { value: control.value } } : null;
-    };
   }
 
   saveDistributionToLocalStorage(): void {
@@ -468,7 +395,6 @@ export class DataSourcesEditorComponent {
       checksum: formData.checksum || '',
       rights: formData.rights || '',
       mediaType: formData.mediaType || '',
-      license: formData.license || '',
       releaseDate: formData.releaseDate ? 
         moment(formData.releaseDate).format() : 
         moment().format(),

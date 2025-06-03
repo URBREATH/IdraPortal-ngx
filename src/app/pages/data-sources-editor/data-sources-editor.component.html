@@ -10,20 +10,7 @@
           <nb-card-header>
             {{ isEditingDistribution ? ('SAVE_CHANGES' | translate) : ('ADD_TO_LIST' | translate) }}
           </nb-card-header>
-          
-          <label for="distId">{{'ID_OPTIONAL' | translate}}</label>
-          <input nbInput 
-                 id="distId" 
-                 formControlName="id" 
-                 type="text" 
-                 maxlength="50"
-                 class="full-width-input"
-                 [status]="distributionForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
-          <div *ngIf="distributionForm.get('id')?.errors?.['forbiddenChars']" 
-               class="error-message">
-            {{'ID_INVALID_CHARS' | translate}}
-          </div>
-          
+
           <label for="title" class="required-field">{{'TITLE' | translate}}</label>
           <input nbInput 
                  id="title" 
@@ -42,7 +29,7 @@
             {{distributionForm.get('description').value?.length || 0}}/500
           </span>
           
-          <label for="downloadURL" class="required-field">{{'DOWNLOAD_URL' | translate}}</label>
+          <label for="downloadURL" class="required-field">{{'ACCESS_URL' | translate}}</label>
           <input nbInput 
                  id="downloadURL" 
                  formControlName="downloadURL" 
@@ -51,46 +38,9 @@
                  class="w-100"
                  [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
-            {{'DOWNLOAD_URL_REQUIRED' | translate}}
+            {{'ACCESS_URL_REQUIRED' | translate}}
           </div>
-          
-          
-          <label for="format">{{'FORMAT' | translate}}</label>
-          <nb-select 
-            id="format"
-            formControlName="format"
-            class="form-control">
-            <nb-option *ngFor="let option of formatOptions" [value]="option">
-              {{ option }}
-            </nb-option>
-          </nb-select>
-          
-          <!-- Custom format input -->
-          <div *ngIf="isOtherFormatSelected" class="mt-2">
-            <input nbInput 
-                   fullWidth
-                   type="text" 
-                   formControlName="otherFormat"
-                   placeholder="Specify format (max 10 characters)"
-                   maxlength="10">
-            
-            <!-- Validation error messages -->
-            <div *ngIf="distributionForm.get('otherFormat').touched && distributionForm.get('otherFormat').errors">
-              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.required">
-                Custom format is required
-              </small>
-              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.maxlength">
-                Format cannot exceed 10 characters
-              </small>
-              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.equalToOther">
-                Format cannot be 'Other'
-              </small>
-            </div>
-          </div>
-          
-          <label for="license">{{'LICENSE' | translate}}</label>
-          <input nbInput id="license" formControlName="license" type="text" maxlength="100" class="full-width-input" />
-          
+
           <label for="releaseDate">{{'RELEASE_DATE' | translate}}</label>
           <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
                  [nbDatepicker]="releaseDatePicker" class="full-width-input" />
@@ -179,18 +129,6 @@
                      id="title" 
                      formControlName="title"
                      maxlength="100">
-                        
-              <label for="datasetId">{{'ID_OPTIONAL' | translate}}</label>
-              <input nbInput 
-                     fullWidth 
-                     id="datasetId" 
-                     formControlName="id"
-                     maxlength="50"
-                     [status]="datasetForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
-              <div *ngIf="datasetForm.get('id')?.errors?.['forbiddenChars']" 
-                   class="error-message">
-                {{'ID_INVALID_CHARS' | translate}}
-              </div>
                        
               <!-- Description with character counter -->
               <div class="form-group">
@@ -337,49 +275,7 @@
               </div>
             </div>
             <div class="right-column">
-              <label>
-                {{'THEMES' | translate}}
-                <nb-icon
-                  icon="info-outline"
-                  status="primary" 
-                  [nbTooltip]="'THEMES_TOOLTIP' | translate"
-                  nbTooltipStatus="primary">
-                </nb-icon>
-              </label>
-              <nb-select multiple fullWidth formControlName="theme" placeholder="{{'SELECT_THEMES' | translate}}">
-                <nb-option value="AGRI">{{'AGRICULTURE' | translate}}</nb-option>
-                <nb-option value="ECON">{{'ECONOMY' | translate}}</nb-option>
-                <nb-option value="EDUC">{{'EDUCATION' | translate}}</nb-option>
-                <nb-option value="ENVI">{{'ENVIRONMENT' | translate}}</nb-option>
-                <nb-option value="ENER">{{'ENERGY' | translate}}</nb-option>
-                <nb-option value="GOVE">{{'GOVERNMENT' | translate}}</nb-option>
-                <nb-option value="HEAL">{{'HEALTH' | translate}}</nb-option>
-                <nb-option value="JUST">{{'JUSTICE' | translate}}</nb-option>
-                <nb-option value="INTR">{{'INTERNATIONAL' | translate}}</nb-option>
-                <nb-option value="REGI">{{'REGIONS' | translate}}</nb-option>
-                <nb-option value="SOCI">{{'SOCIETY' | translate}}</nb-option>
-                <nb-option value="TECH">{{'TECHNOLOGY' | translate}}</nb-option>
-                <nb-option value="TRAN">{{'TRANSPORTATION' | translate}}</nb-option>
-              </nb-select>
-              
-              <div class="form-group">
-                <label for="frequency">
-                  {{'FREQUENCY' | translate}}
-                  <nb-icon
-                    icon="info-outline"
-                    status="primary" 
-                    [nbTooltip]="'FREQUENCY_TOOLTIP' | translate"
-                    nbTooltipStatus="primary">
-                  </nb-icon>
-                </label>
-                <nb-select id="frequency" formControlName="frequency" class="full-width-input" placeholder="{{'SELECT_FREQUENCY' | translate}}">
-                  <nb-option>{{'NONE' | translate}}</nb-option>
-                  <nb-option value="DAILY">{{'DAILY' | translate}}</nb-option>
-                  <nb-option value="WEEKLY">{{'WEEKLY' | translate}}</nb-option>
-                  <nb-option value="MONTHLY">{{'MONTHLY' | translate}}</nb-option>
-                </nb-select>
-              </div>
-              
+                            
               <!-- Spatial / map area -->
               <div class="spatial-section">
                 <div class="d-flex justify-content-between align-items-center">
