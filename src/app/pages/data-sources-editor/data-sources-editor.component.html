@@ -2,7 +2,7 @@
   <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper" (stepChange)="onStepChange($event.index)">
     
     <!-- Step 1: Add Distributions -->
-    <nb-step label="{{'ADD_DISTRIBUTIONS' | translate}}">
+    <nb-step label="{{'ADD_DATA_SOURCES' | translate}}">
       <div class="distribution-step-content">
         <nb-card class="distribution-form-card">
         <!-- Left panel: distribution form -->
@@ -121,8 +121,8 @@
         <nb-card class="distribution-list-panel m-0">
           <div class="distribution-list-header">
             <div>
-              <h4>{{'DISTRIBUTION_LIST' | translate}}</h4>
-              <p *ngIf="distributions.length === 0">{{'NO_DISTRIBUTIONS' | translate}}</p>
+              <h4>{{'DATA_SOURCES_LIST' | translate}}</h4>
+              <p *ngIf="distributions.length === 0">{{'NO_DATA_SOURCES' | translate}}</p>
             </div>
             
           </div>
