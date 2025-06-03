@@ -320,8 +320,8 @@ export class ModelsToolsEditorComponent implements OnInit {
       // Add the new distribution to the local array
       this.distributions.push(distribution);
       this.toastrService.success(
-        this.translation.instant('TOAST_DISTRIBUTION_ADDED'),
-        this.translation.instant('TOAST_DISTRIBUTION_ADDED_TITLE')
+        this.translation.instant('TOAST_MODEL_TOOL_ADDED'),
+        this.translation.instant('TOAST_MODEL_TOOL_ADDED_TITLE')
       );
     }
     
@@ -429,8 +429,8 @@ export class ModelsToolsEditorComponent implements OnInit {
         console.error(`Error deleting distribution ${distributionId}:`, error);
         this.isCreatingDataset = false;
         this.toastrService.danger(
-          this.translation.instant('TOAST_DELETE_DISTRIBUTION_FAILED'),
-          this.translation.instant('TOAST_DISTRIBUTION_DELETION_ERROR')
+          this.translation.instant('TOAST_DELETE_MODEL_TOOL_FAILED'),
+          this.translation.instant('TOAST_MODEL_TOOL_DELETION_ERROR')
         );
         // Don't proceed if deletion fails
       }
@@ -487,8 +487,8 @@ export class ModelsToolsEditorComponent implements OnInit {
         // Handle 409 Conflict error specifically
         if (error.status === 409) {
           this.toastrService.danger(
-            this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION', {title: distribution.title}),
-            this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION_TITLE')
+            this.translation.instant('TOAST_DUPLICATE_MODEL_TOOL', {title: distribution.title}),
+            this.translation.instant('TOAST_DUPLICATE_MODEL_TOOL_TITLE')
           );
         } else {
           console.error(`Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
@@ -612,8 +612,8 @@ export class ModelsToolsEditorComponent implements OnInit {
         if (distributionToDelete.isNew) {
           this.distributions.splice(index, 1);
           this.toastrService.info(
-            this.translation.instant('TOAST_DISTRIBUTION_REMOVED', {title: distributionToDelete.title}),
-            this.translation.instant('TOAST_DISTRIBUTION_REMOVED_TITLE')
+            this.translation.instant('TOAST_MODEL_TOOL_REMOVED', {title: distributionToDelete.title}),
+            this.translation.instant('TOAST_MODEL_TOOL_REMOVED_TITLE')
           );
         } else {
           // Mark existing distribution for deletion
@@ -625,8 +625,8 @@ export class ModelsToolsEditorComponent implements OnInit {
           }
           
           this.toastrService.info(
-            this.translation.instant('TOAST_DISTRIBUTION_MARKED_DELETION', {title: distributionToDelete.title}),
-            this.translation.instant('TOAST_DISTRIBUTION_MARKED_DELETION_TITLE')
+            this.translation.instant('TOAST_MODEL_TOOL_MARKED_DELETION', {title: distributionToDelete.title}),
+            this.translation.instant('TOAST_MODEL_TOOL_MARKED_DELETION_TITLE')
           );
         }
       }
@@ -647,8 +647,8 @@ export class ModelsToolsEditorComponent implements OnInit {
       }
       
       this.toastrService.success(
-        this.translation.instant('TOAST_DISTRIBUTION_RESTORED', {title: distribution.title}),
-        this.translation.instant('TOAST_DISTRIBUTION_RESTORED_TITLE')
+        this.translation.instant('TOAST_MODEL_TOOL_RESTORED', {title: distribution.title}),
+        this.translation.instant('TOAST_MODEL_TOOL_RESTORED_TITLE')
       );
     }
   }
@@ -676,8 +676,8 @@ export class ModelsToolsEditorComponent implements OnInit {
         this.distributions.splice(index, 1);
         
         this.toastrService.info(
-          this.translation.instant('TOAST_DISTRIBUTION_REMOVED', {title: distributionToRemove.title}),
-          this.translation.instant('TOAST_DISTRIBUTION_REMOVED_TITLE')
+          this.translation.instant('TOAST_MODEL_TOOL_REMOVED', {title: distributionToRemove.title}),
+          this.translation.instant('TOAST_MODEL_TOOL_REMOVED_TITLE')
         );
       }
     });

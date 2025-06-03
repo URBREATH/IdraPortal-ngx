@@ -2,7 +2,7 @@
   <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper" (stepChange)="onStepChange($event.index)">
     
     <!-- Step 1: Add Distributions -->
-    <nb-step label="{{'ADD_DISTRIBUTIONS' | translate}}">
+    <nb-step label="{{'ADD_MODELS_TOOLS' | translate}}">
       <div class="distribution-step-content">
         <nb-card class="distribution-form-card">
         <!-- Left panel: distribution form -->
@@ -36,7 +36,7 @@
             {{'TITLE_REQUIRED' | translate}}
           </div>
           
-          <label for="description">{{'DESCRIPTION' | translate}}</label>
+          <label for="description">{{'INSTRUCTIONS' | translate}}</label>
           <textarea nbInput id="description" formControlName="description" maxlength="500" class="full-width-input"></textarea>
           <span class="char-count">
             {{distributionForm.get('description').value?.length || 0}}/500
@@ -56,6 +56,9 @@
           
           <label for="license">{{'LICENSE' | translate}}</label> 
           <input nbInput id="license" formControlName="license" type="text" maxlength="100" class="full-width-input" />
+
+          <label for="documentation">{{'DOCUMENTATION_URL' | translate}}</label> 
+          <input nbInput id="documentation" formControlName="mediaType" type="text" maxlength="100" class="full-width-input" />
           
           <label for="releaseDate">{{'RELEASE_DATE' | translate}}</label>
           <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
@@ -87,8 +90,8 @@
         <nb-card class="distribution-list-panel m-0">
           <div class="distribution-list-header">
             <div>
-              <h4>{{'DISTRIBUTION_LIST' | translate}}</h4>
-              <p *ngIf="distributions.length === 0">{{'NO_DISTRIBUTIONS' | translate}}</p>
+              <h4>{{'MODELS_TOOLS_LIST' | translate}}</h4>
+              <p *ngIf="distributions.length === 0">{{'NO_MODELS_TOOLS' | translate}}</p>
             </div>
             
           </div>
@@ -125,7 +128,7 @@
         </nb-card>
       </div>
       <div class="step-controls">
-        <button nbButton [routerLink]="['/pages/datasets-ngsi']" >
+        <button nbButton [routerLink]="['/pages/models-tools']" >
           {{'BACK' | translate}}
         </button>
         <button nbButton  (click)="stepper.next()">
