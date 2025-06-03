@@ -62,6 +62,11 @@ const routes: Routes = [{
           .then(m => m.ModelsToolsModule),
       },
       {
+        path: 'data-sources/editor',
+        loadChildren: () => import('./data-sources-editor/data-sources-editor.module')
+          .then(m => m.DataSourcesEditorModule),
+      },
+      {
         path: 'data-sources',
         loadChildren: () => import('./data-sources/data-sources.module')
           .then(m => m.DataSourcesModule),

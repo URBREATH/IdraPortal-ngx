@@ -643,7 +643,7 @@ export class DataSourcesComponent implements OnInit {
       localStorage.setItem('model_to_edit', JSON.stringify(modelToEdit));
       
       // Navigate to the editor route
-      this.router.navigate(['/pages/models-tools/editor']);
+      this.router.navigate(['/pages/data-sources/editor']);
     } else {
       this.toastrService.danger('Model not found', 'Error');
     }
