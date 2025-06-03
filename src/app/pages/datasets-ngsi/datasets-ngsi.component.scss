@@ -21,7 +21,6 @@ $surface-dark: #25262E;
   .logo-container {
     display: flex;
     align-items: center;
-    width: calc(#{nb-theme(sidebar-width)} - #{nb-theme(header-padding)});
   }
 
   .right-container {
@@ -216,6 +215,8 @@ nb-list-item nb-card {
   .custom-checkbox {
     width: 40px !important;
     height: 40px !important;
+    background-color: $surface !important;
+    border: 1px solid $primary-dark !important;
   }
   
   nb-icon {
@@ -309,6 +310,22 @@ nb-tag-list {
   
   nb-icon {
     margin-right: 0.5rem;
+  }
+}
+
+// Card styles
+.minicard {
+  width: 100%;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  }
+  
+  nb-card-header {
+    background-color: #f8d86f;
+    color: $surface-dark;
   }
 }
 
