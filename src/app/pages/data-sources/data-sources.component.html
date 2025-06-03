@@ -1,0 +1,119 @@
+<section class="jumbotron">
+    <nb-card class="p-4 mb-2">
+      <span class="buttons-row">   
+                <button nbButton status="primary" 
+                [routerLink]="['/pages/models-tools/editor']">{{'CREATE_NEW_MODEL' | translate}}
+                </button>
+                <button nbButton (click)="deleteAllModels()" [disabled]="modelsInfo.length === 0" class="delete-all-button delete-button">
+                    <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_MODELS' | translate}} 
+                </button>
+                <button nbButton class="delete-button" [disabled]="modelsToDelete.length === 0" (click)="deleteSelectedModels()">
+                    <nb-icon icon="trash-2-outline"></nb-icon>{{'DELETE_SELECTED' | translate}} ({{modelsToDelete.length}})
+                </button>
+      </span>
+        <!-- Tag input for filtering -->
+        <nb-tag-list (tagRemove)="onTagRemove($event)">
+            <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
+            <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
+        </nb-tag-list>
+        <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'MODELS_FOUND' | translate }}:</strong> {{currentModels}}</span>
+      </nb-card>
+
+    <div class="ngsi-datasets-body">
+      <input type="checkbox" id="filter-toggle" class="filter-toggle-input">
+      <label for="filter-toggle" class="filter-toggle-label">
+        <nb-icon icon="options-2-outline"></nb-icon> 
+        <span>{{'TOGGLE_FILTERS' | translate }}</span>
+      </label>
+        <div class="left-column">
+            <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
+                <nb-card-header class="d-flex justify-content-between">
+                  {{facet.displayName}}
+                  <span *ngIf="facet.values.length>10" class="d-flex flex-row-reverse">
+                    <nb-icon *ngIf="getFacetsLimit(facet.displayName.toLowerCase())==10" icon="arrowhead-down-outline" (click)="setFacetsLimit(facet.displayName.toLowerCase(),facet.values.length)" nbTooltip="{{ 'DATALET_SHOW_ALL' | translate }}"></nb-icon>
+                    <nb-icon *ngIf="getFacetsLimit(facet.displayName.toLowerCase())>10" icon="arrowhead-up-outline" (click)="setFacetsLimit(facet.displayName.toLowerCase(),10)" nbTooltip="{{ 'DATALET_SHOW_TOP_10' | translate }}"></nb-icon>
+                  </span>
+                </nb-card-header>
+                <nb-card-body>
+                  <nb-list class="no-border">
+                    <nb-list-item *ngFor="let item of filterFacets(facet.search_parameter,facet.values) | slice:0:getFacetsLimit(facet.displayName.toLowerCase())" class="p-1 no-border">
+                      <a href="javascript:void(0)" (click)="getModelByFacet(facet.search_parameter,item.search_value)">{{item.facet}}</a>
+                    </nb-list-item>
+                  </nb-list>
+                </nb-card-body>
+            </nb-card>
+          </div>
+
+        <div class="right-column">
+            <div class="datasets-card">
+                <!-- Pagination controls at top -->
+                <div class="pagination-container mb-3">
+                    <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+                </div>
+                <div class="row m-1">
+                    <nb-tag-list (tagRemove)="onFilterRemove($event)">
+                      <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
+                    </nb-tag-list>
+                  </div>
+                
+                <nb-card *ngFor="let model of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: filteredModels.length }" class="minicard">
+                    <nb-card-header class="d-flex justify-content-between">
+                      <h5>{{model.title}}</h5>
+                      <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.3rem;">
+                        
+                          <nb-checkbox class="dataset-checkbox" 
+                          [checked]="isChecked(model.id)" 
+                          (checkedChange)="toggle(model.id)">
+                        </nb-checkbox>
+                        <button nbButton status="primary" (click)="editModel(model.id)">
+                            <nb-icon icon="edit-2-outline"></nb-icon>
+                        </button>
+                        <button nbButton class="delete-button" (click)="deleteModel(model.id)">
+                            <nb-icon icon="trash-2-outline"></nb-icon>
+                        </button>
+                      </span>
+                    </nb-card-header>
+                    <nb-card-body>
+                      <span *ngIf="model.description === ''" class="no-description">{{'NO_DESCRIPTION' | translate}}</span>
+                      <span class="truncated">{{model.description}}</span>
+                    </nb-card-body>
+                    <nb-card-footer>
+                      <nb-tag-list *ngIf="model.theme !== ''" size="small">
+                            <nb-tag *ngFor="let theme of isThemeArray(model.theme)"
+                                [text]="theme"
+                                size="tiny" 
+                                [style.background]="getColor(theme)">
+                            </nb-tag>
+                      </nb-tag-list>
+                      
+                      <nb-tag-list *ngIf="model.keyword !== ''" size="small">
+                        <nb-tag *ngFor="let keyword of isKeywordArray(model.keyword)"
+                            [text]="keyword"
+                            size="tiny">
+                        </nb-tag>
+                  </nb-tag-list>
+
+                  <label *ngIf="model.publisher !== ''" class="publisher-label">{{'PUBLISHER' | translate}}:</label>
+                  <nb-tag-list *ngIf="model.publisher !== ''" size="small">
+                        <nb-tag *ngFor="let publisher of isPublisherArray(model.publisher)"
+                            [text]="publisher"
+                            size="tiny">
+                        </nb-tag>
+                  </nb-tag-list>
+                    </nb-card-footer>
+                  </nb-card>
+                
+                <!-- Pagination controls at bottom -->
+                <div class="pagination-container mt-3">
+                    <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+                </div>
+
+                <!-- Empty state message -->
+                <div *ngIf="!loading && filteredModels.length === 0" class="d-flex flex-column align-items-center justify-content-center p-4">
+                    <h3>{{'NO_MODELS_FOUND' | translate}}</h3>
+                    <p>{{'TRY_ADJUSTING_FILTERS' | translate}}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>

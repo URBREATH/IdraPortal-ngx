@@ -61,6 +61,11 @@ const routes: Routes = [{
         loadChildren: () => import('./models-tools/models-tools.module')
           .then(m => m.ModelsToolsModule),
       },
+      {
+        path: 'data-sources',
+        loadChildren: () => import('./data-sources/data-sources.module')
+          .then(m => m.DataSourcesModule),
+      },
      {
       path: 'administration',
       loadChildren: () => import('./admin/admin-module.module')

@@ -83,6 +83,15 @@ export const MENU_ITEMS: MenuItem[] = [
     key: 'Models and Tools'
   },
   {
+    title: 'Data Sources',
+    icon: 'cloud-upload-outline',
+    link: "/pages/data-sources",
+    data: {
+      name: "data-sources"
+    },
+    key: 'Data Sources'
+  },
+  {
     title: 'Administration',
     icon: 'settings-2-outline',
     children: [
