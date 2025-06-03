@@ -14,16 +14,16 @@ import { Router } from '@angular/router';
 export class DataSourcesComponent implements OnInit {
 
   // Store all fetched data here
-  modelsInfo: any[] = [];
+  dataSourcesInfo: any[] = [];
   // Store the data to be displayed after filtering
-  filteredModels: any[] = [];
-  // Store the displayed models (paginated)
-  displayedModels: any[] = [];
-  // Store the models to be deleted
-  modelsToDelete: any[] = [];
-  totalModels: number = 0;
-  currentModels: number = 0;
-  
+  filteredDataSources: any[] = [];
+  // Store the displayed data sources (paginated)
+  displayedDataSources: any[] = [];
+  // Store the data sources to be deleted
+  dataSourcesToDelete: any[] = [];
+  totalDataSources: number = 0;
+  currentDataSources: number = 0;
+
   // Pagination settings
   pageSize = 10;
   currentPage = 1;
@@ -64,17 +64,17 @@ export class DataSourcesComponent implements OnInit {
     this.modelsToolsService.getDatasets().subscribe({
       next: (response) => {
         // Save the fetched data into a component property
-        this.modelsInfo = response;
-        this.filteredModels = [...this.modelsInfo];
-        this.totalModels = this.modelsInfo.length;
-        this.currentModels = this.totalModels;
-        
+        this.dataSourcesInfo = response;
+        this.filteredDataSources = [...this.dataSourcesInfo];
+        this.totalDataSources = this.dataSourcesInfo.length;
+        this.currentDataSources = this.totalDataSources;
+
         // Update search response for template
-        this.searchResponse.results = this.modelsInfo;
-        this.searchResponse.count = this.modelsInfo.length;
+        this.searchResponse.results = this.dataSourcesInfo;
+        this.searchResponse.count = this.dataSourcesInfo.length;
         
         // Generate facets from your data
-        this.searchResponse.facets = this.generateFacets(this.modelsInfo);
+        this.searchResponse.facets = this.generateFacets(this.dataSourcesInfo);
         
         this.loading = false;
       },
@@ -181,17 +181,17 @@ export class DataSourcesComponent implements OnInit {
     }, 50);
   }
 
-  toggle(modelId: string): void {
-    const index = this.modelsToDelete.indexOf(modelId);
+  toggle(dataSourceId: string): void {
+    const index = this.dataSourcesToDelete.indexOf(dataSourceId);
     if (index > -1) {
-      this.modelsToDelete.splice(index, 1);
+      this.dataSourcesToDelete.splice(index, 1);
     } else {
-      this.modelsToDelete.push(modelId);
+      this.dataSourcesToDelete.push(dataSourceId);
     }
   }
 
-  isChecked(modelId: string): boolean {
-    return this.modelsToDelete.includes(modelId);
+  isChecked(dataSourceId: string): boolean {
+    return this.dataSourcesToDelete.includes(dataSourceId);
   }
 
   // Add filter removal method
@@ -202,9 +202,9 @@ export class DataSourcesComponent implements OnInit {
   }
 
   // Delete a single model
-  deleteModel(modelId: string): void {
+  deleteDataSource(modelId: string): void {
     // Find the model to get its details
-    const model = this.modelsInfo.find(m => m.id === modelId);
+    const model = this.dataSourcesInfo.find(m => m.id === modelId);
     if (!model) {
       this.toastrService.danger('Model not found', 'Error');
       return;
@@ -270,22 +270,22 @@ export class DataSourcesComponent implements OnInit {
     this.modelsToolsService.deleteDataset(modelId).subscribe({
       next: () => {
         // Remove model from all model collections
-        this.modelsInfo = this.modelsInfo.filter(m => m.id !== modelId);
-        this.filteredModels = this.filteredModels.filter(m => m.id !== modelId);
-        
+        this.dataSourcesInfo = this.dataSourcesInfo.filter(m => m.id !== modelId);
+        this.filteredDataSources = this.filteredDataSources.filter(m => m.id !== modelId);
+
         // Update counts
-        this.totalModels = this.modelsInfo.length;
-        this.currentModels = this.filteredModels.length;
-        
+        this.totalDataSources = this.dataSourcesInfo.length;
+        this.currentDataSources = this.filteredDataSources.length;
+
         // Update search response
-        this.searchResponse.results = this.filteredModels;
-        this.searchResponse.count = this.filteredModels.length;
-        
+        this.searchResponse.results = this.filteredDataSources;
+        this.searchResponse.count = this.filteredDataSources.length;
+
         // Regenerate facets as they may have changed
-        this.searchResponse.facets = this.generateFacets(this.modelsInfo);
+        this.searchResponse.facets = this.generateFacets(this.dataSourcesInfo);
         
         // Check if we need to adjust current page
-        const totalPages = Math.ceil(this.filteredModels.length / this.pageSize);
+        const totalPages = Math.ceil(this.filteredDataSources.length / this.pageSize);
         if (this.currentPage > totalPages && totalPages > 0) {
           this.currentPage = totalPages;
         }
@@ -294,9 +294,9 @@ export class DataSourcesComponent implements OnInit {
         this.pageChanged(this.currentPage);
         
         // Remove from delete selection if it was there
-        const index = this.modelsToDelete.indexOf(modelId);
+        const index = this.dataSourcesToDelete.indexOf(modelId);
         if (index > -1) {
-          this.modelsToDelete.splice(index, 1);
+          this.dataSourcesToDelete.splice(index, 1);
         }
         
         this.toastrService.success('Model and associated distributions deleted successfully', 'Success');
@@ -317,8 +317,8 @@ export class DataSourcesComponent implements OnInit {
     // Update displayed models based on current page
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.displayedModels = this.filteredModels.slice(startIndex, endIndex);
-    this.searchResponse.results = this.displayedModels; // Update search results
+    this.displayedDataSources = this.filteredDataSources.slice(startIndex, endIndex);
+    this.searchResponse.results = this.displayedDataSources; // Update search results
   }
   
   // For facet methods
@@ -357,55 +357,55 @@ export class DataSourcesComponent implements OnInit {
   
   // Apply filters to models
   applyFilters(): void {
-    // Reset filtered models to all models first
-    this.filteredModels = [...this.modelsInfo];
-    
+    // Reset filtered data sources to all data sources first
+    this.filteredDataSources = [...this.dataSourcesInfo];
+
     // Apply keyword search filters
     if (this.filters.length > 0) {
-      this.filteredModels = this.filteredModels.filter(model => {
+      this.filteredDataSources = this.filteredDataSources.filter(dataSource => {
         // Check if any filter matches the title, description, or other fields
         return this.filters.some(filter => {
           const lowerFilter = filter.toLowerCase();
           
           // Check title
-          if (model.title && model.title.toLowerCase().includes(lowerFilter)) {
+          if (dataSource.title && dataSource.title.toLowerCase().includes(lowerFilter)) {
             return true;
           }
           
           // Check description
-          if (model.description && model.description.toLowerCase().includes(lowerFilter)) {
+          if (dataSource.description && dataSource.description.toLowerCase().includes(lowerFilter)) {
             return true;
           }
-          
+
           // Check keywords
-          if (model.keyword) {
-            if (Array.isArray(model.keyword)) {
-              if (model.keyword.some((kw: string) => kw.toLowerCase().includes(lowerFilter))) {
+          if (dataSource.keyword) {
+            if (Array.isArray(dataSource.keyword)) {
+              if (dataSource.keyword.some((kw: string) => kw.toLowerCase().includes(lowerFilter))) {
                 return true;
               }
-            } else if (model.keyword.toLowerCase().includes(lowerFilter)) {
+            } else if (dataSource.keyword.toLowerCase().includes(lowerFilter)) {
               return true;
             }
           }
           
           // Check themes
-          if (model.theme) {
-            if (Array.isArray(model.theme)) {
-              if (model.theme.some((theme: string) => theme.toLowerCase().includes(lowerFilter))) {
+          if (dataSource.theme) {
+            if (Array.isArray(dataSource.theme)) {
+              if (dataSource.theme.some((theme: string) => theme.toLowerCase().includes(lowerFilter))) {
                 return true;
               }
-            } else if (model.theme.toLowerCase().includes(lowerFilter)) {
+            } else if (dataSource.theme.toLowerCase().includes(lowerFilter)) {
               return true;
             }
           }
           
           // Check publishers
-          if (model.publisher) {
-            if (Array.isArray(model.publisher)) {
-              if (model.publisher.some((pub: string) => pub.toLowerCase().includes(lowerFilter))) {
+          if (dataSource.publisher) {
+            if (Array.isArray(dataSource.publisher)) {
+              if (dataSource.publisher.some((pub: string) => pub.toLowerCase().includes(lowerFilter))) {
                 return true;
               }
-            } else if (model.publisher.toLowerCase().includes(lowerFilter)) {
+            } else if (dataSource.publisher.toLowerCase().includes(lowerFilter)) {
               return true;
             }
           }
@@ -424,17 +424,17 @@ export class DataSourcesComponent implements OnInit {
         )?.search_parameter;
         
         if (searchParam) {
-          this.filteredModels = this.filteredModels.filter(model => {
-            return this.checkFieldContains(model, searchParam, facetValue);
+          this.filteredDataSources = this.filteredDataSources.filter(dataSource => {
+            return this.checkFieldContains(dataSource, searchParam, facetValue);
           });
         }
       });
     }
     
     // Update counts and search response
-    this.currentModels = this.filteredModels.length;
-    this.searchResponse.count = this.filteredModels.length;
-    
+    this.currentDataSources = this.filteredDataSources.length;
+    this.searchResponse.count = this.filteredDataSources.length;
+
     // Reset to first page when filters change
     if (this.currentPage !== 1) {
       this.currentPage = 1;
@@ -443,23 +443,23 @@ export class DataSourcesComponent implements OnInit {
     // Apply pagination
     this.pageChanged(this.currentPage);
   }
-  
-  // Delete all selected models
-  deleteSelectedModels(): void {
-    if (this.modelsToDelete.length === 0) {
+
+  // Delete all selected data sources
+  deleteSelectedDataSources(): void {
+    if (this.dataSourcesToDelete.length === 0) {
       this.toastrService.warning(this.translation.instant('NO_MODELS_SELECTED'), 'Warning');
       return;
     }
 
     // Count how many distributions will be deleted
     let distributionCount = 0;
-    this.modelsToDelete.forEach(modelId => {
-      const model = this.modelsInfo.find(m => m.id === modelId);
-      if (model) {
-        // Get distributions for this model
-        const distributions = Array.isArray(model.modelDistribution) 
-          ? model.modelDistribution 
-          : (model.modelDistribution ? [model.modelDistribution] : []);
+    this.dataSourcesToDelete.forEach(dataSourceId => {
+      const dataSource = this.dataSourcesInfo.find(m => m.id === dataSourceId);
+      if (dataSource) {
+        // Get distributions for this data source
+        const distributions = Array.isArray(dataSource.modelDistribution) 
+          ? dataSource.modelDistribution 
+          : (dataSource.modelDistribution ? [dataSource.modelDistribution] : []);
         
         distributionCount += distributions.length;
       }
@@ -467,9 +467,9 @@ export class DataSourcesComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: this.translation.instant('DIALOG_DELETE_SELECTED_MODELS'),
-        message: this.translation.instant('DIALOG_DELETE_SELECTED_MODELS_MESSAGE', {
-          modelCount: this.modelsToDelete.length,
+        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATA_SOURCES'),
+        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATA_SOURCES_MESSAGE', {
+          modelCount: this.dataSourcesToDelete.length,
           distributionCount: distributionCount
         }),
       },
@@ -477,37 +477,37 @@ export class DataSourcesComponent implements OnInit {
       if (confirmed) {
         let successCount = 0;
         let errorCount = 0;
-        
-        // Process each model ID
-        this.modelsToDelete.forEach(modelId => {
-          this.deleteModel(modelId);
+
+        // Process each data source ID
+        this.dataSourcesToDelete.forEach(dataSourceId => {
+          this.deleteDataSource(dataSourceId);
         });
       }
     });
   }
 
-  // Function to delete all models
-  deleteAllModels(): void {
-    if (this.modelsInfo.length === 0) {
+  // Function to delete all data sources
+  deleteAllDataSources(): void {
+    if (this.dataSourcesInfo.length === 0) {
       this.toastrService.warning(this.translation.instant('NO_MODELS_TO_DELETE'), 'Warning');
       return;
     }
 
     // Count total distributions
     let distributionCount = 0;
-    this.modelsInfo.forEach(model => {
-      const distributions = Array.isArray(model.modelDistribution) 
-        ? model.modelDistribution 
-        : (model.modelDistribution ? [model.modelDistribution] : []);
+    this.dataSourcesInfo.forEach(dataSource => {
+      const distributions = Array.isArray(dataSource.modelDistribution) 
+        ? dataSource.modelDistribution 
+        : (dataSource.modelDistribution ? [dataSource.modelDistribution] : []);
       
       distributionCount += distributions.length;
     });
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: this.translation.instant('DIALOG_DELETE_ALL_MODELS'),
-        message: this.translation.instant('DIALOG_DELETE_ALL_MODELS_MESSAGE', {
-          modelCount: this.modelsInfo.length,
+        title: this.translation.instant('DIALOG_DELETE_ALL_DATA_SOURCES'),
+        message: this.translation.instant('DIALOG_DELETE_ALL_DATA_SOURCES_MESSAGE', {
+          modelCount: this.dataSourcesInfo.length,
           distributionCount: distributionCount
         }),
       },
@@ -522,7 +522,7 @@ export class DataSourcesComponent implements OnInit {
   private deleteAllDistributions(): void {
     // Gather all distribution IDs
     const allDistributionIds: string[] = [];
-    this.modelsInfo.forEach(model => {
+    this.dataSourcesInfo.forEach(model => {
       const distributions = Array.isArray(model.modelDistribution) 
         ? model.modelDistribution 
         : (model.modelDistribution ? [model.modelDistribution] : []);
@@ -575,7 +575,7 @@ export class DataSourcesComponent implements OnInit {
   // Method to delete only the models
   private deleteAllModelsOnly(): void {
     // Get all model IDs
-    const allModelIds = this.modelsInfo.map(model => model.id);
+    const allModelIds = this.dataSourcesInfo.map(model => model.id);
     
     // Track progress
     let successCount = 0;
@@ -604,7 +604,7 @@ export class DataSourcesComponent implements OnInit {
   // Helper method to finalize all deletion
   private finalizeAllDeletion(successCount: number, errorCount: number): void {
     // Clear the deletion list
-    this.modelsToDelete = [];
+    this.dataSourcesToDelete = [];
     
     // Show appropriate message
     if (errorCount === 0) {
@@ -631,7 +631,7 @@ export class DataSourcesComponent implements OnInit {
   // Edit a model
   editModel(modelId: string): void {
     // Find the model with this ID
-    const modelToEdit = this.modelsInfo.find(model => model.id === modelId);
+    const modelToEdit = this.dataSourcesInfo.find(model => model.id === modelId);
    
     // Ensure modelDistribution is always an array before storing
     if (modelToEdit) {
