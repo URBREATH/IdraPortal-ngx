@@ -602,10 +602,6 @@ export class DataSourcesEditorComponent {
       accessRights: 'public'
     };
     
-    // If ID is empty or just whitespace, remove it from the payload and let backend generate it
-    if (!formValue.id || formValue.id.trim() === '') {
-      delete dataset.id;
-    }
     
     // Remove ID from the payload when updating
     const datasetId = JSON.parse(localStorage.getItem('dataset_to_edit'))?.id;
