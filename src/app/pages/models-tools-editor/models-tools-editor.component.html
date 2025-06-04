@@ -10,20 +10,7 @@
           <nb-card-header>
             {{ isEditingDistribution ? ('SAVE_CHANGES' | translate) : ('ADD_TO_LIST' | translate) }}
           </nb-card-header>
-          
-          <label for="distId">{{'ID_OPTIONAL' | translate}}</label>
-          <input nbInput 
-                 id="distId" 
-                 formControlName="id" 
-                 type="text" 
-                 maxlength="50"
-                 class="full-width-input"
-                 [status]="distributionForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
-          <div *ngIf="distributionForm.get('id')?.errors?.['forbiddenChars']" 
-               class="error-message">
-            {{'ID_INVALID_CHARS' | translate}}
-          </div>
-          
+                    
           <label for="title" class="required-field">{{'TITLE' | translate}}</label>
           <input nbInput 
                  id="title" 
@@ -138,7 +125,7 @@
     </nb-step>
     
     <!-- Step 2: Create Dataset -->
-    <nb-step label="Create dataset">
+    <nb-step label="{{'CREATE_MODEL_TOOLS_DATASET' | translate}}">
       <div class="dataset-distribution-step-content">
           <form [formGroup]="datasetForm" class="dataset-form">
             <div class="left-column">
@@ -148,19 +135,7 @@
                      id="title" 
                      formControlName="title"
                      maxlength="100">
-                        
-              <label for="datasetId">{{'ID_OPTIONAL' | translate}}</label>
-              <input nbInput 
-                     fullWidth 
-                     id="datasetId" 
-                     formControlName="id"
-                     maxlength="50"
-                     [status]="datasetForm.get('id')?.errors?.['forbiddenChars'] ? 'danger' : 'basic'">
-              <div *ngIf="datasetForm.get('id')?.errors?.['forbiddenChars']" 
-                   class="error-message">
-                {{'ID_INVALID_CHARS' | translate}}
-              </div>
-                       
+                                               
               <!-- Description with character counter -->
               <div class="form-group">
                 <label for="description">{{'DESCRIPTION' | translate}}</label>
@@ -234,22 +209,7 @@
 
             <!-- Middle column -->
           
-            <!-- contact person-->
             <div class="mid-column">
-              <label for="name">{{'NAME' | translate}}
-                <nb-icon
-                  icon="info-outline"
-                  status="primary" 
-                  [nbTooltip]="'NAME_TOOLTIP' | translate"
-                  nbTooltipStatus="primary">
-                </nb-icon>
-              </label>
-              <input nbInput 
-                     id="name" 
-                     formControlName="name" 
-                     type="text"
-                     maxlength="100" 
-                     fullWidth />
 
               <!-- list of contacts-->
               <label>{{'CONTACT_POINTS' | translate}}</label>

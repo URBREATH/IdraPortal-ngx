@@ -2,13 +2,13 @@
     <nb-card class="p-4 mb-2">
       <span class="buttons-row">   
                 <button nbButton status="primary" 
-                [routerLink]="['/pages/models-tools/editor']">{{'CREATE_NEW_MODEL' | translate}}
+                [routerLink]="['/pages/models-tools/editor']">{{'CREATE_NEW_MODEL_TOOL' | translate}}
                 </button>
-                <button nbButton (click)="deleteAllModels()" [disabled]="modelsInfo.length === 0" class="delete-all-button delete-button">
-                    <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_MODELS' | translate}} 
+                <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button">
+                    <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_MODEL_TOOLS' | translate}} 
                 </button>
-                <button nbButton class="delete-button" [disabled]="modelsToDelete.length === 0" (click)="deleteSelectedModels()">
-                    <nb-icon icon="trash-2-outline"></nb-icon>{{'DELETE_SELECTED' | translate}} ({{modelsToDelete.length}})
+                <button nbButton class="delete-button" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()">
+                    <nb-icon icon="trash-2-outline"></nb-icon>{{'DELETE_SELECTED' | translate}} ({{datasetsToDelete.length}})
                 </button>
       </span>
         <!-- Tag input for filtering -->
@@ -16,8 +16,10 @@
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
             <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
         </nb-tag-list>
-        <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'MODELS_FOUND' | translate }}:</strong> {{currentModels}}</span>
+        <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'MODEL_TOOLS_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
       </nb-card>
+
+    
 
     <div class="ngsi-datasets-body">
       <input type="checkbox" id="filter-toggle" class="filter-toggle-input">
@@ -37,7 +39,7 @@
                 <nb-card-body>
                   <nb-list class="no-border">
                     <nb-list-item *ngFor="let item of filterFacets(facet.search_parameter,facet.values) | slice:0:getFacetsLimit(facet.displayName.toLowerCase())" class="p-1 no-border">
-                      <a href="javascript:void(0)" (click)="getModelByFacet(facet.search_parameter,item.search_value)">{{item.facet}}</a>
+                      <a href="javascript:void(0)" (click)="getDatasetByFacet(facet.search_parameter,item.search_value)">{{item.facet}}</a>
                     </nb-list-item>
                   </nb-list>
                 </nb-card-body>
@@ -56,46 +58,46 @@
                     </nb-tag-list>
                   </div>
                 
-                <nb-card *ngFor="let model of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: filteredModels.length }" class="minicard">
+                <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: filteredDatasets.length }" class="minicard">
                     <nb-card-header class="d-flex justify-content-between">
-                      <h5>{{model.title}}</h5>
+                      <h5>{{dataset.title}}</h5>
                       <span class="d-flex flex-row justify-content-center align-items-center" style="gap:0.3rem;">
                         
                           <nb-checkbox class="dataset-checkbox" 
-                          [checked]="isChecked(model.id)" 
-                          (checkedChange)="toggle(model.id)">
+                          [checked]="isChecked(dataset.id)" 
+                          (checkedChange)="toggle(dataset.id)">
                         </nb-checkbox>
-                        <button nbButton status="primary" (click)="editModel(model.id)">
+                        <button nbButton status="primary" (click)="editDataset(dataset.id)">
                             <nb-icon icon="edit-2-outline"></nb-icon>
                         </button>
-                        <button nbButton class="delete-button" (click)="deleteModel(model.id)">
+                        <button nbButton class="delete-button" (click)="deleteDataset(dataset.id)">
                             <nb-icon icon="trash-2-outline"></nb-icon>
                         </button>
                       </span>
                     </nb-card-header>
                     <nb-card-body>
-                      <span *ngIf="model.description === ''" class="no-description">{{'NO_DESCRIPTION' | translate}}</span>
-                      <span class="truncated">{{model.description}}</span>
+                      <span *ngIf="dataset.description === ''" class="no-description">{{'NO_DESCRIPTION' | translate}}</span>
+                      <span class="truncated">{{dataset.description}}</span>
                     </nb-card-body>
                     <nb-card-footer>
-                      <nb-tag-list *ngIf="model.theme !== ''" size="small">
-                            <nb-tag *ngFor="let theme of isThemeArray(model.theme)"
+                      <nb-tag-list *ngIf="dataset.theme !== ''" size="small">
+                            <nb-tag *ngFor="let theme of isThemeArray(dataset.theme)"
                                 [text]="theme"
                                 size="tiny" 
                                 [style.background]="getColor(theme)">
                             </nb-tag>
                       </nb-tag-list>
                       
-                      <nb-tag-list *ngIf="model.keyword !== ''" size="small">
-                        <nb-tag *ngFor="let keyword of isKeywordArray(model.keyword)"
+                      <nb-tag-list *ngIf="dataset.keyword !== ''" size="small">
+                        <nb-tag *ngFor="let keyword of isKeywordArray(dataset.keyword)"
                             [text]="keyword"
                             size="tiny">
                         </nb-tag>
                   </nb-tag-list>
 
-                  <label *ngIf="model.publisher !== ''" class="publisher-label">{{'PUBLISHER' | translate}}:</label>
-                  <nb-tag-list *ngIf="model.publisher !== ''" size="small">
-                        <nb-tag *ngFor="let publisher of isPublisherArray(model.publisher)"
+                  <label *ngIf="dataset.publisher !== ''" class="publisher-label">{{'PUBLISHER' | translate}}:</label>
+                  <nb-tag-list *ngIf="dataset.publisher !== ''" size="small">
+                        <nb-tag *ngFor="let publisher of isPublisherArray(dataset.publisher)"
                             [text]="publisher"
                             size="tiny">
                         </nb-tag>
@@ -109,8 +111,8 @@
                 </div>
 
                 <!-- Empty state message -->
-                <div *ngIf="!loading && filteredModels.length === 0" class="d-flex flex-column align-items-center justify-content-center p-4">
-                    <h3>{{'NO_MODELS_FOUND' | translate}}</h3>
+                <div *ngIf="!loading && filteredDatasets.length === 0" class="d-flex flex-column align-items-center justify-content-center p-4">
+                    <h3>{{'NO_MODEL_TOOLS_FOUND' | translate}}</h3>
                     <p>{{'TRY_ADJUSTING_FILTERS' | translate}}</p>
                 </div>
             </div>

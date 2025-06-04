@@ -92,13 +92,10 @@ export class ModelsToolsEditorComponent implements OnInit {
     
   }
 
-
-
   // Initialize forms
   initForms(): void {
     // Add validator to distribution form
     this.distributionForm = this.fb.group({
-      id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required],
       description: [''],
       accessUrl: [''],
@@ -115,7 +112,6 @@ export class ModelsToolsEditorComponent implements OnInit {
 
     // Add validator to dataset form with today's date as default for new datasets
     this.datasetForm = this.fb.group({
-      id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required], // Title is required
       description: [''],
       name: [''],
@@ -161,7 +157,6 @@ export class ModelsToolsEditorComponent implements OnInit {
     
     // Populate the form with existing data
     this.distributionForm.patchValue({
-      id: distribution.id,
       title: distribution.title,
       description: distribution.description,
       accessUrl: accessUrl,
@@ -174,15 +169,6 @@ export class ModelsToolsEditorComponent implements OnInit {
       releaseDate: releaseDate,
       modifiedDate: modifiedDate
     });
-    
-    // Only disable the ID field if this is a server-persisted distribution (not local-only)
-    // Distributions created via API won't have isNew flag, those only in localStorage will
-    if (!distribution.isNew) {
-      this.distributionForm.get('id').disable();
-    } else {
-      // For local-only distributions, enable the ID field
-      this.distributionForm.get('id').enable();
-    }
     
     // Scroll to the form section
     setTimeout(() => {
@@ -197,20 +183,6 @@ export class ModelsToolsEditorComponent implements OnInit {
   private normalizeString(title: string): string {
     // Remove all spaces and convert to lowercase for consistent comparison
     return title.replace(/\s+/g, '').toLowerCase();
-  }
-
-  private forbiddenCharsValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) {
-        return null; // Skip validation for empty values
-      }
-      
-      // Check for forbidden characters: colon, slash, semicolon, and spaces
-      const forbidden = /[:\/;, ]/;
-      const isInvalid = forbidden.test(control.value);
-      
-      return isInvalid ? { forbiddenChars: { value: control.value } } : null;
-    };
   }
 
   saveDistributionToLocalStorage(): void {
@@ -262,8 +234,6 @@ export class ModelsToolsEditorComponent implements OnInit {
       }
     }
 
-    // Use the ID provided by the user or pass null
-    const distributionId = formData.id || createUniqueId();
 
     // Find the existing distribution if we're editing
     let existingDistribution = null;
@@ -275,9 +245,6 @@ export class ModelsToolsEditorComponent implements OnInit {
     const distribution = {
       // Use the ID from the form if provided, otherwise generate a new one
       // For editing, keep the original ID unless a new one is provided
-      id: this.isEditingDistribution 
-        ? (existingDistribution?.isNew && formData.id ? formData.id : this.currentEditingDistributionId)
-        : distributionId,
       title: formData.title,
       description: formData.description || '',
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
@@ -300,9 +267,6 @@ export class ModelsToolsEditorComponent implements OnInit {
     };
     
 
-    function createUniqueId() {
-      return `${formData.title.replace(/\s+/g, '')}${moment(Date.now()).format().replace(/[-:+]/g, '')}`;
-    }
   
 
     if (this.isEditingDistribution) {
@@ -329,7 +293,6 @@ export class ModelsToolsEditorComponent implements OnInit {
     this.distributionForm.reset();
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
-    this.distributionForm.get('id').enable();
   }
 
   createDatasetWithDistributions(): void {
@@ -345,42 +308,8 @@ export class ModelsToolsEditorComponent implements OnInit {
       return;
     }
     
-    // Get the dataset ID value, accounting for disabled form controls
-    const datasetId = this.datasetForm.get('id').value;
-
-    // Check if ID exists and is not empty
-    if (!this.isEditing && datasetId && datasetId.trim() !== '') {
-      // First check if dataset with this ID already exists using getSingleEntity
-      this.isCreatingDataset = true;
-      
-      this.ngsiDatasetsService.getSingleEntity(datasetId).subscribe({
-        next: (existingDataset) => {
-          // Dataset with this ID already exists
-          this.isCreatingDataset = false;
-          this.toastrService.danger(
-            this.translation.instant('TOAST_DUPLICATE_DATASET_ID', {id: datasetId}),
-            this.translation.instant('TOAST_DUPLICATE_DATASET_ID_TITLE')
-          );
-        },
-        error: (error) => {
-          // 404 error means dataset doesn't exist, which is good - continue with creation
-          if (error.status === 404) {
-            this.proceedWithDatasetCreation();
-          } else {
-            // Other error occurred during the check
-            this.isCreatingDataset = false;
-            console.error('Error checking dataset existence:', error);
-            this.toastrService.danger(
-              'A dataset with this ID already exists. Please change the ID.',
-              'Error'
-            );
-          }
-        }
-      });
-    } else {
       // No ID provided or we're in edit mode, proceed normally
       this.proceedWithDatasetCreation();
-    }
   }
 
   private proceedWithDatasetCreation(): void {
@@ -532,13 +461,9 @@ export class ModelsToolsEditorComponent implements OnInit {
       accessRights: 'public'
     };
     
-    // If ID is empty or just whitespace, remove it from the payload and let backend generate it
-    if (!formValue.id || formValue.id.trim() === '') {
-      delete dataset.id;
-    }
     
     // Remove ID from the payload when updating
-    const datasetId = formValue.id;
+    const datasetId = JSON.parse(localStorage.getItem('dataset_to_edit'))?.id;
     if (this.isEditing) {
       const { id, ...datasetWithoutId } = dataset;
       dataset = datasetWithoutId;
@@ -567,7 +492,7 @@ export class ModelsToolsEditorComponent implements OnInit {
         this.datasetForm.reset();
         this.distributions = [];
         this.isCreatingDataset = false;
-        this.router.navigate(['/pages/datasets-ngsi']);
+        this.router.navigate(['/pages/models-tools']);
         this.toastrService.success(
           this.isEditing ? 
             this.translation.instant('TOAST_DATASET_UPDATED') : 
@@ -590,7 +515,6 @@ export class ModelsToolsEditorComponent implements OnInit {
     this.distributionForm.reset();
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
-    this.distributionForm.get('id').enable();
   }
 
   removeDistribution(index: number): void {
@@ -803,11 +727,6 @@ export class ModelsToolsEditorComponent implements OnInit {
       version: dataset.version || '',
       theme: themeValue 
     });
-
-      // Disable the ID field when editing
-    if (this.isEditing) {
-      this.datasetForm.get('id').disable();
-    }
     
     // Set contact points using contactPointArray
     if (dataset.contactPoint) {
