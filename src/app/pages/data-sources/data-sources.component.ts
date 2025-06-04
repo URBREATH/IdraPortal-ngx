@@ -5,6 +5,8 @@ import { NbDialogService, NbTagComponent, NbTagInputAddEvent, NbToastrService } 
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
 
+//ATTENTION: In this component, anything that refers to "data source" or "dataset" is interchangeable.
+// This component handles the display and management of data sources (datasets) in the application.
 
 @Component({
   selector: 'ngx-data-sources',
@@ -14,16 +16,16 @@ import { Router } from '@angular/router';
 export class DataSourcesComponent implements OnInit {
 
   // Store all fetched data here
-  dataSourcesInfo: any[] = [];
+  ngsiDatasetsInfo: any[] = [];
   // Store the data to be displayed after filtering
-  filteredDataSources: any[] = [];
-  // Store the displayed data sources (paginated)
-  displayedDataSources: any[] = [];
-  // Store the data sources to be deleted
-  dataSourcesToDelete: any[] = [];
-  totalDataSources: number = 0;
-  currentDataSources: number = 0;
-
+  filteredDatasets: any[] = [];
+  // Store the displayed datasets (paginated)
+  displayedDatasets: any[] = [];
+  // Store the datasets to be deleted
+  datasetsToDelete: any[] = [];
+  totalDatasets: number = 0;
+  currentDatasets: number = 0;
+  
   // Pagination settings
   pageSize = 10;
   currentPage = 1;
@@ -45,36 +47,36 @@ export class DataSourcesComponent implements OnInit {
   constructor(
     private router: Router,
     public translation: TranslateService,
-    private modelsToolsService: NgsiDatasetsService,
+    private ngsiDatasetsService: NgsiDatasetsService,
     private dialogService: NbDialogService,
     private toastrService: NbToastrService
   ) { }
 
   ngOnInit(): void {
     //clear localStorage to avoid conflicts with other components
-    localStorage.removeItem('model_to_edit');
+    localStorage.removeItem('dataset_to_edit');
 
     // Call the method in your service
-    this.loadModels();
+    this.loadDatasets();
   }
 
-  loadModels(): void {
+  loadDatasets(): void {
     this.loading = true;
     // Subscribe to the Observable from your service
-    this.modelsToolsService.getDatasets().subscribe({
+    this.ngsiDatasetsService.getDatasets().subscribe({
       next: (response) => {
         // Save the fetched data into a component property
-        this.dataSourcesInfo = response;
-        this.filteredDataSources = [...this.dataSourcesInfo];
-        this.totalDataSources = this.dataSourcesInfo.length;
-        this.currentDataSources = this.totalDataSources;
-
-        // Update search response for template
-        this.searchResponse.results = this.dataSourcesInfo;
-        this.searchResponse.count = this.dataSourcesInfo.length;
+        this.ngsiDatasetsInfo = response;
+        this.filteredDatasets = [...this.ngsiDatasetsInfo];
+        this.totalDatasets = this.ngsiDatasetsInfo.length;
+        this.currentDatasets = this.totalDatasets;
         
-        // Generate facets from your data
-        this.searchResponse.facets = this.generateFacets(this.dataSourcesInfo);
+        // Update search response for template
+        this.searchResponse.results = this.ngsiDatasetsInfo;
+        this.searchResponse.count = this.ngsiDatasetsInfo.length;
+        
+        // Example facets - you would need to generate real facets from your data
+        this.searchResponse.facets = this.generateFacets(this.ngsiDatasetsInfo);
         
         this.loading = false;
       },
@@ -85,41 +87,21 @@ export class DataSourcesComponent implements OnInit {
     });
   }
   
-  // Generate facets from models
-  generateFacets(models: any[]): any[] {
+  // Generate facets from datasets
+  generateFacets(datasets: any[]): any[] {
+    // Example implementation - customize based on your data structure
     const facets = [];
     
-    // Example: themes facet
-    const themes = new Set<string>();
-    models.forEach(model => {
-      if (model.theme) {
-        if (Array.isArray(model.theme)) {
-          model.theme.forEach(t => themes.add(t));
-        } else {
-          themes.add(model.theme);
-        }
-      }
-    });
-    
-    if (themes.size > 0) {
-      facets.push({
-        displayName: 'Themes',
-        search_parameter: 'theme',
-        values: Array.from(themes).map(theme => ({
-          facet: theme,
-          search_value: theme
-        }))
-      });
-    }
-    
-    // Keywords facet
+    // Example: keywords facet
+    // Add similar code for other facets (keywords, publishers, etc.)
+
     const keywords = new Set<string>();
-    models.forEach(model => {
-      if (model.keyword) {
-        if (Array.isArray(model.keyword)) {
-          model.keyword.forEach(k => keywords.add(k));
+    datasets.forEach(dataset => {
+      if (dataset.keyword) {
+        if (Array.isArray(dataset.keyword)) {
+          dataset.keyword.forEach(k => keywords.add(k));
         } else {
-          keywords.add(model.keyword);
+          keywords.add(dataset.keyword);
         }
       }
     });
@@ -135,14 +117,13 @@ export class DataSourcesComponent implements OnInit {
       });
     }
 
-    // Publishers facet
     const publishers = new Set<string>();
-    models.forEach(model => {
-      if (model.publisher) {
-        if (Array.isArray(model.publisher)) {
-          model.publisher.forEach(p => publishers.add(p));
+    datasets.forEach(dataset => {
+      if (dataset.publisher) {
+        if (Array.isArray(dataset.publisher)) {
+          dataset.publisher.forEach(p => publishers.add(p));
         } else {
-          publishers.add(model.publisher);
+          publishers.add(dataset.publisher);
         }
       }
     });
@@ -181,50 +162,51 @@ export class DataSourcesComponent implements OnInit {
     }, 50);
   }
 
-  toggle(dataSourceId: string): void {
-    const index = this.dataSourcesToDelete.indexOf(dataSourceId);
+
+  toggle(datasetId: string): void {
+    const index = this.datasetsToDelete.indexOf(datasetId);
     if (index > -1) {
-      this.dataSourcesToDelete.splice(index, 1);
+      this.datasetsToDelete.splice(index, 1);
     } else {
-      this.dataSourcesToDelete.push(dataSourceId);
+      this.datasetsToDelete.push(datasetId);
     }
   }
 
-  isChecked(dataSourceId: string): boolean {
-    return this.dataSourcesToDelete.includes(dataSourceId);
+  isChecked(datasetId: string): boolean {
+    return this.datasetsToDelete.includes(datasetId);
   }
 
-  // Add filter removal method
-  onFilterRemove(tagToRemove: NbTagComponent): void {
+   // Add filter removal method
+   onFilterRemove(tagToRemove: NbTagComponent): void {
     this.filtersTags = this.filtersTags.filter(tag => tag !== tagToRemove.text);
     this.currentPage = 1;
     this.applyFilters();
   }
 
-  // Delete a single model
-  deleteDataSource(modelId: string): void {
-    // Find the model to get its details
-    const model = this.dataSourcesInfo.find(m => m.id === modelId);
-    if (!model) {
-      this.toastrService.danger('Model not found', 'Error');
+  // Delete a single dataset
+  deleteDataset(datasetId: string): void {
+    // Find the dataset to get its distributions
+    const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
+    if (!dataset) {
+      this.toastrService.danger('Dataset not found', 'Error');
       return;
     }
 
-    // Ensure modelDistribution is always an array
-    const distributionIds = Array.isArray(model.modelDistribution) 
-      ? model.modelDistribution 
-      : (model.modelDistribution ? [model.modelDistribution] : []);
+    // Ensure datasetDistribution is always an array
+    const distributionIds = Array.isArray(dataset.datasetDistribution) 
+      ? dataset.datasetDistribution 
+      : (dataset.datasetDistribution ? [dataset.datasetDistribution] : []);
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete Model',
-        message: `Are you sure you want to delete this model${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
+        title: 'Delete Data Source',
+        message: `Are you sure you want to delete this data source${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        // If no distributions, just delete the model
+        // If no distributions, just delete the dataset
         if (distributionIds.length === 0) {
-          this.performModelDeletion(modelId);
+          this.performDatasetDeletion(datasetId);
           return;
         }
 
@@ -234,15 +216,15 @@ export class DataSourcesComponent implements OnInit {
         
         // Delete each distribution first
         distributionIds.forEach(distId => {
-          // Transform the distribution ID format if needed
-          const transformedDistId = distId.replace("urn:ngsi-ld:Model:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
+          // Transform the distribution ID format before sending to API
+          const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
           
-          this.modelsToolsService.deleteDistribution(transformedDistId).subscribe({
+          this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
             next: () => {
               deletedCount++;
-              // When all distributions are processed, delete the model
+              // When all distributions are processed, delete the dataset
               if (deletedCount + errorCount === distributionIds.length) {
-                this.performModelDeletion(modelId);
+                this.performDatasetDeletion(datasetId);
               }
             },
             error: (error) => {
@@ -251,12 +233,12 @@ export class DataSourcesComponent implements OnInit {
               if (deletedCount + errorCount === distributionIds.length) {
                 if (errorCount > 0) {
                   this.toastrService.warning(
-                    `Failed to delete ${errorCount} distributions. Proceeding with model deletion.`,
+                    `Failed to delete ${errorCount} distributions. Proceeding with dataset deletion.`,
                     'Warning'
                   );
                 }
-                // Still try to delete the model even if some distributions failed
-                this.performModelDeletion(modelId);
+                // Still try to delete the dataset even if some distributions failed
+                this.performDatasetDeletion(datasetId);
               }
             }
           });
@@ -265,27 +247,27 @@ export class DataSourcesComponent implements OnInit {
     });
   }
 
-  // Helper method to delete the model and update UI
-  private performModelDeletion(modelId: string): void {
-    this.modelsToolsService.deleteDataset(modelId).subscribe({
+  // Helper method to delete the dataset and update UI
+  private performDatasetDeletion(datasetId: string): void {
+    this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
       next: () => {
-        // Remove model from all model collections
-        this.dataSourcesInfo = this.dataSourcesInfo.filter(m => m.id !== modelId);
-        this.filteredDataSources = this.filteredDataSources.filter(m => m.id !== modelId);
-
+        // Remove dataset from all dataset collections
+        this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
+        this.filteredDatasets = this.filteredDatasets.filter(ds => ds.id !== datasetId);
+        
         // Update counts
-        this.totalDataSources = this.dataSourcesInfo.length;
-        this.currentDataSources = this.filteredDataSources.length;
-
+        this.totalDatasets = this.ngsiDatasetsInfo.length;
+        this.currentDatasets = this.filteredDatasets.length;
+        
         // Update search response
-        this.searchResponse.results = this.filteredDataSources;
-        this.searchResponse.count = this.filteredDataSources.length;
-
+        this.searchResponse.results = this.filteredDatasets;
+        this.searchResponse.count = this.filteredDatasets.length;
+        
         // Regenerate facets as they may have changed
-        this.searchResponse.facets = this.generateFacets(this.dataSourcesInfo);
+        this.searchResponse.facets = this.generateFacets(this.ngsiDatasetsInfo);
         
         // Check if we need to adjust current page
-        const totalPages = Math.ceil(this.filteredDataSources.length / this.pageSize);
+        const totalPages = Math.ceil(this.filteredDatasets.length / this.pageSize);
         if (this.currentPage > totalPages && totalPages > 0) {
           this.currentPage = totalPages;
         }
@@ -294,33 +276,148 @@ export class DataSourcesComponent implements OnInit {
         this.pageChanged(this.currentPage);
         
         // Remove from delete selection if it was there
-        const index = this.dataSourcesToDelete.indexOf(modelId);
+        const index = this.datasetsToDelete.indexOf(datasetId);
         if (index > -1) {
-          this.dataSourcesToDelete.splice(index, 1);
+          this.datasetsToDelete.splice(index, 1);
         }
         
-        this.toastrService.success('Model and associated distributions deleted successfully', 'Success');
+        this.toastrService.success('Dataset and associated distributions deleted successfully', 'Success');
       },
       error: (error) => {
-        console.error('Error deleting model:', error);
-        this.toastrService.danger('Failed to delete model: ' + (error.message || 'Unknown error'), 'Error');
+        console.error('Error deleting dataset:', error);
+        this.toastrService.danger('Failed to delete dataset: ' + (error.message || 'Unknown error'), 'Error');
       }
     });
   }
 
-  // The rest of the methods follow the same pattern of replacing "dataset" with "model"
-  // You can continue adapting them as needed for your models implementation
-  
+  // Delete all selected datasets
+  deleteSelectedDatasets(): void {
+    if (this.datasetsToDelete.length === 0) {
+      this.toastrService.warning(
+        this.translation.instant('TOAST_NO_DATA-SOURCES_SELECTED'),
+        this.translation.instant('TOAST_WARNING')
+      );
+      return;
+    }
+
+    // Count how many distributions will be deleted
+    let distributionCount = 0;
+    this.datasetsToDelete.forEach(datasetId => {
+      const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
+      if (dataset && dataset.datasetDistribution) {
+        if (Array.isArray(dataset.datasetDistribution)) {
+          distributionCount += dataset.datasetDistribution.length;
+        } else {
+          distributionCount += 1; // Single distribution
+        }
+      }
+    });
+
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATA-SOURCES'),
+        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATA-SOURCES_MESSAGE', {
+          datasetCount: this.datasetsToDelete.length,
+          distributionCount: distributionCount
+        }),
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Show deletion in progress
+        this.toastrService.info(
+          this.translation.instant('TOAST_DELETION_IN_PROGRESS'),
+          this.translation.instant('TOAST_PLEASE_WAIT')
+        );
+        
+        // Track completed deletions
+        let completedCount = 0;
+        let errorCount = 0;
+        
+        // Process each dataset to delete
+        this.datasetsToDelete.forEach(datasetId => {
+          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+            next: () => {
+              completedCount++;
+              // Check if all operations completed
+              if (completedCount + errorCount === this.datasetsToDelete.length) {
+                this.finalizeBatchDeletion(completedCount, errorCount);
+              }
+            },
+            error: (error) => {
+              console.error(`Error deleting dataset ${datasetId}:`, error);
+              errorCount++;
+              // Check if all operations completed
+              if (completedCount + errorCount === this.datasetsToDelete.length) {
+                this.finalizeBatchDeletion(completedCount, errorCount);
+              }
+            }
+          });
+        });
+      }
+    });
+  }
+
+  // Helper to finalize batch deletion and update UI
+  private finalizeBatchDeletion(successCount: number, errorCount: number): void {
+    // Clear the deletion list
+    this.datasetsToDelete = [];
+    
+    // Show appropriate message
+    if (errorCount === 0) {
+      this.toastrService.success(
+        this.translation.instant('TOAST_DELETED_DATA-SOURCES_SUCCESS', {count: successCount}),
+        this.translation.instant('TOAST_SUCCESS')
+      );
+    } else if (successCount === 0) {
+      this.toastrService.danger(
+        this.translation.instant('TOAST_DELETE_DATA-SOURCES_FAILED'),
+        this.translation.instant('TOAST_ERROR')
+      );
+    } else {
+      this.toastrService.warning(
+        this.translation.instant('TOAST_DELETE_DATA-SOURCES_PARTIAL', {
+          successCount: successCount,
+          errorCount: errorCount
+        }),
+        this.translation.instant('TOAST_PARTIAL_SUCCESS')
+      );
+    }
+    
+    // Refresh the dataset list
+    this.loadDatasets();
+  }
+
+  // Edit a dataset
+  editDataset(datasetId: string): void {
+     // Find the dataset with this ID
+     const datasetToEdit = this.ngsiDatasetsInfo.find(dataset => dataset.id === datasetId);
+    
+    // Ensure datasetDistribution is always an array before storing
+    if (datasetToEdit) {
+      if (!datasetToEdit.datasetDistribution) {
+        datasetToEdit.datasetDistribution = [];
+      } else if (!Array.isArray(datasetToEdit.datasetDistribution)) {
+        datasetToEdit.datasetDistribution = [datasetToEdit.datasetDistribution];
+      }
+      
+      // Save the dataset to localStorage
+      localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
+      
+      // Navigate to the editor page
+      this.router.navigate(['/pages/data-sources/editor']);
+    }
+  }
+
   // Add page change handler
   pageChanged(pageNumber: number): void {
     this.currentPage = pageNumber;
-    // Update displayed models based on current page
+    // Update displayed datasets based on current page
     const startIndex = (this.currentPage - 1) * this.pageSize;
     const endIndex = startIndex + this.pageSize;
-    this.displayedDataSources = this.filteredDataSources.slice(startIndex, endIndex);
-    this.searchResponse.results = this.displayedDataSources; // Update search results
+    this.displayedDatasets = this.filteredDatasets.slice(startIndex, endIndex);
+    this.searchResponse.results = this.displayedDatasets; // Update search results
   }
-  
+    
   // For facet methods
   getFacetsLimit(facet: string): number {
     if(this.facetLimits[facet] === undefined) {
@@ -328,273 +425,207 @@ export class DataSourcesComponent implements OnInit {
     }
     return this.facetLimits[facet];
   }
-  
+    
   setFacetsLimit(facet: string, value: number): void {
     this.facetLimits[facet] = value;
   }
-  
+    
   // Filter facets based on search parameter
   filterFacets(search_parameter: string, values: any[]): any[] {
+    // Example implementation - customize based on your needs
     return values || [];
   }
-  
+    
   // Method to filter by facet
-  getModelByFacet(search_parameter: string, search_value: string): void {
+  getDatasetByFacet(search_parameter: string, search_value: string): void {
+    // Add facet filter tag
     const facetIndex = this.searchResponse.facets.findIndex(
       (x: any) => x.search_parameter === search_parameter
     );
-    
+      
     if (facetIndex >= 0) {
       const facet = this.searchResponse.facets[facetIndex];
       const filterTag = `${facet.displayName}: ${search_value}`;
-      
+        
       if (!this.filtersTags.includes(filterTag)) {
         this.filtersTags.push(filterTag);
         this.applyFilters();
       }
     }
   }
-  
-  // Apply filters to models
+    
+  // Apply filters to datasets
   applyFilters(): void {
-    // Reset filtered data sources to all data sources first
-    this.filteredDataSources = [...this.dataSourcesInfo];
-
-    // Apply keyword search filters
+    // Reset to all datasets if no filters
+    if (this.filters.length === 0 && this.filtersTags.length === 0) {
+      this.filteredDatasets = [...this.ngsiDatasetsInfo];
+      this.searchResponse.results = this.filteredDatasets;
+      this.currentDatasets = this.filteredDatasets.length;
+      return;
+    }
+      
+    // Apply text filters from this.filters
+    let datasets = this.ngsiDatasetsInfo;
+      
     if (this.filters.length > 0) {
-      this.filteredDataSources = this.filteredDataSources.filter(dataSource => {
-        // Check if any filter matches the title, description, or other fields
+      datasets = datasets.filter(dataset => {
         return this.filters.some(filter => {
-          const lowerFilter = filter.toLowerCase();
-          
-          // Check title
-          if (dataSource.title && dataSource.title.toLowerCase().includes(lowerFilter)) {
-            return true;
-          }
-          
-          // Check description
-          if (dataSource.description && dataSource.description.toLowerCase().includes(lowerFilter)) {
-            return true;
-          }
-
-          // Check keywords
-          if (dataSource.keyword) {
-            if (Array.isArray(dataSource.keyword)) {
-              if (dataSource.keyword.some((kw: string) => kw.toLowerCase().includes(lowerFilter))) {
-                return true;
-              }
-            } else if (dataSource.keyword.toLowerCase().includes(lowerFilter)) {
-              return true;
-            }
-          }
-          
-          // Check themes
-          if (dataSource.theme) {
-            if (Array.isArray(dataSource.theme)) {
-              if (dataSource.theme.some((theme: string) => theme.toLowerCase().includes(lowerFilter))) {
-                return true;
-              }
-            } else if (dataSource.theme.toLowerCase().includes(lowerFilter)) {
-              return true;
-            }
-          }
-          
-          // Check publishers
-          if (dataSource.publisher) {
-            if (Array.isArray(dataSource.publisher)) {
-              if (dataSource.publisher.some((pub: string) => pub.toLowerCase().includes(lowerFilter))) {
-                return true;
-              }
-            } else if (dataSource.publisher.toLowerCase().includes(lowerFilter)) {
-              return true;
-            }
-          }
-          
-          return false;
+          const filterLower = filter.toLowerCase();
+          return (
+            (dataset.title && dataset.title.toLowerCase().includes(filterLower)) || 
+            (dataset.description && dataset.description.toLowerCase().includes(filterLower)) ||
+            (this.checkArrayContains(dataset.keyword, filterLower))
+          );
         });
       });
     }
-    
-    // Apply facet filters
+      
+    // Apply facet filters from this.filtersTags
     if (this.filtersTags.length > 0) {
-      this.filtersTags.forEach(tag => {
-        const [facetName, facetValue] = tag.split(': ');
-        const searchParam = this.searchResponse.facets.find(
-          (f: any) => f.displayName === facetName
-        )?.search_parameter;
-        
-        if (searchParam) {
-          this.filteredDataSources = this.filteredDataSources.filter(dataSource => {
-            return this.checkFieldContains(dataSource, searchParam, facetValue);
-          });
-        }
-      });
-    }
-    
-    // Update counts and search response
-    this.currentDataSources = this.filteredDataSources.length;
-    this.searchResponse.count = this.filteredDataSources.length;
-
-    // Reset to first page when filters change
-    if (this.currentPage !== 1) {
-      this.currentPage = 1;
-    }
-    
-    // Apply pagination
-    this.pageChanged(this.currentPage);
-  }
-
-  // Delete all selected data sources
-  deleteSelectedDataSources(): void {
-    if (this.dataSourcesToDelete.length === 0) {
-      this.toastrService.warning(this.translation.instant('NO_MODELS_SELECTED'), 'Warning');
-      return;
-    }
-
-    // Count how many distributions will be deleted
-    let distributionCount = 0;
-    this.dataSourcesToDelete.forEach(dataSourceId => {
-      const dataSource = this.dataSourcesInfo.find(m => m.id === dataSourceId);
-      if (dataSource) {
-        // Get distributions for this data source
-        const distributions = Array.isArray(dataSource.modelDistribution) 
-          ? dataSource.modelDistribution 
-          : (dataSource.modelDistribution ? [dataSource.modelDistribution] : []);
-        
-        distributionCount += distributions.length;
-      }
-    });
-
-    this.dialogService.open(ConfirmationDialogComponent, {
-      context: {
-        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATA_SOURCES'),
-        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATA_SOURCES_MESSAGE', {
-          modelCount: this.dataSourcesToDelete.length,
-          distributionCount: distributionCount
-        }),
-      },
-    }).onClose.subscribe(confirmed => {
-      if (confirmed) {
-        let successCount = 0;
-        let errorCount = 0;
-
-        // Process each data source ID
-        this.dataSourcesToDelete.forEach(dataSourceId => {
-          this.deleteDataSource(dataSourceId);
-        });
-      }
-    });
-  }
-
-  // Function to delete all data sources
-  deleteAllDataSources(): void {
-    if (this.dataSourcesInfo.length === 0) {
-      this.toastrService.warning(this.translation.instant('NO_MODELS_TO_DELETE'), 'Warning');
-      return;
-    }
-
-    // Count total distributions
-    let distributionCount = 0;
-    this.dataSourcesInfo.forEach(dataSource => {
-      const distributions = Array.isArray(dataSource.modelDistribution) 
-        ? dataSource.modelDistribution 
-        : (dataSource.modelDistribution ? [dataSource.modelDistribution] : []);
-      
-      distributionCount += distributions.length;
-    });
-
-    this.dialogService.open(ConfirmationDialogComponent, {
-      context: {
-        title: this.translation.instant('DIALOG_DELETE_ALL_DATA_SOURCES'),
-        message: this.translation.instant('DIALOG_DELETE_ALL_DATA_SOURCES_MESSAGE', {
-          modelCount: this.dataSourcesInfo.length,
-          distributionCount: distributionCount
-        }),
-      },
-    }).onClose.subscribe(confirmed => {
-      if (confirmed) {
-        this.deleteAllDistributions();
-      }
-    });
-  }
-
-  // Helper method to delete all distributions, then all models
-  private deleteAllDistributions(): void {
-    // Gather all distribution IDs
-    const allDistributionIds: string[] = [];
-    this.dataSourcesInfo.forEach(model => {
-      const distributions = Array.isArray(model.modelDistribution) 
-        ? model.modelDistribution 
-        : (model.modelDistribution ? [model.modelDistribution] : []);
-      
-      distributions.forEach((distId: string) => {
-        // Transform distribution ID format if needed
-        const transformedDistId = distId.replace("urn:ngsi-ld:Model:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
-        allDistributionIds.push(transformedDistId);
-      });
-    });
-
-    // If no distributions, just delete all models
-    if (allDistributionIds.length === 0) {
-      this.deleteAllModelsOnly();
-      return;
-    }
-
-    // Track progress
-    let successCount = 0;
-    let errorCount = 0;
-
-    // Delete each distribution
-    allDistributionIds.forEach(distId => {
-      this.modelsToolsService.deleteDistribution(distId).subscribe({
-        next: () => {
-          successCount++;
-          if (successCount + errorCount === allDistributionIds.length) {
-            // When all distributions are processed, delete all models
-            this.deleteAllModelsOnly();
+      datasets = datasets.filter(dataset => {
+        return this.filtersTags.every(tagFilter => {
+          if (!tagFilter.includes(': ')) return true;
+            
+          const [facetName, facetValue] = tagFilter.split(': ');
+            
+          // Find the actual field name from facet display name
+          let fieldName = facetName.toLowerCase();
+          const facet = this.searchResponse.facets.find(
+            (f: any) => f.displayName.toLowerCase() === fieldName
+          );
+            
+          if (facet) {
+            fieldName = facet.search_parameter;
           }
-        },
-        error: (error) => {
-          console.error(`Error deleting distribution ${distId}:`, error);
-          errorCount++;
-          if (successCount + errorCount === allDistributionIds.length) {
+            
+          // Check dataset property based on field name
+          return this.checkFieldContains(dataset, fieldName, facetValue);
+        });
+      });
+    }
+      
+    this.filteredDatasets = datasets;
+    this.searchResponse.results = this.filteredDatasets;
+    this.currentDatasets = this.filteredDatasets.length;
+      
+    // Update displayed datasets for pagination
+    this.pageChanged(1);
+  }
+
+  // Function to delete all datasets
+  deleteAllDatasets(): void {
+    // If no data sources to delete, show warning
+    if (this.ngsiDatasetsInfo.length === 0) {
+      this.toastrService.warning('No data sources available to delete', 'Warning');
+      return;
+    }
+
+    // Collect all distribution IDs from all data sources
+    const allDistributionIds: string[] = [];
+    this.ngsiDatasetsInfo.forEach(dataset => {
+      if (dataset.datasetDistribution) {
+        const distributionIds = Array.isArray(dataset.datasetDistribution)
+          ? dataset.datasetDistribution
+          : [dataset.datasetDistribution];
+        allDistributionIds.push(...distributionIds);
+      }
+    });
+
+    // Show confirmation dialog
+    this.dialogService.open(ConfirmationDialogComponent, {
+      context: {
+        title: 'Delete All Data Sources',
+        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} data sources and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
+      },
+    }).onClose.subscribe(confirmed => {
+      if (confirmed) {
+        // Delete all distributions first
+        if (allDistributionIds.length > 0) {
+          this.deleteAllDistributions(allDistributionIds);
+        } else {
+          // If there are no distributions, proceed directly with dataset deletion
+          this.deleteAllDatasetsOnly();
+        }
+      }
+    });
+  }
+
+  // Update deleteAllDistributions method to transform distribution IDs
+  private deleteAllDistributions(distributionIds: string[]): void {
+    let completedCount = 0;
+    let errorCount = 0;
+    const totalCount = distributionIds.length;
+    
+    this.toastrService.info(
+      `Deleting ${totalCount} distributions in progress...`,
+      'Deletion in progress'
+    );
+    
+    distributionIds.forEach(distId => {
+      // Transform the distribution ID format before sending to API
+      const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
+      
+      this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
+        next: () => {
+          completedCount++;
+          // Check if all operations completed
+          if (completedCount + errorCount === totalCount) {
             if (errorCount > 0) {
               this.toastrService.warning(
-                `Failed to delete ${errorCount} distributions. Proceeding with model deletion.`,
-                'Warning'
+                `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
+                'Partial deletion'
               );
             }
-            // Still try to delete all models even if some distributions failed
-            this.deleteAllModelsOnly();
+            // Proceed with dataset deletion after all distributions are processed
+            this.deleteAllDatasetsOnly();
+          }
+        },
+        error: (error) => {
+          console.error(`Error deleting distribution ${transformedDistId}:`, error);
+          errorCount++;
+          if (completedCount + errorCount === totalCount) {
+            this.toastrService.warning(
+              `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
+              'Partial deletion'
+            );
+            // Still proceed with dataset deletion even if some distribution deletions failed
+            this.deleteAllDatasetsOnly();
           }
         }
       });
     });
   }
 
-  // Method to delete only the models
-  private deleteAllModelsOnly(): void {
-    // Get all model IDs
-    const allModelIds = this.dataSourcesInfo.map(model => model.id);
-    
-    // Track progress
-    let successCount = 0;
+  // Metodo modificato per eliminare solo i dataset
+  private deleteAllDatasetsOnly(): void {
+    let completedCount = 0;
     let errorCount = 0;
-
-    // Delete each model
-    allModelIds.forEach(modelId => {
-      this.modelsToolsService.deleteDataset(modelId).subscribe({
+    const totalCount = this.ngsiDatasetsInfo.length;
+    
+    // Get all dataset IDs
+    const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
+    
+    this.toastrService.info(
+      `Deleting ${totalCount} datasets in progress...`,
+      'Deletion in progress'
+    );
+    
+    // Process each dataset to delete
+    allDatasetIds.forEach(datasetId => {
+      this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
         next: () => {
-          successCount++;
-          if (successCount + errorCount === allModelIds.length) {
-            this.finalizeAllDeletion(successCount, errorCount);
+          completedCount++;
+          // Check if all operations completed
+          if (completedCount + errorCount === totalCount) {
+            this.finalizeAllDeletion(completedCount, errorCount);
           }
         },
         error: (error) => {
-          console.error(`Error deleting model ${modelId}:`, error);
+          console.error(`Error deleting dataset ${datasetId}:`, error);
           errorCount++;
-          if (successCount + errorCount === allModelIds.length) {
-            this.finalizeAllDeletion(successCount, errorCount);
+          // Check if all operations completed
+          if (completedCount + errorCount === totalCount) {
+            this.finalizeAllDeletion(completedCount, errorCount);
           }
         }
       });
@@ -603,88 +634,100 @@ export class DataSourcesComponent implements OnInit {
 
   // Helper method to finalize all deletion
   private finalizeAllDeletion(successCount: number, errorCount: number): void {
-    // Clear the deletion list
-    this.dataSourcesToDelete = [];
-    
-    // Show appropriate message
     if (errorCount === 0) {
-      this.toastrService.success(
-        `Successfully deleted all ${successCount} models and their distributions.`,
-        'Success'
-      );
+      // All deletions successful
+      this.ngsiDatasetsInfo = [];
+      this.displayedDatasets = [];
+      this.datasetsToDelete = [];
+      
+      this.toastrService.success(`Successfully deleted all ${successCount} datasets`, 'Success');
     } else if (successCount === 0) {
-      this.toastrService.danger(
-        `Failed to delete any models.`,
-        'Error'
-      );
+      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
     } else {
-      this.toastrService.warning(
-        `Deleted ${successCount} models, but failed to delete ${errorCount} models.`,
-        'Partial Success'
-      );
-    }
-    
-    // Refresh the model list
-    this.loadModels();
-  }
-
-  // Edit a model
-  editModel(modelId: string): void {
-    // Find the model with this ID
-    const modelToEdit = this.dataSourcesInfo.find(model => model.id === modelId);
-   
-    // Ensure modelDistribution is always an array before storing
-    if (modelToEdit) {
-      if (modelToEdit.modelDistribution && !Array.isArray(modelToEdit.modelDistribution)) {
-        modelToEdit.modelDistribution = [modelToEdit.modelDistribution];
-      }
-      
-      // Store the model in localStorage for the editor component
-      localStorage.setItem('model_to_edit', JSON.stringify(modelToEdit));
-      
-      // Navigate to the editor route
-      this.router.navigate(['/pages/data-sources/editor']);
-    } else {
-      this.toastrService.danger('Model not found', 'Error');
+      // Some deletions failed
+      // Reload datasets to get accurate state from server
+      this.loadDatasets();
+      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
     }
   }
 
-  // Helper functions for template rendering
   private checkArrayContains(arr: any, value: string): boolean {
     if (!arr) return false;
-    if (!Array.isArray(arr)) return arr.toLowerCase().includes(value.toLowerCase());
-    return arr.some((item: string) => item.toLowerCase().includes(value.toLowerCase()));
+    if (Array.isArray(arr)) {
+      return arr.some(item => item.toLowerCase().includes(value));
+    }
+    if (typeof arr === 'string') {
+      return arr.toLowerCase().includes(value);
+    }
+    return false;
   }
 
   private checkFieldContains(obj: any, field: string, value: string): boolean {
     if (!obj || !obj[field]) return false;
-    return this.checkArrayContains(obj[field], value);
+    
+    const fieldValue = obj[field];
+    if (Array.isArray(fieldValue)) {
+      return fieldValue.includes(value);
+    }
+    return fieldValue === value;
   }
 
-  getColor(format: string): string {
-    // Generate consistent color based on string hash
-    let hash = 0;
-    for (let i = 0; i < format.length; i++) {
-      hash = format.charCodeAt(i) + ((hash << 5) - hash);
+  getColor(format:string):string{
+    switch(format){
+      case 'AGRI':
+        return '#74cbec';
+      case 'ECON':
+        return '#2db55d';
+      case 'EDUC':
+        return '#ef7100';
+      case 'ENVI':
+        return '#dfb100';
+      case 'ENER':
+        return '#55a1ce';
+      case 'GOVE':
+        return '#2db55d';
+      case 'HEAL':
+        return '#686868';
+      case 'JUST':
+        return '#ec96be';
+      case 'INTR':
+        return '#e0051e';
+      case 'REGI':
+        return '#fd455f';
+      case 'SOCI':
+        return '#d00666';
+      case 'TECH':
+        return '#fg4a52';
+      case 'TRAN':
+        return '#bfa500';
     }
-    
-    const hue = Math.abs(hash % 360);
-    return `hsl(${hue}, 70%, 80%)`;
   }
 
   isThemeArray(theme: string | []): [] | string[] {
-    if (!theme) return [];
-    return Array.isArray(theme) ? theme : [theme];
+    // Check if theme is an array or a string and return accordingly
+    if (Array.isArray(theme)) {
+      return theme;
+    } else if (typeof theme === 'string') {
+      return [theme];
+    }
   }
 
   isKeywordArray(keyword: string | []): [] | string[] {
-    if (!keyword) return [];
-    return Array.isArray(keyword) ? keyword : [keyword];
+    // Check if keyword is an array or a string and return accordingly
+    if (Array.isArray(keyword)) {
+      return keyword;
+    } else if (typeof keyword === 'string') {
+      return [keyword];
+    }
   }
 
   isPublisherArray(publisher: string | []): [] | string[] {
-    if (!publisher) return [];
-    return Array.isArray(publisher) ? publisher : [publisher];
+    // Check if publisher is an array or a string and return accordingly
+    if (Array.isArray(publisher)) {
+      return publisher;
+    } else if (typeof publisher === 'string') {
+      return [publisher];
+    } 
   }
 
 }

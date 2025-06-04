@@ -281,7 +281,6 @@ export class DataSourcesEditorComponent {
     
     // Populate the form with existing data
     this.distributionForm.patchValue({
-      id: distribution.id,
       title: distribution.title,
       description: distribution.description,
       accessUrl: accessUrl,
@@ -294,14 +293,6 @@ export class DataSourcesEditorComponent {
       modifiedDate: modifiedDate
     });
     
-    // Only disable the ID field if this is a server-persisted distribution (not local-only)
-    // Distributions created via API won't have isNew flag, those only in localStorage will
-    if (!distribution.isNew) {
-      this.distributionForm.get('id').disable();
-    } else {
-      // For local-only distributions, enable the ID field
-      this.distributionForm.get('id').enable();
-    }
     
     // Scroll to the form section
     setTimeout(() => {
@@ -370,9 +361,6 @@ export class DataSourcesEditorComponent {
       }
     }
 
-    // Use the ID provided by the user or pass null
-    const distributionId = formData.id || createUniqueId();
-
     // Find the existing distribution if we're editing
     let existingDistribution = null;
     if (this.isEditingDistribution) {
@@ -381,11 +369,6 @@ export class DataSourcesEditorComponent {
 
     // Format the distribution object according to API requirements
     const distribution = {
-      // Use the ID from the form if provided, otherwise generate a new one
-      // For editing, keep the original ID unless a new one is provided
-      id: this.isEditingDistribution 
-        ? (existingDistribution?.isNew && formData.id ? formData.id : this.currentEditingDistributionId)
-        : distributionId,
       title: formData.title,
       description: formData.description || '',
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
@@ -407,10 +390,6 @@ export class DataSourcesEditorComponent {
       isEdited: this.isEditingDistribution
     };
     
-
-    function createUniqueId() {
-      return `${formData.title.replace(/\s+/g, '')}${moment(Date.now()).format().replace(/[-:+]/g, '')}`;
-    }
   
 
     if (this.isEditingDistribution) {
@@ -439,7 +418,6 @@ export class DataSourcesEditorComponent {
     });
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
-    this.distributionForm.get('id').enable();
   }
 
   createDatasetWithDistributions(): void {
@@ -454,43 +432,10 @@ export class DataSourcesEditorComponent {
       );
       return;
     }
-    
-    // Get the dataset ID value, accounting for disabled form controls
-    const datasetId = this.datasetForm.get('id').value;
 
-    // Check if ID exists and is not empty
-    if (!this.isEditing && datasetId && datasetId.trim() !== '') {
-      // First check if dataset with this ID already exists using getSingleEntity
-      this.isCreatingDataset = true;
-      
-      this.ngsiDatasetsService.getSingleEntity(datasetId).subscribe({
-        next: (existingDataset) => {
-          // Dataset with this ID already exists
-          this.isCreatingDataset = false;
-          this.toastrService.danger(
-            this.translation.instant('TOAST_DUPLICATE_DATASET_ID', {id: datasetId}),
-            this.translation.instant('TOAST_DUPLICATE_DATASET_ID_TITLE')
-          );
-        },
-        error: (error) => {
-          // 404 error means dataset doesn't exist, which is good - continue with creation
-          if (error.status === 404) {
-            this.proceedWithDatasetCreation();
-          } else {
-            // Other error occurred during the check
-            this.isCreatingDataset = false;
-            console.error('Error checking dataset existence:', error);
-            this.toastrService.danger(
-              'A dataset with this ID already exists. Please change the ID.',
-              'Error'
-            );
-          }
-        }
-      });
-    } else {
+    
       // No ID provided or we're in edit mode, proceed normally
       this.proceedWithDatasetCreation();
-    }
   }
 
   private proceedWithDatasetCreation(): void {
@@ -663,7 +608,7 @@ export class DataSourcesEditorComponent {
     }
     
     // Remove ID from the payload when updating
-    const datasetId = formValue.id;
+    const datasetId = JSON.parse(localStorage.getItem('dataset_to_edit'))?.id;
     if (this.isEditing) {
       const { id, ...datasetWithoutId } = dataset;
       dataset = datasetWithoutId;
@@ -692,7 +637,7 @@ export class DataSourcesEditorComponent {
         this.datasetForm.reset();
         this.distributions = [];
         this.isCreatingDataset = false;
-        this.router.navigate(['/pages/datasets-ngsi']);
+        this.router.navigate(['/pages/data-sources']);
         this.toastrService.success(
           this.isEditing ? 
             this.translation.instant('TOAST_DATASET_UPDATED') : 
@@ -718,7 +663,6 @@ export class DataSourcesEditorComponent {
     });
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
-    this.distributionForm.get('id').enable();
   }
 
   removeDistribution(index: number): void {
@@ -932,11 +876,6 @@ export class DataSourcesEditorComponent {
       theme: themeValue 
     });
 
-      // Disable the ID field when editing
-    if (this.isEditing) {
-      this.datasetForm.get('id').disable();
-    }
-    
     // Set contact points using contactPointArray
     if (dataset.contactPoint) {
       if (Array.isArray(dataset.contactPoint)) {
