@@ -575,9 +575,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       // Show a dialog instead of just a toastr message
       this.dialogService.open(ConfirmationDialogComponent, {
         context: {
-          title: 'Cannot Proceed',
-          message: 'You cannot create or update a dataset without any active distributions. Please add at least one distribution or unmark some for deletion.',
-          confirmButtonText: 'OK',
+          title: this.translation.instant('DIALOG_CANNOT_PROCEED'),
+          message: this.translation.instant('DIALOG_NO_ACTIVE_DISTRIBUTIONS'),
+          confirmButtonText: this.translation.instant('DIALOG_OK'),
           showCancelButton: false
         },
       });
@@ -1247,8 +1247,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.contactPointArray.push(value);
       } else {
         this.toastrService.warning(
-          `Contact point "${value}" already exists`,
-          'Duplicate Contact Point'
+          this.translation.instant('TOAST_CONTACT_POINT_EXISTS', {value: value}),
+          this.translation.instant('TOAST_DUPLICATE_CONTACT_POINT')
         );
       }
       

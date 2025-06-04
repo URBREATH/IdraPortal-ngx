@@ -5,7 +5,7 @@
                 [routerLink]="['/pages/data-sources/editor']">{{'CREATE_NEW_DATA-SOURCE' | translate}}
                 </button>
                 <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button">
-                    <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_DATA-SOURCES' | translate}} 
+                    <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_DATA_SOURCES' | translate}} 
                 </button>
                 <button nbButton class="delete-button" [disabled]="datasetsToDelete.length === 0" (click)="deleteSelectedDatasets()">
                     <nb-icon icon="trash-2-outline"></nb-icon>{{'DELETE_SELECTED' | translate}} ({{datasetsToDelete.length}})
@@ -16,7 +16,7 @@
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
             <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
         </nb-tag-list>
-        <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'DATA-SOURCES_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
+        <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'DATA_SOURCES_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
       </nb-card>
 
     
@@ -105,7 +105,7 @@
 
                 <!-- Empty state message -->
                 <div *ngIf="!loading && filteredDatasets.length === 0" class="d-flex flex-column align-items-center justify-content-center p-4">
-                    <h3>{{'NO_DATA-SOURCES_FOUND' | translate}}</h3>
+                    <h3>{{'NO_DATA_SOURCES_FOUND' | translate}}</h3>
                     <p>{{'TRY_ADJUSTING_FILTERS' | translate}}</p>
                 </div>
             </div>

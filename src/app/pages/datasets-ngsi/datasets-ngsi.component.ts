@@ -209,7 +209,7 @@ export class DatasetsNgsiComponent implements OnInit {
     // Find the dataset to get its distributions
     const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
     if (!dataset) {
-      this.toastrService.danger('Dataset not found', 'Error');
+      this.toastrService.danger(this.translation.instant('DATASET_NOT_FOUND'), this.translation.instant('TOAST_ERROR'));
       return;
     }
 
@@ -302,11 +302,17 @@ export class DatasetsNgsiComponent implements OnInit {
           this.datasetsToDelete.splice(index, 1);
         }
         
-        this.toastrService.success('Dataset and associated distributions deleted successfully', 'Success');
+        this.toastrService.success(
+          this.translation.instant('TOAST_DATASET_DELETED'),
+          this.translation.instant('TOAST_SUCCESS')
+        );
       },
       error: (error) => {
         console.error('Error deleting dataset:', error);
-        this.toastrService.danger('Failed to delete dataset: ' + (error.message || 'Unknown error'), 'Error');
+        this.toastrService.danger(
+          this.translation.instant('TOAST_DATASET_DELETION_FAILED', {errorMessage: error.message || 'Unknown error'}),
+          this.translation.instant('TOAST_ERROR')
+        );
       }
     });
   }
@@ -537,7 +543,7 @@ export class DatasetsNgsiComponent implements OnInit {
   deleteAllDatasets(): void {
     // If no datasets to delete, show warning
     if (this.ngsiDatasetsInfo.length === 0) {
-      this.toastrService.warning('No datasets available to delete', 'Warning');
+      this.toastrService.warning(this.translation.instant('NO_DATASETS_TO_DELETE'), this.translation.instant('TOAST_WARNING'));
       return;
     }
 
@@ -555,8 +561,11 @@ export class DatasetsNgsiComponent implements OnInit {
     // Show confirmation dialog
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete All Datasets',
-        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} datasets and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
+        title: this.translation.instant('DIALOG_DELETE_ALL_DATASETS'),
+        message: this.translation.instant('DIALOG_DELETE_ALL_DATASETS_MESSAGE', {
+          datasetCount: this.ngsiDatasetsInfo.length,
+          distributionCount: allDistributionIds.length
+        }),
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
@@ -578,8 +587,8 @@ export class DatasetsNgsiComponent implements OnInit {
     const totalCount = distributionIds.length;
     
     this.toastrService.info(
-      `Deleting ${totalCount} distributions in progress...`,
-      'Deletion in progress'
+      this.translation.instant('TOAST_DELETING_DISTRIBUTIONS', {count: totalCount}),
+      this.translation.instant('TOAST_DELETION_IN_PROGRESS_TITLE')
     );
     
     distributionIds.forEach(distId => {
@@ -593,8 +602,11 @@ export class DatasetsNgsiComponent implements OnInit {
           if (completedCount + errorCount === totalCount) {
             if (errorCount > 0) {
               this.toastrService.warning(
-                `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
-                'Partial deletion'
+                this.translation.instant('TOAST_DISTRIBUTIONS_PARTIAL_DELETION', {
+                  successCount: completedCount,
+                  errorCount: errorCount
+                }),
+                this.translation.instant('TOAST_PARTIAL_DELETION')
               );
             }
             // Proceed with dataset deletion after all distributions are processed
@@ -606,8 +618,11 @@ export class DatasetsNgsiComponent implements OnInit {
           errorCount++;
           if (completedCount + errorCount === totalCount) {
             this.toastrService.warning(
-              `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
-              'Partial deletion'
+              this.translation.instant('TOAST_DISTRIBUTIONS_PARTIAL_DELETION', {
+                successCount: completedCount,
+                errorCount: errorCount
+              }),
+              this.translation.instant('TOAST_PARTIAL_DELETION')
             );
             // Still proceed with dataset deletion even if some distribution deletions failed
             this.deleteAllDatasetsOnly();
@@ -627,8 +642,8 @@ export class DatasetsNgsiComponent implements OnInit {
     const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
     
     this.toastrService.info(
-      `Deleting ${totalCount} datasets in progress...`,
-      'Deletion in progress'
+      this.translation.instant('TOAST_DELETING_DATASETS', {count: totalCount}),
+      this.translation.instant('TOAST_DELETION_IN_PROGRESS_TITLE')
     );
     
     // Process each dataset to delete
@@ -661,14 +676,23 @@ export class DatasetsNgsiComponent implements OnInit {
       this.displayedDatasets = [];
       this.datasetsToDelete = [];
       
-      this.toastrService.success(`Successfully deleted all ${successCount} datasets`, 'Success');
+      this.toastrService.success(
+        this.translation.instant('TOAST_ALL_DATASETS_DELETED', {count: successCount}),
+        this.translation.instant('TOAST_SUCCESS')
+      );
     } else if (successCount === 0) {
-      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
+      this.toastrService.danger(
+        this.translation.instant('TOAST_NO_DATASETS_DELETED'),
+        this.translation.instant('TOAST_ERROR')
+      );
     } else {
-      // Some deletions failed
-      // Reload datasets to get accurate state from server
-      this.loadDatasets();
-      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
+      this.toastrService.warning(
+        this.translation.instant('TOAST_DATASETS_PARTIAL_DELETION', {
+          successCount: successCount,
+          errorCount: errorCount
+        }),
+        this.translation.instant('TOAST_PARTIAL_SUCCESS')
+      );
     }
   }
 
