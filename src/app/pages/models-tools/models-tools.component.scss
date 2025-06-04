@@ -9,6 +9,7 @@ $primary-light: #91d0ee;
 $secondary: #3f3368;
 $secondary-dark: #2b2347;
 $secondary-light: #5a42b1;
+$secondary-lighter: #7f5ec9;
 $surface: #cdd9e0;
 $surface-dark: #25262E;
 
@@ -300,7 +301,7 @@ nb-tag-list {
   }
   
   nb-card-header {
-    background-color: $primary-light;
+    background-color: $secondary-lighter;
     color: $surface-dark;
   }
 }
