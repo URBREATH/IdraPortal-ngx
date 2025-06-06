@@ -2,7 +2,7 @@
   <nb-stepper #stepper orientation="horizontal" [(selectedIndex)]="selectedStepIndex" class="stepper-container custom-stepper" (stepChange)="onStepChange($event.index)">
     
     <!-- Step 1: Add Distributions -->
-    <nb-step label="{{'ADD_MODEL_TOOLS' | translate}}">
+    <nb-step label="{{'ADD_RESOURCES' | translate}}">
       <div class="distribution-step-content">
         <nb-card class="distribution-form-card">
         <!-- Left panel: distribution form -->
@@ -29,7 +29,7 @@
             {{distributionForm.get('description').value?.length || 0}}/500
           </span>
           
-          <label for="downloadURL" class="required-field">{{'DOWNLOAD_URL' | translate}}</label>
+          <label for="downloadURL" class="required-field">URL</label>
           <input nbInput 
                  id="downloadURL" 
                  formControlName="downloadURL" 
@@ -38,15 +38,48 @@
                  class="w-100"
                  [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
           <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
-            {{'DOWNLOAD_URL_REQUIRED' | translate}}
+            {{'URL_REQUIRED' | translate}}
+          </div>
+
+          <label for="format">{{'RESOURCE_TYPE' | translate}}</label>
+          <nb-select 
+            id="format"
+            formControlName="format"
+            class="form-control"
+            placeholder="{{'SELECT_RESOURCE_TYPE' | translate}}"
+            >
+            <nb-option [value]="null" style="color: grey; font-style: italic;">{{'NONE' | translate}}</nb-option>
+            <nb-option *ngFor="let option of formatOptions" [value]="option">
+              {{ option }}
+            </nb-option>
+          </nb-select>
+
+          <!-- Custom format input -->
+          <div *ngIf="isOtherFormatSelected" class="mt-2">
+            <input nbInput 
+                   fullWidth
+                   type="text" 
+                   formControlName="otherFormat"
+                   placeholder="Specify format (max 10 characters)"
+                   maxlength="10">
+            
+            <!-- Validation error messages -->
+            <div *ngIf="distributionForm.get('otherFormat').touched && distributionForm.get('otherFormat').errors">
+              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.required">
+                Custom format is required
+              </small>
+              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.maxlength">
+                Format cannot exceed 10 characters
+              </small>
+              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.equalToOther">
+                Format cannot be 'Other'
+              </small>
+            </div>
           </div>
           
           <label for="license">{{'LICENSE' | translate}}</label> 
           <input nbInput id="license" formControlName="license" type="text" maxlength="100" class="full-width-input" />
-
-          <label for="documentation">{{'DOCUMENTATION_URL' | translate}}</label> 
-          <input nbInput id="documentation" formControlName="mediaType" type="text" maxlength="100" class="full-width-input" />
-          
+ 
           <label for="releaseDate">{{'RELEASE_DATE' | translate}}</label>
           <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
                  [nbDatepicker]="releaseDatePicker" class="full-width-input" />
@@ -77,8 +110,8 @@
         <nb-card class="distribution-list-panel m-0">
           <div class="distribution-list-header">
             <div>
-              <h4>{{'MODEL_TOOLS_LIST' | translate}}</h4>
-              <p *ngIf="distributions.length === 0">{{'NO_MODEL_TOOLS' | translate}}</p>
+              <h4>{{'RESOURCES_LIST' | translate}}</h4>
+              <p *ngIf="distributions.length === 0">{{'NO_RESOURCES' | translate}}</p>
             </div>
             
           </div>
