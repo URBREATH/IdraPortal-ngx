@@ -16,6 +16,16 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class DataSourcesEditorComponent {
 
+  formatOptions: string[] = [
+    'Access Point',
+    'API',
+    'Sensors Data',
+    'Other'
+  ];
+
+  // Add this property to track if "Other" format is selected
+  isOtherFormatSelected: boolean = false;
+
     selectedStepIndex = 0;
     
     distributionForm: FormGroup;
@@ -212,7 +222,11 @@ export class DataSourcesEditorComponent {
       this.distributionForm = this.fb.group({
         id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
         title: ['', Validators.required],
-  
+        format: [''],
+        otherFormat: ['', [
+          Validators.maxLength(10), 
+          this.notEqualToOtherValidator()
+        ]],
         description: [''],
         accessUrl: [''],
         downloadURL: ['', Validators.required], 
@@ -224,6 +238,24 @@ export class DataSourcesEditorComponent {
         releaseDate: [''],
         modifiedDate: ['']
       });
+
+    // Monitor format changes to toggle otherFormat field
+    this.distributionForm.get('format').valueChanges.subscribe(format => {
+      this.isOtherFormatSelected = format === 'Other';
+      
+      const otherFormatControl = this.distributionForm.get('otherFormat');
+      if (this.isOtherFormatSelected) {
+        otherFormatControl.enable();
+        otherFormatControl.setValidators([
+          Validators.maxLength(20),
+          this.notEqualToOtherValidator()
+        ]);
+      } else {
+        otherFormatControl.disable();
+        otherFormatControl.setValidators(null);
+      }
+      otherFormatControl.updateValueAndValidity();
+    });
   
    
   
@@ -241,6 +273,17 @@ export class DataSourcesEditorComponent {
         version: ['']
       });
     }
+
+  // Validator to ensure otherFormat isn't 'Other' (case insensitive)
+  notEqualToOtherValidator(): ValidatorFn {
+    return (control: AbstractControl): ValidationErrors | null => {
+      if (!control.value) return null;
+      
+      // Check if the value equals "Other" (case-insensitive and ignoring spaces)
+      const normalized = control.value.replace(/\s+/g, '').toLowerCase();
+      return normalized === 'other' ? { equalToOther: true } : null;
+    };
+  }
   
 
     // Add this method to edit a distribution
@@ -250,6 +293,30 @@ export class DataSourcesEditorComponent {
       
       // Reset and populate the form with existing distribution data
       this.distributionForm.reset();
+
+      // Check if this distribution has a format value
+      let format = null;
+      let otherFormat = '';
+      
+      // Only process format if it exists and isn't empty
+      if (distribution.format && distribution.format.trim() !== '') {
+        // If format doesn't match any standard option (case insensitive and ignore spaces)
+        const normalizedFormat = distribution.format.replace(/\s+/g, '').toLowerCase();
+        const isStandardFormat = this.formatOptions.some(opt => 
+          opt.replace(/\s+/g, '').toLowerCase() === normalizedFormat
+        );
+        
+        if (isStandardFormat) {
+          // Find the correctly cased format option
+          format = this.formatOptions.find(opt => 
+            opt.replace(/\s+/g, '').toLowerCase() === normalizedFormat
+          );
+        } else {
+          // It's a custom format
+          otherFormat = distribution.format;
+          format = 'Other';
+        }
+      }
       
 
       
@@ -283,7 +350,8 @@ export class DataSourcesEditorComponent {
         description: distribution.description,
         accessUrl: accessUrl,
         downloadURL: distribution.downloadURL,
-
+        format: format,
+        otherFormat: otherFormat,
         byteSize: distribution.byteSize,
         checksum: distribution.checksum,
         rights: distribution.rights,
@@ -344,10 +412,17 @@ export class DataSourcesEditorComponent {
       }
   
       const formData = this.distributionForm.value;
-      
-      // Use otherFormat value if format is 'Other'
-      const actualFormat = formData.format === 'Other' ? formData.otherFormat : formData.format;
-  
+
+    // Specific format handling logic to handle empty values and optional otherFormat
+    let actualFormat = '';
+    if (formData.format) {
+      if (formData.format === 'Other') {
+        // Use otherFormat if provided, otherwise empty string
+        actualFormat = formData.otherFormat || '';
+      } else {
+        actualFormat = formData.format;
+      }
+    }
       // Title is required and must be unique
       if (!formData.title.trim()) {
         this.toastrService.danger(
@@ -403,7 +478,7 @@ export class DataSourcesEditorComponent {
         description: formData.description || '',
         accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
         downloadURL: formData.downloadURL,
-        format: actualFormat || 'CSV',
+        format: actualFormat || '',
         byteSize: formData.byteSize || 0,
         checksum: formData.checksum || '',
         rights: formData.rights || '',
@@ -449,7 +524,7 @@ export class DataSourcesEditorComponent {
       
       // Reset form and editing state
       this.distributionForm.reset({
-        format: 'CSV'
+        format: null,
       });
       this.isEditingDistribution = false;
       this.currentEditingDistributionId = null;
