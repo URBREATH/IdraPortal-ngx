@@ -17,9 +17,9 @@ import { TranslateService } from '@ngx-translate/core';
 export class DataSourcesEditorComponent {
 
   formatOptions: string[] = [
-    'Access Point',
-    'API',
-    'Sensors Data',
+    'Endpoint',
+    'User documentation',
+    'API documentation',
     'Other'
   ];
 

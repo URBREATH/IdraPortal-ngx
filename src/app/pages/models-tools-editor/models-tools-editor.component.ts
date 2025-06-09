@@ -19,6 +19,8 @@ export class ModelsToolsEditorComponent implements OnInit {
     'Docker Image',
     'Guide',
     'Video Tutorial',
+    'API Documentation',
+    'Code Repository',
     'Other'
   ];
 
