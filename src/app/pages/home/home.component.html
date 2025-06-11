@@ -4,9 +4,17 @@
         <div class="d-flex flex-row justify-content-between align-items-center">
           <nb-tag-list (tagRemove)="onTagRemove($event)">
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
-            <input [disabled]="advancedSearch" type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydown($event)" fullWidth>
+            <input [disabled]="advancedSearch" 
+                   #searchInput
+                   type="text" 
+                   nbTagInput 
+                   placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" 
+                   (input)="tagInputKeydown($event)" 
+                   (keyup.enter)="addCurrentInputAndSearch(searchInput)"
+                   separatorKeys="[188,13]" 
+                   fullWidth>
           </nb-tag-list>
-          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" class="ml-2"></nb-icon>
+          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addCurrentInputAndSearch(searchInput)" class="ml-2"></nb-icon>
           <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" class="ml-2"></nb-icon>
         </div>
       </div>
@@ -23,7 +31,12 @@
             <div class="col-lg-10 col-md-9 col-12  d-flex align-items-center">
               <nb-tag-list (tagRemove)="onTagRemoveOnFilter($event,i)">
                 <nb-tag appearance="outline" status="primary" *ngFor="let filter of item.tags" [text]="filter" removable></nb-tag>
-                <input type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydownFilters($event,i)" fullWidth>
+                <input type="text" nbTagInput 
+                       placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" 
+                       (input)="tagInputKeydownFilters($event,i)" 
+                       (keyup.enter)="advancedSearchReq()"
+                       separatorKeys="[188,13]" 
+                       fullWidth>
               </nb-tag-list>
               <button nbButton status="primary" shape="round" (click)="addFilter(i)" *ngIf="i == Filters.length -1 && i != 3" class="filter-button"><nb-icon nbTooltip="{{ 'HOME_ADD_FILTER' | translate }}" icon="plus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
               <button nbButton status="primary" shape="round" (click)="removeFilter(i)" *ngIf="i != 0" class="filter-button"><nb-icon nbTooltip="{{ 'HOME_REMOVE_FILTER' | translate }}" icon="minus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>

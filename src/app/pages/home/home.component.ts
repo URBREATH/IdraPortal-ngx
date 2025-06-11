@@ -94,21 +94,31 @@ export class HomeComponent implements OnInit {
   }
 
   onTagAddOnFilter({ value, input }: NbTagInputAddEvent, index: number): void {
-    if(input != undefined )
+    if(input != undefined)
       input.nativeElement.value = ''
     if (value) {
-      this.Filters[index].tags.push(value.substring(0,value.length-1));
+      // Check if the last character is a comma and remove it only if it is
+      const cleanValue = value.endsWith(',') ? value.substring(0, value.length-1) : value;
+      this.Filters[index].tags.push(cleanValue);
     }
   }
 
   advancedSearchReq(){
     if(!this.advancedSearch){
+      // Make sure we're using clean values without any trailing commas
+      const cleanTags = this.tagsFilter.map(tag => 
+        tag.endsWith(',') ? tag.substring(0, tag.length-1) : tag
+      );
+      
+      console.log("Navigating with tags:", cleanTags);
+      
+      // Keep using /pages/datasets but ensure tags are properly formatted
       this.router.navigate(['/pages/datasets'], {
         queryParams:{
-          tags: this.tagsFilter.join(','),
+          tags: cleanTags.join(','),
           advancedSearch: false
         }
-      })
+      });
     } else{
       let filters = [];
       this.Filters.forEach(filter => {
@@ -257,25 +267,70 @@ export class HomeComponent implements OnInit {
   }
 
   tagInputKeydown(event: KeyboardEvent): void {
-    if ((event.target as HTMLInputElement).value.charAt((event.target as HTMLInputElement).value.length-1) === ',') {
-      this.onTagAdd({ value: (event.target as HTMLInputElement).value, input: null });
-      (event.target as HTMLInputElement).value = '';
+    // Don't do anything on Enter - we'll handle it in the keyup.enter event
+    if (event.key === 'Enter') {
+      return;
+    }
+    
+    // Handle comma separator
+    if ((event.target as HTMLInputElement).value.endsWith(',')) {
+      const value = (event.target as HTMLInputElement).value.slice(0, -1).trim();
+      if (value) {
+        this.tagsFilter.push(value);
+        (event.target as HTMLInputElement).value = '';
+      }
     }
   }
 
   tagInputKeydownFilters(event: KeyboardEvent, i: number): void {
-    if ((event.target as HTMLInputElement).value.charAt((event.target as HTMLInputElement).value.length-1) === ',') {
-      this.onTagAddOnFilter({ value: (event.target as HTMLInputElement).value, input: null }, i);
+    if ((event.target as HTMLInputElement).value.charAt((event.target as HTMLInputElement).value.length-1) === ',' || event.key === 'Enter') {
+      const inputValue = (event.target as HTMLInputElement).value;
+      
+      // Create a proper value object based on whether we have a comma or Enter key
+      const valueObj = {
+        value: inputValue,
+        input: null
+      };
+      
+      this.onTagAddOnFilter(valueObj, i);
       (event.target as HTMLInputElement).value = '';
+      
+      // If Enter key is pressed, trigger the search
+      if (event.key === 'Enter') {
+        this.advancedSearchReq();
+      }
     }
   }
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    if(input != undefined )
-    input.nativeElement.value = ''
-    if (value) {
-      this.tagsFilter.push(value.substring(0,value.length-1));
+    if(input != undefined)
+    input.nativeElement.value = '';
+    
+  if (value) {
+    // Clean the value properly - remove commas at the end
+    const cleanValue = value.endsWith(',') ? value.substring(0, value.length-1) : value;
+    
+    // Only add if it's not empty after cleaning
+    if (cleanValue.trim() !== '') {
+      this.tagsFilter.push(cleanValue);
+      console.log("Added tag:", cleanValue, "Tags now:", this.tagsFilter);
     }
+  }
+  }
+
+  addCurrentInputAndSearch(inputElement: HTMLInputElement): void {
+    // Get the current input value
+    const currentValue = inputElement.value.trim();
+    
+    // Add it to tags if not empty
+    if (currentValue) {
+      this.tagsFilter.push(currentValue);
+      inputElement.value = ''; // Clear the input
+    }
+    
+    // Now perform the search with the updated tags
+    console.log("Search with tags:", this.tagsFilter);
+    this.advancedSearchReq();
   }
 
   randomClass(){

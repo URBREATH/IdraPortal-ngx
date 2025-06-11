@@ -45,49 +45,64 @@ export class SearchComponent implements OnInit {
 
   ngOnInit(): void { 
     this.searchResponse.facets = [];
-    this.loading=true
-    this.restApi.getCataloguesInfo().subscribe(infos =>{
+    this.loading = true;
+    this.restApi.getCataloguesInfo().subscribe(infos => {
       this.cataloguesInfos = infos;
-      this.searchRequest.nodes = infos.map(x=>x.id)
-      this.loading=false
+      this.searchRequest.nodes = infos.map(x => x.id);
+      this.loading = false;
 
-      let searchParam = this.router.routerState.snapshot.root.queryParams
+      let searchParam = this.router.routerState.snapshot.root.queryParams;
       
-      if(searchParam['advancedSearch'] == 'true'){
+      if(searchParam['advancedSearch'] == 'true') {
         this.searchRequest = JSON.parse(searchParam['params']);
-        // this.filtersTags = searchParam['params'].filters.map(x=>x.value);
-        this.searchDataset(true)
-      } else{
-        if(searchParam['type']!=undefined){
-          this.searchRequest.filters.push(new SearchFilter('catalogues',searchParam.search_value))
-          this.searchDataset(true)
+        this.searchDataset(true);
+      } else {
+        if(searchParam['type'] != undefined) {
+          this.searchRequest.filters.push(new SearchFilter('catalogues', searchParam.search_value));
+          this.searchDataset(true);
         }
-        else if(searchParam['name']!=undefined){
-          // this.filtersTags.push(searchParam.name)
-          this.searchRequest.filters.push(new SearchFilter('tags',searchParam.search_value))
-          this.searchDataset(true)
+        else if(searchParam['name'] != undefined) {
+          this.searchRequest.filters.push(new SearchFilter('tags', searchParam.search_value));
+          this.searchDataset(true);
         }
-        else if(searchParam['text']!=undefined){
-          // this.filtersTags.push(searchParam.value)
-          this.searchRequest.filters.push(new SearchFilter('datasetThemes',searchParam.value))
-          this.searchDataset(true)
+        else if(searchParam['text'] != undefined) {
+          this.searchRequest.filters.push(new SearchFilter('datasetThemes', searchParam.value));
+          this.searchDataset(true);
         }
-        else if(searchParam['tags']!=undefined){
-          let tags = searchParam.tags.split(',')
-          // tags.forEach(element => {
-          //   this.filtersTags.push(element)
-          // });
-          this.searchRequest.filters.push(new SearchFilter('tags',searchParam.tags))
-          this.searchDataset(true)
-        } else{
-          this.searchDataset(true)
+        else if(searchParam['tags'] != undefined) {
+          let tags = searchParam.tags.split(',');
+          
+          // Add the tags to the filters array for display in the UI
+          tags.forEach(element => {
+            this.filters.push(element);
+          });
+          
+          // Create a search filter for the tags
+          this.searchRequest.filters.push(new SearchFilter('ALL', searchParam.tags));
+          this.searchDataset(true);
+        } else {
+          this.searchDataset(true);
         }
       }
-
-    },err=>{
+    }, err => {
       console.log(err);
-      this.loading=false;
-    })
+      this.loading = false;
+    });
+
+    // Add these debug logs
+    const searchParams = this.router.routerState.snapshot.root.queryParams;
+    console.log("Received params in datasets component:", searchParams);
+    
+    if (searchParams['tags']) {
+      console.log("Tags received:", searchParams['tags']);
+      
+      // Make sure to split by comma and handle empty values
+      const tags = searchParams['tags'].split(',').filter(tag => tag.trim() !== '');
+      console.log("Parsed tags:", tags);
+      
+      // Process the tags here
+      // ...
+    }
   }
 
   updateFilters(tags){
@@ -157,23 +172,31 @@ export class SearchComponent implements OnInit {
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
     //added timeout since comma doesn't desapear from input
-    setTimeout(()=>{
-      if(input != undefined )
-      input.nativeElement.value = ''
+    setTimeout(() => {
+      if(input != undefined)
+        input.nativeElement.value = '';
+    
       if (value) {
         this.filters.push(value);
-        this.searchRequest.filters.map(x => {
-          if (x.field == 'ALL') {
-            if (x.value != '') {
-              let a = x.value.split(',');
-              a.push(value)
-              x.value = a.join(',');
-            } else {
-              x.value = value;
-            }
+      
+        // Check if there's a filter with field 'ALL'
+        let allFilter = this.searchRequest.filters.find(x => x.field == 'ALL');
+      
+        if (allFilter) {
+          // Update existing 'ALL' filter
+          if (allFilter.value != '') {
+            let a = allFilter.value.split(',');
+            a.push(value);
+            allFilter.value = a.join(',');
+          } else {
+            allFilter.value = value;
           }
-        })
-        this.searchDataset()
+        } else {
+          // Create a new 'ALL' filter if it doesn't exist
+          this.searchRequest.filters.push(new SearchFilter('ALL', value));
+        }
+      
+        this.searchDataset();
       }
     }, 50);
 
