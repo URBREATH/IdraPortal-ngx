@@ -36,7 +36,7 @@
     </div>
     <div class="col-9">
       <div class="row m-1">
-        <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+        <pagination-controls id="datasetPagination" (pageChange)="pageChanged($event)"></pagination-controls>
       </div>
       <div class="row m-1">
         <nb-tag-list (tagRemove)="onFilterRemove($event)">
@@ -44,7 +44,7 @@
         </nb-tag-list>
       </div>
       <!-- results -->
-      <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: 10, currentPage: 1, totalItems: 100 }" class="minicard">
+      <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: searchResponse.count, id: 'datasetPagination' }" class="minicard">
         <nb-card-header>
           <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
         </nb-card-header>
@@ -58,7 +58,7 @@
         </nb-card-footer>
       </nb-card>
       <div class="row m-1">
-        <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
+        <pagination-controls id="datasetPagination" (pageChange)="pageChanged($event)"></pagination-controls>
       </div>
     </div>
   </div>

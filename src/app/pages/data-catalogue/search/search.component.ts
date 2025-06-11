@@ -40,6 +40,9 @@ export class SearchComponent implements OnInit {
   filters: Array<string> = [];
   filtersTags: Array<string>= [];
 
+  pageSize: number = 10;
+  currentPage: number = 1;
+
   ngOnInit(): void { 
     this.searchResponse.facets = [];
     this.loading=true
@@ -92,10 +95,11 @@ export class SearchComponent implements OnInit {
       this.searchDataset()
   }
 
-  pageChanged($event:number){
-    this.page=$event;
-    this.searchRequest.start=($event-1)*this.searchRequest.rows;
-    this.searchDataset()
+  pageChanged($event: number): void {
+    this.currentPage = $event;
+    this.page = $event;
+    this.searchRequest.start = ($event - 1) * this.searchRequest.rows;
+    this.searchDataset();
   }
 
   searchDataset(isFirst=false) : Observable<SearchResult>{
