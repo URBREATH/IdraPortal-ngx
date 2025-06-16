@@ -31,10 +31,12 @@
             <div class="col-lg-10 col-md-9 col-12  d-flex align-items-center">
               <nb-tag-list (tagRemove)="onTagRemoveOnFilter($event,i)">
                 <nb-tag appearance="outline" status="primary" *ngFor="let filter of item.tags" [text]="filter" removable></nb-tag>
-                <input type="text" nbTagInput 
+                <input type="text" 
+                       nbTagInput 
+                       class="filter-input"
                        placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" 
                        (input)="tagInputKeydownFilters($event,i)" 
-                       (keyup.enter)="advancedSearchReq()"
+                       (keyup.enter)="addCurrentFilterInputsAndSearch()"
                        separatorKeys="[188,13]" 
                        fullWidth>
               </nb-tag-list>
@@ -119,6 +121,15 @@
               </nb-select>
             </div>
           </div>
+          
+        
+      <div class="row mt-3">
+        <div class="col-12 d-flex justify-content-center">
+          <button nbButton status="primary" (click)="addCurrentFilterInputsAndSearch()">
+            {{ 'HOME_SEARCH' | translate }}
+          </button>
+        </div>
+      </div>
         </nb-card-body>
       </nb-card>
       <nb-tabset fullWidth>

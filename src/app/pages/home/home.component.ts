@@ -283,21 +283,12 @@ export class HomeComponent implements OnInit {
   }
 
   tagInputKeydownFilters(event: KeyboardEvent, i: number): void {
-    if ((event.target as HTMLInputElement).value.charAt((event.target as HTMLInputElement).value.length-1) === ',' || event.key === 'Enter') {
-      const inputValue = (event.target as HTMLInputElement).value;
-      
-      // Create a proper value object based on whether we have a comma or Enter key
-      const valueObj = {
-        value: inputValue,
-        input: null
-      };
-      
-      this.onTagAddOnFilter(valueObj, i);
-      (event.target as HTMLInputElement).value = '';
-      
-      // If Enter key is pressed, trigger the search
-      if (event.key === 'Enter') {
-        this.advancedSearchReq();
+    // Only handle comma here - Enter will be handled by (keyup.enter)
+    if ((event.target as HTMLInputElement).value.endsWith(',')) {
+      const value = (event.target as HTMLInputElement).value.slice(0, -1).trim();
+      if (value) {
+        this.Filters[i].tags.push(value);
+        (event.target as HTMLInputElement).value = '';
       }
     }
   }
@@ -330,6 +321,27 @@ export class HomeComponent implements OnInit {
     
     // Now perform the search with the updated tags
     console.log("Search with tags:", this.tagsFilter);
+    this.advancedSearchReq();
+  }
+
+  // Add this method to capture current inputs in advanced search
+  addCurrentFilterInputsAndSearch(): void {
+    if (this.advancedSearch) {
+      // Get all advanced search filter inputs
+      const filterInputs = document.querySelectorAll('.filter-input');
+      
+      // Process each filter input
+      filterInputs.forEach((input: HTMLInputElement, index) => {
+        const value = input.value.trim();
+        if (value && index < this.Filters.length) {
+          // Add the current input value to the filter's tags array
+          this.Filters[index].tags.push(value);
+          input.value = ''; // Clear the input
+        }
+      });
+    }
+    
+    // Now perform the search with all inputs captured
     this.advancedSearchReq();
   }
 
