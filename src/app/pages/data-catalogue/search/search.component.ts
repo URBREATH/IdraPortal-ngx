@@ -195,7 +195,7 @@ export class SearchComponent implements OnInit {
   }
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    //added timeout since comma doesn't desapear from input
+    //added timeout since comma doesn't disappear from input
     setTimeout(() => {
       if(input != undefined)
         input.nativeElement.value = '';
@@ -302,6 +302,10 @@ export class SearchComponent implements OnInit {
 
   onFilterRemove(filter: NbTagComponent): void {
     let tmp=filter.text.split(': ');
+    if(tmp.length<2) {
+      this.onTagRemove(filter);
+      return;
+    }
     let name = tmp[0];
     let facetIndex = this.searchResponse.facets.findIndex(x=>x.displayName==name)
     if(facetIndex>=0){
