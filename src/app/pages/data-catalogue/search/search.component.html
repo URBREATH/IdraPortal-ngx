@@ -5,7 +5,7 @@
         <h2 class="jumbotron-heading">{{ 'DATALET_SEARCH_TITLE' | translate }} {{totalDatasets}} {{ 'DATALET_DATASETS_FROM' | translate }} {{cataloguesInfos.length}} {{ 'DATALET_CATALOGUES' | translate }}!</h2>
         <nb-tag-list (tagRemove)="onTagRemove($event)">
           <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
-          <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth>
+          <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" [separatorKeys]="[188,13]" fullWidth>
         </nb-tag-list>
         <span class="dataset-found-span"><strong>{{ 'DATALET_DATASETS_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
       </nb-card-body>
