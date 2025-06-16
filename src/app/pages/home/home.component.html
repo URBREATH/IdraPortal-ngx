@@ -1,25 +1,9 @@
 <section class="jumbotron text-center">
-    <div class="container mb-4">
+    <div class="container mb-4 position-relative">
         <h2 class="jumbotron-heading">{{ 'HOME_SEARCH_TITLE' | translate }} {{totalDatasets}} {{ 'HOME_DATASETS_FROM' | translate }} {{cataloguesInfos.length}} {{ 'HOME_CATALOGUES' | translate }}!</h2>
-        <div class="d-flex flex-row justify-content-between align-items-center">
-          <nb-tag-list (tagRemove)="onTagRemove($event)">
-            <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
-            <input [disabled]="advancedSearch" 
-                   #searchInput
-                   type="text" 
-                   nbTagInput 
-                   placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" 
-                   (input)="tagInputKeydown($event)" 
-                   (keyup.enter)="addCurrentInputAndSearch(searchInput)"
-                   separatorKeys="[188,13]" 
-                   fullWidth>
-          </nb-tag-list>
-          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addCurrentInputAndSearch(searchInput)" class="ml-2"></nb-icon>
-          <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" class="ml-2"></nb-icon>
-        </div>
-      </div>
-      <nb-card class="d-flex mb-2" *ngIf="advancedSearch">
+      <nb-card class="d-flex mb-2" id="advancedSearchCard">
         <nb-card-body  class="d-flex flex-column gap-1">
+          <nb-icon [icon]="searchToggleIcon" class="ms-auto" (click)="toggleAdvancedSearch()"></nb-icon>
           <div class="row mb-1" *ngFor="let item of Filters; index as i">
             <div class="col-lg-2 col-md-3 col-12 d-flex align-items-center">
               <span class="minwidth-fit-content" >{{ 'HOME_FILTER' | translate }} {{i+1}}</span>
@@ -132,6 +116,28 @@
       </div>
         </nb-card-body>
       </nb-card>
+        <div class="d-flex flex-row justify-content-between align-items-center" id="searchBar">
+          <nb-tag-list (tagRemove)="onTagRemove($event)">
+            <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
+            <input [disabled]="advancedSearch" 
+                   #searchInput
+                   type="text" 
+                   nbTagInput 
+                   placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" 
+                   (input)="tagInputKeydown($event)" 
+                   (keyup.enter)="addCurrentInputAndSearch(searchInput)"
+                   separatorKeys="[188,13]" 
+                   fullWidth>
+          </nb-tag-list>
+          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addCurrentInputAndSearch(searchInput)" class="ml-2"></nb-icon>
+          <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" 
+                [icon]="searchToggleIcon" 
+                [options]="{ animation: { type: 'zoom' } }" 
+                (click)="toggleAdvancedSearch()" 
+                class="ml-2">
+          </nb-icon>
+        </div>
+      </div>
       <nb-tabset fullWidth>
         <nb-tab tabTitle="{{ 'HOME_TAGS' | translate }}">
           <div class="display-flex">

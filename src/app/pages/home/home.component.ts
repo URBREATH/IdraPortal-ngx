@@ -63,13 +63,15 @@ export class HomeComponent implements OnInit {
     this.multiLanguageChecked = checked;
   }
 
-  toggleAdvancedSearch(){
-    this.advancedSearch = !this.advancedSearch;
-    if(this.advancedSearch){
-      this.searchToggleIcon = "arrow-ios-upward-outline";
-    } else {
-      this.searchToggleIcon = "arrow-ios-downward-outline";
+  toggleAdvancedSearch() {
+    const card = document.getElementById('advancedSearchCard');
+    if (card) {
+      card.classList.toggle('visible');
+      // Update icon if needed
+      this.searchToggleIcon = card.classList.contains('visible') ? 
+        'arrow-ios-upward-outline' : 'arrow-ios-downward-outline';
     }
+    this.advancedSearch = !this.advancedSearch;
   }
 
   addFilter(){

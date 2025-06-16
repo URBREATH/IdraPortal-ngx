@@ -128,3 +128,28 @@ ul.cloud li:nth-child(9n+1) div { color: rgb(126, 78, 15); }
     margin-right: 0.75rem;
     // border-radius: 10px;
 }
+
+#advancedSearchCard {
+    position: absolute;
+    width: 100%;
+    margin-top: 0;
+    z-index: 1000; 
+    transition: all 0.3s ease-out;
+    transform: translateY(-400px);
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+#advancedSearchCard.visible {
+    opacity: 1;
+    transform: translateY(0); /* Move to its natural position */
+    pointer-events: auto;
+}
+
+/* Make sure the search bar has a lower z-index */
+#searchBar {
+    position: relative;
+    z-index: 900;
+}
