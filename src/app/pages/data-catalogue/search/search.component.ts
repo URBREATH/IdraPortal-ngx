@@ -55,6 +55,30 @@ export class SearchComponent implements OnInit {
       
       if(searchParam['advancedSearch'] == 'true') {
         this.searchRequest = JSON.parse(searchParam['params']);
+        
+        // Add this block to extract and display filter tags from advanced search
+        if (this.searchRequest.filters && this.searchRequest.filters.length > 0) {
+          this.searchRequest.filters.forEach(filter => {
+            if (filter.field === 'ALL') {
+              // For ALL filters, just add the values directly to the filters array
+              const values = filter.value.split(',');
+              values.forEach(value => {
+                if (value.trim() !== '') {
+                  this.filters.push(value.trim());
+                }
+              });
+            } else if (filter.field && filter.value) {
+              // For specific field filters, add them to the filtersTags array
+              const values = filter.value.split(',');
+              values.forEach(value => {
+                if (value.trim() !== '') {
+                  this.filtersTags.push(`${filter.field}: ${value.trim()}`);
+                }
+              });
+            }
+          });
+        }
+        
         this.searchDataset(true);
       } else {
         if(searchParam['type'] != undefined) {
