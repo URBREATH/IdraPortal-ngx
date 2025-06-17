@@ -138,7 +138,13 @@
                    separatorKeys="[188,13]" 
                    fullWidth>
           </nb-tag-list>
-          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="addCurrentInputAndSearch(searchInput)" class="ml-2"></nb-icon>
+          <nb-icon nbTooltip="{{ 'HOME_SEARCH' | translate }}" 
+                icon="search-outline" 
+                [options]="{ animation: { type: 'zoom' } }" 
+                (click)="addCurrentInputAndSearch(searchInput)" 
+                class="ml-2"
+                [class.disabled-icon]="!searchInput.value && tagsFilter.length === 0">
+          </nb-icon>
           <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" 
                 [icon]="searchToggleIcon" 
                 [options]="{ animation: { type: 'zoom' } }" 

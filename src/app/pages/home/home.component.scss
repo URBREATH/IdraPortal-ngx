@@ -153,3 +153,8 @@ ul.cloud li:nth-child(9n+1) div { color: rgb(126, 78, 15); }
     position: relative;
     z-index: 900;
 }
+
+.disabled-icon {
+  opacity: 0.5;
+  pointer-events: none;
+}
