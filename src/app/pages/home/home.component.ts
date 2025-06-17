@@ -131,6 +131,11 @@ export class HomeComponent implements OnInit {
         }
       });
       
+      // If no filters with tags found, add default "ALL" filter with empty value
+      if (filters.length === 0) {
+        filters.push({field: "ALL", value: ""});
+      }
+      
       // Build the params object with the correct structure
       let params: any = {
         live: false,
