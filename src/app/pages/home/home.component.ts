@@ -34,8 +34,8 @@ export class HomeComponent implements OnInit {
   selectableOptions: Array<string> = [];
   options: Array<any> = ['description', 'tags', 'title'];
 
-  releasedDate: Array<Date> = [];
-  updatedDate: Array<Date> = [];
+  releasedDate?: [Date, Date];
+  updatedDate?: [Date, Date];
   
   catalogueList: Array<any> = [];
   selectedCatalogues: Array<number> = [0];
@@ -43,7 +43,7 @@ export class HomeComponent implements OnInit {
   sourceLanguage: string = "";
   targetsLanguage: Array<string> = [];
   languages: Array<any> = [{"value":"BG" ,"text": "Български" },
-    {"value":"ES" ,"text":"Español"},{"value":"CS" ,"text":"Čeština" },
+    {"value":"ES" ,"text":"Español"},{"value":"CS" ,"text":"Češtина" },
     {"value": "DA" ,"text": "Dansk" },{"value": "DE" ,"text": "Deutsch" },
     {"value": "ET" ,"text": "Eesti" },{"value": "EL" ,"text": "λληνικά"  },
     {"value": "EN" ,"text": "English" },{"value": "FR" ,"text": "Français" },
@@ -121,83 +121,80 @@ export class HomeComponent implements OnInit {
           advancedSearch: false
         }
       });
-    } else{
+    } else {
       let filters = [];
+      
+      // Add existing text/tag filters
       this.Filters.forEach(filter => {
         if(filter.tags.length > 0){
           filters.push({field: filter.type, value: filter.tags.join(',')});
         }
       });
-      let selectedCatalogues
-      if(this.selectedCatalogues.includes(0)){
-        selectedCatalogues = this.selectedCatalogues.filter(x=>x!=0);
-      }
-      let sort
-      switch(this.sortyBy){
-        case 0:
-          sort = 'releaseDate';
-          break;
-        case 1:
-          sort = 'updateDate';
-          break;
-        case 2:
-          sort = 'nodeID';
-          break;
-        case 3:
-          sort = 'contactPoint_fn';
-          // sort = 'publisherName';
-          break;
-        case 4:
-          sort = 'title';
-          break;
-        default:
-          sort = 'title';
-          break;
-      }
-      let params = {
+      
+      // Build the params object with the correct structure
+      let params: any = {
         live: false,
         filters: filters,
         sort: {
-          field: sort,
+          field: this.sortyBy ? this.getSortField() : 'title',
           mode: this.order ? 'desc' : 'asc'
         },
         rows: this.maxResultPerPage,
         start: 0,
-        nodes: selectedCatalogues,
+        nodes: this.getSelectedCatalogues(),
         euroVocFilter: {
           euroVoc: this.multiLanguageChecked,
           sourceLanguage: '',
           targetLanguages: []
         }
       }
+      
+      // Add the dates as top-level properties, not as filters
+      if (this.releasedDate) {
+        params.releaseDate = {
+          start: this.releasedDate[0].toISOString(),
+          end:   this.releasedDate[1].toISOString(),
+        };
+      }
+      if (this.updatedDate) {
+        params.updateDate = {
+          start: this.updatedDate[0].toISOString(),
+          end:   this.updatedDate[1].toISOString(),
+        };
+      }
+      
+      // Multilanguage settings if needed
       if(this.multiLanguageChecked){
         params.euroVocFilter.sourceLanguage = this.sourceLanguage;
         params.euroVocFilter.targetLanguages = this.targetsLanguage;
       }
-      if(this.releasedDate.length > 0){
-        params['releasedDate'] = {
-          start: this.releasedDate[0],
-          end: this.releasedDate[1]
-        }
-      }
-      if(this.updatedDate.length > 0){
-        params['updatedDate'] = {
-          start: this.updatedDate[0],
-          end: this.updatedDate[1]
-        }
-      }
+      
+      console.log("Final params:", params);
+      
       this.router.navigate(['/pages/datasets'], {
-        queryParams: { params: JSON.stringify(params), advancedSearch: true }
-      })
-
+        queryParams: {
+          params: JSON.stringify(params),
+          advancedSearch: true
+        }
+      });
     }
   }
 
-  updateDate(event:any, type:number){
-    if(type == 0){
-      this.releasedDate = event;
+  updateDate(range: { start: Date; end?: Date }, type: number) {
+    // only once both ends picked
+    if (!range.start || !range.end) return;
+
+    const [s, e] = [range.start, range.end];
+    // normalize to UTC midnight (start of day) / end of day
+    const startUtc = new Date(Date.UTC(s.getFullYear(), s.getMonth(), s.getDate()));
+    const endUtc   = new Date(Date.UTC(e.getFullYear(), e.getMonth(), e.getDate(), 23, 59, 59));
+
+    if (type === 0) {
+      this.releasedDate = [startUtc, endUtc];
+      this.updatedDate = undefined;
     } else {
-      this.updatedDate = event;
+      this.updatedDate = [startUtc, endUtc];
+      this.releasedDate = undefined;
     }
   }
 
@@ -342,6 +339,8 @@ export class HomeComponent implements OnInit {
         }
       });
     }
+
+    console.log("Filters after adding current inputs:", this.Filters);
     
     // Now perform the search with all inputs captured
     this.advancedSearchReq();
@@ -367,5 +366,32 @@ export class HomeComponent implements OnInit {
 
   searchCategory(category:any){
     this.router.navigate(['/pages/datasets'], {queryParams:category})
+  }
+
+  // Add this method to get the sort field based on your sortyBy property
+  private getSortField(): string {
+    // Assuming sortyBy is a string or number that maps to field names
+    // Modify this mapping based on your actual data model
+    const sortFieldMap = {
+      0: 'title',
+      1: 'description',
+      2: 'releaseDate',
+      3: 'updateDate'
+      // Add other mappings as needed
+    };
+    
+    // Return the mapped field or default to 'title'
+    return sortFieldMap[this.sortyBy] || 'title';
+  }
+
+  // Add this method to get the selected catalogues
+  private getSelectedCatalogues(): number[] {
+    // If "All" (typically ID 0) is selected, return all catalogue IDs except 0
+    if (this.selectedCatalogues.includes(0)) {
+      return this.selectedCatalogues.filter(id => id !== 0);
+    }
+    
+    // Otherwise return the currently selected catalogues
+    return this.selectedCatalogues;
   }
 }
