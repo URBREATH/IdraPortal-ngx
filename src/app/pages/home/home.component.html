@@ -28,24 +28,33 @@
               <button nbButton status="primary" shape="round" (click)="removeFilter(i)" *ngIf="i != 0" class="filter-button"><nb-icon nbTooltip="{{ 'HOME_REMOVE_FILTER' | translate }}" icon="minus-outline" [options]="{ animation: { type: 'zoom' } }"></nb-icon></button>
             </div>
           </div>
+          <!-- Released Date row -->
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
               <span class="minwidth-fit-content">{{ 'HOME_RELEASED_DATE' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
-              <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="releasedDate">
+              <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="releasedDate" [value]="getReleasedDateDisplay()">
               <nb-rangepicker #releasedDate (rangeChange)="updateDate($event,0)"></nb-rangepicker>
               <nb-icon icon="calendar-outline" class="ml-2"></nb-icon>
+              <button *ngIf="releasedDate" nbButton ghost size="small" status="basic" shape="round" class="ml-2" (click)="clearDateRange(0)">
+                <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" nbTooltip="{{ 'HOME_CLEAR_DATE' | translate }}"></nb-icon>
+              </button>
             </div>
           </div>
+
+          <!-- Updated Date row -->
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
               <span class="minwidth-fit-content">{{ 'HOME_UPDATED_DATE' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
-              <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="updatedDate">
+              <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="updatedDate" [value]="getUpdatedDateDisplay()">
               <nb-rangepicker #updatedDate (rangeChange)="updateDate($event,1)"></nb-rangepicker>
               <nb-icon icon="calendar-outline" class="ml-2"></nb-icon>
+              <button *ngIf="updatedDate" nbButton ghost size="small" status="basic" shape="round" class="ml-2" (click)="clearDateRange(1)">
+                <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" nbTooltip="{{ 'HOME_CLEAR_DATE' | translate }}"></nb-icon>
+              </button>
             </div>
           </div>
           <div class="row mb-1">

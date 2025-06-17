@@ -394,4 +394,43 @@ export class HomeComponent implements OnInit {
     // Otherwise return the currently selected catalogues
     return this.selectedCatalogues;
   }
+
+  /**
+ * Clears a specific date range
+ * @param type 0 for released date, 1 for updated date
+ */
+clearDateRange(type: number): void {
+  if (type === 0) {
+    this.releasedDate = undefined;
+  } else {
+    this.updatedDate = undefined;
+  }
+}
+
+/**
+ * Gets the display string for released date range if set
+ */
+getReleasedDateDisplay(): string {
+  if (!this.releasedDate) return '';
+  return this.formatDateRange(this.releasedDate);
+}
+
+/**
+ * Gets the display string for updated date range if set
+ */
+getUpdatedDateDisplay(): string {
+  if (!this.updatedDate) return '';
+  return this.formatDateRange(this.updatedDate);
+}
+
+/**
+ * Formats a date range for display
+ */
+private formatDateRange(dateRange: [Date, Date]): string {
+  if (!dateRange || !dateRange[0] || !dateRange[1]) return '';
+  
+  const start = dateRange[0].toLocaleDateString();
+  const end = dateRange[1].toLocaleDateString();
+  return `${start} - ${end}`;
+}
 }
