@@ -56,11 +56,10 @@ export class SearchComponent implements OnInit {
       if(searchParam['advancedSearch'] == 'true') {
         this.searchRequest = JSON.parse(searchParam['params']);
         
-        // Add this block to extract and display filter tags from advanced search
+        // Process filters
         if (this.searchRequest.filters && this.searchRequest.filters.length > 0) {
           this.searchRequest.filters.forEach(filter => {
             if (filter.field === 'ALL') {
-              // For ALL filters, just add the values directly to the filters array
               const values = filter.value.split(',');
               values.forEach(value => {
                 if (value.trim() !== '') {
@@ -77,6 +76,16 @@ export class SearchComponent implements OnInit {
               });
             }
           });
+        }
+        
+        // Clean up empty filters
+        this.searchRequest.filters = this.searchRequest.filters.filter(filter => 
+          filter.value && filter.value.trim() !== ''
+        );
+        
+        // If no filters remain after cleanup, add default empty ALL filter
+        if (this.searchRequest.filters.length === 0) {
+          this.searchRequest.filters.push({field: 'ALL', value: ''});
         }
         
         this.searchDataset(true);
@@ -145,6 +154,18 @@ export class SearchComponent implements OnInit {
     this.loading=true
     this.filtersTags=[];
 
+    // Clean up empty filters before making the request
+    this.searchRequest.filters = this.searchRequest.filters.filter(filter => 
+      filter.value && filter.value.trim() !== ''
+    );
+
+    // If no filters remain, add the default empty ALL filter
+    if (this.searchRequest.filters.length === 0) {
+      this.searchRequest.filters.push({field: 'ALL', value: ''});
+    }
+
+    console.log("Search Request: ", this.searchRequest);
+
     this.searchRequest.filters.forEach(x=>{
       if(x.field=='ALL' && x.value!=''){
         let values = x.value.split(',')
@@ -195,7 +216,6 @@ export class SearchComponent implements OnInit {
   }
 
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    //added timeout since comma doesn't disappear from input
     setTimeout(() => {
       if(input != undefined)
         input.nativeElement.value = '';
@@ -207,11 +227,11 @@ export class SearchComponent implements OnInit {
         let allFilter = this.searchRequest.filters.find(x => x.field == 'ALL');
       
         if (allFilter) {
-          // Update existing 'ALL' filter
-          if (allFilter.value != '') {
-            let a = allFilter.value.split(',');
-            a.push(value);
-            allFilter.value = a.join(',');
+          // Update existing 'ALL' filter - always append to existing value
+          if (allFilter.value && allFilter.value.trim() !== '') {
+            let existingValues = allFilter.value.split(',').filter(v => v.trim() !== '');
+            existingValues.push(value);
+            allFilter.value = existingValues.join(',');
           } else {
             allFilter.value = value;
           }

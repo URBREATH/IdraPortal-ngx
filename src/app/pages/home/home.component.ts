@@ -131,12 +131,8 @@ export class HomeComponent implements OnInit {
         }
       });
       
-      // If no filters with tags found, add default "ALL" filter with empty value
-      if (filters.length === 0) {
-        filters.push({field: "ALL", value: ""});
-      }
       
-      // Build the params object with the correct structure
+      // Build params object
       let params: any = {
         live: false,
         filters: filters,
@@ -154,7 +150,7 @@ export class HomeComponent implements OnInit {
         }
       }
       
-      // Add the dates as top-level properties, not as filters
+      // Add dates if they exist
       if (this.releasedDate) {
         params.releaseDate = {
           start: this.releasedDate[0].toISOString(),
@@ -173,8 +169,6 @@ export class HomeComponent implements OnInit {
         params.euroVocFilter.sourceLanguage = this.sourceLanguage;
         params.euroVocFilter.targetLanguages = this.targetsLanguage;
       }
-      
-      console.log("Final params:", params);
       
       this.router.navigate(['/pages/datasets'], {
         queryParams: {
