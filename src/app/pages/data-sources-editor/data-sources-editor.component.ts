@@ -326,22 +326,86 @@ export class DataSourcesEditorComponent {
         : '';
       
       // Convert string dates to Date objects for the datepicker
-      let releaseDate = null;
-      let modifiedDate = null;
+          let releaseDate = new Date();
+          let modifiedDate = new Date();
+          
+         if (distribution.releaseDate) {
+            
+            // Check if date is in JSON-LD format with @value property
+            if (typeof distribution.releaseDate === 'object' && distribution.releaseDate['@value']) {
+              // Extract the date string from @value
+              const dateString = distribution.releaseDate['@value'];
+              
+              // Parse the extracted date string
+              const momentDate = moment(dateString);
+              if (momentDate.isValid()) {
+                releaseDate = momentDate.toDate();
+              }
+            } else {
+              // Process as regular string format (existing code)
+              const momentDate = moment(distribution.releaseDate);
+              
+              if (momentDate.isValid()) {
+                releaseDate = momentDate.toDate();
+              } else {
+                // Try alternative format parsing
+                const formats = ['YYYY-MM-DD', 'YYYY/MM/DD', 'DD-MM-YYYY', 'MM/DD/YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ'];
+                
+                for (const format of formats) {
+                  const parsedDate = moment(distribution.releaseDate, format, true);
+                  if (parsedDate.isValid()) {
+                    releaseDate = parsedDate.toDate();
+                    break;
+                  }
+                }
+                
+                // If still not valid, log warning but keep original string for debugging
+                if (!moment(releaseDate).isValid()) {
+                  console.warn('Could not parse date:', distribution.releaseDate);
+                  // Keep today's date as fallback
+                }
+              }
+            }
+          }
+          
+          
+          if (distribution.modifiedDate) {
+            // Check if date is in JSON-LD format with @value property
+            if (typeof distribution.modifiedDate === 'object' && distribution.modifiedDate['@value']) {
+              // Extract the date string from @value
+              const dateString = distribution.modifiedDate['@value'];
       
-      if (distribution.releaseDate) {
-        const momentReleaseDate = moment(distribution.releaseDate);
-        if (momentReleaseDate.isValid()) {
-          releaseDate = momentReleaseDate.toDate();
-        }
-      }
+              // Parse the extracted date string
+              const momentDate = moment(dateString);
+              if (momentDate.isValid()) {
+                modifiedDate = momentDate.toDate();
+              }
+            } else {
+              // Process as regular string format (existing code)
+              const momentDate = moment(distribution.modifiedDate);
       
-      if (distribution.modifiedDate) {
-        const momentModifiedDate = moment(distribution.modifiedDate);
-        if (momentModifiedDate.isValid()) {
-          modifiedDate = momentModifiedDate.toDate();
-        }
-      }
+              if (momentDate.isValid()) {
+                modifiedDate = momentDate.toDate();
+              } else {
+                // Try alternative format parsing
+                const formats = ['YYYY-MM-DD', 'YYYY/MM/DD', 'DD-MM-YYYY', 'MM/DD/YYYY', 'YYYY-MM-DDTHH:mm:ss.SSSZ'];
+      
+                for (const format of formats) {
+                  const parsedDate = moment(distribution.modifiedDate, format, true);
+                  if (parsedDate.isValid()) {
+                    modifiedDate = parsedDate.toDate();
+                    break;
+                  }
+                }
+      
+                // If still not valid, log warning but keep original string for debugging
+                if (!moment(modifiedDate).isValid()) {
+                  console.warn('Could not parse date:', distribution.modifiedDate);
+                  // Keep today's date as fallback
+                }
+              }
+            }
+          }
       
       // Populate the form with existing data
       this.distributionForm.patchValue({
