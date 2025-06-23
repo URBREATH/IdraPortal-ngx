@@ -194,9 +194,8 @@ export class SearchComponent implements OnInit {
       res=>{
         this.searchResponse=res
         this.currentDatasets = this.searchResponse.count;  
-        if(isFirst){
-          this.totalDatasets = this.searchResponse.count;  
-        }
+        // Update totalDatasets on every search, not just the first one
+        this.totalDatasets = this.searchResponse.count;  
         this.searchResponse.results.map((x:DCATDataset)=>{ this.processDataset(x) })
         this.loading=false;
       },
