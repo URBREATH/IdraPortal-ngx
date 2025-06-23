@@ -14,6 +14,11 @@
 
   <div class="d-flex flex-column align-items-center justify-content-center" *ngIf="searchResponse.count==0">
     <h3 class="jumbotron-heading">{{ 'DATALET_NO_DATASET_FOUND' | translate }}</h3>
+      <div class="row m-1">
+        <nb-tag-list (tagRemove)="onFilterRemove($event)">
+          <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
+        </nb-tag-list>
+      </div>
   </div>
   <div class="row" *ngIf="searchResponse.count>0">
     <div class="col-3">

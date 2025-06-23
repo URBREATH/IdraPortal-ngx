@@ -88,6 +88,9 @@ export class SearchComponent implements OnInit {
           this.searchRequest.filters.push({field: 'ALL', value: ''});
         }
         
+        // Create date range tags if dates exist
+        this.createDateRangeTags();
+        
         this.searchDataset(true);
       } else {
         if(searchParam['type'] != undefined) {
@@ -154,6 +157,8 @@ export class SearchComponent implements OnInit {
     this.loading=true
     this.filtersTags=[];
 
+    console.log("Search Request before processing: ", this.searchRequest);
+
     // Clean up empty filters before making the request
     this.searchRequest.filters = this.searchRequest.filters.filter(filter => 
       filter.value && filter.value.trim() !== ''
@@ -166,6 +171,7 @@ export class SearchComponent implements OnInit {
 
     console.log("Search Request: ", this.searchRequest);
 
+    // Process regular filters
     this.searchRequest.filters.forEach(x=>{
       if(x.field=='ALL' && x.value!=''){
         let values = x.value.split(',')
@@ -181,6 +187,9 @@ export class SearchComponent implements OnInit {
       }
     })
 
+    // Add date range tags
+    this.createDateRangeTags();
+
     this.restApi.searchDatasets(this.searchRequest).subscribe(
       res=>{
         this.searchResponse=res
@@ -195,12 +204,11 @@ export class SearchComponent implements OnInit {
         console.log(err);
         this.loading=false;
       });
-// create an observable of this.searchResponse
 
-      return new Observable<SearchResult>(observer => {
-        observer.next(this.searchResponse);
-        observer.complete();
-      });
+    return new Observable<SearchResult>(observer => {
+      observer.next(this.searchResponse);
+      observer.complete();
+    });
   }
 
   onTagRemove(tagToRemove: NbTagComponent): void {
@@ -321,6 +329,13 @@ export class SearchComponent implements OnInit {
   }
 
   onFilterRemove(filter: NbTagComponent): void {
+    // Check if it's a date range tag first
+    if (this.handleDateRangeTagRemoval(filter.text)) {
+      this.searchDataset();
+      return;
+    }
+
+    // Handle regular filter tags
     let tmp=filter.text.split(': ');
     if(tmp.length<2) {
       this.onTagRemove(filter);
@@ -337,7 +352,7 @@ export class SearchComponent implements OnInit {
     if(this.searchRequest.filters[index].value==''){
       this.searchRequest.filters.splice(index,1);
     }
-    this.searchDataset()
+    this.searchDataset();
   }
 
   getDatasetByFacet(search_parameter,newValue){
@@ -375,5 +390,44 @@ export class SearchComponent implements OnInit {
       let usedValues=this.searchRequest.filters[index].value.split(',');
       return values.filter( x=> usedValues.indexOf(x.search_value)<0 );
     }
+  }
+
+  /**
+   * Create date range tags during initialization and search
+   */
+  private createDateRangeTags(): void {
+    // Handle release date
+    if (this.searchRequest.releaseDate) {
+      const startDate = new Date(this.searchRequest.releaseDate.start).toLocaleDateString();
+      const endDate = new Date(this.searchRequest.releaseDate.end).toLocaleDateString();
+      const releaseDateTag = `Release Date: ${startDate} - ${endDate}`;
+      if (!this.filtersTags.includes(releaseDateTag)) {
+        this.filtersTags.push(releaseDateTag);
+      }
+    }
+
+    // Handle update date
+    if (this.searchRequest.updateDate) {
+      const startDate = new Date(this.searchRequest.updateDate.start).toLocaleDateString();
+      const endDate = new Date(this.searchRequest.updateDate.end).toLocaleDateString();
+      const updateDateTag = `Update Date: ${startDate} - ${endDate}`;
+      if (!this.filtersTags.includes(updateDateTag)) {
+        this.filtersTags.push(updateDateTag);
+      }
+    }
+  }
+
+  /**
+   * Handle removal of date range tags
+   */
+  private handleDateRangeTagRemoval(tagText: string): boolean {
+    if (tagText.startsWith('Release Date:')) {
+      delete this.searchRequest.releaseDate;
+      return true;
+    } else if (tagText.startsWith('Update Date:')) {
+      delete this.searchRequest.updateDate;
+      return true;
+    }
+    return false;
   }
 }
