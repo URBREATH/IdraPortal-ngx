@@ -33,6 +33,7 @@ import {
 } from './pipes';
 import {
   OneColumnLayoutComponent,
+  EmbeddedLayoutComponent,
   ThreeColumnsLayoutComponent,
   TwoColumnsLayoutComponent,
 } from './layouts';
@@ -65,6 +66,7 @@ const COMPONENTS = [
   OneColumnLayoutComponent,
   ThreeColumnsLayoutComponent,
   TwoColumnsLayoutComponent,
+  // Remove EmbeddedLayoutComponent temporarily
 ];
 const PIPES = [
   CapitalizePipe,
@@ -78,8 +80,8 @@ const PIPES = [
 
 @NgModule({
   imports: [CommonModule, MatRippleModule, ...NB_MODULES],
-  exports: [CommonModule, MatRippleModule, ...PIPES, ...COMPONENTS],
-  declarations: [...COMPONENTS, ...PIPES],
+  exports: [CommonModule, MatRippleModule, ...PIPES, ...COMPONENTS, EmbeddedLayoutComponent],
+  declarations: [...COMPONENTS, ...PIPES, EmbeddedLayoutComponent],
 })
 export class ThemeModule {
   static forRoot(): ModuleWithProviders<ThemeModule> {

@@ -14,16 +14,20 @@ import { SharedService } from './services/shared.service';
   selector: 'ngx-pages',
   styleUrls: ['pages.component.scss'],
   template: `
-    <ngx-one-column-layout>
+    <ngx-one-column-layout *ngIf="!isEmbedded">
       <nb-menu [items]="menu"></nb-menu>
       <router-outlet></router-outlet>
     </ngx-one-column-layout>
+    <ngx-embedded-layout  *ngIf="isEmbedded">
+      <router-outlet></router-outlet>
+    </ngx-embedded-layout>
   `,
 })
 export class PagesComponent implements OnInit {
 
   menu: MenuItem[];
   userRoles: string[];
+  isEmbedded: boolean = false;
   constructor(
      private accessChecker: NbAccessChecker,
     private configService: ConfigService<Record<string, any>>,
@@ -34,6 +38,13 @@ export class PagesComponent implements OnInit {
   }
 
   ngOnInit() {
+
+    document.cookie = 'embedded=false'; // Set a cookie to indicate embedded mode,
+
+    //get the value of the variable embedded from the cookies
+    const embeddedCookie = document.cookie.split('; ').find(row => row.startsWith('embedded='));
+    this.isEmbedded = embeddedCookie ? embeddedCookie.split('=')[1] === 'true' : false;
+
     this.menu = MENU_ITEMS;
 /*
     this.menu.map( x=> {
