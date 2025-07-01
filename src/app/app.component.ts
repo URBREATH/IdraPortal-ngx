@@ -10,17 +10,20 @@ import { environment } from '../environments/environment';
 import { NbAuthOAuth2JWTToken, NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType } from '@nebular/auth';
 import { OidcJWTToken } from './pages/auth/oidc/oidc';
 import { NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter, take } from 'rxjs/operators';
+
 @Component({
   selector: 'ngx-app',
   template: '<router-outlet></router-outlet>',
 })
-export class AppComponent {
-
+export class AppComponent implements OnInit {
   constructor(
      oauthStrategy: NbOAuth2AuthStrategy,
      oauthStrategyPwd:NbPasswordAuthStrategy,
     private http : HttpClient,
     private config:ConfigService<Record<string, any>>,
+    private router: Router,
     ) {
      if(this.config.config["authenticationMethod"].toLowerCase() === "keycloak"){
      
@@ -78,5 +81,37 @@ export class AppComponent {
       },
       });
     }  
+  }
+
+  ngOnInit() {
+    const embeddedCookie = this.getCookie('embedded');
+    if (embeddedCookie === 'true') {
+      this.router.events
+        .pipe(
+          filter(e => e instanceof NavigationEnd),
+          take(1),                      // only on first navigation
+        )
+        .subscribe(() => {
+          const tree = this.router.parseUrl(this.router.url);
+          if (tree.queryParams['embedded'] !== 'true') {
+            this.router.navigate([], {
+              queryParams: { embedded: 'true' },
+              queryParamsHandling: 'merge',
+              replaceUrl: true,
+            });
+          }
+        });
+    }
+    // if cookie is missing do nothing, if != 'true' remove it
+    else if (embeddedCookie !== null && embeddedCookie !== 'true') {
+      document.cookie = 'embedded=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/';
+    }
+  }
+
+  private getCookie(name: string): string | null {
+    const match = document.cookie.match(
+      new RegExp('(?:^|; )' + name + '=([^;]*)'),
+    );
+    return match ? decodeURIComponent(match[1]) : null;
   }
 }

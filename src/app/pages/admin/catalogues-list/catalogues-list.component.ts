@@ -593,6 +593,8 @@ export class CataloguesListComponent implements OnInit {
 
 	modifyCatalogue(id : string){
 		// navigate to addCatalogue
-		this.router.navigate(['/pages/administration/adminCatalogues/addCatalogue'], { queryParams: { modifyId: id } });
+		this.router.navigate(['/pages/administration/adminCatalogues/addCatalogue'], { queryParams: { modifyId: id }, 
+		queryParamsHandling: 'merge',
+		});
 	}
 }

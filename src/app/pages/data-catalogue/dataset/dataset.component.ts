@@ -65,7 +65,10 @@ export class DatasetComponent implements OnInit {
         this.getDataset();
       }else{
         this.loading=false;
-        this.router.navigate(['/pages/datasets']);
+        this.router.navigate(['/pages/datasets'], 
+        {
+        queryParamsHandling: 'merge',
+        });
       }
     })
   }
@@ -87,7 +90,10 @@ export class DatasetComponent implements OnInit {
       err=>{
          this.loading=false;
          this.toastrService.danger(err.error.userMessage,"Error")
-         this.router.navigate(['/pages/datasets']);
+         this.router.navigate(['/pages/datasets'], 
+          {
+          queryParamsHandling: 'merge',
+          });
        }
       )
   }

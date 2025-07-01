@@ -65,7 +65,11 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
                     localStorage.removeItem('token');
                     localStorage.removeItem('username');
                     this.tokenService.clear();
-                    this.router.navigate(['/pages/auth/login']);
+                    this.router.navigate(['/pages/auth/login'], 
+                      {
+                        queryParamsHandling: 'merge',
+                      }
+                  );
                   }
                   return throwError(err);
                 }

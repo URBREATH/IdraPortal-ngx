@@ -331,7 +331,10 @@ export class AddCatalogueComponent implements OnInit {
     public publisher: string;
 		
 	public back() {
-		this.router.navigate(['']);
+		this.router.navigate([''], 
+		{
+		queryParamsHandling: 'merge',
+		});
 	}
 	
 	node = {
@@ -756,7 +759,11 @@ export class AddCatalogueComponent implements OnInit {
 				
 				this.restApi.modODMSNode(fd, params.modifyId).subscribe(infos =>{
 					this.loading = false;
-					this.router.navigate(['/catalogues']);
+					this.router.navigate(['/catalogues'], 
+						{
+						queryParamsHandling: 'merge',
+						}
+					);
 				},(err: HttpErrorResponse)=>{
 					console.log(err);					
 					this.toastrService.danger('Could not update catalogue: '+err.error.userMessage,'Error');
@@ -774,7 +781,11 @@ export class AddCatalogueComponent implements OnInit {
 
 				fd.append("node",JSON.stringify(this.node));
 				this.restApi.addODMSNode(fd).subscribe(infos =>{
-					this.router.navigate(['/catalogues']);
+					this.router.navigate(['/catalogues'], 
+					{
+					queryParamsHandling: 'merge',
+					}
+				);
 					this.loading = false;
 				
 				},(err: HttpErrorResponse)=>{

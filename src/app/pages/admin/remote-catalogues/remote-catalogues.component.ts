@@ -306,7 +306,10 @@ getLevel(nodeType: string): string {
 
 		this.restApi.addODMSNode(fd).subscribe(infos =>{
 			console.log("\nCHIAMATA API AGGIUNTA NODO. infos: "+infos);
-			this.router.navigate(['/pages/administration/adminCatalogues']);
+			this.router.navigate(['/pages/administration/adminCatalogues'], 
+			{
+			queryParamsHandling: 'merge',
+			});
 		},err=>{
 			this.toastrService.danger('Could not create catalogue: '+err.error.userMessage,'Error');
 			console.error(err.error.technicalMessage);

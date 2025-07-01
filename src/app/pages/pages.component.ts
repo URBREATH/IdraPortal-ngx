@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute } from '@angular/router'; // Add this import
 // import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { ConfigService } from 'ngx-config-json';
@@ -28,22 +29,23 @@ export class PagesComponent implements OnInit {
   menu: MenuItem[];
   userRoles: string[];
   isEmbedded: boolean = false;
+  
   constructor(
-     private accessChecker: NbAccessChecker,
+    private accessChecker: NbAccessChecker,
     private configService: ConfigService<Record<string, any>>,
     private auth: NbAuthService,
     private translateService: TranslateService,
-    private sharedService: SharedService
-    ) {
+    private sharedService: SharedService,
+    private route: ActivatedRoute
+  ) {
   }
 
   ngOnInit() {
 
-    document.cookie = 'embedded=false'; // Set a cookie to indicate embedded mode,
-
-    //get the value of the variable embedded from the cookies
-    const embeddedCookie = document.cookie.split('; ').find(row => row.startsWith('embedded='));
-    this.isEmbedded = embeddedCookie ? embeddedCookie.split('=')[1] === 'true' : false;
+    // Read embedded status from URL query parameter
+    this.route.queryParams.subscribe(params => {
+      this.isEmbedded = params['embedded'] === 'true';
+    });
 
     this.menu = MENU_ITEMS;
 /*

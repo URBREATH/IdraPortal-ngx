@@ -131,7 +131,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
       )
       .subscribe(res => {
         if (res["tag"] == "logout") {
-          this.router.navigate([`${this.configService.config['dashboardBaseURL']}/keycloak-auth/logout`]);
+          this.router.navigate([`${this.configService.config['dashboardBaseURL']}/keycloak-auth/logout`], 
+                      {
+                        queryParamsHandling: 'merge',
+                      });
         }
       });
     }else{
@@ -169,7 +172,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
         .subscribe(res => {
           if (res["tag"] == "logout") {
             // window.open(this.userService.getLogoutUrl(), '_self');
-            this.router.navigate(['/auth/logout']);
+            this.router.navigate(['/auth/logout'], 
+                      {
+                        queryParamsHandling: 'merge',
+                      });
           }
         });
     }
@@ -193,16 +199,25 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   navigateHome() {
-    this.router.navigate(['/pages/home']);
+    this.router.navigate(['/pages/home'], 
+    {
+      queryParamsHandling: 'merge',
+    });
     return false;
   }
 
   logIn() {
-    this.router.navigate(['/pages/auth/login']);
+    this.router.navigate(['/pages/auth/login'], 
+    {
+      queryParamsHandling: 'merge',
+    });
   }
 
   logOut() {
-    this.router.navigate(['/pages/auth/logout']);
+    this.router.navigate(['/pages/auth/logout'], 
+    {
+      queryParamsHandling: 'merge',
+    });
   }
   changeLang(event) {
     this.translate.use(event);

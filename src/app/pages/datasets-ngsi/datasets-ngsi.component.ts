@@ -431,7 +431,10 @@ export class DatasetsNgsiComponent implements OnInit {
       localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
       
       // Navigate to the editor page
-      this.router.navigate(['/pages/datasets-ngsi/editor']);
+      this.router.navigate(['/pages/datasets-ngsi/editor'], 
+      {
+      queryParamsHandling: 'merge',
+      });
     }
   }
 

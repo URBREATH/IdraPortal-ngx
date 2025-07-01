@@ -404,7 +404,10 @@ export class DataSourcesComponent implements OnInit {
       localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
       
       // Navigate to the editor page
-      this.router.navigate(['/pages/data-sources/editor']);
+      this.router.navigate(['/pages/data-sources/editor'], 
+        {
+        queryParamsHandling: 'merge',
+        });
     }
   }
 

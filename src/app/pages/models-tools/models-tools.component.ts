@@ -428,7 +428,10 @@ export class ModelsToolsComponent implements OnInit {
       localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
       
       // Navigate to the editor page
-      this.router.navigate(['/pages/models-tools/editor']);
+      this.router.navigate(['/pages/models-tools/editor'], 
+      {
+      queryParamsHandling: 'merge',
+      });
     }
   }
 

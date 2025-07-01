@@ -39,7 +39,12 @@ const config: ExtraOptions = {
 };
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes, config)],
+  imports: [
+    RouterModule.forRoot(routes, {
+      paramsInheritanceStrategy: 'always',
+      // …any other global options
+    }),
+  ],
   exports: [RouterModule],
 })
 export class AppRoutingModule {

@@ -119,7 +119,8 @@ export class HomeComponent implements OnInit {
         queryParams:{
           tags: cleanTags.join(','),
           advancedSearch: false
-        }
+        }, 
+        queryParamsHandling: 'merge',
       });
     } else {
       let filters = [];
@@ -174,7 +175,8 @@ export class HomeComponent implements OnInit {
         queryParams: {
           params: JSON.stringify(params),
           advancedSearch: true
-        }
+        },
+        queryParamsHandling: 'merge',
       });
     }
   }
@@ -360,11 +362,11 @@ export class HomeComponent implements OnInit {
 
   searchTag(i:number){
     let search_parameter = this.tags[i]
-    this.router.navigate(['/pages/datasets'], {queryParams:{search_value: search_parameter.search_value, name: this.tags[i].name}})
+    this.router.navigate(['/pages/datasets'], {queryParams:{search_value: search_parameter.search_value, name: this.tags[i].name}, queryParamsHandling: 'merge'})
   }
 
   searchCategory(category:any){
-    this.router.navigate(['/pages/datasets'], {queryParams:category})
+    this.router.navigate(['/pages/datasets'], {queryParams:category, queryParamsHandling: 'merge'})
   }
 
   // Add this method to get the sort field based on your sortyBy property

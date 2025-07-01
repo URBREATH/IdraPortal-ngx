@@ -830,7 +830,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.datasetForm.reset();
         this.distributions = [];
         this.isCreatingDataset = false;
-        this.router.navigate(['/pages/datasets-ngsi']);
+        this.router.navigate(['/pages/datasets-ngsi'], 
+          {
+          queryParamsHandling: 'merge',
+          });
         this.toastrService.success(
           this.isEditing ? 
             this.translation.instant('TOAST_DATASET_UPDATED') : 

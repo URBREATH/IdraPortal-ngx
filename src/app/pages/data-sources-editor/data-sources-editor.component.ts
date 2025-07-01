@@ -845,7 +845,10 @@ export class DataSourcesEditorComponent {
           this.datasetForm.reset();
           this.distributions = [];
           this.isCreatingDataset = false;
-          this.router.navigate(['/pages/data-sources']);
+          this.router.navigate(['/pages/data-sources'], 
+            {
+            queryParamsHandling: 'merge',
+            });
           this.toastrService.success(
             this.isEditing ? 
               this.translation.instant('TOAST_DATASET_UPDATED') : 
