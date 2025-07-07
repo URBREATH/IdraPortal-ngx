@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
-import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
+import { DatasourceService } from "../services/datasource.service";
 import { Router } from '@angular/router';
 import moment from 'moment';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
@@ -59,7 +59,7 @@ export class DataSourcesEditorComponent {
   
     constructor(
           private fb: FormBuilder,
-          private ngsiDatasetsService: NgsiDatasetsService,
+          private datasourceService: DatasourceService,
           private router: Router,
           private dialogService: NbDialogService,
           private toastrService: NbToastrService,
@@ -615,8 +615,8 @@ export class DataSourcesEditorComponent {
       if (!this.isEditing && datasetId && datasetId.trim() !== '') {
         // First check if dataset with this ID already exists using getSingleEntity
         this.isCreatingDataset = true;
-        
-        this.ngsiDatasetsService.getSingleEntity(datasetId).subscribe({
+
+        this.datasourceService.getSingleEntity(datasetId).subscribe({
           next: (existingDataset) => {
             // Dataset with this ID already exists
             this.isCreatingDataset = false;
@@ -683,7 +683,7 @@ export class DataSourcesEditorComponent {
       
       const distributionId = this.distributionsToDelete[index];
       
-      this.ngsiDatasetsService.deleteDistribution(distributionId).subscribe({
+      this.datasourceService.deleteDistribution(distributionId).subscribe({
         next: () => {
           // Process next deletion
           this.processDistributionDeletions(index + 1, onComplete);
@@ -736,8 +736,8 @@ export class DataSourcesEditorComponent {
       
       // Choose between create or update based on the isNew flag
       const operation = distribution.isNew 
-        ? this.ngsiDatasetsService.createDistribution(distToSend)
-        : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
+        ? this.datasourceService.createDistribution(distToSend)
+        : this.datasourceService.updateDistribution(distribution.id, distToSend);
       
       operation.subscribe({
         next: () => {
@@ -831,10 +831,10 @@ export class DataSourcesEditorComponent {
         });
   
         dataset.datasetDistribution = updatedDistributions;
-  
-        operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
+
+        operation = this.datasourceService.updateDataset(datasetId, dataset);
       } else {
-        operation = this.ngsiDatasetsService.createDataset(dataset);
+        operation = this.datasourceService.createDataset(dataset);
       }
       
       operation.subscribe({
@@ -982,8 +982,8 @@ export class DataSourcesEditorComponent {
   
     loadDistributions(existingDataset: any = null): void {
       this.loadingDistributions = true;
-      
-      this.ngsiDatasetsService.getDistributions().subscribe({
+
+      this.datasourceService.getDistributions().subscribe({
         next: (response) => {
           if (response && response.length > 0) {
             this.distributions = response;
@@ -1203,7 +1203,7 @@ export class DataSourcesEditorComponent {
       }
   
       // Get all distributions and filter them
-      this.ngsiDatasetsService.getDistributions().subscribe({
+      this.datasourceService.getDistributions().subscribe({
         next: (allDistributions) => {
           if (!allDistributions || allDistributions.length === 0) {
             this.distributions = [];
@@ -1251,7 +1251,7 @@ export class DataSourcesEditorComponent {
   
     // Add this method to load existing dataset IDs
     loadExistingDatasetIds(): void {
-      this.ngsiDatasetsService.getDatasets().subscribe({
+      this.datasourceService.getDatasets().subscribe({
         next: (datasets) => {
           this.existingDatasetIds = datasets.map(dataset => dataset.id);
         },

@@ -7,10 +7,31 @@
         "^/IdraPortal-ngx-Translations": ""
       }
     },
-    "/api/*": {
-    "target": "https://ngsi-broker-dev.urbreath.tech",
+    "/api/datasetngsi/*": {
+    "target": "https://ngsi-broker-dataset-dev.urbreath.tech", 
     "secure": false,
     "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/datasetngsi": "/api"
+    },
+    "logLevel": "debug"
+  },
+  "/api/models/*": {
+    "target": "https://ngsi-broker-models-dev.urbreath.tech",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/models": "/api"
+    },
+    "logLevel": "debug"
+  },
+  "/api/datasource/*": {
+    "target": "https://ngsi-broker-datasource-dev.urbreath.tech",
+    "secure": false,
+    "changeOrigin": true,
+    "pathRewrite": {
+      "^/api/datasource": "/api"
+    },
     "logLevel": "debug"
   }
   }

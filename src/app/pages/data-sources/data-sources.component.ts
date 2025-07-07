@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
+import { DatasourceService } from '../services/datasource.service';
 import { NbDialogService, NbTagComponent, NbTagInputAddEvent, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
@@ -47,7 +47,7 @@ export class DataSourcesComponent implements OnInit {
   constructor(
     private router: Router,
     public translation: TranslateService,
-    private ngsiDatasetsService: NgsiDatasetsService,
+    private datasourceService: DatasourceService,
     private dialogService: NbDialogService,
     private toastrService: NbToastrService
   ) { }
@@ -63,7 +63,7 @@ export class DataSourcesComponent implements OnInit {
   loadDatasets(): void {
     this.loading = true;
     // Subscribe to the Observable from your service
-    this.ngsiDatasetsService.getDatasets().subscribe({
+    this.datasourceService.getDatasets().subscribe({
       next: (response) => {
         // Save the fetched data into a component property
         this.ngsiDatasetsInfo = response;
@@ -219,7 +219,7 @@ export class DataSourcesComponent implements OnInit {
           // Transform the distribution ID format before sending to API
           const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
           
-          this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
+          this.datasourceService.deleteDistribution(transformedDistId).subscribe({
             next: () => {
               deletedCount++;
               // When all distributions are processed, delete the dataset
@@ -249,7 +249,7 @@ export class DataSourcesComponent implements OnInit {
 
   // Helper method to delete the dataset and update UI
   private performDatasetDeletion(datasetId: string): void {
-    this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+    this.datasourceService.deleteDataset(datasetId).subscribe({
       next: () => {
         // Remove dataset from all dataset collections
         this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
@@ -335,7 +335,7 @@ export class DataSourcesComponent implements OnInit {
         
         // Process each dataset to delete
         this.datasetsToDelete.forEach(datasetId => {
-          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+          this.datasourceService.deleteDataset(datasetId).subscribe({
             next: () => {
               completedCount++;
               // Check if all operations completed
@@ -568,7 +568,7 @@ export class DataSourcesComponent implements OnInit {
       // Transform the distribution ID format before sending to API
       const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
       
-      this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
+      this.datasourceService.deleteDistribution(transformedDistId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed
@@ -615,7 +615,7 @@ export class DataSourcesComponent implements OnInit {
     
     // Process each dataset to delete
     allDatasetIds.forEach(datasetId => {
-      this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+      this.datasourceService.deleteDataset(datasetId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed

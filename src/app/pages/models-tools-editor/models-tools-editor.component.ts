@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
-import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
+import { ModelsService } from '../services/models.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
@@ -59,7 +59,7 @@ export class ModelsToolsEditorComponent implements OnInit {
 
   constructor(
         private fb: FormBuilder,
-        private ngsiDatasetsService: NgsiDatasetsService,
+        private modelsService: ModelsService,
         private router: Router,
         private dialogService: NbDialogService,
         private toastrService: NbToastrService,
@@ -502,7 +502,7 @@ export class ModelsToolsEditorComponent implements OnInit {
       // First check if dataset with this ID already exists using getSingleEntity
       this.isCreatingDataset = true;
       
-      this.ngsiDatasetsService.getSingleEntity(datasetId).subscribe({
+      this.modelsService.getSingleEntity(datasetId).subscribe({
         next: (existingDataset) => {
           // Dataset with this ID already exists
           this.isCreatingDataset = false;
@@ -569,7 +569,7 @@ export class ModelsToolsEditorComponent implements OnInit {
     
     const distributionId = this.distributionsToDelete[index];
     
-    this.ngsiDatasetsService.deleteDistribution(distributionId).subscribe({
+    this.modelsService.deleteDistribution(distributionId).subscribe({
       next: () => {
         // Process next deletion
         this.processDistributionDeletions(index + 1, onComplete);
@@ -622,8 +622,8 @@ export class ModelsToolsEditorComponent implements OnInit {
     
     // Choose between create or update based on the isNew flag
     const operation = distribution.isNew 
-      ? this.ngsiDatasetsService.createDistribution(distToSend)
-      : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
+      ? this.modelsService.createDistribution(distToSend)
+      : this.modelsService.updateDistribution(distribution.id, distToSend);
     
     operation.subscribe({
       next: () => {
@@ -716,9 +716,9 @@ export class ModelsToolsEditorComponent implements OnInit {
 
       dataset.datasetDistribution = updatedDistributions;
 
-      operation = this.ngsiDatasetsService.updateDataset(datasetId, dataset);
+      operation = this.modelsService.updateDataset(datasetId, dataset);
     } else {
-      operation = this.ngsiDatasetsService.createDataset(dataset);
+      operation = this.modelsService.createDataset(dataset);
     }
     
     operation.subscribe({
@@ -867,7 +867,7 @@ export class ModelsToolsEditorComponent implements OnInit {
   loadDistributions(existingDataset: any = null): void {
     this.loadingDistributions = true;
     
-    this.ngsiDatasetsService.getDistributions().subscribe({
+    this.modelsService.getDistributions().subscribe({
       next: (response) => {
         if (response && response.length > 0) {
           this.distributions = response;
@@ -1047,7 +1047,7 @@ export class ModelsToolsEditorComponent implements OnInit {
     }
 
     // Get all distributions and filter them
-    this.ngsiDatasetsService.getDistributions().subscribe({
+    this.modelsService.getDistributions().subscribe({
       next: (allDistributions) => {
         if (!allDistributions || allDistributions.length === 0) {
           this.distributions = [];
@@ -1095,7 +1095,7 @@ export class ModelsToolsEditorComponent implements OnInit {
 
   // Add this method to load existing dataset IDs
   loadExistingDatasetIds(): void {
-    this.ngsiDatasetsService.getDatasets().subscribe({
+    this.modelsService.getDatasets().subscribe({
       next: (datasets) => {
         this.existingDatasetIds = datasets.map(dataset => dataset.id);
       },
