@@ -3,13 +3,7 @@ import { Component, OnInit } from '@angular/core';
 @Component({
   styleUrls: ['./embedded-layout.component.scss'],
   selector: 'ngx-embedded-layout',
-  template:  `
-    <nb-layout windowMode>
-      <nb-layout-column>
-        <ng-content select="router-outlet"></ng-content>
-      </nb-layout-column>
-    </nb-layout>
-  `,
+  templateUrl: './embedded-layout.component.html',
 })
 export class EmbeddedLayoutComponent implements OnInit {
 
