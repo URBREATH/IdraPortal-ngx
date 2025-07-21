@@ -3,10 +3,10 @@ version: "3.1"
 services:
  
   beopen-dashboard:
-    image: idraopendata/idra-portal:v1.1.0
+    image: registry.urbreath.tech/idraportal-ngx:v0.2
     restart: always
     ports:
-      - '127.0.0.1:4200:80'
+      - '127.0.0.1:4201:80'
     volumes:
-      - ./config.json:/usr/share/nginx/html/assets/config.json
+      # - ./config.json:/usr/share/nginx/html/assets/config.json
       - ./nginx.conf:/etc/nginx/conf.d/default.conf
