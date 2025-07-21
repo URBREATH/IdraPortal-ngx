@@ -23,6 +23,11 @@
     
 
     <div class="ngsi-datasets-body">
+      <input type="checkbox" id="filter-toggle" class="filter-toggle-input">
+      <label for="filter-toggle" class="filter-toggle-label">
+        <nb-icon icon="options-2-outline"></nb-icon> 
+        <span>{{'TOGGLE_FILTERS' | translate }}</span>
+      </label>
       <div class="left-column">
             <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
                 <nb-card-header class="d-flex justify-content-between">
