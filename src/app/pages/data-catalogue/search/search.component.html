@@ -20,8 +20,13 @@
         </nb-tag-list>
       </div>
   </div>
-  <div class="row" *ngIf="searchResponse.count>0">
-    <div class="col-3">
+  <div class="search-results-body" *ngIf="searchResponse.count>0">
+    <input type="checkbox" id="filter-toggle" class="filter-toggle-input">
+    <label for="filter-toggle" class="filter-toggle-label">
+      <nb-icon icon="options-2-outline"></nb-icon> 
+      <span>{{'TOGGLE_FILTERS' | translate }}</span>
+    </label>
+    <div class="left-column">
       <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
         <nb-card-header class="d-flex justify-content-between">
           {{facet.displayName}}
@@ -39,31 +44,36 @@
         </nb-card-body>
       </nb-card>
     </div>
-    <div class="col-9">
-      <div class="row m-1">
-        <pagination-controls id="datasetPagination" (pageChange)="pageChanged($event)"></pagination-controls>
-      </div>
-      <div class="row m-1">
-        <nb-tag-list (tagRemove)="onFilterRemove($event)">
-          <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
-        </nb-tag-list>
-      </div>
-      <!-- results -->
-      <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: searchResponse.count, id: 'datasetPagination' }" class="minicard">
-        <nb-card-header>
-          <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
-        </nb-card-header>
-        <nb-card-body class="content-truncated">
-          <span class="truncated">{{dataset.description}}</span>
-        </nb-card-body>
-        <nb-card-footer>
-          <nb-tag-list size="small">
-            <nb-tag *ngFor="let tmp of dataset.distributionFormats" text="{{tmp.format}} ({{tmp.count}})" size="tiny" [style.background]="getColor(tmp.format)"></nb-tag>
+    <div class="right-column">
+      <div class="datasets-card">
+        <!-- Pagination controls at top -->
+        <div class="pagination-container mb-3">
+          <pagination-controls id="datasetPagination" (pageChange)="pageChanged($event)"></pagination-controls>
+        </div>
+        <div class="row m-1">
+          <nb-tag-list (tagRemove)="onFilterRemove($event)">
+            <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
           </nb-tag-list>
-        </nb-card-footer>
-      </nb-card>
-      <div class="row m-1">
-        <pagination-controls id="datasetPagination" (pageChange)="pageChanged($event)"></pagination-controls>
+        </div>
+        <!-- results -->
+        <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: pageSize, currentPage: currentPage, totalItems: searchResponse.count, id: 'datasetPagination' }" class="minicard">
+          <nb-card-header>
+            <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
+          </nb-card-header>
+          <nb-card-body class="content-truncated">
+            <span class="truncated">{{dataset.description}}</span>
+          </nb-card-body>
+          <nb-card-footer>
+            <nb-tag-list size="small">
+              <nb-tag *ngFor="let tmp of dataset.distributionFormats" text="{{tmp.format}} ({{tmp.count}})" size="tiny" [style.background]="getColor(tmp.format)"></nb-tag>
+            </nb-tag-list>
+          </nb-card-footer>
+        </nb-card>
+        
+        <!-- Pagination controls at bottom -->
+        <div class="pagination-container mt-3">
+          <pagination-controls id="datasetPagination" (pageChange)="pageChanged($event)"></pagination-controls>
+        </div>
       </div>
     </div>
   </div>
