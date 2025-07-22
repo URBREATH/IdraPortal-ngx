@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SSO Test Parent</title>
+</head>
+<body>
+    <h1>SSO Test Parent Window</h1>
+    <button onclick="sendSSOMessage()">Send SSO Message to Child</button>
+    <br><br>
+    <iframe id="childFrame" src="http://localhost:4200?embedded=true" width="800" height="600"></iframe>
+
+    <script>
+        function sendSSOMessage() {
+            const ssoMessage = {
+                embedded: true,
+                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+                refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+                language: 'en'
+            };
+            
+            const iframe = document.getElementById('childFrame');
+            iframe.contentWindow.postMessage(ssoMessage, '*');
+            console.log('SSO message sent to iframe:', ssoMessage);
+        }
+    </script>
+</body>
+</html>

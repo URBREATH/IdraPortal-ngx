@@ -1,8 +1,9 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router'; // Add this import
 // import { NbAccessChecker } from '@nebular/security';
 import { NbMenuItem } from '@nebular/theme';
 import { ConfigService } from 'ngx-config-json';
+import { Subscription } from 'rxjs';
 
 import { MENU_ITEMS } from './pages-menu';
 import { NbAccessChecker } from '@nebular/security';
@@ -24,11 +25,12 @@ import { SharedService } from './services/shared.service';
     </ngx-embedded-layout>
   `,
 })
-export class PagesComponent implements OnInit {
+export class PagesComponent implements OnInit, OnDestroy {
 
   menu: MenuItem[];
   userRoles: string[];
   isEmbedded: boolean = false;
+  private subscriptions: Subscription[] = [];
   
   constructor(
     private accessChecker: NbAccessChecker,
@@ -41,36 +43,41 @@ export class PagesComponent implements OnInit {
   }
 
   ngOnInit() {
+    console.log('PagesComponent: Initializing...');
+    
+    // Subscribe to embedded state from SharedService
+    const embeddedSubscription = this.sharedService.embeddedState$.subscribe(isEmbedded => {
+      console.log('PagesComponent: Embedded state changed to:', isEmbedded);
+      this.isEmbedded = isEmbedded;
+    });
+    this.subscriptions.push(embeddedSubscription);
 
-    // Read embedded status from URL query parameter
+    // Also check embedded status from URL query parameter (fallback)
     this.route.queryParams.subscribe(params => {
-      this.isEmbedded = params['embedded'] === 'true';
+      console.log('PagesComponent: Route params:', params);
+      if (params['embedded'] === 'true' && !this.isEmbedded) {
+        console.log('PagesComponent: Setting embedded state from URL param');
+        this.sharedService.updateEmbeddedState(true);
+      }
     });
 
     this.menu = MENU_ITEMS;
-/*
-    this.menu.map( x=> {
-      if( x.data!=undefined && x.data['name']=='administration'){
-        x.children.map( y =>{
-          if(y.data['name']=='data-catalogue-administration'){
-            y.url = `${this.configService.config['idra_base_url')}/${this.configService.config['idra_portal_base_href')}/#/catalogues`
-          }
 
-          if(y.data['name']=='idm-administration'){
-            y.url = `${this.configService.config['idmBaseURL')}/auth/admin/${this.configService.config['idmRealmName')}/console`
-          }
-        })
-      }
-    })
-*/
-this.translateService.onLangChange.subscribe(event => this.translateMenuItems());
-this.translateMenuItems();
-this.translateService.use('en');
-    if (this.configService.config['enableAuthentication']) {
-     
+    this.translateService.onLangChange.subscribe(event => this.translateMenuItems());
+    this.translateMenuItems();
+    this.translateService.use('en');
     
+    if (this.configService.config['enableAuthentication']) {
+      console.log('PagesComponent: Authentication enabled, setting up auth menu items');
       this.authMenuItems();
     }
+    
+    console.log('PagesComponent: Initialization complete');
+  }
+
+  ngOnDestroy() {
+    // Clean up subscriptions
+    this.subscriptions.forEach(sub => sub.unsubscribe());
   }
 
   authMenuItems() {
