@@ -2,18 +2,110 @@
 <html>
 <head>
     <title>SSO Test Parent</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .controls {
+            margin-bottom: 20px;
+            padding: 15px;
+            background-color: #f5f5f5;
+            border-radius: 5px;
+        }
+        .button-group {
+            margin: 10px 0;
+        }
+        .button-group h3 {
+            margin: 0 0 10px 0;
+            color: #333;
+        }
+        button {
+            margin: 5px;
+            padding: 8px 15px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .sso-button {
+            background-color: #28a745;
+            font-weight: bold;
+            padding: 10px 20px;
+        }
+        .sso-button:hover {
+            background-color: #1e7e34;
+        }
+        iframe {
+            border: 2px solid #ddd;
+            border-radius: 5px;
+        }
+        .info {
+            background-color: #e9ecef;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+        }
+    </style>
 </head>
 <body>
     <h1>SSO Test Parent Window</h1>
-    <button onclick="sendSSOMessage()">Send SSO Message to Child</button>
-    <br><br>
-    <iframe id="childFrame" src="http://localhost:4200?embedded=true" width="800" height="600"></iframe>
+    
+    <div class="info">
+        <strong>Instructions:</strong> Use the buttons below to navigate the iframe to different pages and test SSO functionality.
+        The iframe will maintain its embedded state across navigation.
+    </div>
+    
+    <div class="controls">
+        <div class="button-group">
+            <h3>🔐 SSO Control</h3>
+            <button class="sso-button" onclick="sendSSOMessage()">Send SSO Message to Child</button>
+        </div>
+        
+        <div class="button-group">
+            <h3>🏠 Main Pages</h3>
+            <button onclick="navigateToPage('/pages/home')">Home</button>
+            <button onclick="navigateToPage('/pages/datasets')">Data Catalogue</button>
+            <button onclick="navigateToPage('/pages/catalogues')">Catalogues</button>
+            <button onclick="navigateToPage('/pages/statistics')">Statistics</button>
+        </div>
+        
+        <div class="button-group">
+            <h3>🔍 Data Tools</h3>
+            <button onclick="navigateToPage('/pages/mqa')">Mqa Scoring</button>
+            <button onclick="navigateToPage('/pages/sparql')">Sparql</button>
+            <button onclick="navigateToPage('/pages/datasets-ngsi')">Datasets NGSI</button>
+            <button onclick="navigateToPage('/pages/models-tools')">Models and Tools</button>
+            <button onclick="navigateToPage('/pages/data-sources')">Data Sources</button>
+        </div>
+        
+        <div class="button-group">
+            <h3>⚙️ Administration</h3>
+            <button onclick="navigateToPage('/pages/administration/adminCatalogues')">Data Catalogue Admin</button>
+            <button onclick="navigateToPage('/pages/administration/dataletsManagement')">Datalet Admin</button>
+            <button onclick="navigateToPage('/pages/administration/configuration')">Configurations Admin</button>
+        </div>
+        
+        <div class="button-group">
+            <h3>🔧 Test Navigation</h3>
+            <button onclick="navigateToPage('/')">Root Page</button>
+            <button onclick="navigateToPage('/pages')">Pages Root</button>
+            <button onclick="reloadIframe()">Reload Iframe</button>
+        </div>
+    </div>
+    
+    <iframe id="childFrame" src="http://localhost:4200?embedded=true" width="100%" height="700"></iframe>
 
     <script>
         function sendSSOMessage() {
             const ssoMessage = {
                 embedded: true,
-                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlcyI6WyJhZG1pbiIsInVzZXIiXX0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
                 refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
                 language: 'en'
             };
@@ -21,7 +113,60 @@
             const iframe = document.getElementById('childFrame');
             iframe.contentWindow.postMessage(ssoMessage, '*');
             console.log('SSO message sent to iframe:', ssoMessage);
+            
+            // Show confirmation
+            const button = event.target;
+            const originalText = button.textContent;
+            button.textContent = 'SSO Message Sent!';
+            button.style.backgroundColor = '#6c757d';
+            setTimeout(() => {
+                button.textContent = originalText;
+                button.style.backgroundColor = '#28a745';
+            }, 2000);
         }
+        
+        function navigateToPage(path) {
+            const iframe = document.getElementById('childFrame');
+            const baseUrl = 'http://localhost:4200';
+            const fullUrl = `${baseUrl}${path}?embedded=true`;
+            
+            iframe.src = fullUrl;
+            console.log('Navigating iframe to:', fullUrl);
+            
+            // Show which page was selected
+            const buttons = document.querySelectorAll('button');
+            buttons.forEach(btn => {
+                if (btn.textContent.includes('→')) {
+                    btn.textContent = btn.textContent.replace(' →', '');
+                }
+            });
+            
+            event.target.textContent += ' →';
+            setTimeout(() => {
+                event.target.textContent = event.target.textContent.replace(' →', '');
+            }, 3000);
+        }
+        
+        function reloadIframe() {
+            const iframe = document.getElementById('childFrame');
+            iframe.src = iframe.src;
+            console.log('Iframe reloaded');
+        }
+        
+        // Listen for messages from the iframe (optional - for debugging)
+        window.addEventListener('message', function(event) {
+            if (event.source === document.getElementById('childFrame').contentWindow) {
+                console.log('Message received from iframe:', event.data);
+            }
+        });
+        
+        // Auto-send SSO message when iframe loads (optional)
+        document.getElementById('childFrame').onload = function() {
+            console.log('Iframe loaded, you can now send SSO messages');
+            
+            // Uncomment the next line if you want to auto-send SSO on every page load
+            // setTimeout(sendSSOMessage, 1000);
+        };
     </script>
 </body>
 </html>
