@@ -64,7 +64,18 @@
     <div class="controls">
         <div class="button-group">
             <h3>🔐 SSO Control</h3>
-            <button class="sso-button" onclick="sendSSOMessage()">Send SSO Message to Child</button>
+            <button class="sso-button" onclick="sendSSOMessage('en')">Send SSO (English)</button>
+            <button class="sso-button" onclick="sendSSOMessage('it')">Send SSO (Italian)</button>
+            <button class="sso-button" onclick="sendSSOMessage('sp')">Send SSO (Spanish)</button>
+            <button class="sso-button" onclick="sendSSOMessage('de')">Send SSO (German)</button>
+        </div>
+        
+        <div class="button-group">
+            <h3>🌐 Language Only</h3>
+            <button onclick="sendLanguageChangeOnly('en')">Change to English</button>
+            <button onclick="sendLanguageChangeOnly('it')">Change to Italian</button>
+            <button onclick="sendLanguageChangeOnly('sp')">Change to Spanish</button>
+            <button onclick="sendLanguageChangeOnly('de')">Change to German</button>
         </div>
         
         <div class="button-group">
@@ -102,71 +113,84 @@
     <iframe id="childFrame" src="http://localhost:4200?embedded=true" width="100%" height="700"></iframe>
 
     <script>
-        function sendSSOMessage() {
-            const ssoMessage = {
-                embedded: true,
-                accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlcyI6WyJhZG1pbiIsInVzZXIiXX0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-                refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-                language: 'en'
-            };
-            
-            const iframe = document.getElementById('childFrame');
-            iframe.contentWindow.postMessage(ssoMessage, '*');
-            console.log('SSO message sent to iframe:', ssoMessage);
-            
-            // Show confirmation
-            const button = event.target;
-            const originalText = button.textContent;
-            button.textContent = 'SSO Message Sent!';
-            button.style.backgroundColor = '#6c757d';
-            setTimeout(() => {
-                button.textContent = originalText;
-                button.style.backgroundColor = '#28a745';
-            }, 2000);
+function sendSSOMessage(language = 'en') {
+    console.log('Parent: Preparing to send SSO message with language:', language);
+    
+    const ssoMessage = {
+        embedded: true,
+        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlcyI6WyJhZG1pbiIsInVzZXIiXX0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
+        language: language,
+        type: 'SSO_MESSAGE'
+    };
+    
+    const iframe = document.getElementById('childFrame');
+    iframe.contentWindow.postMessage(ssoMessage, 'http://localhost:4200');
+    console.log('Parent: SSO message sent to iframe:', ssoMessage);
+}
+
+function sendLanguageChangeOnly(language) {
+    console.log('Parent: Sending language change message:', language);
+    
+    const languageMessage = {
+        type: 'LANGUAGE_CHANGE',
+        language: language
+    };
+    
+    const iframe = document.getElementById('childFrame');
+    iframe.contentWindow.postMessage(languageMessage, 'http://localhost:4200');
+    console.log('Parent: Language change message sent:', languageMessage);
+}
+
+// Listen for messages from the iframe for debugging - with proper filtering
+window.addEventListener('message', function(event) {
+    // Only log messages from our iframe and that are relevant
+    if (event.source === document.getElementById('childFrame').contentWindow) {
+        // Filter out known message types that should be ignored
+        if (event.data && 
+            (event.data.type === 'webpackOk' || 
+             event.data.type === 'webpackInvalid' ||
+             event.data.type === 'webpackWarnings' ||
+             event.data.type === 'webpackErrors' ||
+             event.data.__fromDevtools ||
+             event.data.source === 'react-devtools-bridge' ||
+             event.data.source === 'react-devtools-content-script' ||
+             event.origin === 'http://127.0.0.1:5500')) {
+            // Ignore these messages
+            return;
         }
         
-        function navigateToPage(path) {
-            const iframe = document.getElementById('childFrame');
-            const baseUrl = 'http://localhost:4200';
-            const fullUrl = `${baseUrl}${path}?embedded=true`;
-            
-            iframe.src = fullUrl;
-            console.log('Navigating iframe to:', fullUrl);
-            
-            // Show which page was selected
-            const buttons = document.querySelectorAll('button');
-            buttons.forEach(btn => {
-                if (btn.textContent.includes('→')) {
-                    btn.textContent = btn.textContent.replace(' →', '');
-                }
-            });
-            
-            event.target.textContent += ' →';
-            setTimeout(() => {
-                event.target.textContent = event.target.textContent.replace(' →', '');
-            }, 3000);
-        }
-        
-        function reloadIframe() {
-            const iframe = document.getElementById('childFrame');
-            iframe.src = iframe.src;
-            console.log('Iframe reloaded');
-        }
-        
-        // Listen for messages from the iframe (optional - for debugging)
-        window.addEventListener('message', function(event) {
-            if (event.source === document.getElementById('childFrame').contentWindow) {
-                console.log('Message received from iframe:', event.data);
-            }
-        });
-        
-        // Auto-send SSO message when iframe loads (optional)
-        document.getElementById('childFrame').onload = function() {
-            console.log('Iframe loaded, you can now send SSO messages');
-            
-            // Uncomment the next line if you want to auto-send SSO on every page load
-            // setTimeout(sendSSOMessage, 1000);
-        };
+        console.log('Parent: Relevant message received from iframe:', event.data);
+    }
+});
+
+// Navigation functions
+function navigateToPage(path) {
+    const iframe = document.getElementById('childFrame');
+    const currentUrl = new URL(iframe.src);
+    const newUrl = `${currentUrl.origin}${path}?embedded=true`;
+    iframe.src = newUrl;
+    console.log('Parent: Navigating iframe to:', newUrl);
+}
+
+function reloadIframe() {
+    const iframe = document.getElementById('childFrame');
+    iframe.src = iframe.src;
+    console.log('Parent: Reloading iframe');
+}
+
+// Auto-send SSO message when iframe loads - only once
+let hasAutoSentSSO = false;
+document.getElementById('childFrame').onload = function() {
+    if (!hasAutoSentSSO) {
+        console.log('Parent: Iframe loaded, waiting 2 seconds before auto-sending SSO message');
+        setTimeout(() => {
+            console.log('Parent: Auto-sending SSO message with English language');
+            sendSSOMessage('en');
+            hasAutoSentSSO = true;
+        }, 2000);
+    }
+};
     </script>
 </body>
 </html>

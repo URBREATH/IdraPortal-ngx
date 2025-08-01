@@ -44,6 +44,7 @@ import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { Observable } from 'rxjs';
 import { SharedModule } from './shared/shared.module';
+import { EmbeddedLanguageService } from './services/embedded-language.service';
 class GenericConfig<T> {
   constructor(public config: T) {}
 }
@@ -259,6 +260,7 @@ export class CustomTranslateLoader implements TranslateLoader {
       multi: true,
     },
     JwtHelperService,
+    EmbeddedLanguageService,
    
   ],
   bootstrap: [AppComponent],

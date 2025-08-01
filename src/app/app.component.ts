@@ -14,6 +14,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter, take } from 'rxjs/operators';
 import { SSOMessage } from './models';
 import { SharedService } from './pages/services/shared.service';
+import { EmbeddedLanguageService } from './services/embedded-language.service';
 
 @Component({
   selector: 'ngx-app',
@@ -29,6 +30,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private config:ConfigService<Record<string, any>>,
     private router: Router,
     private sharedService: SharedService,
+    private embeddedLanguageService: EmbeddedLanguageService // Just inject it to start the service
     ) {
      if(this.config.config["authenticationMethod"].toLowerCase() === "keycloak"){
      
@@ -118,17 +120,15 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log('AppComponent: Setting up postMessage listener');
     
     this.messageEventListener = (event: MessageEvent) => {
+      console.log('AppComponent: Received postMessage event:', event);
+      console.log('AppComponent: Message origin:', event.origin);
+      console.log('AppComponent: Message data:', event.data);
       
       // Validate the message structure
       if (this.isValidSSOMessage(event.data)) {
         console.log('AppComponent: SSO message validation passed');
         
         const ssoMessage: SSOMessage = event.data;
-
-        
-      console.log('AppComponent: Received postMessage event:', event);
-      console.log('AppComponent: Message origin:', event.origin);
-      console.log('AppComponent: Message data:', event.data);
         
         // Update shared service with SSO data
         this.sharedService.updateSSOData(ssoMessage);

@@ -21,6 +21,9 @@ export class SharedService {
   private refreshToken = new BehaviorSubject<string>(null);
   refreshToken$ = this.refreshToken.asObservable();
   
+  private languageSubject = new BehaviorSubject<string>('en');
+  language$ = this.languageSubject.asObservable();
+  
   constructor() { }
 
   // private addCatalogueIsLoaded = new BehaviorSubject<boolean>(false);
@@ -30,8 +33,13 @@ export class SharedService {
   // propagateCatalogueIsLoaded(newVal: boolean) {
   //   this.addCatalogueIsLoaded.next(newVal)
   // }
+  onLanguageChange() {
+    return this.languageSubject.asObservable();
+  }
+
   propagateDialogSelectedLanguage(dialogSelectedLanguage: string) {
     this.dialogSelectedLanguage.next(dialogSelectedLanguage)
+    this.languageSubject.next(dialogSelectedLanguage);
   }
 
   // SSO and embedded state management methods

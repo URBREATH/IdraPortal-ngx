@@ -76,7 +76,12 @@ export class HeaderComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   
   ngOnInit() {
-    this.idraUserLanguage = 'en';
+    // Setup language listener FIRST before doing anything else
+    this.setupLanguageListener();
+
+    // Check for stored SSO language first, otherwise default to 'en'
+    const storedLanguage = localStorage.getItem('sso_language');
+    this.idraUserLanguage = storedLanguage || 'en';
 
     let lan = this.configService.config['languages'];
 
@@ -84,12 +89,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
       let f = x;
       if (x == 'en') f = 'gb'
       if (x == 'sp') f = 'es'
-      //this.languages.push({lan:x,flag: `flag-icon flag-icon-${f} flag-icon-squared` })
       this.languages.push({ lan: x, flag: f, picture: `assets/flags/${f}.svg` })
     })
+    
+    // Use the stored language or default
     this.translate.use(this.idraUserLanguage);
     this.sharedService.propagateDialogSelectedLanguage(this.idraUserLanguage);
 
+    // Rest of your existing initialization code...
     if(this.typeLogin.toLowerCase() === "keycloak"){
     this.currentTheme = this.themeService.currentTheme;
     console.log(this.user);
@@ -181,6 +188,33 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
+  private setupLanguageListener() {
+    console.log('Header: Setting up language listeners');
+
+    // Listen for embedded language changes
+    window.addEventListener('embedded-language-changed', (event: any) => {
+      console.log('Header: Received embedded-language-changed event:', event.detail);
+      const language = event.detail.language;
+      if (language && language !== this.idraUserLanguage) {
+        console.log(`Header: Changing language from ${this.idraUserLanguage} to ${language}`);
+        this.idraUserLanguage = language;
+        this.translate.use(this.idraUserLanguage);
+        // Don't call sharedService.propagateDialogSelectedLanguage here to avoid loops
+      }
+    });
+
+    // Also listen to shared service language changes
+    this.sharedService.onLanguageChange()
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((language: string) => {
+        console.log('Header: Received language change from shared service:', language);
+        if (language && language !== this.idraUserLanguage) {
+          console.log(`Header: Updating language from shared service to ${language}`);
+          this.idraUserLanguage = language;
+          this.translate.use(this.idraUserLanguage);
+        }
+      });
+  }
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -220,7 +254,10 @@ export class HeaderComponent implements OnInit, OnDestroy {
     });
   }
   changeLang(event) {
+    this.idraUserLanguage = event;
     this.translate.use(event);
     this.sharedService.propagateDialogSelectedLanguage(event);
+    // Store the manually selected language
+    localStorage.setItem('sso_language', event);
   }
 }
