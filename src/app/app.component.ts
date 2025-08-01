@@ -118,15 +118,17 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log('AppComponent: Setting up postMessage listener');
     
     this.messageEventListener = (event: MessageEvent) => {
-      console.log('AppComponent: Received postMessage event:', event);
-      console.log('AppComponent: Message origin:', event.origin);
-      console.log('AppComponent: Message data:', event.data);
       
       // Validate the message structure
       if (this.isValidSSOMessage(event.data)) {
         console.log('AppComponent: SSO message validation passed');
         
         const ssoMessage: SSOMessage = event.data;
+
+        
+      console.log('AppComponent: Received postMessage event:', event);
+      console.log('AppComponent: Message origin:', event.origin);
+      console.log('AppComponent: Message data:', event.data);
         
         // Update shared service with SSO data
         this.sharedService.updateSSOData(ssoMessage);
@@ -158,9 +160,9 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         }
       } 
-      // else {
-      //   console.warn('AppComponent: Invalid SSO message received:', event.data);
-      // }
+      else {
+        console.warn('AppComponent: Invalid SSO message received:', event.data);
+      }
     };
 
     window.addEventListener('message', this.messageEventListener);
