@@ -62,6 +62,19 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
               catchError(err => {
                 if (err instanceof HttpErrorResponse) {
                   if (err.status === 401) {
+                    console.log('🔥 401 error detected in interceptor');
+                    
+                    // Check if user has SSO tokens (skip clearing for SSO users)
+                    const ssoToken = localStorage.getItem('serviceToken');
+                    const authAppToken = localStorage.getItem('auth_app_token');
+                    
+                    if (ssoToken || authAppToken) {
+                      console.log('🔒 SSO user detected, preserving tokens');
+                      return throwError(err); // Don't clear tokens for SSO users
+                    }
+                    
+                    // Only clear tokens for non-SSO users
+                    console.log('🗑️ Clearing tokens for non-SSO user');
                     localStorage.removeItem('token');
                     localStorage.removeItem('username');
                     this.tokenService.clear();
