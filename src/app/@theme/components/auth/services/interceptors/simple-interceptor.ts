@@ -45,7 +45,7 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
               headers: new HttpHeaders({
                 'Access-Control-Allow-Origin': '*',
                 'Authorization': `Bearer ${token_}`,
-                'Cookie': 'loggedin=' + token + ';username=' + username,
+               // 'Cookie': 'loggedin=' + token + ';username=' + username,
                 'observe': 'response',
               }),
             });

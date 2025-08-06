@@ -183,46 +183,6 @@ export class AppComponent implements OnInit, OnDestroy {
             };
             localStorage.setItem('auth_app_token', JSON.stringify(authTokenObject));
             
-            // Create and set token in auth service
-            const strategy = this.config.config["authenticationMethod"].toLowerCase() === "keycloak" 
-              ? environment.authProfile 
-              : "email";
-              
-            const nbToken = new NbAuthJWTToken(ssoMessage.accessToken, strategy);
-            
-            // Use the correct method to set the token
-            this.authService.authenticate(strategy, { token: ssoMessage.accessToken }).subscribe({
-              next: (result) => {
-                console.log('AppComponent: Authentication result:', result);
-                
-                if (result.isSuccess()) {
-                  console.log('AppComponent: Authentication successful');
-                  
-                  // Check authentication status
-                  this.authService.isAuthenticated().subscribe(authenticated => {
-                    console.log('AppComponent: Authentication status:', authenticated);
-                    
-                    this.authService.getToken().subscribe(token => {
-                      console.log('AppComponent: Retrieved token:', token);
-                      console.log('AppComponent: Token valid:', token?.isValid());
-                    });
-                    
-                    if (authenticated) {
-                      console.log('AppComponent: User is authenticated, navigating to /pages');
-                      this.router.navigateByUrl('/pages');
-                    } else {
-                      console.warn('AppComponent: User is not authenticated despite setting token');
-                    }
-                  });
-                } else {
-                  console.error('AppComponent: Authentication failed:', result.getErrors());
-                }
-              },
-              error: (error) => {
-                console.error('AppComponent: Authentication error:', error);
-              }
-            });
-            
             // 6. Create persist:users structure
             const currentUser = {
               userId: decodedToken.sub,
