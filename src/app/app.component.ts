@@ -14,6 +14,7 @@ import { Router, NavigationEnd } from '@angular/router';
 import { filter, take } from 'rxjs/operators';
 import { SSOMessage } from './models';
 import { SharedService } from './pages/services/shared.service';
+import { NbAuthService, NbAuthJWTToken } from '@nebular/auth';
 import { EmbeddedLanguageService } from './services/embedded-language.service';
 
 @Component({
@@ -24,14 +25,15 @@ export class AppComponent implements OnInit, OnDestroy {
   private messageEventListener: (event: MessageEvent) => void;
 
   constructor(
-     oauthStrategy: NbOAuth2AuthStrategy,
-     oauthStrategyPwd:NbPasswordAuthStrategy,
-    private http : HttpClient,
-    private config:ConfigService<Record<string, any>>,
+    private oauthStrategy: NbOAuth2AuthStrategy,
+    private oauthStrategyPwd: NbPasswordAuthStrategy,
+    private http: HttpClient,
+    private config: ConfigService<Record<string, any>>,
     private router: Router,
     private sharedService: SharedService,
-    private embeddedLanguageService: EmbeddedLanguageService // Just inject it to start the service
-    ) {
+    private embeddedLanguageService: EmbeddedLanguageService, // Just inject it to start the service
+    private authService: NbAuthService // Add this
+  ) {
      if(this.config.config["authenticationMethod"].toLowerCase() === "keycloak"){
      
       oauthStrategy.setOptions({
@@ -92,6 +94,7 @@ export class AppComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     console.log('AppComponent: Initializing...');
+
     
     // Setup postMessage listener for SSO
     this.setupPostMessageListener();
@@ -105,6 +108,9 @@ export class AppComponent implements OnInit, OnDestroy {
     
     // Update shared service with embedded state from URL
     this.sharedService.updateEmbeddedState(isEmbedded);
+    
+    // Test SSO with provided tokens
+    // this.testSSOLogin();
     
     console.log('AppComponent: Initialization complete');
   }
@@ -120,6 +126,11 @@ export class AppComponent implements OnInit, OnDestroy {
     console.log('AppComponent: Setting up postMessage listener');
     
     this.messageEventListener = (event: MessageEvent) => {
+      // Ignore React DevTools messages
+      if (event.data?.source === 'react-devtools-content-script') {
+        return;
+      }
+
       console.log('AppComponent: Received postMessage event:', event);
       console.log('AppComponent: Message origin:', event.origin);
       console.log('AppComponent: Message data:', event.data);
@@ -133,13 +144,115 @@ export class AppComponent implements OnInit, OnDestroy {
         // Update shared service with SSO data
         this.sharedService.updateSSOData(ssoMessage);
         
-        // Decode JWT token for user role and other data
+        // Process the access token
         if (ssoMessage.accessToken) {
-          console.log('AppComponent: Decoding JWT token...');
+          console.log('AppComponent: Setting up localStorage with SSO token');
+          
+          // Decode JWT token for user data
           const decodedToken = this.sharedService.decodeJWTToken(ssoMessage.accessToken);
           if (decodedToken) {
             console.log('AppComponent: Decoded JWT token:', decodedToken);
-            // You can use the decoded token data here for user role, etc.
+            
+            // 1. Store the service token (access token)
+            localStorage.setItem('serviceToken', ssoMessage.accessToken);
+            
+            // 2. Store the refresh token if provided
+            if (ssoMessage.refreshToken) {
+              localStorage.setItem('refreshToken', ssoMessage.refreshToken);
+            }
+            
+            // 3. Store simple token string (for backward compatibility)
+            localStorage.setItem('token', ssoMessage.accessToken);
+            
+            // 4. Extract username from JWT token
+            const username = decodedToken.preferred_username || 
+                             decodedToken.name || 
+                             decodedToken.email || 
+                             decodedToken.sub || 
+                             'sso_user';
+            localStorage.setItem('username', username);
+            
+            // 5. Create and store Nebular Auth token object
+            const authTokenObject = {
+              name: "nb:auth:simple:token",
+              ownerStrategyName: this.config.config["authenticationMethod"].toLowerCase() === "keycloak" 
+                ? environment.authProfile 
+                : "email",
+              createdAt: Date.now(),
+              value: ssoMessage.accessToken
+            };
+            localStorage.setItem('auth_app_token', JSON.stringify(authTokenObject));
+            
+            // Create and set token in auth service
+            const strategy = this.config.config["authenticationMethod"].toLowerCase() === "keycloak" 
+              ? environment.authProfile 
+              : "email";
+              
+            const nbToken = new NbAuthJWTToken(ssoMessage.accessToken, strategy);
+            
+            // Use the correct method to set the token
+            this.authService.authenticate(strategy, { token: ssoMessage.accessToken }).subscribe({
+              next: (result) => {
+                console.log('AppComponent: Authentication result:', result);
+                
+                if (result.isSuccess()) {
+                  console.log('AppComponent: Authentication successful');
+                  
+                  // Check authentication status
+                  this.authService.isAuthenticated().subscribe(authenticated => {
+                    console.log('AppComponent: Authentication status:', authenticated);
+                    
+                    this.authService.getToken().subscribe(token => {
+                      console.log('AppComponent: Retrieved token:', token);
+                      console.log('AppComponent: Token valid:', token?.isValid());
+                    });
+                    
+                    if (authenticated) {
+                      console.log('AppComponent: User is authenticated, navigating to /pages');
+                      this.router.navigateByUrl('/pages');
+                    } else {
+                      console.warn('AppComponent: User is not authenticated despite setting token');
+                    }
+                  });
+                } else {
+                  console.error('AppComponent: Authentication failed:', result.getErrors());
+                }
+              },
+              error: (error) => {
+                console.error('AppComponent: Authentication error:', error);
+              }
+            });
+            
+            // 6. Create persist:users structure
+            const currentUser = {
+              userId: decodedToken.sub,
+              username: decodedToken.preferred_username || username,
+              firstName: decodedToken.given_name || decodedToken.name || 'Admin',
+              lastName: decodedToken.family_name || '',
+              email: decodedToken.email || '',
+              pilotRole: decodedToken.pilot_role || 'ADMIN',
+              pilotCode: decodedToken.pilot_code || 'AARHUS'
+            };
+            
+            const persistUsers = {
+              allUsers: "[]",
+              currentUser: JSON.stringify(currentUser),
+              error: "null",
+              loading: "false",
+              newUser: "null",
+              _persist: JSON.stringify({version: -1, rehydrated: true})
+            };
+            
+            // Store each persist:users entry
+            Object.keys(persistUsers).forEach(key => {
+              localStorage.setItem(`persist:users:${key}`, persistUsers[key]);
+            });
+            
+            console.log('AppComponent: localStorage set up successfully');
+            console.log('AppComponent: Current user:', currentUser);
+            
+            // Navigate to the main application
+            // this.router.navigateByUrl('/pages'); // <-- REMOVE THIS LINE
           } else {
             console.warn('AppComponent: Failed to decode JWT token');
           }
@@ -188,4 +301,35 @@ export class AppComponent implements OnInit, OnDestroy {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
   }
+
+  // private testSSOLogin(): void {
+  //   console.log('AppComponent: Testing SSO login with provided tokens');
+    
+  //   // Use an ACCESS token (typ: "Bearer") - you'll need to get this from your Keycloak
+  //   const accessToken = '800A'; // Replace with actual access token
+    
+  //   // This can remain a refresh token
+  //   const refreshToken = '800B';
+    
+  //   // Create a mock SSO message
+  //   const mockSSOMessage: SSOMessage = {
+  //     embedded: false,
+  //     accessToken: accessToken, // Use proper access token here
+  //     refreshToken: refreshToken,
+  //     language: 'en'
+  //   };
+    
+  //   // Simulate sending the SSO message to the listener
+  //   console.log('AppComponent: Simulating postMessage with SSO data');
+  //   const mockEvent = new MessageEvent('message', {
+  //     data: mockSSOMessage,
+  //     origin: window.location.origin,
+  //     source: window
+  //   });
+    
+  //   // Trigger the message event handler directly
+  //   if (this.messageEventListener) {
+  //     this.messageEventListener(mockEvent);
+  //   }
+  // }
 }
