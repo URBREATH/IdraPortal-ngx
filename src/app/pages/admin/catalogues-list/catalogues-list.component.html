@@ -90,18 +90,18 @@
           </ng-container>
   
           <!-- ICONS -->
-          <ng-container [nbTreeGridColumnDef]="iconColumn">
-            <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef class="col-w-120">
+          <ng-container nbTreeGridColumnDef="Actions">
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-120">
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_ADD_CATALOGUE' | translate }}" icon="plus-circle-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./addCatalogue"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_REMOTE_CATALOGUE_LIST' | translate }}" icon="list-outline" [options]="{ animation: { type: 'zoom' } }" routerLink="./remoteCatalogues"></nb-icon>
               <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump()"></nb-icon>
             </th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SEND_MQA_ANALYSIS' | translate }}" icon="bar-chart-outline" [options]="{ animation: { type: 'zoom' } }" (click)="sendMqaAnalisysCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SYNCHRONIZE_CATALOGUE' | translate }}" icon="sync-outline" [options]="{ animation: { type: 'zoom' } }" (click)="syncCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_MODIFY_CATALOGUE' | translate }}" icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data[defaultColumns[8]])"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DELETE_CATALOGUE' | translate }}" icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteCatalogue(row.data[defaultColumns[8]], row.data.index)"></nb-icon>
-              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump(row.data[defaultColumns[0]], row.data[defaultColumns[8]])"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SEND_MQA_ANALYSIS' | translate }}" icon="bar-chart-outline" [options]="{ animation: { type: 'zoom' } }" (click)="sendMqaAnalisysCatalogue(row.data.id, row.data.index)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_SYNCHRONIZE_CATALOGUE' | translate }}" icon="sync-outline" [options]="{ animation: { type: 'zoom' } }" (click)="syncCatalogue(row.data.id, row.data.index)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_MODIFY_CATALOGUE' | translate }}" icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="modifyCatalogue(row.data.id)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DELETE_CATALOGUE' | translate }}" icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="deleteCatalogue(row.data.id, row.data.index)"></nb-icon>
+              <nb-icon nbTooltip="{{ 'CATALOGUE_LIST_DOWNLOAD_DUMP' | translate }}" icon="download-outline" [options]="{ animation: { type: 'zoom' } }" (click)="downloadDump(row.data.Name, row.data.id)"></nb-icon>
             </td>
           </ng-container>
         </table>

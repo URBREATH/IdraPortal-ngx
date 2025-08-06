@@ -339,13 +339,14 @@ export class CataloguesListComponent implements OnInit {
 		this.loading=true
 		if(this.CB_enabled){
 			this.defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id', 'CB'];
-			this.allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, this.iconColumn ]; // Removed spread operator
 		} else {
 			this.defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id'];
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, this.iconColumn ]; // Removed spread operator
 		}
 
 		this.restApi.getAllCataloguesInfo().subscribe(infos =>{
-			this.allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
+			this.allColumns = [ this.customColumn, ...this.defaultColumns, this.iconColumn ]; // Removed spread operator
 			this.cataloguesInfos = infos;
 			console.log("cataloguesInfos: ",this.cataloguesInfos)
 			this.totalCatalogues = this.cataloguesInfos.length;
@@ -477,8 +478,8 @@ export class CataloguesListComponent implements OnInit {
 	// ------------------------- TABLE
 	customColumn = 'Active';
 	defaultColumns = [ 'Name', 'Country', 'Type', 'Level', 'Status', 'Datasets', 'UpdatePeriod', 'LastUpdate', 'id', 'CB'];
-	iconColumn = ' ';
-	allColumns = [ this.customColumn, ...this.defaultColumns, ...this.iconColumn ];
+	iconColumn = 'Actions'; // Changed from ' ' to 'Actions'
+	allColumns = [ this.customColumn, ...this.defaultColumns, this.iconColumn ]; // Removed spread operator from string
 
 	dataSource: NbTreeGridDataSource<FSEntry>;
 
