@@ -12,18 +12,40 @@ export class OidcUserInformationService {
   user: UserClaims;
   protected user$: BehaviorSubject<any> = new BehaviorSubject(null);
 
-  constructor( private http: HttpClient,
-    private authService: NbAuthService,) {
-
-    // this.idmUrl = configService.getSettings("idmBaseURL");
+  constructor(private http: HttpClient, private authService: NbAuthService) {
     this.authService.onTokenChange()
-      .subscribe((token: OidcJWTToken) => {
-        if (token.isValid()){
-          this.user=token.getAccessTokenPayload()
-          this.publishUser(this.user)
+      .subscribe((token: any) => { // Changed from OidcJWTToken to any
+        if (token && token.isValid()) {
+          console.log('OidcUserInformationService: Token received, type:', token.constructor.name);
+          
+          // Check if token has getAccessTokenPayload method (OAuth2 JWT tokens)
+          if (typeof token.getAccessTokenPayload === 'function') {
+            console.log('OidcUserInformationService: Using getAccessTokenPayload()');
+            this.user = token.getAccessTokenPayload();
+          } 
+          // Check if token has getPayload method (regular JWT tokens)
+          else if (typeof token.getPayload === 'function') {
+            console.log('OidcUserInformationService: Using getPayload()');
+            this.user = token.getPayload();
+          }
+          // Fallback: try to extract payload directly from token
+          else {
+            console.log('OidcUserInformationService: Extracting payload manually');
+            this.user = this.extractTokenPayload(token);
+          }
+          
+          if (this.user) {
+            console.log('OidcUserInformationService: User payload extracted:', this.user);
+            this.publishUser(this.user);
+          } else {
+            console.warn('OidcUserInformationService: Could not extract user payload from token');
+          }
+        } else {
+          console.log('OidcUserInformationService: Invalid or missing token');
+          this.user = null;
+          this.publishUser(null);
         }
       });
-
   }
 
   getRole(): Observable<string[]> {
@@ -51,6 +73,30 @@ export class OidcUserInformationService {
     return this.user$;
   }
 
-
-
+  // Add this helper method to extract payload manually:
+  private extractTokenPayload(token: any): UserClaims | null {
+    try {
+      // Try to get the raw token value
+      let tokenValue = token.getValue ? token.getValue() : token.token;
+      
+      // If it's an object with access_token property
+      if (typeof tokenValue === 'object' && tokenValue.access_token) {
+        tokenValue = tokenValue.access_token;
+      }
+      
+      // Decode JWT manually
+      if (typeof tokenValue === 'string') {
+        const parts = tokenValue.split('.');
+        if (parts.length === 3) {
+          const payload = JSON.parse(atob(parts[1]));
+          return payload;
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      console.error('OidcUserInformationService: Error extracting token payload:', error);
+      return null;
+    }
+  }
 }
