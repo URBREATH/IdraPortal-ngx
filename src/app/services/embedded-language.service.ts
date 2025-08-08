@@ -36,11 +36,9 @@ export class EmbeddedLanguageService {
         this.setLanguage(event.detail.language);
       }
     });
-
   }
 
   private setLanguage(language: string) {
-    
     // Store language
     localStorage.setItem('sso_language', language);
     

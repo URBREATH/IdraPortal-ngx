@@ -31,8 +31,8 @@ export class AppComponent implements OnInit, OnDestroy {
     private config: ConfigService<Record<string, any>>,
     private router: Router,
     private sharedService: SharedService,
-    private embeddedLanguageService: EmbeddedLanguageService, // Just inject it to start the service
-    private authService: NbAuthService // Add this
+    private embeddedLanguageService: EmbeddedLanguageService,
+    private authService: NbAuthService
   ) {
      if(this.config.config["authenticationMethod"].toLowerCase() === "keycloak"){
      
@@ -54,15 +54,14 @@ export class AppComponent implements OnInit, OnDestroy {
           responseType: NbOAuth2ResponseType.CODE
         },
         redirect: {
-          success: '/pages', // welcome page path
-          failure: null, // stay on the same page
+          success: '/pages',
+          failure: null,
         },
         refresh: {
           endpoint: '/token',
           grantType: NbOAuth2GrantType.REFRESH_TOKEN,
           scope:'openid'
         } 
-        
       });
     }else{
       oauthStrategyPwd.setOptions({name: 'email',
@@ -79,7 +78,6 @@ export class AppComponent implements OnInit, OnDestroy {
         defaultMessages: ['You have been successfully logged in.'],
       },
       logout: {
-        // ...
         alwaysFail: false,
         endpoint: '/logout',
         method: 'post',
@@ -102,8 +100,6 @@ export class AppComponent implements OnInit, OnDestroy {
       const embeddedParam = this.getUrlParameter('embedded');
     
     const isEmbedded = embeddedParam === 'true';
-    
-    // Update shared service with embedded state from URL
     this.sharedService.updateEmbeddedState(isEmbedded);
     
     // Test SSO with provided tokens
@@ -124,9 +120,7 @@ export class AppComponent implements OnInit, OnDestroy {
         return;
       }
       
-      // Validate the message structure
       if (this.isValidSSOMessage(event.data)) {
-        
         const ssoMessage: SSOMessage = event.data;
         
         // Update shared service with SSO data
@@ -138,8 +132,7 @@ export class AppComponent implements OnInit, OnDestroy {
           // Decode JWT token for user data
           const decodedToken = this.sharedService.decodeJWTToken(ssoMessage.accessToken);
           if (decodedToken) {
-            
-            // 1. Store the service token (access token)
+            // Store tokens and user data
             localStorage.setItem('serviceToken', ssoMessage.accessToken);
             
             // 2. Store the refresh token if provided
@@ -193,12 +186,6 @@ export class AppComponent implements OnInit, OnDestroy {
             Object.keys(persistUsers).forEach(key => {
               localStorage.setItem(`persist:users:${key}`, persistUsers[key]);
             });
-            
-            
-            // Navigate to the main application
-            // this.router.navigateByUrl('/pages'); // <-- REMOVE THIS LINE
-          } else {
-            console.warn('AppComponent: Failed to decode JWT token');
           }
         }
         
@@ -214,9 +201,6 @@ export class AppComponent implements OnInit, OnDestroy {
             });
           }
         }
-      } 
-      else {
-        console.warn('AppComponent: Invalid SSO message received:', event.data);
       }
     };
 
@@ -224,16 +208,11 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private isValidSSOMessage(data: any): boolean {
-    const isValid = data && 
+    return data && 
          typeof data.embedded === 'boolean' &&
          (data.accessToken === undefined || data.accessToken === null || typeof data.accessToken === 'string') &&
          (data.refreshToken === undefined || data.refreshToken === null || typeof data.refreshToken === 'string') &&
          typeof data.language === 'string';
-    
-    if (!isValid) {
-    }
-    
-    return isValid;
   }
 
   private getUrlParameter(name: string): string | null {

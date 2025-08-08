@@ -41,3 +41,6 @@ testem.log
 Thumbs.db
 
 debug.log
+
+# ignore test-sso.html
+/test-sso.html

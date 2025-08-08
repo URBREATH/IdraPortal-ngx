@@ -1,7 +1,5 @@
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
-import { ODMSCatalogue } from '../data-catalogue/model/odmscatalogue';
-import { ODMSCatalogueComplete } from '../data-catalogue/model/odmscataloguecomplete';
 import { SSOMessage } from '../../models';
 
 @Injectable({
@@ -26,13 +24,6 @@ export class SharedService {
   
   constructor() { }
 
-  // private addCatalogueIsLoaded = new BehaviorSubject<boolean>(false);
-  // addCatalogueIsLoaded$ = this.addCatalogueIsLoaded.asObservable();
- 
- 
-  // propagateCatalogueIsLoaded(newVal: boolean) {
-  //   this.addCatalogueIsLoaded.next(newVal)
-  // }
   onLanguageChange() {
     return this.languageSubject.asObservable();
   }
@@ -44,10 +35,8 @@ export class SharedService {
 
   // SSO and embedded state management methods
   updateSSOData(ssoMessage: SSOMessage) {
-    
     this.embeddedState.next(ssoMessage.embedded);
     this.ssoToken.next(ssoMessage.accessToken);
-    
     this.refreshToken.next(ssoMessage.refreshToken);
     
     // Also update the language
@@ -73,7 +62,6 @@ export class SharedService {
   // JWT token decoding utility
   decodeJWTToken(token: string): any {
     try {
-      
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
       const jsonPayload = decodeURIComponent(
@@ -83,7 +71,6 @@ export class SharedService {
           .join('')
       );
       const decoded = JSON.parse(jsonPayload);
-      
       return decoded;
     } catch (error) {
       console.error('SharedService: Error decoding JWT token:', error);

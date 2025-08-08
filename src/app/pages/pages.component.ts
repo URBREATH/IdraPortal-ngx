@@ -43,20 +43,16 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('PagesComponent: Initializing...');
     
     // Subscribe to embedded state from SharedService
     const embeddedSubscription = this.sharedService.embeddedState$.subscribe(isEmbedded => {
-      console.log('PagesComponent: Embedded state changed to:', isEmbedded);
       this.isEmbedded = isEmbedded;
     });
     this.subscriptions.push(embeddedSubscription);
 
     // Also check embedded status from URL query parameter (fallback)
     this.route.queryParams.subscribe(params => {
-      console.log('PagesComponent: Route params:', params);
       if (params['embedded'] === 'true' && !this.isEmbedded) {
-        console.log('PagesComponent: Setting embedded state from URL param');
         this.sharedService.updateEmbeddedState(true);
       }
     });
@@ -68,11 +64,8 @@ export class PagesComponent implements OnInit, OnDestroy {
     this.translateService.use('en');
     
     if (this.configService.config['enableAuthentication']) {
-      console.log('PagesComponent: Authentication enabled, setting up auth menu items');
       this.authMenuItems();
     }
-    
-    console.log('PagesComponent: Initialization complete');
   }
 
   ngOnDestroy() {
