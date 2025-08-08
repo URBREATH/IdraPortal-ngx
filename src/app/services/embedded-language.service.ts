@@ -25,7 +25,6 @@ export class EmbeddedLanguageService {
       // Handle both SSO messages and language-only messages
       if (event.data && event.data.language) {
         if (event.data.type === 'SSO_MESSAGE' || event.data.type === 'LANGUAGE_CHANGE') {
-          console.log('EmbeddedLanguageService: Received language change:', event.data.language);
           this.setLanguage(event.data.language);
         }
       }
@@ -33,17 +32,14 @@ export class EmbeddedLanguageService {
 
     // Also listen for custom language change events
     window.addEventListener('sso-language-change', (event: any) => {
-      console.log('EmbeddedLanguageService: Received sso-language-change event:', event.detail);
       if (event.detail && event.detail.language) {
         this.setLanguage(event.detail.language);
       }
     });
 
-    console.log('EmbeddedLanguageService: Language listener initialized');
   }
 
   private setLanguage(language: string) {
-    console.log(`EmbeddedLanguageService: Setting language to: ${language}`);
     
     // Store language
     localStorage.setItem('sso_language', language);

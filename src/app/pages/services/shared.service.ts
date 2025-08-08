@@ -44,24 +44,17 @@ export class SharedService {
 
   // SSO and embedded state management methods
   updateSSOData(ssoMessage: SSOMessage) {
-    console.log('SharedService: Updating SSO data with:', ssoMessage);
     
     this.embeddedState.next(ssoMessage.embedded);
-    console.log('SharedService: Set embedded state to:', ssoMessage.embedded);
-    
     this.ssoToken.next(ssoMessage.accessToken);
-    console.log('SharedService: Set access token (length):', ssoMessage.accessToken?.length || 0);
     
     this.refreshToken.next(ssoMessage.refreshToken);
-    console.log('SharedService: Set refresh token (length):', ssoMessage.refreshToken?.length || 0);
     
     // Also update the language
     this.propagateDialogSelectedLanguage(ssoMessage.language);
-    console.log('SharedService: Set language to:', ssoMessage.language);
   }
 
   updateEmbeddedState(embedded: boolean) {
-    console.log('SharedService: Updating embedded state to:', embedded);
     this.embeddedState.next(embedded);
   }
 
@@ -80,7 +73,6 @@ export class SharedService {
   // JWT token decoding utility
   decodeJWTToken(token: string): any {
     try {
-      console.log('SharedService: Attempting to decode JWT token (length):', token?.length || 0);
       
       const base64Url = token.split('.')[1];
       const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
@@ -92,7 +84,6 @@ export class SharedService {
       );
       const decoded = JSON.parse(jsonPayload);
       
-      console.log('SharedService: Successfully decoded JWT token:', decoded);
       return decoded;
     } catch (error) {
       console.error('SharedService: Error decoding JWT token:', error);
@@ -104,16 +95,13 @@ export class SharedService {
   getUserRoles(): string[] {
     const token = this.getSSOToken();
     if (token) {
-      console.log('SharedService: Getting user roles from token');
       const decoded = this.decodeJWTToken(token);
       if (decoded) {
         // Common JWT claims for roles (adjust based on your JWT structure)
         const roles = decoded.roles || decoded.realm_access?.roles || decoded.resource_access?.roles || [];
-        console.log('SharedService: Extracted user roles:', roles);
         return roles;
       }
     }
-    console.log('SharedService: No token available for role extraction');
     return [];
   }
 
@@ -127,7 +115,6 @@ export class SharedService {
   getUserInfo(): any {
     const token = this.getSSOToken();
     if (token) {
-      console.log('SharedService: Getting user info from token');
       const decoded = this.decodeJWTToken(token);
       if (decoded) {
         const userInfo = {
@@ -138,11 +125,9 @@ export class SharedService {
           exp: decoded.exp,
           iat: decoded.iat
         };
-        console.log('SharedService: Extracted user info:', userInfo);
         return userInfo;
       }
     }
-    console.log('SharedService: No token available for user info extraction');
     return null;
   }
 }

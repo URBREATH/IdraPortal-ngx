@@ -93,26 +93,21 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-    console.log('AppComponent: Initializing...');
 
     
     // Setup postMessage listener for SSO
     this.setupPostMessageListener();
     
     // Check for embedded parameter in URL
-    const embeddedParam = this.getUrlParameter('embedded');
-    console.log('AppComponent: Embedded URL parameter:', embeddedParam);
+      const embeddedParam = this.getUrlParameter('embedded');
     
     const isEmbedded = embeddedParam === 'true';
-    console.log('AppComponent: Initial embedded state:', isEmbedded);
     
     // Update shared service with embedded state from URL
     this.sharedService.updateEmbeddedState(isEmbedded);
     
     // Test SSO with provided tokens
     // this.testSSOLogin();
-    
-    console.log('AppComponent: Initialization complete');
   }
 
   ngOnDestroy() {
@@ -123,21 +118,14 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private setupPostMessageListener() {
-    console.log('AppComponent: Setting up postMessage listener');
-    
     this.messageEventListener = (event: MessageEvent) => {
       // Ignore React DevTools messages
       if (event.data?.source === 'react-devtools-content-script') {
         return;
       }
-
-      console.log('AppComponent: Received postMessage event:', event);
-      console.log('AppComponent: Message origin:', event.origin);
-      console.log('AppComponent: Message data:', event.data);
       
       // Validate the message structure
       if (this.isValidSSOMessage(event.data)) {
-        console.log('AppComponent: SSO message validation passed');
         
         const ssoMessage: SSOMessage = event.data;
         
@@ -146,12 +134,10 @@ export class AppComponent implements OnInit, OnDestroy {
         
         // Process the access token
         if (ssoMessage.accessToken) {
-          console.log('AppComponent: Setting up localStorage with SSO token');
           
           // Decode JWT token for user data
           const decodedToken = this.sharedService.decodeJWTToken(ssoMessage.accessToken);
           if (decodedToken) {
-            console.log('AppComponent: Decoded JWT token:', decodedToken);
             
             // 1. Store the service token (access token)
             localStorage.setItem('serviceToken', ssoMessage.accessToken);
@@ -208,8 +194,6 @@ export class AppComponent implements OnInit, OnDestroy {
               localStorage.setItem(`persist:users:${key}`, persistUsers[key]);
             });
             
-            console.log('AppComponent: localStorage set up successfully');
-            console.log('AppComponent: Current user:', currentUser);
             
             // Navigate to the main application
             // this.router.navigateByUrl('/pages'); // <-- REMOVE THIS LINE
@@ -220,7 +204,6 @@ export class AppComponent implements OnInit, OnDestroy {
         
         // Update URL with embedded parameter if needed
         if (ssoMessage.embedded) {
-          console.log('AppComponent: Updating URL for embedded mode');
           const currentUrl = this.router.url;
           const tree = this.router.parseUrl(currentUrl);
           if (tree.queryParams['embedded'] !== 'true') {
@@ -229,7 +212,6 @@ export class AppComponent implements OnInit, OnDestroy {
               queryParamsHandling: 'merge',
               replaceUrl: true,
             });
-            console.log('AppComponent: URL updated with embedded=true');
           }
         }
       } 
@@ -239,7 +221,6 @@ export class AppComponent implements OnInit, OnDestroy {
     };
 
     window.addEventListener('message', this.messageEventListener);
-    console.log('AppComponent: PostMessage listener registered');
   }
 
   private isValidSSOMessage(data: any): boolean {
@@ -249,9 +230,7 @@ export class AppComponent implements OnInit, OnDestroy {
          (data.refreshToken === undefined || data.refreshToken === null || typeof data.refreshToken === 'string') &&
          typeof data.language === 'string';
     
-    console.log('AppComponent: SSO message validation result:', isValid);
     if (!isValid) {
-      console.log('AppComponent: Validation failed for data:', data);
     }
     
     return isValid;

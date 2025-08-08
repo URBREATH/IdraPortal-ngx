@@ -16,26 +16,21 @@ export class OidcUserInformationService {
     this.authService.onTokenChange()
       .subscribe((token: any) => { // Changed from OidcJWTToken to any
         if (token && token.isValid()) {
-          console.log('OidcUserInformationService: Token received, type:', token.constructor.name);
           
           // Check if token has getAccessTokenPayload method (OAuth2 JWT tokens)
           if (typeof token.getAccessTokenPayload === 'function') {
-            console.log('OidcUserInformationService: Using getAccessTokenPayload()');
             this.user = token.getAccessTokenPayload();
           } 
           // Check if token has getPayload method (regular JWT tokens)
           else if (typeof token.getPayload === 'function') {
-            console.log('OidcUserInformationService: Using getPayload()');
             this.user = token.getPayload();
           }
           // Fallback: try to extract payload directly from token
           else {
-            console.log('OidcUserInformationService: Extracting payload manually');
             this.user = this.extractTokenPayload(token);
           }
           
           if (this.user) {
-            console.log('OidcUserInformationService: User payload extracted:', this.user);
             this.publishUser(this.user);
           } else {
             console.warn('OidcUserInformationService: Could not extract user payload from token');
