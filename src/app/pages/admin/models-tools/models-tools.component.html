@@ -3,7 +3,7 @@
     <nb-card class="p-4 mb-2">
       <span class="buttons-row">   
                 <button nbButton status="primary" 
-                [routerLink]="['/pages/models-tools/editor']">{{'CREATE_NEW_MODEL_TOOL' | translate}}
+                [routerLink]="['/pages/administration/models-tools/editor']">{{'CREATE_NEW_MODEL_TOOL' | translate}}
                 </button>
                 <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button">
                     <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_MODEL_TOOLS' | translate}} 

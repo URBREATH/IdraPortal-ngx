@@ -3,7 +3,7 @@
     <nb-card class="p-4 mb-2">
       <span class="buttons-row">   
                 <button nbButton status="primary" 
-                [routerLink]="['/pages/data-sources/editor']">{{'CREATE_NEW_DATA_SOURCE' | translate}}
+                [routerLink]="['/pages/administration/data-sources/editor']">{{'CREATE_NEW_DATA_SOURCE' | translate}}
                 </button>
                 <button nbButton (click)="deleteAllDatasets()" [disabled]="ngsiDatasetsInfo.length === 0" class="delete-all-button delete-button">
                     <nb-icon icon="trash-2-outline"></nb-icon> {{'DELETE_ALL_DATA_SOURCES' | translate}} 
