@@ -1,19 +1,17 @@
+// datasets-ngsi.component.ts
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { DatasourceService } from '../services/datasource.service';
+import { NgsiDatasetsService } from '../../services/ngsi-datasets.service';
 import { NbDialogService, NbTagComponent, NbTagInputAddEvent, NbToastrService } from '@nebular/theme';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
 
-//ATTENTION: In this component, anything that refers to "data source" or "dataset" is interchangeable.
-// This component handles the display and management of data sources (datasets) in the application.
-
 @Component({
-  selector: 'ngx-data-sources',
-  templateUrl: './data-sources.component.html',
-  styleUrls: ['./data-sources.component.scss']
+  selector: 'ngx-datasets-ngsi',
+  templateUrl: './datasets-ngsi.component.html',
+  styleUrls: ['./datasets-ngsi.component.scss']
 })
-export class DataSourcesComponent implements OnInit {
+export class DatasetsNgsiComponent implements OnInit {
 
   // Store all fetched data here
   ngsiDatasetsInfo: any[] = [];
@@ -47,7 +45,7 @@ export class DataSourcesComponent implements OnInit {
   constructor(
     private router: Router,
     public translation: TranslateService,
-    private datasourceService: DatasourceService,
+    private ngsiDatasetsService: NgsiDatasetsService,
     private dialogService: NbDialogService,
     private toastrService: NbToastrService
   ) { }
@@ -63,7 +61,7 @@ export class DataSourcesComponent implements OnInit {
   loadDatasets(): void {
     this.loading = true;
     // Subscribe to the Observable from your service
-    this.datasourceService.getDatasets().subscribe({
+    this.ngsiDatasetsService.getDatasets().subscribe({
       next: (response) => {
         // Save the fetched data into a component property
         this.ngsiDatasetsInfo = response;
@@ -91,6 +89,29 @@ export class DataSourcesComponent implements OnInit {
   generateFacets(datasets: any[]): any[] {
     // Example implementation - customize based on your data structure
     const facets = [];
+    
+    // Example: themes facet
+    const themes = new Set<string>();
+    datasets.forEach(dataset => {
+      if (dataset.theme) {
+        if (Array.isArray(dataset.theme)) {
+          dataset.theme.forEach(t => themes.add(t));
+        } else {
+          themes.add(dataset.theme);
+        }
+      }
+    });
+    
+    if (themes.size > 0) {
+      facets.push({
+        displayName: 'Themes',
+        search_parameter: 'theme',
+        values: Array.from(themes).map(theme => ({
+          facet: theme,
+          search_value: theme
+        }))
+      });
+    }
     
     // Example: keywords facet
     // Add similar code for other facets (keywords, publishers, etc.)
@@ -188,7 +209,7 @@ export class DataSourcesComponent implements OnInit {
     // Find the dataset to get its distributions
     const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
     if (!dataset) {
-      this.toastrService.danger('Dataset not found', 'Error');
+      this.toastrService.danger(this.translation.instant('DATASET_NOT_FOUND'), this.translation.instant('TOAST_ERROR'));
       return;
     }
 
@@ -199,8 +220,8 @@ export class DataSourcesComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete Data Source',
-        message: `Are you sure you want to delete this data source${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
+        title: 'Delete Dataset',
+        message: `Are you sure you want to delete this dataset${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
@@ -219,7 +240,7 @@ export class DataSourcesComponent implements OnInit {
           // Transform the distribution ID format before sending to API
           const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
           
-          this.datasourceService.deleteDistribution(transformedDistId).subscribe({
+          this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
             next: () => {
               deletedCount++;
               // When all distributions are processed, delete the dataset
@@ -249,7 +270,7 @@ export class DataSourcesComponent implements OnInit {
 
   // Helper method to delete the dataset and update UI
   private performDatasetDeletion(datasetId: string): void {
-    this.datasourceService.deleteDataset(datasetId).subscribe({
+    this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
       next: () => {
         // Remove dataset from all dataset collections
         this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
@@ -281,11 +302,17 @@ export class DataSourcesComponent implements OnInit {
           this.datasetsToDelete.splice(index, 1);
         }
         
-        this.toastrService.success('Dataset and associated distributions deleted successfully', 'Success');
+        this.toastrService.success(
+          this.translation.instant('TOAST_DATASET_DELETED'),
+          this.translation.instant('TOAST_SUCCESS')
+        );
       },
       error: (error) => {
         console.error('Error deleting dataset:', error);
-        this.toastrService.danger('Failed to delete dataset: ' + (error.message || 'Unknown error'), 'Error');
+        this.toastrService.danger(
+          this.translation.instant('TOAST_DATASET_DELETION_FAILED', {errorMessage: error.message || 'Unknown error'}),
+          this.translation.instant('TOAST_ERROR')
+        );
       }
     });
   }
@@ -294,7 +321,7 @@ export class DataSourcesComponent implements OnInit {
   deleteSelectedDatasets(): void {
     if (this.datasetsToDelete.length === 0) {
       this.toastrService.warning(
-        this.translation.instant('TOAST_NO_DATA-SOURCES_SELECTED'),
+        this.translation.instant('TOAST_NO_DATASETS_SELECTED'),
         this.translation.instant('TOAST_WARNING')
       );
       return;
@@ -315,8 +342,8 @@ export class DataSourcesComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATA-SOURCES'),
-        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATA-SOURCES_MESSAGE', {
+        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATASETS'),
+        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATASETS_MESSAGE', {
           datasetCount: this.datasetsToDelete.length,
           distributionCount: distributionCount
         }),
@@ -335,7 +362,7 @@ export class DataSourcesComponent implements OnInit {
         
         // Process each dataset to delete
         this.datasetsToDelete.forEach(datasetId => {
-          this.datasourceService.deleteDataset(datasetId).subscribe({
+          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
             next: () => {
               completedCount++;
               // Check if all operations completed
@@ -365,17 +392,17 @@ export class DataSourcesComponent implements OnInit {
     // Show appropriate message
     if (errorCount === 0) {
       this.toastrService.success(
-        this.translation.instant('TOAST_DELETED_DATA-SOURCES_SUCCESS', {count: successCount}),
+        this.translation.instant('TOAST_DELETED_DATASETS_SUCCESS', {count: successCount}),
         this.translation.instant('TOAST_SUCCESS')
       );
     } else if (successCount === 0) {
       this.toastrService.danger(
-        this.translation.instant('TOAST_DELETE_DATA-SOURCES_FAILED'),
+        this.translation.instant('TOAST_DELETE_DATASETS_FAILED'),
         this.translation.instant('TOAST_ERROR')
       );
     } else {
       this.toastrService.warning(
-        this.translation.instant('TOAST_DELETE_DATA-SOURCES_PARTIAL', {
+        this.translation.instant('TOAST_DELETE_DATASETS_PARTIAL', {
           successCount: successCount,
           errorCount: errorCount
         }),
@@ -404,10 +431,10 @@ export class DataSourcesComponent implements OnInit {
       localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
       
       // Navigate to the editor page
-      this.router.navigate(['/pages/data-sources/editor'], 
-        {
-        queryParamsHandling: 'merge',
-        });
+      this.router.navigate(['/pages/datasets-ngsi/editor'], 
+      {
+      queryParamsHandling: 'merge',
+      });
     }
   }
 
@@ -517,13 +544,13 @@ export class DataSourcesComponent implements OnInit {
 
   // Function to delete all datasets
   deleteAllDatasets(): void {
-    // If no data sources to delete, show warning
+    // If no datasets to delete, show warning
     if (this.ngsiDatasetsInfo.length === 0) {
-      this.toastrService.warning('No data sources available to delete', 'Warning');
+      this.toastrService.warning(this.translation.instant('NO_DATASETS_TO_DELETE'), this.translation.instant('TOAST_WARNING'));
       return;
     }
 
-    // Collect all distribution IDs from all data sources
+    // Raccogli tutti gli ID delle distribuzioni da tutti i dataset
     const allDistributionIds: string[] = [];
     this.ngsiDatasetsInfo.forEach(dataset => {
       if (dataset.datasetDistribution) {
@@ -537,16 +564,19 @@ export class DataSourcesComponent implements OnInit {
     // Show confirmation dialog
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete All Data Sources',
-        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} data sources and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
+        title: this.translation.instant('DIALOG_DELETE_ALL_DATASETS'),
+        message: this.translation.instant('DIALOG_DELETE_ALL_DATASETS_MESSAGE', {
+          datasetCount: this.ngsiDatasetsInfo.length,
+          distributionCount: allDistributionIds.length
+        }),
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        // Delete all distributions first
+        // Prima elimina tutte le distribuzioni
         if (allDistributionIds.length > 0) {
           this.deleteAllDistributions(allDistributionIds);
         } else {
-          // If there are no distributions, proceed directly with dataset deletion
+          // Se non ci sono distribuzioni, procedi direttamente con l'eliminazione dei dataset
           this.deleteAllDatasetsOnly();
         }
       }
@@ -560,23 +590,26 @@ export class DataSourcesComponent implements OnInit {
     const totalCount = distributionIds.length;
     
     this.toastrService.info(
-      `Deleting ${totalCount} distributions in progress...`,
-      'Deletion in progress'
+      this.translation.instant('TOAST_DELETING_DISTRIBUTIONS', {count: totalCount}),
+      this.translation.instant('TOAST_DELETION_IN_PROGRESS_TITLE')
     );
     
     distributionIds.forEach(distId => {
       // Transform the distribution ID format before sending to API
       const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
       
-      this.datasourceService.deleteDistribution(transformedDistId).subscribe({
+      this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed
           if (completedCount + errorCount === totalCount) {
             if (errorCount > 0) {
               this.toastrService.warning(
-                `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
-                'Partial deletion'
+                this.translation.instant('TOAST_DISTRIBUTIONS_PARTIAL_DELETION', {
+                  successCount: completedCount,
+                  errorCount: errorCount
+                }),
+                this.translation.instant('TOAST_PARTIAL_DELETION')
               );
             }
             // Proceed with dataset deletion after all distributions are processed
@@ -588,8 +621,11 @@ export class DataSourcesComponent implements OnInit {
           errorCount++;
           if (completedCount + errorCount === totalCount) {
             this.toastrService.warning(
-              `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
-              'Partial deletion'
+              this.translation.instant('TOAST_DISTRIBUTIONS_PARTIAL_DELETION', {
+                successCount: completedCount,
+                errorCount: errorCount
+              }),
+              this.translation.instant('TOAST_PARTIAL_DELETION')
             );
             // Still proceed with dataset deletion even if some distribution deletions failed
             this.deleteAllDatasetsOnly();
@@ -609,13 +645,13 @@ export class DataSourcesComponent implements OnInit {
     const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
     
     this.toastrService.info(
-      `Deleting ${totalCount} datasets in progress...`,
-      'Deletion in progress'
+      this.translation.instant('TOAST_DELETING_DATASETS', {count: totalCount}),
+      this.translation.instant('TOAST_DELETION_IN_PROGRESS_TITLE')
     );
     
     // Process each dataset to delete
     allDatasetIds.forEach(datasetId => {
-      this.datasourceService.deleteDataset(datasetId).subscribe({
+      this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed
@@ -643,14 +679,23 @@ export class DataSourcesComponent implements OnInit {
       this.displayedDatasets = [];
       this.datasetsToDelete = [];
       
-      this.toastrService.success(`Successfully deleted all ${successCount} datasets`, 'Success');
+      this.toastrService.success(
+        this.translation.instant('TOAST_ALL_DATASETS_DELETED', {count: successCount}),
+        this.translation.instant('TOAST_SUCCESS')
+      );
     } else if (successCount === 0) {
-      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
+      this.toastrService.danger(
+        this.translation.instant('TOAST_NO_DATASETS_DELETED'),
+        this.translation.instant('TOAST_ERROR')
+      );
     } else {
-      // Some deletions failed
-      // Reload datasets to get accurate state from server
-      this.loadDatasets();
-      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
+      this.toastrService.warning(
+        this.translation.instant('TOAST_DATASETS_PARTIAL_DELETION', {
+          successCount: successCount,
+          errorCount: errorCount
+        }),
+        this.translation.instant('TOAST_PARTIAL_SUCCESS')
+      );
     }
   }
 

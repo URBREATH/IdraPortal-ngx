@@ -65,33 +65,6 @@ export const MENU_ITEMS: MenuItem[] = [
     key: 'Sparql'
   },
   {
-    title: 'Datasets NGSI',
-    icon: 'folder-outline',
-    link: "/pages/datasets-ngsi",
-    data: {
-      name: "datasets-ngsi"
-    },
-    key: 'Datasets NGSI'
-  },
-  {
-    title: 'Models and Tools',
-    icon: 'pantone-outline',
-    link: "/pages/models-tools",
-    data: {
-      name: "models-tools"
-    },
-    key: 'Models and Tools'
-  },
-  {
-    title: 'Data Sources',
-    icon: 'cloud-upload-outline',
-    link: "/pages/data-sources",
-    data: {
-      name: "data-sources"
-    },
-    key: 'Data Sources'
-  },
-  {
     title: 'Administration',
     icon: 'settings-2-outline',
     children: [
@@ -101,7 +74,7 @@ export const MENU_ITEMS: MenuItem[] = [
         key: 'Data Catalogue Administration'
       },
       {
-        title: 'Datalet Administration',
+        title: 'Datalet Administration', 
         link: '/pages/administration/dataletsManagement',
         key: 'Datalet Administration'
       },
@@ -109,6 +82,33 @@ export const MENU_ITEMS: MenuItem[] = [
         title: 'Configurations Administration',
         link: '/pages/administration/configuration',
         key: 'Configurations Administration'
+      },
+      {
+        title: 'Datasets NGSI',
+        icon: 'folder-outline',
+        link: "/pages/administration/datasets-ngsi",
+        data: {
+          name: "datasets-ngsi"
+        },
+        key: 'Datasets NGSI'
+      },
+      {
+        title: 'Models and Tools',
+        icon: 'pantone-outline',
+        link: "/pages/administration/models-tools",
+        data: {
+          name: "models-tools"
+        },
+        key: 'Models and Tools'
+      },
+      {
+        title: 'Data Sources',
+        icon: 'cloud-upload-outline',
+        link: "/pages/administration/data-sources",
+        data: {
+          name: "data-sources"
+        },
+        key: 'Data Sources'
       },
     ],
     data: {

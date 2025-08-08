@@ -1,6 +1,7 @@
 @import 'bootstrap/scss/mixins/breakpoints';
 @import '@nebular/theme/styles/global/breakpoints';
-@import '../../@theme/styles/themes.scss';
+@import '../../../@theme/styles/themes.scss';
+
 
 //urbreath theme colors
 $primary: #2BA5DE;
@@ -17,6 +18,10 @@ $surface-dark: #25262E;
   justify-content: space-between;
   width: 100%;
 
+  .logo-container {
+    display: flex;
+    align-items: center;
+  }
 
   .right-container {
     display: flex;
@@ -43,13 +48,23 @@ $surface-dark: #25262E;
   ::ng-deep nb-search button {
     padding: 0!important;
   }
-  
-  
+  .logo img {
+    max-height: 50px; // o l'altezza desiderata
+    width: auto; // mantiene le proporzioni dell'immagine
+  }
   .header-container {
     display: flex;
     align-items: center;
     width: auto;
 
+    .sidebar-toggle {
+      @include nb-ltr(padding-right, 1.25rem);
+      @include nb-rtl(padding-left, 1.25rem);
+      text-decoration: none;
+      nb-icon {
+        font-size: 1.75rem;
+      }
+    }
 
     nb-icon{
       color: $primary;
@@ -59,6 +74,12 @@ $surface-dark: #25262E;
       color: $secondary;
     }
 
+    .logo {
+      padding: 0 1.25rem;
+      font-size: 1.75rem;
+      white-space: nowrap;
+      text-decoration: none;
+    }
   }
 
   .accordion-header {
@@ -222,7 +243,7 @@ nb-list-item nb-card {
 }
 
 .delete-button:not(:disabled) {
-  background-color: $secondary !important;
+  background-color: $secondary !important; ;
   color: white !important;
 }
 
@@ -247,7 +268,7 @@ nb-tag-list {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  font-size: large;
+  font-size:  large;
   display: block;
 }
 
@@ -317,26 +338,22 @@ nb-tag-list {
   }
 
   .filter-toggle-label {
-    display: inline-flex;
+  display: inline-flex;
   }
   
   .left-column {
     display: flex;
     width: 100%;
-    margin-bottom: 1rem;
+    margin-bottom: 0;
     flex-direction: row;
     justify-content: flex-start;
-    flex-wrap: wrap;
     gap: 1rem;
-    
     nb-card {
       width: calc(34% - 1rem);
-      margin-bottom: 0;
-      
-      nb-card-body {
-        overflow: hidden;
-        padding: 0.5rem;
-      }
+       nb-card-body {
+      overflow: hidden;
+      padding: 0.5rem;
+       }
 
       nb-card-header {
         padding: 0.5rem;
@@ -352,7 +369,8 @@ nb-tag-list {
     width: 100%;
   }
   
- #filter-toggle:checked + label + .left-column {
+  // This is the magic - show left column when checkbox is checked
+  #filter-toggle:checked + label + .left-column {
     display: flex;
     flex-direction: row;
     justify-content: space-between;

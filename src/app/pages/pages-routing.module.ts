@@ -40,37 +40,6 @@ const routes: Routes = [{
       loadChildren: () => import('./data-catalogue/data-catalogue.module')
         .then(m => m.DataCatalogueModule),
     },
-//-------------------- NEW
-      {
-        path: 'datasets-ngsi/editor',
-        loadChildren: () => import('./datasets-ngsi-editor/datasets-ngsi-editor.module')
-            .then(m => m.DatasetsNgsiEditorModule),
-      },
-      {
-        path: 'datasets-ngsi',
-        loadChildren: () => import('./datasets-ngsi/datasets-ngsi.module')
-          .then(m => m.DatasetsNgsiModule),
-      },
-      {
-        path: 'models-tools/editor',
-        loadChildren: () => import('./models-tools-editor/models-tools-editor.module')
-          .then(m => m.ModelsToolsEditorModule),
-      },
-      {
-        path: 'models-tools',
-        loadChildren: () => import('./models-tools/models-tools.module')
-          .then(m => m.ModelsToolsModule),
-      },
-      {
-        path: 'data-sources/editor',
-        loadChildren: () => import('./data-sources-editor/data-sources-editor.module')
-          .then(m => m.DataSourcesEditorModule),
-      },
-      {
-        path: 'data-sources',
-        loadChildren: () => import('./data-sources/data-sources.module')
-          .then(m => m.DataSourcesModule),
-      },
      {
       path: 'administration',
       loadChildren: () => import('./admin/admin-module.module')

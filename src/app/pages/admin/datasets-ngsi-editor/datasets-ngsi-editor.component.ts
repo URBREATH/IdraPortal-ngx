@@ -1,12 +1,12 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
-import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
+import { NgsiDatasetsService } from '../../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
-import { MapDialogComponent } from '../../shared/map-dialog/map-dialog.component';
+import { MapDialogComponent } from '../../../shared/map-dialog/map-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({

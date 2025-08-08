@@ -1,17 +1,20 @@
-// datasets-ngsi.component.ts
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { NgsiDatasetsService } from '../services/ngsi-datasets.service';
+import { ModelsService } from '../../services/models.service';
 import { NbDialogService, NbTagComponent, NbTagInputAddEvent, NbToastrService } from '@nebular/theme';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
 
+
+//ATTENTION: In this component, anything that refers to "models/tools" and "datasets" is interchangeable.
+//// This component handles the display and management of models/tools (datasets) in the application.
+
 @Component({
-  selector: 'ngx-datasets-ngsi',
-  templateUrl: './datasets-ngsi.component.html',
-  styleUrls: ['./datasets-ngsi.component.scss']
+  selector: 'ngx-models-tools',
+  templateUrl: './models-tools.component.html',
+  styleUrls: ['./models-tools.component.scss']
 })
-export class DatasetsNgsiComponent implements OnInit {
+export class ModelsToolsComponent implements OnInit {
 
   // Store all fetched data here
   ngsiDatasetsInfo: any[] = [];
@@ -45,7 +48,7 @@ export class DatasetsNgsiComponent implements OnInit {
   constructor(
     private router: Router,
     public translation: TranslateService,
-    private ngsiDatasetsService: NgsiDatasetsService,
+    private modelsService: ModelsService,
     private dialogService: NbDialogService,
     private toastrService: NbToastrService
   ) { }
@@ -61,7 +64,7 @@ export class DatasetsNgsiComponent implements OnInit {
   loadDatasets(): void {
     this.loading = true;
     // Subscribe to the Observable from your service
-    this.ngsiDatasetsService.getDatasets().subscribe({
+    this.modelsService.getDatasets().subscribe({
       next: (response) => {
         // Save the fetched data into a component property
         this.ngsiDatasetsInfo = response;
@@ -209,7 +212,7 @@ export class DatasetsNgsiComponent implements OnInit {
     // Find the dataset to get its distributions
     const dataset = this.ngsiDatasetsInfo.find(ds => ds.id === datasetId);
     if (!dataset) {
-      this.toastrService.danger(this.translation.instant('DATASET_NOT_FOUND'), this.translation.instant('TOAST_ERROR'));
+      this.toastrService.danger('Dataset not found', 'Error');
       return;
     }
 
@@ -220,8 +223,8 @@ export class DatasetsNgsiComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete Dataset',
-        message: `Are you sure you want to delete this dataset${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
+        title: 'Delete Model',
+        message: `Are you sure you want to delete this model${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
@@ -240,7 +243,7 @@ export class DatasetsNgsiComponent implements OnInit {
           // Transform the distribution ID format before sending to API
           const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
           
-          this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
+          this.modelsService.deleteDistribution(transformedDistId).subscribe({
             next: () => {
               deletedCount++;
               // When all distributions are processed, delete the dataset
@@ -270,7 +273,7 @@ export class DatasetsNgsiComponent implements OnInit {
 
   // Helper method to delete the dataset and update UI
   private performDatasetDeletion(datasetId: string): void {
-    this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+    this.modelsService.deleteDataset(datasetId).subscribe({
       next: () => {
         // Remove dataset from all dataset collections
         this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
@@ -302,17 +305,11 @@ export class DatasetsNgsiComponent implements OnInit {
           this.datasetsToDelete.splice(index, 1);
         }
         
-        this.toastrService.success(
-          this.translation.instant('TOAST_DATASET_DELETED'),
-          this.translation.instant('TOAST_SUCCESS')
-        );
+        this.toastrService.success('Dataset and associated distributions deleted successfully', 'Success');
       },
       error: (error) => {
         console.error('Error deleting dataset:', error);
-        this.toastrService.danger(
-          this.translation.instant('TOAST_DATASET_DELETION_FAILED', {errorMessage: error.message || 'Unknown error'}),
-          this.translation.instant('TOAST_ERROR')
-        );
+        this.toastrService.danger('Failed to delete dataset: ' + (error.message || 'Unknown error'), 'Error');
       }
     });
   }
@@ -321,7 +318,7 @@ export class DatasetsNgsiComponent implements OnInit {
   deleteSelectedDatasets(): void {
     if (this.datasetsToDelete.length === 0) {
       this.toastrService.warning(
-        this.translation.instant('TOAST_NO_DATASETS_SELECTED'),
+        this.translation.instant('TOAST_NO_MODEL_TOOLS_SELECTED'),
         this.translation.instant('TOAST_WARNING')
       );
       return;
@@ -342,8 +339,8 @@ export class DatasetsNgsiComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATASETS'),
-        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATASETS_MESSAGE', {
+        title: this.translation.instant('DIALOG_DELETE_SELECTED_MODEL_TOOLS'),
+        message: this.translation.instant('DIALOG_DELETE_SELECTED_MODEL_TOOLS_MESSAGE', {
           datasetCount: this.datasetsToDelete.length,
           distributionCount: distributionCount
         }),
@@ -362,7 +359,7 @@ export class DatasetsNgsiComponent implements OnInit {
         
         // Process each dataset to delete
         this.datasetsToDelete.forEach(datasetId => {
-          this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+          this.modelsService.deleteDataset(datasetId).subscribe({
             next: () => {
               completedCount++;
               // Check if all operations completed
@@ -392,17 +389,17 @@ export class DatasetsNgsiComponent implements OnInit {
     // Show appropriate message
     if (errorCount === 0) {
       this.toastrService.success(
-        this.translation.instant('TOAST_DELETED_DATASETS_SUCCESS', {count: successCount}),
+        this.translation.instant('TOAST_DELETED_MODEL_TOOLS_SUCCESS', {count: successCount}),
         this.translation.instant('TOAST_SUCCESS')
       );
     } else if (successCount === 0) {
       this.toastrService.danger(
-        this.translation.instant('TOAST_DELETE_DATASETS_FAILED'),
+        this.translation.instant('TOAST_DELETE_MODEL_TOOLS_FAILED'),
         this.translation.instant('TOAST_ERROR')
       );
     } else {
       this.toastrService.warning(
-        this.translation.instant('TOAST_DELETE_DATASETS_PARTIAL', {
+        this.translation.instant('TOAST_DELETE_MODEL_TOOLS_PARTIAL', {
           successCount: successCount,
           errorCount: errorCount
         }),
@@ -431,7 +428,7 @@ export class DatasetsNgsiComponent implements OnInit {
       localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
       
       // Navigate to the editor page
-      this.router.navigate(['/pages/datasets-ngsi/editor'], 
+      this.router.navigate(['/pages/administration/models-tools/editor'], 
       {
       queryParamsHandling: 'merge',
       });
@@ -546,7 +543,7 @@ export class DatasetsNgsiComponent implements OnInit {
   deleteAllDatasets(): void {
     // If no datasets to delete, show warning
     if (this.ngsiDatasetsInfo.length === 0) {
-      this.toastrService.warning(this.translation.instant('NO_DATASETS_TO_DELETE'), this.translation.instant('TOAST_WARNING'));
+      this.toastrService.warning('No datasets available to delete', 'Warning');
       return;
     }
 
@@ -564,11 +561,8 @@ export class DatasetsNgsiComponent implements OnInit {
     // Show confirmation dialog
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: this.translation.instant('DIALOG_DELETE_ALL_DATASETS'),
-        message: this.translation.instant('DIALOG_DELETE_ALL_DATASETS_MESSAGE', {
-          datasetCount: this.ngsiDatasetsInfo.length,
-          distributionCount: allDistributionIds.length
-        }),
+        title: 'Delete All Models',
+        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} models and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
@@ -590,26 +584,23 @@ export class DatasetsNgsiComponent implements OnInit {
     const totalCount = distributionIds.length;
     
     this.toastrService.info(
-      this.translation.instant('TOAST_DELETING_DISTRIBUTIONS', {count: totalCount}),
-      this.translation.instant('TOAST_DELETION_IN_PROGRESS_TITLE')
+      `Deleting ${totalCount} distributions in progress...`,
+      'Deletion in progress'
     );
     
     distributionIds.forEach(distId => {
       // Transform the distribution ID format before sending to API
       const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
       
-      this.ngsiDatasetsService.deleteDistribution(transformedDistId).subscribe({
+      this.modelsService.deleteDistribution(transformedDistId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed
           if (completedCount + errorCount === totalCount) {
             if (errorCount > 0) {
               this.toastrService.warning(
-                this.translation.instant('TOAST_DISTRIBUTIONS_PARTIAL_DELETION', {
-                  successCount: completedCount,
-                  errorCount: errorCount
-                }),
-                this.translation.instant('TOAST_PARTIAL_DELETION')
+                `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
+                'Partial deletion'
               );
             }
             // Proceed with dataset deletion after all distributions are processed
@@ -621,11 +612,8 @@ export class DatasetsNgsiComponent implements OnInit {
           errorCount++;
           if (completedCount + errorCount === totalCount) {
             this.toastrService.warning(
-              this.translation.instant('TOAST_DISTRIBUTIONS_PARTIAL_DELETION', {
-                successCount: completedCount,
-                errorCount: errorCount
-              }),
-              this.translation.instant('TOAST_PARTIAL_DELETION')
+              `Deleted ${completedCount} distributions, but failed to delete ${errorCount} distributions.`,
+              'Partial deletion'
             );
             // Still proceed with dataset deletion even if some distribution deletions failed
             this.deleteAllDatasetsOnly();
@@ -645,13 +633,13 @@ export class DatasetsNgsiComponent implements OnInit {
     const allDatasetIds = this.ngsiDatasetsInfo.map(ds => ds.id);
     
     this.toastrService.info(
-      this.translation.instant('TOAST_DELETING_DATASETS', {count: totalCount}),
-      this.translation.instant('TOAST_DELETION_IN_PROGRESS_TITLE')
+      `Deleting ${totalCount} datasets in progress...`,
+      'Deletion in progress'
     );
     
     // Process each dataset to delete
     allDatasetIds.forEach(datasetId => {
-      this.ngsiDatasetsService.deleteDataset(datasetId).subscribe({
+      this.modelsService.deleteDataset(datasetId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed
@@ -679,23 +667,14 @@ export class DatasetsNgsiComponent implements OnInit {
       this.displayedDatasets = [];
       this.datasetsToDelete = [];
       
-      this.toastrService.success(
-        this.translation.instant('TOAST_ALL_DATASETS_DELETED', {count: successCount}),
-        this.translation.instant('TOAST_SUCCESS')
-      );
+      this.toastrService.success(`Successfully deleted all ${successCount} datasets`, 'Success');
     } else if (successCount === 0) {
-      this.toastrService.danger(
-        this.translation.instant('TOAST_NO_DATASETS_DELETED'),
-        this.translation.instant('TOAST_ERROR')
-      );
+      this.toastrService.danger(`Failed to delete any datasets`, 'Error');
     } else {
-      this.toastrService.warning(
-        this.translation.instant('TOAST_DATASETS_PARTIAL_DELETION', {
-          successCount: successCount,
-          errorCount: errorCount
-        }),
-        this.translation.instant('TOAST_PARTIAL_SUCCESS')
-      );
+      // Some deletions failed
+      // Reload datasets to get accurate state from server
+      this.loadDatasets();
+      this.toastrService.warning(`Deleted ${successCount} datasets, but failed to delete ${errorCount}`, 'Partial Success');
     }
   }
 

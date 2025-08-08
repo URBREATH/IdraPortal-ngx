@@ -1,6 +1,6 @@
 @import 'bootstrap/scss/mixins/breakpoints';
 @import '@nebular/theme/styles/global/breakpoints';
-@import '../../@theme/styles/themes.scss';
+@import '../../../@theme/styles/themes.scss';
 
 //urbreath theme colors
 $primary: #2BA5DE;
@@ -9,7 +9,6 @@ $primary-light: #91d0ee;
 $secondary: #3f3368;
 $secondary-dark: #2b2347;
 $secondary-light: #5a42b1;
-$secondary-lighter: #7f5ec9;
 $surface: #cdd9e0;
 $surface-dark: #25262E;
 

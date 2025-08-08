@@ -1,20 +1,19 @@
 import { Component, OnInit } from '@angular/core';
 import { TranslateService } from '@ngx-translate/core';
-import { ModelsService } from '../services/models.service';
+import { DatasourceService } from '../../services/datasource.service';
 import { NbDialogService, NbTagComponent, NbTagInputAddEvent, NbToastrService } from '@nebular/theme';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { Router } from '@angular/router';
 
-
-//ATTENTION: In this component, anything that refers to "models/tools" and "datasets" is interchangeable.
-//// This component handles the display and management of models/tools (datasets) in the application.
+//ATTENTION: In this component, anything that refers to "data source" or "dataset" is interchangeable.
+// This component handles the display and management of data sources (datasets) in the application.
 
 @Component({
-  selector: 'ngx-models-tools',
-  templateUrl: './models-tools.component.html',
-  styleUrls: ['./models-tools.component.scss']
+  selector: 'ngx-data-sources',
+  templateUrl: './data-sources.component.html',
+  styleUrls: ['./data-sources.component.scss']
 })
-export class ModelsToolsComponent implements OnInit {
+export class DataSourcesComponent implements OnInit {
 
   // Store all fetched data here
   ngsiDatasetsInfo: any[] = [];
@@ -48,7 +47,7 @@ export class ModelsToolsComponent implements OnInit {
   constructor(
     private router: Router,
     public translation: TranslateService,
-    private modelsService: ModelsService,
+    private datasourceService: DatasourceService,
     private dialogService: NbDialogService,
     private toastrService: NbToastrService
   ) { }
@@ -64,7 +63,7 @@ export class ModelsToolsComponent implements OnInit {
   loadDatasets(): void {
     this.loading = true;
     // Subscribe to the Observable from your service
-    this.modelsService.getDatasets().subscribe({
+    this.datasourceService.getDatasets().subscribe({
       next: (response) => {
         // Save the fetched data into a component property
         this.ngsiDatasetsInfo = response;
@@ -92,29 +91,6 @@ export class ModelsToolsComponent implements OnInit {
   generateFacets(datasets: any[]): any[] {
     // Example implementation - customize based on your data structure
     const facets = [];
-    
-    // Example: themes facet
-    const themes = new Set<string>();
-    datasets.forEach(dataset => {
-      if (dataset.theme) {
-        if (Array.isArray(dataset.theme)) {
-          dataset.theme.forEach(t => themes.add(t));
-        } else {
-          themes.add(dataset.theme);
-        }
-      }
-    });
-    
-    if (themes.size > 0) {
-      facets.push({
-        displayName: 'Themes',
-        search_parameter: 'theme',
-        values: Array.from(themes).map(theme => ({
-          facet: theme,
-          search_value: theme
-        }))
-      });
-    }
     
     // Example: keywords facet
     // Add similar code for other facets (keywords, publishers, etc.)
@@ -223,8 +199,8 @@ export class ModelsToolsComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete Model',
-        message: `Are you sure you want to delete this model${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
+        title: 'Delete Data Source',
+        message: `Are you sure you want to delete this data source${distributionIds.length > 0 ? ' and its ' + distributionIds.length + ' associated distributions' : ''}?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
@@ -243,7 +219,7 @@ export class ModelsToolsComponent implements OnInit {
           // Transform the distribution ID format before sending to API
           const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
           
-          this.modelsService.deleteDistribution(transformedDistId).subscribe({
+          this.datasourceService.deleteDistribution(transformedDistId).subscribe({
             next: () => {
               deletedCount++;
               // When all distributions are processed, delete the dataset
@@ -273,7 +249,7 @@ export class ModelsToolsComponent implements OnInit {
 
   // Helper method to delete the dataset and update UI
   private performDatasetDeletion(datasetId: string): void {
-    this.modelsService.deleteDataset(datasetId).subscribe({
+    this.datasourceService.deleteDataset(datasetId).subscribe({
       next: () => {
         // Remove dataset from all dataset collections
         this.ngsiDatasetsInfo = this.ngsiDatasetsInfo.filter(ds => ds.id !== datasetId);
@@ -318,7 +294,7 @@ export class ModelsToolsComponent implements OnInit {
   deleteSelectedDatasets(): void {
     if (this.datasetsToDelete.length === 0) {
       this.toastrService.warning(
-        this.translation.instant('TOAST_NO_MODEL_TOOLS_SELECTED'),
+        this.translation.instant('TOAST_NO_DATA-SOURCES_SELECTED'),
         this.translation.instant('TOAST_WARNING')
       );
       return;
@@ -339,8 +315,8 @@ export class ModelsToolsComponent implements OnInit {
 
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: this.translation.instant('DIALOG_DELETE_SELECTED_MODEL_TOOLS'),
-        message: this.translation.instant('DIALOG_DELETE_SELECTED_MODEL_TOOLS_MESSAGE', {
+        title: this.translation.instant('DIALOG_DELETE_SELECTED_DATA-SOURCES'),
+        message: this.translation.instant('DIALOG_DELETE_SELECTED_DATA-SOURCES_MESSAGE', {
           datasetCount: this.datasetsToDelete.length,
           distributionCount: distributionCount
         }),
@@ -359,7 +335,7 @@ export class ModelsToolsComponent implements OnInit {
         
         // Process each dataset to delete
         this.datasetsToDelete.forEach(datasetId => {
-          this.modelsService.deleteDataset(datasetId).subscribe({
+          this.datasourceService.deleteDataset(datasetId).subscribe({
             next: () => {
               completedCount++;
               // Check if all operations completed
@@ -389,17 +365,17 @@ export class ModelsToolsComponent implements OnInit {
     // Show appropriate message
     if (errorCount === 0) {
       this.toastrService.success(
-        this.translation.instant('TOAST_DELETED_MODEL_TOOLS_SUCCESS', {count: successCount}),
+        this.translation.instant('TOAST_DELETED_DATA-SOURCES_SUCCESS', {count: successCount}),
         this.translation.instant('TOAST_SUCCESS')
       );
     } else if (successCount === 0) {
       this.toastrService.danger(
-        this.translation.instant('TOAST_DELETE_MODEL_TOOLS_FAILED'),
+        this.translation.instant('TOAST_DELETE_DATA-SOURCES_FAILED'),
         this.translation.instant('TOAST_ERROR')
       );
     } else {
       this.toastrService.warning(
-        this.translation.instant('TOAST_DELETE_MODEL_TOOLS_PARTIAL', {
+        this.translation.instant('TOAST_DELETE_DATA-SOURCES_PARTIAL', {
           successCount: successCount,
           errorCount: errorCount
         }),
@@ -428,10 +404,10 @@ export class ModelsToolsComponent implements OnInit {
       localStorage.setItem('dataset_to_edit', JSON.stringify(datasetToEdit));
       
       // Navigate to the editor page
-      this.router.navigate(['/pages/models-tools/editor'], 
-      {
-      queryParamsHandling: 'merge',
-      });
+      this.router.navigate(['/pages/data-sources/editor'], 
+        {
+        queryParamsHandling: 'merge',
+        });
     }
   }
 
@@ -541,13 +517,13 @@ export class ModelsToolsComponent implements OnInit {
 
   // Function to delete all datasets
   deleteAllDatasets(): void {
-    // If no datasets to delete, show warning
+    // If no data sources to delete, show warning
     if (this.ngsiDatasetsInfo.length === 0) {
-      this.toastrService.warning('No datasets available to delete', 'Warning');
+      this.toastrService.warning('No data sources available to delete', 'Warning');
       return;
     }
 
-    // Raccogli tutti gli ID delle distribuzioni da tutti i dataset
+    // Collect all distribution IDs from all data sources
     const allDistributionIds: string[] = [];
     this.ngsiDatasetsInfo.forEach(dataset => {
       if (dataset.datasetDistribution) {
@@ -561,16 +537,16 @@ export class ModelsToolsComponent implements OnInit {
     // Show confirmation dialog
     this.dialogService.open(ConfirmationDialogComponent, {
       context: {
-        title: 'Delete All Models',
-        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} models and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
+        title: 'Delete All Data Sources',
+        message: `Warning: You are about to delete all ${this.ngsiDatasetsInfo.length} data sources and ${allDistributionIds.length} associated distributions. This action cannot be undone. Are you sure you want to proceed?`,
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
-        // Prima elimina tutte le distribuzioni
+        // Delete all distributions first
         if (allDistributionIds.length > 0) {
           this.deleteAllDistributions(allDistributionIds);
         } else {
-          // Se non ci sono distribuzioni, procedi direttamente con l'eliminazione dei dataset
+          // If there are no distributions, proceed directly with dataset deletion
           this.deleteAllDatasetsOnly();
         }
       }
@@ -592,7 +568,7 @@ export class ModelsToolsComponent implements OnInit {
       // Transform the distribution ID format before sending to API
       const transformedDistId = distId.replace("urn:ngsi-ld:Dataset:items:", "urn:ngsi-ld:DistributionDCAT-AP:id:");
       
-      this.modelsService.deleteDistribution(transformedDistId).subscribe({
+      this.datasourceService.deleteDistribution(transformedDistId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed
@@ -639,7 +615,7 @@ export class ModelsToolsComponent implements OnInit {
     
     // Process each dataset to delete
     allDatasetIds.forEach(datasetId => {
-      this.modelsService.deleteDataset(datasetId).subscribe({
+      this.datasourceService.deleteDataset(datasetId).subscribe({
         next: () => {
           completedCount++;
           // Check if all operations completed

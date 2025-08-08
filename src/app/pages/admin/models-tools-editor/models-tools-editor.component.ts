@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
-import { ModelsService } from '../services/models.service';
+import { ModelsService } from '../../services/models.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
-import { ConfirmationDialogComponent } from '../../shared/confirmation-dialog/confirmation-dialog.component';
+import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
