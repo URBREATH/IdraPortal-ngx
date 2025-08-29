@@ -99,7 +99,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     // Rest of your existing initialization code...
     if(this.typeLogin.toLowerCase() === "keycloak"){
     this.currentTheme = this.themeService.currentTheme;
-    console.log(this.user);
     this.authenticationEnabled=this.configService.config["enableAuthentication"];
        this.userMenuDefault = [
       {
@@ -114,8 +113,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
     ]
 
     this.userService.onUserChange()
-    .subscribe((user: any) => {this.user = user; console.log(this.user);  console.log("updateUser");
-    });
+    .subscribe((user: any) => { this.user = user; });
 
     const { xl } = this.breakpointService.getBreakpointsMap();
     this.themeService.onMediaQueryChange()
@@ -138,6 +136,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
       )
       .subscribe(res => {
         if (res["tag"] == "logout") {
+          this.clearAuthStorage();
           this.router.navigate([`${this.configService.config['dashboardBaseURL']}/keycloak-auth/logout`], 
                       {
                         queryParamsHandling: 'merge',
@@ -178,8 +177,8 @@ export class HeaderComponent implements OnInit, OnDestroy {
         )
         .subscribe(res => {
           if (res["tag"] == "logout") {
-            // window.open(this.userService.getLogoutUrl(), '_self');
-            this.router.navigate(['/auth/logout'], 
+            this.clearAuthStorage();
+            this.router.navigate(['/pages/auth/logout'], 
                       {
                         queryParamsHandling: 'merge',
                       });
@@ -189,27 +188,18 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   private setupLanguageListener() {
-    console.log('Header: Setting up language listeners');
-
-    // Listen for embedded language changes
     window.addEventListener('embedded-language-changed', (event: any) => {
-      console.log('Header: Received embedded-language-changed event:', event.detail);
       const language = event.detail.language;
       if (language && language !== this.idraUserLanguage) {
-        console.log(`Header: Changing language from ${this.idraUserLanguage} to ${language}`);
         this.idraUserLanguage = language;
         this.translate.use(this.idraUserLanguage);
-        // Don't call sharedService.propagateDialogSelectedLanguage here to avoid loops
       }
     });
 
-    // Also listen to shared service language changes
     this.sharedService.onLanguageChange()
       .pipe(takeUntil(this.destroy$))
       .subscribe((language: string) => {
-        console.log('Header: Received language change from shared service:', language);
         if (language && language !== this.idraUserLanguage) {
-          console.log(`Header: Updating language from shared service to ${language}`);
           this.idraUserLanguage = language;
           this.translate.use(this.idraUserLanguage);
         }
@@ -248,6 +238,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   logOut() {
+    this.clearAuthStorage();
     this.router.navigate(['/pages/auth/logout'], 
     {
       queryParamsHandling: 'merge',
@@ -259,5 +250,11 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.sharedService.propagateDialogSelectedLanguage(event);
     // Store the manually selected language
     localStorage.setItem('sso_language', event);
+  }
+
+  private clearAuthStorage(): void {
+    try {
+      localStorage.clear();
+    } catch {}
   }
 }
