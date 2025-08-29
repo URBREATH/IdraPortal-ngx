@@ -52,7 +52,7 @@ export const MENU_ITEMS: MenuItem[] = [
     data: {
       name: 'mqa',
     },
-    hidden: true,
+    hidden: false,
     key: 'Mqa Scoring'
   },
   {
