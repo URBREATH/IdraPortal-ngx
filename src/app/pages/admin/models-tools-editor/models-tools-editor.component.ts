@@ -729,7 +729,7 @@ export class ModelsToolsEditorComponent implements OnInit {
         this.datasetForm.reset();
         this.distributions = [];
         this.isCreatingDataset = false;
-        this.router.navigate(['/pages/models-tools'], 
+        this.router.navigate(['/pages/administration/models-tools'], 
           {
           queryParamsHandling: 'merge',
           });

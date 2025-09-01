@@ -1,0 +1,54 @@
+/* Global styles for overlay container */
+.nb-global-overlay-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none; /* Allow clicks to pass through to elements behind */
+  z-index: 1000; /* High z-index to appear above other content */
+  overflow: visible;
+}
+
+/* Style any toasts, dialogs, and other overlay elements */
+.nb-global-overlay-container > * {
+  pointer-events: auto; /* Restore pointer events for overlay children */
+}
+
+/* Fix z-index for datepicker */
+nb-datepicker-container {
+  z-index: 1050 !important;
+  pointer-events: auto !important;
+}
+
+/* Fix z-index for dialogs */
+.cdk-overlay-container {
+  z-index: 1040 !important;
+}
+
+/* Ensure overlay backdrops don't block the entire UI */
+.overlay-backdrop {
+  pointer-events: auto !important;
+}
+
+/* Fix for nb-dialog */
+nb-dialog-container {
+  pointer-events: auto !important;
+  z-index: 1050 !important;
+}
+
+/* Fix for toasts */
+.nb-toast {
+  pointer-events: auto !important;
+  z-index: 1060 !important;
+}
+
+/* For click-outside detection to work */
+.cdk-overlay-connected-position-bounding-box {
+  z-index: 1050 !important;
+  pointer-events: none !important;
+}
+
+.cdk-overlay-pane {
+  pointer-events: auto !important;
+}

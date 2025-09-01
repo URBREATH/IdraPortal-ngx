@@ -27,7 +27,10 @@ import {
   NbButtonModule,
   NbCheckboxModule,
   NbInputModule,
-  NbSidebarService
+  NbSidebarService,
+  NbLayoutModule,
+  NbOverlayContainerAdapter,
+  NbGlobalLogicalPosition,
 } from '@nebular/theme';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
 import { NbRoleProvider, NbSecurityModule } from '@nebular/security';
@@ -45,6 +48,9 @@ import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } f
 import { Observable } from 'rxjs';
 import { SharedModule } from './shared/shared.module';
 import { EmbeddedLanguageService } from './services/embedded-language.service';
+import { CustomOverlayContainerAdapter } from './custom-overlay-container';
+import { CustomOverlayContainer } from './custom-cdk-overlay';
+import { OverlayContainer } from '@angular/cdk/overlay';
 class GenericConfig<T> {
   constructor(public config: T) {}
 }
@@ -84,6 +90,7 @@ export class CustomTranslateLoader implements TranslateLoader {
     NbInputModule,
     NbButtonModule,
     NbCheckboxModule,
+    NbLayoutModule,
     // NgxAuthRoutingModule,
 
     NbAuthModule,
@@ -96,7 +103,11 @@ export class CustomTranslateLoader implements TranslateLoader {
     NbDatepickerModule.forRoot(),
     NbDialogModule.forRoot(),
     NbWindowModule.forRoot(),
-    NbToastrModule.forRoot(),
+    NbToastrModule.forRoot({
+      position: NbGlobalLogicalPosition.TOP_END,
+      destroyByClick: true,
+      duration: 3000,
+    }),
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
     MarkdownModule.forRoot(),
@@ -246,9 +257,18 @@ export class CustomTranslateLoader implements TranslateLoader {
     }),
     SharedModule,
   ],
-  providers: [NbSidebarService,
-
-  
+  providers: [
+    NbSidebarService,
+    // Provide custom Nebular overlay container adapter
+    { 
+      provide: NbOverlayContainerAdapter,
+      useClass: CustomOverlayContainerAdapter
+    },
+    // Also provide custom CDK overlay container
+    {
+      provide: OverlayContainer,
+      useClass: CustomOverlayContainer
+    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

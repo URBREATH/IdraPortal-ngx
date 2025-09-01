@@ -830,7 +830,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.datasetForm.reset();
         this.distributions = [];
         this.isCreatingDataset = false;
-        this.router.navigate(['/pages/datasets-ngsi'], 
+        this.router.navigate(['/pages/administration/datasets-ngsi'], 
           {
           queryParamsHandling: 'merge',
           });

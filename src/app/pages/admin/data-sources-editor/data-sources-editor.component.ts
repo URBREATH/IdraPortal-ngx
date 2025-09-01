@@ -845,7 +845,7 @@ export class DataSourcesEditorComponent {
           this.datasetForm.reset();
           this.distributions = [];
           this.isCreatingDataset = false;
-          this.router.navigate(['/pages/data-sources'], 
+          this.router.navigate(['/pages/administration/data-sources'], 
             {
             queryParamsHandling: 'merge',
             });
