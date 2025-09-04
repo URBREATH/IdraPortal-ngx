@@ -248,8 +248,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     this.idraUserLanguage = event;
     this.translate.use(event);
     this.sharedService.propagateDialogSelectedLanguage(event);
-    // Store the manually selected language
-    localStorage.setItem('sso_language', event);
   }
 
   private clearAuthStorage(): void {

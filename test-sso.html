@@ -61,13 +61,19 @@
         The iframe will maintain its embedded state across navigation.
     </div>
     
+    <div class="info" style="background-color: #fff3cd; border: 2px solid #ffdf7e; margin-top: 10px;">
+        <strong>ℹ️ LAZY LOADING:</strong> The iframe will not load content until you click on a navigation button. When content is loaded, an SSO message will be sent automatically.
+    </div>
+    
     <div class="controls">
         <div class="button-group">
             <h3>🔐 SSO Control</h3>
+            <button class="sso-button" style="background-color: #dc3545;" onclick="sendExactDashboardMessage()">Send EXACT Dashboard Message</button>
             <button class="sso-button" onclick="sendSSOMessage('en')">Send SSO (English)</button>
             <button class="sso-button" onclick="sendSSOMessage('it')">Send SSO (Italian)</button>
             <button class="sso-button" onclick="sendSSOMessage('sp')">Send SSO (Spanish)</button>
             <button class="sso-button" onclick="sendSSOMessage('de')">Send SSO (German)</button>
+            <button class="sso-button" onclick="sendRawSSOMessage('en')" style="background-color: #dc3545;">Send Raw JSON (English)</button>
         </div>
         
         <div class="button-group">
@@ -110,31 +116,135 @@
         </div>
     </div>
     
-    <iframe id="childFrame" src="http://localhost:4200?embedded=true" width="100%" height="700"></iframe>
+    <div class="button-group">
+        <h3>🔄 Change Target Environment</h3>
+        <button onclick="setIframeTarget('http://localhost:4200')">Local Environment</button>
+        <button onclick="setIframeTarget('https://idra-dev.urbreath.tech')">Development Environment</button>
+        <input type="text" id="customTarget" placeholder="Custom URL..." style="padding: 8px; margin: 5px;">
+        <button onclick="setCustomIframeTarget()">Set Custom Target</button>
+    </div>
+
+    <iframe id="childFrame" src="about:blank" data-target="http://localhost:4200" width="100%" height="700" style="background-color: #f8f9fa; border: 2px dashed #ccc;"></iframe>
+    
+    <div id="initial-message" style="text-align: center; margin-top: -400px; position: relative; color: #6c757d;">
+        <h2>👆 Select a navigation option above to load content</h2>
+        <p>The iframe will load content and automatically send SSO credentials when you click a navigation button</p>
+    </div>
 
     <script>
-function sendSSOMessage(language = 'en') {
-    console.log('Parent: Preparing to send SSO message with language:', language);
+    // Function to change the iframe target environment without loading content
+    function setIframeTarget(baseUrl) {
+        // Just store the target, don't load content yet
+        document.getElementById('childFrame').setAttribute('data-target', baseUrl);
+        console.log('Changed iframe target to:', baseUrl);
+        
+        // Show feedback to the user
+        const initialMessage = document.getElementById('initial-message');
+        initialMessage.innerHTML = `
+            <h2>👆 Target set to: ${baseUrl}</h2>
+            <p>Now select a navigation option above to load content</p>
+        `;
+        initialMessage.style.display = 'block';
+        
+        // Reset iframe to blank
+        document.getElementById('childFrame').src = 'about:blank';
+        document.getElementById('childFrame').style.borderColor = '#ccc';
+        document.getElementById('childFrame').style.borderStyle = 'dashed';
+    }
     
-    const ssoMessage = {
+    // Function to set custom iframe target
+    function setCustomIframeTarget() {
+        const customUrl = document.getElementById('customTarget').value;
+        if (customUrl) {
+            setIframeTarget(customUrl);
+        } else {
+            alert('Please enter a valid URL');
+        }
+    }
+// Function to simulate the exact message from dashboard-dev.urbreath.tech
+function sendExactDashboardMessage(isAutomatic = false) {
+    const logPrefix = isAutomatic ? 'AUTO-SSO:' : 'Parent:';
+    console.log(`${logPrefix} Sending EXACT message from dashboard-dev.urbreath.tech`);
+    
+    // Create an exact copy of the dashboard message
+    const dashboardMessage = {
         embedded: true,
-        accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyLCJyb2xlcyI6WyJhZG1pbiIsInVzZXIiXX0.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-        language: language,
-        type: 'SSO_MESSAGE'
+        accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfWVJZTDRYMC16RVhlUEZOQnVENzVnc0dvU0VRWGNHUnZxOVR0VlZxYnlvIn0.eyJleHAiOjE2OTQxNzUwMDUsImlhdCI6MTY5NDA4ODYwNSwianRpIjoiZjliNTRkZTAtNGQyMy00YTk3LWI5MzYtNTBkZTg1YTI2ZTFhIiwiaXNzIjoiaHR0cHM6Ly9pZG0ub3BzaWxhYi5pdC9hdXRoL3JlYWxtcy9nYWxpbGVvIiwiYXVkIjpbImZyYW1ld29yay1ibHVlcHJpbnQtYXBwIiwia2V5Y2xvYWstaWRtIiwiYWNjb3VudCIsInRlc3QtY2xpZW50Il0sInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicG9ydGFsIiwic2Vzc2lvbl9zdGF0ZSI6ImYwYzU4NWFmLWEyZGMtNGZjYy04NDg3LTdiM2NkMjY2YmFmYiIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsia2V5Y2xvYWstaWRtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsIm5hbWUiOiJKb2huIERvZSJ9.ApcqQJk9XwMhov7qj5OrTsQZpQLQNNgep4eBiJ5Y80FdxRTfV0YgMBDJQCbhLaUUAHQclG4tLWjaqFitdN3VGUBsqyv8ja1i7XWOfIo4r2qcSuJIdxtidJRwt8COdzwmkRr7BFnDGpGlW7Dt_PJT6V_5CmK4smmrS7lJBeyqQ-5BYv-TOQ61TA9uWgMh0ctX-7hRupLBlotMvHj54JTtXRDCnYXMZVePAJjYxVqQ-OwYWDyl6oQSPd-Znkug0erQ-brX8GYXXXshFAL0mnx8w7WgJKuEzrbKxsVk9h6gb4zSXNhX5VXFqA1Dqdg1jQoQtYpO4aoctNe_yZVkqEoaYVd4iEkYwPInhqw',
+        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlMjZhMGM3ZC0yYmVhLTRhZjItOTJiYy1kNzExOGM4ZGY2OCJ9.eyJpYXQiOjE2OTQwODg2MDUsImp0aSI6ImI1MWRhYjk0LTNhZjctNGI4NS05MWQ3LTU4ZTQ2ZTZmZDY5OCIsImlzcyI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvZ2FsaWxlbyIsImF1ZCI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvZ2FsaWxlbyIsInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InBvcnRhbCIsInNlc3Npb25fc3RhdGUiOiJmMGM1ODVhZi1hMmRjLTRmY2MtODQ4Ny03YjNjZDI2NmJhZmIiLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiZjBjNTg1YWYtYTJkYy00ZmNjLTg0ODctN2IzY2QyNjZiYWZiIn0.2cZQt_fj_Ymt2h2mCJcvBcvAwkbUXDG5CsvRb_CC7n4',
+        language: 'en',
+        sideMenu: 'expanded'
     };
     
     const iframe = document.getElementById('childFrame');
+    const iframeOrigin = new URL(iframe.src).origin;
+    
+    // Function to try different message sending strategies
+    function trySendingMessage() {
+        try {
+            // 1. First try to send as a direct object with iframe's specific origin
+            iframe.contentWindow.postMessage(dashboardMessage, iframeOrigin);
+            console.log(`${logPrefix} EXACT dashboard message sent to ${iframeOrigin} as object`);
+            
+            // 2. Try with wildcard origin (more permissive)
+            setTimeout(() => {
+                iframe.contentWindow.postMessage(dashboardMessage, '*');
+                console.log(`${logPrefix} EXACT dashboard message sent with wildcard origin`);
+                
+                // 3. Also try sending as JSON string in case the application expects that
+                setTimeout(() => {
+                    iframe.contentWindow.postMessage(JSON.stringify(dashboardMessage), '*');
+                    console.log(`${logPrefix} EXACT dashboard message sent as JSON string with wildcard origin`);
+                }, 200);
+            }, 200);
+        } catch (error) {
+            console.error(`${logPrefix} Error sending message:`, error);
+        }
+    }
+    
+    // If the iframe is still loading, wait for it to finish
+    if (iframe.contentWindow && iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
+        trySendingMessage();
+    } else {
+        console.log(`${logPrefix} Iframe not fully loaded, waiting...`);
+        setTimeout(trySendingMessage, 1000);
+    }
+}
+
+function sendSSOMessage(language = 'en') {
+    console.log('Parent: Preparing to send SSO message with language:', language);
+    
+    // Creating an SSO message that exactly matches the dashboard-dev.urbreath.tech format
+    const ssoMessage = {
+        embedded: true,
+        accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfWVJZTDRYMC16RVhlUEZOQnVENzVnc0dvU0VRWGNHUnZxOVR0VlZxYnlvIn0.eyJleHAiOjE2OTQxNzUwMDUsImlhdCI6MTY5NDA4ODYwNSwianRpIjoiZjliNTRkZTAtNGQyMy00YTk3LWI5MzYtNTBkZTg1YTI2ZTFhIiwiaXNzIjoiaHR0cHM6Ly9pZG0ub3BzaWxhYi5pdC9hdXRoL3JlYWxtcy9nYWxpbGVvIiwiYXVkIjpbImZyYW1ld29yay1ibHVlcHJpbnQtYXBwIiwia2V5Y2xvYWstaWRtIiwiYWNjb3VudCIsInRlc3QtY2xpZW50Il0sInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicG9ydGFsIiwic2Vzc2lvbl9zdGF0ZSI6ImYwYzU4NWFmLWEyZGMtNGZjYy04NDg3LTdiM2NkMjY2YmFmYiIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsia2V5Y2xvYWstaWRtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsIm5hbWUiOiJKb2huIERvZSJ9.ApcqQJk9XwMhov7qj5OrTsQZpQLQNNgep4eBiJ5Y80FdxRTfV0YgMBDJQCbhLaUUAHQclG4tLWjaqFitdN3VGUBsqyv8ja1i7XWOfIo4r2qcSuJIdxtidJRwt8COdzwmkRr7BFnDGpGlW7Dt_PJT6V_5CmK4smmrS7lJBeyqQ-5BYv-TOQ61TA9uWgMh0ctX-7hRupLBlotMvHj54JTtXRDCnYXMZVePAJjYxVqQ-OwYWDyl6oQSPd-Znkug0erQ-brX8GYXXXshFAL0mnx8w7WgJKuEzrbKxsVk9h6gb4zSXNhX5VXFqA1Dqdg1jQoQtYpO4aoctNe_yZVkqEoaYVd4iEkYwPInhqw',
+        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlMjZhMGM3ZC0yYmVhLTRhZjItOTJiYy1kNzExOGM4ZGY2OCJ9.eyJpYXQiOjE2OTQwODg2MDUsImp0aSI6ImI1MWRhYjk0LTNhZjctNGI4NS05MWQ3LTU4ZTQ2ZTZmZDY5OCIsImlzcyI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvZ2FsaWxlbyIsImF1ZCI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvZ2FsaWxlbyIsInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InBvcnRhbCIsInNlc3Npb25fc3RhdGUiOiJmMGM1ODVhZi1hMmRjLTRmY2MtODQ4Ny03YjNjZDI2NmJhZmIiLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiZjBjNTg1YWYtYTJkYy00ZmNjLTg0ODctN2IzY2QyNjZiYWZiIn0.2cZQt_fj_Ymt2h2mCJcvBcvAwkbUXDG5CsvRb_CC7n4',
+        language: language,
+        sideMenu: 'expanded' // Exactly as seen in the parent application message
+    };
+    
+    const iframe = document.getElementById('childFrame');
+    
+    // First try to send as a direct object (as the dashboard might do)
     iframe.contentWindow.postMessage(ssoMessage, 'http://localhost:4200');
-    console.log('Parent: SSO message sent to iframe:', ssoMessage);
+    console.log('Parent: SSO message sent to iframe as object:', ssoMessage);
+    
+    // Also try sending as JSON string in case the application expects that format
+    // This can help with cross-origin postMessage issues
+    setTimeout(() => {
+        iframe.contentWindow.postMessage(ssoMessage, 'http://localhost:4200');
+        console.log('Parent: SSO message sent to iframe');
+    }, 1000);
 }
 
 function sendLanguageChangeOnly(language) {
     console.log('Parent: Sending language change message:', language);
     
+    // Create a language change message that maintains the same format as the SSO message
+    // but only updates the language field
     const languageMessage = {
-        type: 'LANGUAGE_CHANGE',
-        language: language
+        embedded: true,
+        language: language,
+        sideMenu: 'expanded' // Maintaining the sideMenu property for consistency
     };
     
     const iframe = document.getElementById('childFrame');
@@ -167,29 +277,99 @@ window.addEventListener('message', function(event) {
 // Navigation functions
 function navigateToPage(path) {
     const iframe = document.getElementById('childFrame');
-    const currentUrl = new URL(iframe.src);
-    const newUrl = `${currentUrl.origin}${path}?embedded=true`;
-    iframe.src = newUrl;
+    
+    // Hide initial message when content is loaded
+    document.getElementById('initial-message').style.display = 'none';
+    
+    // Get the base URL from the data-target attribute or use default
+    let baseUrl = iframe.getAttribute('data-target') || 'http://localhost:4200';
+    
+    // If we don't have a data-target attribute but iframe has a non-blank src, use that origin
+    if (!iframe.hasAttribute('data-target') && iframe.src !== 'about:blank' && !iframe.src.includes('about:blank')) {
+        try {
+            baseUrl = new URL(iframe.src).origin;
+        } catch (e) {
+            console.log('Using default URL:', baseUrl);
+        }
+    }
+    
+    const newUrl = `${baseUrl}${path}?embedded=true`;
     console.log('Parent: Navigating iframe to:', newUrl);
+    
+    // Set the source of the iframe
+    iframe.src = newUrl;
+    
+    // Set up a one-time load event handler to send SSO message after navigation
+    iframe.onload = function() {
+        console.log('Parent: Iframe loaded after navigation - sending dashboard message');
+        
+        // Remove this onload handler after execution (to make it one-time)
+        setTimeout(() => {
+            iframe.onload = null;
+            
+            // Send the dashboard message
+            sendExactDashboardMessage(true);
+            
+            // Highlight the iframe to show it's loaded
+            iframe.style.borderColor = '#28a745';
+            iframe.style.borderStyle = 'solid';
+        }, 800); // Short delay to ensure page has initialized
+    };
 }
 
 function reloadIframe() {
     const iframe = document.getElementById('childFrame');
-    iframe.src = iframe.src;
-    console.log('Parent: Reloading iframe');
+    
+    // Only reload if there's actual content (not about:blank)
+    if (iframe.src && iframe.src !== 'about:blank' && !iframe.src.includes('about:blank')) {
+        const currentSrc = iframe.src;
+        console.log('Parent: Reloading iframe from:', currentSrc);
+        
+        // Set up onload handler to send SSO message after reload
+        iframe.onload = function() {
+            console.log('Parent: Iframe reloaded - sending dashboard message');
+            setTimeout(() => {
+                iframe.onload = null;
+                sendExactDashboardMessage(true);
+            }, 800);
+        };
+        
+        // Reload by setting the same src
+        iframe.src = currentSrc;
+    } else {
+        alert('Please navigate to a page first before reloading');
+    }
 }
 
-// Auto-send SSO message when iframe loads - only once
-let hasAutoSentSSO = false;
+// Function to send the SSO message as a raw JSON string
+function sendRawSSOMessage(language = 'en') {
+    console.log('Parent: Preparing to send RAW JSON SSO message with language:', language);
+    
+    // Creating an SSO message that exactly matches the dashboard-dev.urbreath.tech format
+    const ssoMessage = {
+        embedded: true,
+        accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIzZjlIMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4In0.eyJleHAiOjE2OTM0OTA4NTksImlhdCI6MTY5MzQ1NDg1OSwianRpIjoiOGJlNjVmODgtODAwNi00MzZlLTgxNjgtN2Q0NmZkZTllYTc3IiwiaXNzIjoiaHR0cHM6Ly9pZG0ub3BzaWxhYi5pdC9hdXRoL3JlYWxtcy91cmJyZWF0aCIsInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoiZGFzaGJvYXJkIiwic2Vzc2lvbl9zdGF0ZSI6IjQ1OWE2MTJkLTQ2OTgtNGVhNi04ZGMzLTVmMjVlNDQ0NGM2YiIsImFjciI6IjEiLCJyZWFsbV9hY2Nlc3MiOnsicm9sZXMiOlsib2ZmbGluZV9hY2Nlc3MiLCJ1bWFfYXV0aG9yaXphdGlvbiJdfSwic2NvcGUiOiJlbWFpbCBwcm9maWxlIiwic2lkIjoiNDU5YTYxMmQtNDY5OC00ZWE2LThkYzMtNWYyNWU0NDQ0YzZiIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsIm5hbWUiOiJKb2huIERvZSIsInByZWZlcnJlZF91c2VybmFtZSI6ImpvaG5kb2UiLCJnaXZlbl9uYW1lIjoiSm9obiIsImZhbWlseV9uYW1lIjoiRG9lIiwiZW1haWwiOiJqb2huLmRvZUBleGFtcGxlLmNvbSJ9.XfUzmbodKREj7Xw89M7LyR7Q_HlrTNOjMvOe3X-lzkBj2_rwvxJB-sOJsO5NHRFnWpvN0Gkdh7QZLGbNf8kZeA8fmV24SOsXUxUJnZweTbZslzGIQ9X0Ek94NdfXFCtyIW-LWhsPW3JTHmN9lQq3KO39HGKU42PAsKWiyXXmiQxd02H4jFmGvnPfNzuZYi3b5IaTHkQaCIAA3nfvG8_pQK6OuqRZp_hws8KPxZHFDeQHmZZg6gbH9Bn5aDpYQOgaTXFqA1Dqdg1jQoQtYpO4aoctNe_yZVkqEoaYVd4iEkYwPInhqw',
+        refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICIzZjlIMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4In0.eyJpYXQiOjE2OTM0NTQ4NTksImp0aSI6ImY2N2Y5NDdmLWZlOTgtNDdhNS04ZTA0LTIzMjU1ZWJhOTQ4YyIsImlzcyI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvdXJicmVhdGgiLCJhdWQiOiJodHRwczovL2lkbS5vcHNpbGFiLml0L2F1dGgvcmVhbG1zL3VyYnJlYXRoIiwic3ViIjoiM2Y5YjEzNmUtZjVmMS00MWM3LTliNWMtYzIxMzgwZjAzZDgiLCJ0eXAiOiJSZWZyZXNoIiwiYXpwIjoiZGFzaGJvYXJkIiwic2Vzc2lvbl9zdGF0ZSI6IjQ1OWE2MTJkLTQ2OTgtNGVhNi04ZGMzLTVmMjVlNDQ0NGM2YiIsInNjb3BlIjoiZW1haWwgcHJvZmlsZSIsInNpZCI6IjQ1OWE2MTJkLTQ2OTgtNGVhNi04ZGMzLTVmMjVlNDQ0NGM2YiJ9.2cZQt_fj_Ymt2h2mCJcvBcvAwkbUXDG5CsvRb_CC7n4',
+        language: language,
+        sideMenu: 'expanded'
+    };
+    
+    // Convert to JSON string and send as raw string
+    const jsonString = JSON.stringify(ssoMessage);
+    
+    const iframe = document.getElementById('childFrame');
+    iframe.contentWindow.postMessage(jsonString, 'http://localhost:4200');
+    console.log('Parent: Raw JSON SSO message sent to iframe:', jsonString);
+}
+
+// Automatically send the exact dashboard message when the iframe loads
 document.getElementById('childFrame').onload = function() {
-    if (!hasAutoSentSSO) {
-        console.log('Parent: Iframe loaded, waiting 2 seconds before auto-sending SSO message');
-        setTimeout(() => {
-            console.log('Parent: Auto-sending SSO message with English language');
-            sendSSOMessage('en');
-            hasAutoSentSSO = true;
-        }, 2000);
-    }
+    console.log('Parent: Iframe loaded - automatically sending exact dashboard message');
+    
+    // Short delay to ensure iframe is fully loaded
+    setTimeout(() => {
+        sendExactDashboardMessage(true);  // Pass true to indicate automatic sending
+    }, 500);
 };
     </script>
 </body>

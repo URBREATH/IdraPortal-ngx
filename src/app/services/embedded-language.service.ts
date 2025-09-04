@@ -8,7 +8,8 @@ import { SharedService } from '../pages/services/shared.service';
 export class EmbeddedLanguageService {
 
   constructor(
-    private translateService: TranslateService,
+    
+    private translate: TranslateService,
     private sharedService: SharedService
   ) {
     this.initializeLanguageListener();
@@ -17,45 +18,12 @@ export class EmbeddedLanguageService {
   private initializeLanguageListener() {
     // Listen for language change messages from parent window
     window.addEventListener('message', (event) => {
-      // Validate origin if needed
-      if (event.origin !== 'http://127.0.0.1:5500') {
-        return;
-      }
-
-      // Handle both SSO messages and language-only messages
+      console.log('Received message:', event);
       if (event.data && event.data.language) {
-        if (event.data.type === 'SSO_MESSAGE' || event.data.type === 'LANGUAGE_CHANGE') {
-          this.setLanguage(event.data.language);
-        }
+        this.translate.use(event.data.language);
+        this.sharedService.propagateDialogSelectedLanguage(event.data.language);
       }
     });
-
-    // Also listen for custom language change events
-    window.addEventListener('sso-language-change', (event: any) => {
-      if (event.detail && event.detail.language) {
-        this.setLanguage(event.detail.language);
-      }
-    });
-  }
-
-  private setLanguage(language: string) {
-    // Store language
-    localStorage.setItem('sso_language', language);
-    
-    // Set the language in translate service
-    this.translateService.use(language);
-    
-    // Propagate through shared service
-    if (this.sharedService && this.sharedService.propagateDialogSelectedLanguage) {
-      this.sharedService.propagateDialogSelectedLanguage(language);
-    }
-
-    // Dispatch custom event for other components
-    const customEvent = new CustomEvent('embedded-language-changed', { 
-      detail: { language: language },
-      bubbles: true
-    });
-    window.dispatchEvent(customEvent);
   }
 
   public getCurrentLanguage(): string {

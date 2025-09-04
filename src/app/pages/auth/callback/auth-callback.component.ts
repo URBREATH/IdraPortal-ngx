@@ -32,15 +32,10 @@ export class AuthCallbackComponent implements OnDestroy, OnInit {
   private checkForEmbeddedAuth() {
     // Listen for SSO messages from parent window
     window.addEventListener('message', (event) => {
-      // Validate the message origin and structure
-      if (event.origin !== 'http://127.0.0.1:5500') {
-        return; // Ignore messages from other origins
-      }
       
       if (event.data && 
           event.data.embedded && 
-          event.data.accessToken && 
-          event.data.type === 'SSO_MESSAGE') {
+          event.data.accessToken) {
         console.log('AuthCallback: Received valid SSO message:', event.data);
         this.handleSSOLogin(event.data);
       }
@@ -53,16 +48,11 @@ export class AuthCallbackComponent implements OnDestroy, OnInit {
     if (isEmbedded) {
       // Check if we already have tokens in localStorage (for embedded mode)
       const existingToken = localStorage.getItem('auth_app_token');
-      const existingLanguage = localStorage.getItem('sso_language');
       
       if (existingToken) {
         try {
           const tokenData = JSON.parse(existingToken);
           if (tokenData && tokenData.access_token) {
-            // Set language if stored from previous SSO
-            if (existingLanguage) {
-              this.setLanguage(existingLanguage);
-            }
             
             // Create and set the token in Nebular Auth service
             this.setTokenInAuthService(tokenData);
@@ -93,13 +83,6 @@ export class AuthCallbackComponent implements OnDestroy, OnInit {
 
     // Store the token in localStorage
     localStorage.setItem('auth_app_token', JSON.stringify(tokenPayload));
-    
-    // Handle language setting
-    if (ssoData.language) {
-      this.setLanguage(ssoData.language);
-      // Store language for future page loads
-      localStorage.setItem('sso_language', ssoData.language);
-    }
 
     // Set the token in Nebular Auth service
     this.setTokenInAuthService(tokenPayload);
@@ -108,49 +91,6 @@ export class AuthCallbackComponent implements OnDestroy, OnInit {
     this.router.navigateByUrl('/pages');
   }
 
-  private setLanguage(language: string) {
-    console.log(`AuthCallback: Setting language to: ${language}`);
-    
-    // Store language first
-    localStorage.setItem('sso_language', language);
-    
-    // Set the language in translate service
-    this.translateService.use(language);
-    
-    // Propagate through shared service
-    if (this.sharedService && this.sharedService.propagateDialogSelectedLanguage) {
-      this.sharedService.propagateDialogSelectedLanguage(language);
-    }
-
-    // Dispatch events immediately and with delay to ensure they're caught
-    this.dispatchLanguageEvents(language);
-    
-    // Also dispatch after a small delay to catch any late listeners
-    setTimeout(() => {
-      this.dispatchLanguageEvents(language);
-    }, 200);
-  }
-
-  private dispatchLanguageEvents(language: string) {
-    // Dispatch a custom event to notify other components
-    const customEvent = new CustomEvent('sso-language-change', { 
-      detail: { language: language },
-      bubbles: true
-    });
-    window.dispatchEvent(customEvent);
-    console.log(`AuthCallback: Dispatched sso-language-change event for ${language}`);
-    
-    // Force trigger storage event for same-window components
-    const storageEvent = new StorageEvent('storage', {
-      key: 'sso_language',
-      newValue: language,
-      oldValue: localStorage.getItem('sso_language'),
-      url: window.location.href,
-      storageArea: localStorage
-    });
-    window.dispatchEvent(storageEvent);
-    console.log(`AuthCallback: Dispatched storage event for ${language}`);
-  }
 
   private setTokenInAuthService(tokenData: any) {
     // Create a Nebular Auth token

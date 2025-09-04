@@ -59,7 +59,7 @@ export class TokenInterceptor implements HttpInterceptor {
             
             const token = x.getPayload()?.access_token;
             let newHeaders = req.headers;
-            console.log("entro" + token);
+            //console.log("entro" + token);
             if (token && !req.url.includes('/IdraPortal-ngx-Translations')) {
               newHeaders = newHeaders.set('Authorization', `Bearer ${token}`);
               console.log('Adding Authorization header.');

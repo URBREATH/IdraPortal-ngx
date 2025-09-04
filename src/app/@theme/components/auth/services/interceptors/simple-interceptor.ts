@@ -23,8 +23,12 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
   }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    // Check for tokens in different sources with priority order
     const token_ = localStorage.getItem('token');
-    const username = localStorage.getItem('username');
+    const ssoToken = localStorage.getItem('serviceToken');
+    
+    // Use SSO token if available, otherwise fall back to regular token
+    const effectiveToken = ssoToken || token_;
 
     this.menu = MENU_ITEMS;
 
@@ -32,19 +36,19 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
       const clonedReq = req.clone({
         headers: req.headers.delete('Authorization')
       });
-      console.log('Request to IdraPortal-ngx-Translations, removing Authorization header.');
+      //console.log('Request to IdraPortal-ngx-Translations, removing Authorization header.');
       return next.handle(clonedReq);
     }
 
     return this.authService.getToken()
       .pipe(
         switchMap((token: NbAuthJWTToken): Observable<HttpEvent<any>> => {
-          if (token_ != null) {
+          if (effectiveToken != null) {
             req = req.clone({
               withCredentials: false,
               headers: new HttpHeaders({
                 'Access-Control-Allow-Origin': '*',
-                'Authorization': `Bearer ${token_}`,
+                'Authorization': `Bearer ${effectiveToken}`,
                // 'Cookie': 'loggedin=' + token + ';username=' + username,
                 'observe': 'response',
               }),
@@ -64,12 +68,23 @@ export class NbAuthSimpleInterceptor implements HttpInterceptor {
                   if (err.status === 401) {
                     console.log('🔥 401 error detected in interceptor');
                     
-                    // Check if user has SSO tokens (skip clearing for SSO users)
+                    // Check if user has any kind of SSO tokens (skip clearing for SSO users)
                     const ssoToken = localStorage.getItem('serviceToken');
                     const authAppToken = localStorage.getItem('auth_app_token');
+                    const refreshToken = localStorage.getItem('refreshToken');
                     
-                    if (ssoToken || authAppToken) {
+                    if (ssoToken || authAppToken || refreshToken) {
                       console.log('🔒 SSO user detected, preserving tokens');
+                      
+                      // Try to use serviceToken if it exists but wasn't used
+                      if (ssoToken && !req.headers.has('Authorization')) {
+                        console.log('🔄 Retrying with SSO token');
+                        const authReq = req.clone({
+                          headers: req.headers.set('Authorization', `Bearer ${ssoToken}`)
+                        });
+                        return next.handle(authReq);
+                      }
+                      
                       return throwError(err); // Don't clear tokens for SSO users
                     }
                     

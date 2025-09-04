@@ -5,17 +5,13 @@
  */
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ConfigService } from 'ngx-config-json';
-import { HttpClient } from '@angular/common/http';
 import { environment } from '../environments/environment';
-import { NbAuthOAuth2JWTToken, NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType } from '@nebular/auth';
+import { NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType } from '@nebular/auth';
 import { OidcJWTToken } from './pages/auth/oidc/oidc';
 import { NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
-import { Router, NavigationEnd } from '@angular/router';
-import { filter, take } from 'rxjs/operators';
+import { Router } from '@angular/router';
 import { SSOMessage } from './models';
 import { SharedService } from './pages/services/shared.service';
-import { NbAuthService, NbAuthJWTToken } from '@nebular/auth';
-import { EmbeddedLanguageService } from './services/embedded-language.service';
 
 @Component({
   selector: 'ngx-app',
@@ -27,14 +23,14 @@ export class AppComponent implements OnInit, OnDestroy {
   constructor(
     private oauthStrategy: NbOAuth2AuthStrategy,
     private oauthStrategyPwd: NbPasswordAuthStrategy,
-    private http: HttpClient,
     private config: ConfigService<Record<string, any>>,
     private router: Router,
     private sharedService: SharedService,
-    private embeddedLanguageService: EmbeddedLanguageService,
-    private authService: NbAuthService
   ) {
-     if(this.config.config["authenticationMethod"].toLowerCase() === "keycloak"){
+    // Setup postMessage listener for SSO as early as possible
+    this.setupPostMessageListener();
+
+    if (this.config.config["authenticationMethod"].toLowerCase() === "keycloak") {
      
       oauthStrategy.setOptions({
         name: environment.authProfile,
@@ -91,13 +87,8 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
-
-    
-    // Setup postMessage listener for SSO
-    this.setupPostMessageListener();
-    
     // Check for embedded parameter in URL
-      const embeddedParam = this.getUrlParameter('embedded');
+    const embeddedParam = this.getUrlParameter('embedded');
     
     const isEmbedded = embeddedParam === 'true';
     this.sharedService.updateEmbeddedState(isEmbedded);
@@ -114,93 +105,68 @@ export class AppComponent implements OnInit, OnDestroy {
   }
 
   private setupPostMessageListener() {
+    console.log('🔄 Setting up postMessage listener');
+    
     this.messageEventListener = (event: MessageEvent) => {
       // Ignore React DevTools messages
       if (event.data?.source === 'react-devtools-content-script') {
         return;
       }
       
-      if (this.isValidSSOMessage(event.data)) {
-        const ssoMessage: SSOMessage = event.data;
+      try {
+        console.log('📨 Received message event:', typeof event.data);
         
-        // Update shared service with SSO data
-        this.sharedService.updateSSOData(ssoMessage);
-        
-        // Process the access token
-        if (ssoMessage.accessToken) {
+        if (this.isValidSSOMessage(event.data)) {
+          const ssoMessage: SSOMessage = event.data;
+          console.log('✅ Valid SSO message received');
+          console.log('🔐 Token present:', !!ssoMessage.accessToken);
+          console.log('🔄 Refresh token present:', !!ssoMessage.refreshToken);
           
-          // Decode JWT token for user data
-          const decodedToken = this.sharedService.decodeJWTToken(ssoMessage.accessToken);
-          if (decodedToken) {
-            // Store tokens and user data
-            localStorage.setItem('serviceToken', ssoMessage.accessToken);
+          // Update shared service with SSO data
+          this.sharedService.updateSSOData(ssoMessage);
+          
+          // Process the access token
+          if (ssoMessage.accessToken) {
             
-            // 2. Store the refresh token if provided
-            if (ssoMessage.refreshToken) {
-              localStorage.setItem('refreshToken', ssoMessage.refreshToken);
+            // Decode JWT token for user data
+            const decodedToken = this.sharedService.decodeJWTToken(ssoMessage.accessToken);
+            if (decodedToken) {
+              // Store tokens and user data
+              localStorage.setItem('serviceToken', ssoMessage.accessToken);
+              
+              // 2. Store the refresh token if provided
+              if (ssoMessage.refreshToken) {
+                localStorage.setItem('refreshToken', ssoMessage.refreshToken);
+              }
+              
+              // 3. Create and store Nebular Auth token object
+              const authTokenObject = {
+                name: "nb:auth:simple:token",
+                ownerStrategyName: this.config.config["authenticationMethod"].toLowerCase() === "keycloak" 
+                  ? environment.authProfile 
+                  : "email",
+                createdAt: Date.now(),
+                value: ssoMessage.accessToken
+              };
+              localStorage.setItem('auth_app_token', JSON.stringify(authTokenObject));
             }
-            
-            // 3. Store simple token string (for backward compatibility)
-            localStorage.setItem('token', ssoMessage.accessToken);
-            
-            // 4. Extract username from JWT token
-            const username = decodedToken.preferred_username || 
-                             decodedToken.name || 
-                             decodedToken.email || 
-                             decodedToken.sub || 
-                             'sso_user';
-            localStorage.setItem('username', username);
-            
-            // 5. Create and store Nebular Auth token object
-            const authTokenObject = {
-              name: "nb:auth:simple:token",
-              ownerStrategyName: this.config.config["authenticationMethod"].toLowerCase() === "keycloak" 
-                ? environment.authProfile 
-                : "email",
-              createdAt: Date.now(),
-              value: ssoMessage.accessToken
-            };
-            localStorage.setItem('auth_app_token', JSON.stringify(authTokenObject));
-            
-            // 6. Create persist:users structure
-            const currentUser = {
-              userId: decodedToken.sub,
-              username: decodedToken.preferred_username || username,
-              firstName: decodedToken.given_name || decodedToken.name || 'Admin',
-              lastName: decodedToken.family_name || '',
-              email: decodedToken.email || '',
-              pilotRole: decodedToken.pilot_role || 'ADMIN',
-              pilotCode: decodedToken.pilot_code || 'AARHUS'
-            };
-            
-            const persistUsers = {
-              allUsers: "[]",
-              currentUser: JSON.stringify(currentUser),
-              error: "null",
-              loading: "false",
-              newUser: "null",
-              _persist: JSON.stringify({version: -1, rehydrated: true})
-            };
-            
-            // Store each persist:users entry
-            Object.keys(persistUsers).forEach(key => {
-              localStorage.setItem(`persist:users:${key}`, persistUsers[key]);
-            });
+          }
+          
+          // Update URL with embedded parameter if needed
+          if (ssoMessage.embedded) {
+            const currentUrl = this.router.url;
+            const tree = this.router.parseUrl(currentUrl);
+            if (tree.queryParams['embedded'] !== 'true') {
+              this.router.navigate([], {
+                queryParams: { embedded: 'true' },
+                queryParamsHandling: 'merge',
+                replaceUrl: true,
+              });
+            }
           }
         }
-        
-        // Update URL with embedded parameter if needed
-        if (ssoMessage.embedded) {
-          const currentUrl = this.router.url;
-          const tree = this.router.parseUrl(currentUrl);
-          if (tree.queryParams['embedded'] !== 'true') {
-            this.router.navigate([], {
-              queryParams: { embedded: 'true' },
-              queryParamsHandling: 'merge',
-              replaceUrl: true,
-            });
-          }
-        }
+      } catch (error) {
+        console.error('❌ Error processing postMessage:', error);
       }
     };
 
