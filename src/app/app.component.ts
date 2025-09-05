@@ -6,12 +6,19 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ConfigService } from 'ngx-config-json';
 import { environment } from '../environments/environment';
-import { NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType } from '@nebular/auth';
+import { NbOAuth2AuthStrategy, NbOAuth2ClientAuthMethod, NbOAuth2GrantType, NbOAuth2ResponseType, NbAuthService } from '@nebular/auth';
 import { OidcJWTToken } from './pages/auth/oidc/oidc';
 import { NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
-import { Router } from '@angular/router';
-import { SSOMessage } from './models';
-import { SharedService } from './pages/services/shared.service';
+import { Router, NavigationStart, Event as RouterEvent } from '@angular/router';
+import { SharedService, SSOMessage } from './pages/services/shared.service';
+import { filter, Subscription } from 'rxjs';
+
+/*
+Central component that initializes the app
+Listens for SSO tokens via postMessage
+Handles route changes and redirections
+Checks for existing tokens on startup
+*/
 
 @Component({
   selector: 'ngx-app',
@@ -19,6 +26,7 @@ import { SharedService } from './pages/services/shared.service';
 })
 export class AppComponent implements OnInit, OnDestroy {
   private messageEventListener: (event: MessageEvent) => void;
+  private routerSubscription: Subscription;
 
   constructor(
     private oauthStrategy: NbOAuth2AuthStrategy,
@@ -26,6 +34,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private config: ConfigService<Record<string, any>>,
     private router: Router,
     private sharedService: SharedService,
+    private authService: NbAuthService,
   ) {
     // Setup postMessage listener for SSO as early as possible
     this.setupPostMessageListener();
@@ -79,7 +88,7 @@ export class AppComponent implements OnInit, OnDestroy {
         method: 'post',
         redirect: {
           success: '/pages/auth/login',
-          failure: '/pages/home',
+          failure: '/pages/auth/login',
         },
       },
       });
@@ -93,8 +102,14 @@ export class AppComponent implements OnInit, OnDestroy {
     const isEmbedded = embeddedParam === 'true';
     this.sharedService.updateEmbeddedState(isEmbedded);
     
-    // Test SSO with provided tokens
-    // this.testSSOLogin();
+    // Check for existing tokens first
+    this.checkExistingTokens();
+    
+    // Check for redirect URLs in both sessionStorage and SharedService
+    this.checkAndHandleRedirects();
+    
+    // Setup router event subscription
+    this.setupRouterEventListener();
   }
 
   ngOnDestroy() {
@@ -102,11 +117,68 @@ export class AppComponent implements OnInit, OnDestroy {
     if (this.messageEventListener) {
       window.removeEventListener('message', this.messageEventListener);
     }
+    
+    // Clean up router subscription
+    if (this.routerSubscription) {
+      this.routerSubscription.unsubscribe();
+    }
+  }
+  
+  private checkExistingTokens() {
+    const token = localStorage.getItem('serviceToken');
+    const refreshToken = localStorage.getItem('refreshToken');
+    
+    if (token) {
+      // Create mock SSO message to update the service
+      const ssoMessage: SSOMessage = {
+        embedded: this.sharedService.isEmbedded(),
+        accessToken: token,
+        refreshToken: refreshToken || null
+      };
+      
+      // Update the shared service with existing tokens
+      this.sharedService.updateSSOData(ssoMessage);
+    }
+  }
+  
+  private checkAndHandleRedirects() {
+    // Check if we have a token
+    const hasToken = !!localStorage.getItem('serviceToken');
+    if (!hasToken) {
+      return;
+    }
+    
+    // First check sessionStorage for direct URL
+    const sessionRedirect = sessionStorage.getItem('idra_admin_redirect');
+    if (sessionRedirect) {
+      this.performRedirect(sessionRedirect);
+      return;
+    }
+    
+    // Then check SharedService for localStorage-persisted URL
+    if (this.sharedService.hasPendingAdminUrl()) {
+      const pendingUrl = this.sharedService.getPendingAdminUrl();
+      if (pendingUrl) {
+        this.performRedirect(pendingUrl);
+      }
+    }
+  }
+  
+  private performRedirect(url: string) {
+    // Clear all storage to avoid redirect loops
+    sessionStorage.removeItem('idra_admin_redirect');
+    
+    // Check if we're already at the target URL
+    if (window.location.href.includes(url) || 
+        (url.startsWith('/') && window.location.pathname.includes(url))) {
+      return;
+    }
+    
+    // Use window.location for most reliable navigation
+    window.location.href = url;
   }
 
   private setupPostMessageListener() {
-    console.log('🔄 Setting up postMessage listener');
-    
     this.messageEventListener = (event: MessageEvent) => {
       // Ignore React DevTools messages
       if (event.data?.source === 'react-devtools-content-script') {
@@ -114,13 +186,8 @@ export class AppComponent implements OnInit, OnDestroy {
       }
       
       try {
-        console.log('📨 Received message event:', typeof event.data);
-        
         if (this.isValidSSOMessage(event.data)) {
           const ssoMessage: SSOMessage = event.data;
-          console.log('✅ Valid SSO message received');
-          console.log('🔐 Token present:', !!ssoMessage.accessToken);
-          console.log('🔄 Refresh token present:', !!ssoMessage.refreshToken);
           
           // Update shared service with SSO data
           this.sharedService.updateSSOData(ssoMessage);
@@ -134,12 +201,12 @@ export class AppComponent implements OnInit, OnDestroy {
               // Store tokens and user data
               localStorage.setItem('serviceToken', ssoMessage.accessToken);
               
-              // 2. Store the refresh token if provided
+              // Store the refresh token if provided
               if (ssoMessage.refreshToken) {
                 localStorage.setItem('refreshToken', ssoMessage.refreshToken);
               }
               
-              // 3. Create and store Nebular Auth token object
+              // Create and store Nebular Auth token object
               const authTokenObject = {
                 name: "nb:auth:simple:token",
                 ownerStrategyName: this.config.config["authenticationMethod"].toLowerCase() === "keycloak" 
@@ -149,6 +216,9 @@ export class AppComponent implements OnInit, OnDestroy {
                 value: ssoMessage.accessToken
               };
               localStorage.setItem('auth_app_token', JSON.stringify(authTokenObject));
+              
+              // Check for any pending redirects
+              this.checkAndHandleRedirects();
             }
           }
           
@@ -166,7 +236,7 @@ export class AppComponent implements OnInit, OnDestroy {
           }
         }
       } catch (error) {
-        console.error('❌ Error processing postMessage:', error);
+        console.error('Error processing postMessage:', error);
       }
     };
 
@@ -185,35 +255,73 @@ export class AppComponent implements OnInit, OnDestroy {
     const urlParams = new URLSearchParams(window.location.search);
     return urlParams.get(name);
   }
+  
+  private setupRouterEventListener() {
+    // Subscribe to router navigation events
+    this.routerSubscription = this.router.events
+      .pipe(
+        // Filter for NavigationStart events only
+        filter((event: RouterEvent): event is NavigationStart => event instanceof NavigationStart)
+      )
+      .subscribe((event: NavigationStart) => {
+        // Handle route changes
+        this.handleRouteChange(event.url);
+      });
+  }
+  
+  private handleRouteChange(url: string) {
+    // Skip if on the login page
+    if (url.includes('/auth/login')) {
+      return;
+    }
+    
+    // Check if this is an administration page
+    const isAdminPage = url.includes('/administration/');
+    
+    // Check if we have a token - either in shared service or localStorage
+    const ssoToken = this.sharedService.getSSOToken();
+    const localStorageToken = localStorage.getItem('serviceToken');
+    
+    // If we have a token in SharedService, we're good to go
+    if (ssoToken) {
+      return;
+    }
+    
+    // If we have a token in localStorage but not in SharedService, load it
+    if (localStorageToken && !ssoToken) {
+      const refreshToken = localStorage.getItem('refreshToken');
+      const ssoMessage = {
+        embedded: this.sharedService.isEmbedded(),
+        accessToken: localStorageToken,
+        refreshToken: refreshToken || null
+      };
+      this.sharedService.updateSSOData(ssoMessage);
+      return;
+    }
+    
+    // If we're in embedded mode, handle first load for admin pages
+    if (this.sharedService.isEmbedded() && isAdminPage) {
+      // Check if this is first load
+      if (this.sharedService.isFirstLoad()) {
+        // No token available and it's first load, save URL for redirection
+        this.sharedService.setPendingAdminUrl(url);
+        sessionStorage.setItem('idra_admin_redirect', url);
 
-  // private testSSOLogin(): void {
-  //   console.log('AppComponent: Testing SSO login with provided tokens');
+        return;
+      }
+    }
     
-  //   // Use an ACCESS token (typ: "Bearer") - you'll need to get this from your Keycloak
-  //   const accessToken = '800A'; // Replace with actual access token
-    
-  //   // This can remain a refresh token
-  //   const refreshToken = '800B';
-    
-  //   // Create a mock SSO message
-  //   const mockSSOMessage: SSOMessage = {
-  //     embedded: false,
-  //     accessToken: accessToken, // Use proper access token here
-  //     refreshToken: refreshToken,
-  //     language: 'en'
-  //   };
-    
-  //   // Simulate sending the SSO message to the listener
-  //   console.log('AppComponent: Simulating postMessage with SSO data');
-  //   const mockEvent = new MessageEvent('message', {
-  //     data: mockSSOMessage,
-  //     origin: window.location.origin,
-  //     source: window
-  //   });
-    
-  //   // Trigger the message event handler directly
-  //   if (this.messageEventListener) {
-  //     this.messageEventListener(mockEvent);
-  //   }
-  // }
+    // For admin pages without token, check Nebular authentication
+    if (isAdminPage && !localStorageToken && !ssoToken) {
+      this.authService.isAuthenticated().subscribe(authenticated => {
+        if (!authenticated) {
+          // Store current URL for redirection after login
+          this.sharedService.setPendingAdminUrl(url);
+          
+          // Navigate to login
+          this.router.navigate(['/pages/auth/login']);
+        }
+      });
+    }
+  }
 }

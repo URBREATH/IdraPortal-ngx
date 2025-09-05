@@ -1,6 +1,19 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject } from 'rxjs';
-import { SSOMessage } from '../../models';
+import { BehaviorSubject, Observable } from 'rxjs';
+
+/*
+Manages application state (tokens, embedded status, first-load status)
+Decodes and stores JWT tokens
+Preserves admin URLs for redirection after authentication
+Maintains user session information
+*/
+
+export interface SSOMessage {
+  embedded: boolean;
+  accessToken: string;
+  refreshToken: string;
+  language?: string; // ISO639-1 two letter code
+}
 
 @Injectable({
   providedIn: 'root'
@@ -22,7 +35,42 @@ export class SharedService {
   private languageSubject = new BehaviorSubject<string>('en');
   language$ = this.languageSubject.asObservable();
   
-  constructor() { }
+  // First load and token state management
+  private firstLoadSubject = new BehaviorSubject<boolean>(true);
+  firstLoad$ = this.firstLoadSubject.asObservable();
+  
+  private tokenReceivedSubject = new BehaviorSubject<boolean>(false);
+  tokenReceived$ = this.tokenReceivedSubject.asObservable();
+  
+  // Key constants
+  private readonly FIRST_LOAD_KEY = 'idra_first_load';
+  private readonly TOKEN_KEY = 'serviceToken';
+  
+  constructor() {
+    // Initialize from localStorage on service creation
+    this.initializeState();
+  }
+
+  private initializeState(): void {
+    // Initialize first load state from localStorage
+    const firstLoadValue = localStorage.getItem(this.FIRST_LOAD_KEY);
+    const isFirstLoad = firstLoadValue === null || firstLoadValue === 'true';
+    this.firstLoadSubject.next(isFirstLoad);
+    
+    // Initialize token state from localStorage
+    const token = localStorage.getItem(this.TOKEN_KEY);
+    this.tokenReceivedSubject.next(!!token);
+    
+    if (token) {
+      this.ssoToken.next(token);
+    }
+    
+    // Initialize refresh token if present
+    const refreshToken = localStorage.getItem('refreshToken');
+    if (refreshToken) {
+      this.refreshToken.next(refreshToken);
+    }
+  }
 
   onLanguageChange() {
     return this.languageSubject.asObservable();
@@ -39,6 +87,14 @@ export class SharedService {
     this.ssoToken.next(ssoMessage.accessToken);
     this.refreshToken.next(ssoMessage.refreshToken);
     
+    // Update token received state
+    if (ssoMessage.accessToken) {
+      this.tokenReceivedSubject.next(true);
+      
+      // Mark first load as complete
+      this.setFirstLoadComplete();
+    }
+    
     // Also update the language
     this.propagateDialogSelectedLanguage(ssoMessage.language);
   }
@@ -47,6 +103,52 @@ export class SharedService {
     this.embeddedState.next(embedded);
   }
 
+  // First load state management
+  isFirstLoad(): boolean {
+    return this.firstLoadSubject.value;
+  }
+  
+  setFirstLoadComplete(): void {
+    localStorage.setItem(this.FIRST_LOAD_KEY, 'false');
+    this.firstLoadSubject.next(false);
+  }
+  
+  isTokenReceived(): boolean {
+    return this.tokenReceivedSubject.value;
+  }
+  
+  // URL preservation for admin pages
+  private pendingAdminUrl: string | null = null;
+  private readonly ADMIN_URL_KEY = 'idra_admin_url';
+  
+  setPendingAdminUrl(url: string): void {
+    // Store in memory
+    this.pendingAdminUrl = url;
+    // Also store in localStorage for persistence across page reloads
+    localStorage.setItem(this.ADMIN_URL_KEY, url);
+  }
+  
+  getPendingAdminUrl(): string | null {
+    // First try memory
+    let url = this.pendingAdminUrl;
+    
+    // If not in memory, try localStorage
+    if (!url) {
+      url = localStorage.getItem(this.ADMIN_URL_KEY);
+    }
+    
+    // Clear storage
+    this.pendingAdminUrl = null;
+    localStorage.removeItem(this.ADMIN_URL_KEY);
+    
+    return url;
+  }
+  
+  hasPendingAdminUrl(): boolean {
+    return !!(this.pendingAdminUrl || localStorage.getItem(this.ADMIN_URL_KEY));
+  }
+
+  // Token access methods
   getSSOToken(): string | null {
     return this.ssoToken.value;
   }

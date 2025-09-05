@@ -11,70 +11,57 @@ import { DataSourcesComponent } from './data-sources/data-sources.component';
 import { DatasetsNgsiEditorComponent } from './datasets-ngsi-editor/datasets-ngsi-editor.component';
 import { ModelsToolsEditorComponent } from './models-tools-editor/models-tools-editor.component';
 import { DataSourcesEditorComponent } from './data-sources-editor/data-sources-editor.component';
-import { AuthGuard } from '../auth/auth.guard';
 
 const routes: Routes = [
 {
     path: 'adminCatalogues',
-    component: CataloguesListComponent,
-    canActivate: [AuthGuard]
+    component: CataloguesListComponent
   },
 {
     path: 'dataletsManagement',
-    component: DataletsManagementComponent,
-    canActivate: [AuthGuard]
+    component: DataletsManagementComponent
   },
 {
   path:'adminCatalogues/addCatalogue',
-  component: AddCatalogueComponent,
-  canActivate: [AuthGuard]
+  component: AddCatalogueComponent
 },
 {
   path:'adminCatalogues/remoteCatalogues',
-  component: RemoteCataloguesComponent,
-  canActivate: [AuthGuard]
+  component: RemoteCataloguesComponent
 },
 {
   path:'configuration',
-  component: AdminConfigurationsComponent,
-  canActivate: [AuthGuard]
+  component: AdminConfigurationsComponent
 },
 {
   path: 'datasets-ngsi',
-  component: DatasetsNgsiComponent,
-  canActivate: [AuthGuard]
+  component: DatasetsNgsiComponent
 },
 {
   path: 'datasets-ngsi/editor',
-  component: DatasetsNgsiEditorComponent,
-  canActivate: [AuthGuard]
+  component: DatasetsNgsiEditorComponent
 },
 {
   path: 'models-tools',
-  component: ModelsToolsComponent,
-  canActivate: [AuthGuard]
+  component: ModelsToolsComponent
 },
 {
   path: 'models-tools/editor',
-  component: ModelsToolsEditorComponent,
-  canActivate: [AuthGuard]
+  component: ModelsToolsEditorComponent
 },
 {
   path: 'data-sources',
-  component: DataSourcesComponent,
-  canActivate: [AuthGuard]
+  component: DataSourcesComponent
 },
 {
   path: 'data-sources/editor',
-  component: DataSourcesEditorComponent,
-  canActivate: [AuthGuard]
+  component: DataSourcesEditorComponent
 }
 ];
 
 @NgModule({
   imports: [RouterModule.forChild(routes)],
-  exports: [RouterModule],
-  providers: [AuthGuard] // Add this if not using providedIn: 'root'
+  exports: [RouterModule]
 })
 export class AdminRoutingModule { }
 

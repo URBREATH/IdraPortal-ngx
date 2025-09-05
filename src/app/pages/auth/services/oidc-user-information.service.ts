@@ -33,10 +33,10 @@ export class OidcUserInformationService {
           if (this.user) {
             this.publishUser(this.user);
           } else {
-            console.warn('OidcUserInformationService: Could not extract user payload from token');
+            //console.warn('OidcUserInformationService: Could not extract user payload from token');
           }
         } else {
-          console.log('OidcUserInformationService: Invalid or missing token');
+         // console.log('OidcUserInformationService: Invalid or missing token');
           this.user = null;
           this.publishUser(null);
         }
