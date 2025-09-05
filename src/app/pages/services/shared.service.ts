@@ -103,6 +103,23 @@ export class SharedService {
     this.embeddedState.next(embedded);
   }
 
+  // Reset all authentication related state
+  resetAuthState(): void {
+    // Reset token-related subjects
+    this.ssoToken.next(null);
+    this.refreshToken.next(null);
+    this.tokenReceivedSubject.next(false);
+    
+    // Reset first load state
+    this.firstLoadSubject.next(true);
+    localStorage.setItem(this.FIRST_LOAD_KEY, 'true');
+    
+    // Clear any saved admin URLs
+    this.pendingAdminUrl = null;
+    localStorage.removeItem(this.ADMIN_URL_KEY);
+    sessionStorage.removeItem('idra_admin_redirect');
+  }
+
   // First load state management
   isFirstLoad(): boolean {
     return this.firstLoadSubject.value;

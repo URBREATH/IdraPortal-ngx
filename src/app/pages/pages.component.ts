@@ -65,17 +65,54 @@ export class PagesComponent implements OnInit, OnDestroy {
     
     if (this.configService.config['enableAuthentication']) {
       this.authMenuItems();
+      
+      // Subscribe to authentication state changes
+      const authSubscription = this.auth.onAuthenticationChange()
+        .subscribe(authenticated => {
+          // Update menu items visibility when auth state changes
+          this.authMenuItems();
+        });
+      this.subscriptions.push(authSubscription);
+      
+      // Also subscribe to token state from SharedService
+      const tokenSubscription = this.sharedService.tokenReceived$
+        .subscribe(hasToken => {
+          this.authMenuItems();
+        });
+      this.subscriptions.push(tokenSubscription);
+      
+      // Listen for logout events
+      window.addEventListener('idra-user-logout', () => {
+        // Make sure admin menu is hidden after logout
+        this.menu.forEach(item => {
+          if (item.data && item.data['name'] === 'administration') {
+            item.hidden = true;
+          }
+        });
+      });
     }
   }
 
   ngOnDestroy() {
     // Clean up subscriptions
     this.subscriptions.forEach(sub => sub.unsubscribe());
+    
+    // Remove event listener
+    window.removeEventListener('idra-user-logout', this.handleLogout);
+  }
+  
+  private handleLogout = () => {
+    // Make sure admin menu is hidden after logout
+    this.menu.forEach(item => {
+      if (item.data && item.data['name'] === 'administration') {
+        item.hidden = true;
+      }
+    });
   }
 
   authMenuItems() {
     this.menu.forEach(item => {
-      if(item.hidden)
+      if(item.data && item.data['name'] === 'administration')
         this.authMenuItem(item);
     });
   }
@@ -83,21 +120,32 @@ export class PagesComponent implements OnInit, OnDestroy {
   authMenuItem(menuItem: MenuItem) {
     this.translateService.use('en');
     this.sharedService.propagateDialogSelectedLanguage("en");
-    if (menuItem.data && menuItem.data['name'] ) {
-      this.accessChecker.isGranted('view', menuItem.data['name']).subscribe(res =>
-       
-        menuItem.hidden = !res
-       )
-     } else {
-
-          menuItem.hidden = true;
-     }
-     if (!menuItem.hidden && menuItem.children != null ) {
-       menuItem.children.forEach(item => {
-         item.hidden = menuItem.hidden;
-       });
-     }
-
+    
+    // Check for token - either in SharedService or localStorage
+    const hasToken = this.sharedService.getSSOToken() || localStorage.getItem('serviceToken');
+    const hasAuthToken = localStorage.getItem('auth_app_token');
+    
+    if (!hasToken && !hasAuthToken) {
+      // No authentication tokens, hide admin menu
+      menuItem.hidden = true;
+      return;
+    }
+    
+    // Check access rights if token exists
+    if (menuItem.data && menuItem.data['name']) {
+      this.accessChecker.isGranted('view', menuItem.data['name']).subscribe(res => {
+        menuItem.hidden = !res;
+        
+        // Also update children visibility
+        if (!menuItem.hidden && menuItem.children != null) {
+          menuItem.children.forEach(item => {
+            item.hidden = menuItem.hidden;
+          });
+        }
+      });
+    } else {
+      menuItem.hidden = true;
+    }
   }
   translateMenuItems() {
     this.menu.forEach(item => this.translateMenuItem(item));

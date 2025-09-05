@@ -252,7 +252,20 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   private clearAuthStorage(): void {
     try {
+      // Clear all authentication-related items from storage
       localStorage.clear();
-    } catch {}
+      sessionStorage.removeItem('idra_admin_redirect');
+      
+      // Reset the authentication state in SharedService
+      this.sharedService.resetAuthState();
+      
+      // Force menu refresh by manually triggering authentication change
+      this.authenticated = false;
+      
+      // Notify the app that user is logged out
+      window.dispatchEvent(new CustomEvent('idra-user-logout'));
+    } catch (error) {
+      console.error('Error clearing authentication storage:', error);
+    }
   }
 }
