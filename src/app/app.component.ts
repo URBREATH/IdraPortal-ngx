@@ -151,6 +151,19 @@ export class AppComponent implements OnInit, OnDestroy {
     // First check sessionStorage for direct URL
     const sessionRedirect = sessionStorage.getItem('idra_admin_redirect');
     if (sessionRedirect) {
+      // Ensure URL is properly formatted for internal navigation
+      let redirectUrl = sessionRedirect;
+      if (!redirectUrl.startsWith('/') && !redirectUrl.startsWith('http')) {
+        redirectUrl = '/' + redirectUrl;
+      }
+      
+      // For URLs that look like paths to our app, ensure they're properly formatted
+      if (redirectUrl.startsWith('/pages/')) {
+        this.performRedirect(redirectUrl);
+        return;
+      }
+      
+      // Otherwise try the original URL
       this.performRedirect(sessionRedirect);
       return;
     }
@@ -167,6 +180,7 @@ export class AppComponent implements OnInit, OnDestroy {
   private performRedirect(url: string) {
     // Clear all storage to avoid redirect loops
     sessionStorage.removeItem('idra_admin_redirect');
+    localStorage.removeItem('idra_admin_url');
     
     // Check if we're already at the target URL
     if (window.location.href.includes(url) || 
@@ -174,8 +188,29 @@ export class AppComponent implements OnInit, OnDestroy {
       return;
     }
     
-    // Use window.location for most reliable navigation
-    window.location.href = url;
+    // Check if this is an internal URL (starts with / or contains the current hostname)
+    const isInternalUrl = url.startsWith('/') || url.includes(window.location.hostname);
+    
+    if (isInternalUrl) {
+      // For internal URLs, use Angular router which avoids frame-related issues
+      // Remove leading slash if present for router navigation
+      const routerUrl = url.startsWith('/') ? url : '/' + url;
+      
+      // Use router navigation for internal paths
+      this.router.navigateByUrl(routerUrl);
+    } else {
+      // For external URLs, open in parent window to avoid X-Frame-Options issues
+      try {
+        if (window.parent && window.parent !== window) {
+          window.parent.location.href = url;
+        } else {
+          window.location.href = url;
+        }
+      } catch (e) {
+        // If accessing parent window fails due to cross-origin issues, fallback to current window
+        window.location.href = url;
+      }
+    }
   }
 
   private setupPostMessageListener() {
