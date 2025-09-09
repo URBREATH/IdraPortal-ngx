@@ -105,6 +105,9 @@ export class SharedService {
 
   // Reset all authentication related state
   resetAuthState(): void {
+    // Save current language before reset
+    const currentLanguage = this.languageSubject.value;
+    
     // Reset token-related subjects
     this.ssoToken.next(null);
     this.refreshToken.next(null);
@@ -118,6 +121,9 @@ export class SharedService {
     this.pendingAdminUrl = null;
     localStorage.removeItem(this.ADMIN_URL_KEY);
     sessionStorage.removeItem('idra_admin_redirect');
+    
+    // Restore the language
+    this.propagateDialogSelectedLanguage(currentLanguage);
   }
 
   // First load state management

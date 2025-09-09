@@ -109,7 +109,6 @@ export class AuthCallbackComponent implements OnDestroy, OnInit {
       .subscribe((authResult: NbAuthResult) => {
         if (authResult.isSuccess()) {
           this.router.navigateByUrl('/pages');
-          this.translateService.use('en');
         } else {
           this.router.navigateByUrl('');
         }

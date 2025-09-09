@@ -11,6 +11,7 @@ import { OidcJWTToken } from './pages/auth/oidc/oidc';
 import { NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { Router, NavigationStart, Event as RouterEvent } from '@angular/router';
 import { SharedService, SSOMessage } from './pages/services/shared.service';
+import { TranslateService } from '@ngx-translate/core';
 import { filter, Subscription } from 'rxjs';
 
 /*
@@ -34,6 +35,7 @@ export class AppComponent implements OnInit, OnDestroy {
     private config: ConfigService<Record<string, any>>,
     private router: Router,
     private sharedService: SharedService,
+  private translate: TranslateService,
     private authService: NbAuthService,
   ) {
     // Setup postMessage listener for SSO as early as possible
@@ -102,6 +104,14 @@ export class AppComponent implements OnInit, OnDestroy {
     const isEmbedded = embeddedParam === 'true';
     this.sharedService.updateEmbeddedState(isEmbedded);
     
+    // Check for language setting and ensure it's persisted
+    const currentLanguage = this.translate.currentLang || localStorage.getItem('sso_language') || 'en';
+    if (!localStorage.getItem('sso_language')) {
+      localStorage.setItem('sso_language', currentLanguage);
+    }
+    this.translate.use(currentLanguage);
+    this.sharedService.propagateDialogSelectedLanguage(currentLanguage);
+    
     // Check for existing tokens first
     this.checkExistingTokens();
     
@@ -127,17 +137,23 @@ export class AppComponent implements OnInit, OnDestroy {
   private checkExistingTokens() {
     const token = localStorage.getItem('serviceToken');
     const refreshToken = localStorage.getItem('refreshToken');
+    const language = localStorage.getItem('sso_language') || 'en';
     
     if (token) {
       // Create mock SSO message to update the service
       const ssoMessage: SSOMessage = {
         embedded: this.sharedService.isEmbedded(),
         accessToken: token,
-        refreshToken: refreshToken || null
+        refreshToken: refreshToken || null,
+        language: language // Include the language in the SSO message
       };
       
       // Update the shared service with existing tokens
       this.sharedService.updateSSOData(ssoMessage);
+    } else {
+      // Even if no token, ensure language is consistent
+      this.translate.use(language);
+      this.sharedService.propagateDialogSelectedLanguage(language);
     }
   }
   
@@ -220,8 +236,33 @@ export class AppComponent implements OnInit, OnDestroy {
         return;
       }
       
+      // Handle language-only messages coming from parent/embedding page
       try {
-        if (this.isValidSSOMessage(event.data)) {
+        if (event.data && event.data.language) {
+          console.log('Received message:', event.data.language);
+          // map some language codes used by host to our translations
+          let correctedLang: string;
+          switch (event.data.language) {
+            case 'es':
+              correctedLang = 'sp';
+              break;
+            case 'el':
+              correctedLang = 'gr';
+              break;
+            default:
+              correctedLang = event.data.language;
+          }
+
+          // persist language selection and apply it
+          if (correctedLang) {
+            localStorage.setItem('sso_language', correctedLang);
+            this.translate.use(correctedLang);
+            this.sharedService.propagateDialogSelectedLanguage(correctedLang);
+          }
+          // continue to allow SSO messages in the same event if present
+        }
+
+  if (this.isValidSSOMessage(event.data)) {
           const ssoMessage: SSOMessage = event.data;
           
           // Update shared service with SSO data

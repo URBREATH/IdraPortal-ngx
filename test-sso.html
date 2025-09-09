@@ -132,6 +132,20 @@
     </div>
 
     <script>
+    // Track the currently selected language
+    let currentLanguage = localStorage.getItem('testSsoLanguage') || 'en';
+    
+    // Function to update the tracked language
+    function updateCurrentLanguage(language) {
+        currentLanguage = language;
+        try {
+            localStorage.setItem('testSsoLanguage', language);
+        } catch (e) {
+            console.warn('Failed to save language to localStorage:', e);
+        }
+        console.log('Parent: Updated current language to:', language);
+    }
+
     // Function to change the iframe target environment without loading content
     function setIframeTarget(baseUrl) {
         // Just store the target, don't load content yet
@@ -171,31 +185,25 @@ function sendExactDashboardMessage(isAutomatic = false) {
         embedded: true,
         accessToken: 'eyJhbGciOiJSUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJfWVJZTDRYMC16RVhlUEZOQnVENzVnc0dvU0VRWGNHUnZxOVR0VlZxYnlvIn0.eyJleHAiOjE2OTQxNzUwMDUsImlhdCI6MTY5NDA4ODYwNSwianRpIjoiZjliNTRkZTAtNGQyMy00YTk3LWI5MzYtNTBkZTg1YTI2ZTFhIiwiaXNzIjoiaHR0cHM6Ly9pZG0ub3BzaWxhYi5pdC9hdXRoL3JlYWxtcy9nYWxpbGVvIiwiYXVkIjpbImZyYW1ld29yay1ibHVlcHJpbnQtYXBwIiwia2V5Y2xvYWstaWRtIiwiYWNjb3VudCIsInRlc3QtY2xpZW50Il0sInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiQmVhcmVyIiwiYXpwIjoicG9ydGFsIiwic2Vzc2lvbl9zdGF0ZSI6ImYwYzU4NWFmLWEyZGMtNGZjYy04NDg3LTdiM2NkMjY2YmFmYiIsImFsbG93ZWQtb3JpZ2lucyI6WyIqIl0sInJlYWxtX2FjY2VzcyI6eyJyb2xlcyI6WyJvZmZsaW5lX2FjY2VzcyIsInVtYV9hdXRob3JpemF0aW9uIl19LCJyZXNvdXJjZV9hY2Nlc3MiOnsia2V5Y2xvYWstaWRtIjp7InJvbGVzIjpbInZpZXctcmVhbG0iLCJ2aWV3LWlkZW50aXR5LXByb3ZpZGVycyIsIm1hbmFnZS1pZGVudGl0eS1wcm92aWRlcnMiLCJpbXBlcnNvbmF0aW9uIiwiY3JlYXRlLWNsaWVudCIsIm1hbmFnZS11c2VycyIsInF1ZXJ5LXJlYWxtcyIsInZpZXctYXV0aG9yaXphdGlvbiIsInF1ZXJ5LWNsaWVudHMiLCJxdWVyeS11c2VycyIsIm1hbmFnZS1ldmVudHMiLCJtYW5hZ2UtcmVhbG0iLCJ2aWV3LWV2ZW50cyIsInZpZXctdXNlcnMiLCJ2aWV3LWNsaWVudHMiLCJtYW5hZ2UtYXV0aG9yaXphdGlvbiIsIm1hbmFnZS1jbGllbnRzIiwicXVlcnktZ3JvdXBzIl19LCJhY2NvdW50Ijp7InJvbGVzIjpbIm1hbmFnZS1hY2NvdW50IiwibWFuYWdlLWFjY291bnQtbGlua3MiLCJ2aWV3LXByb2ZpbGUiXX19LCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsInByZWZlcnJlZF91c2VybmFtZSI6ImFkbWluIiwiZW1haWwiOiJhZG1pbkBleGFtcGxlLmNvbSIsIm5hbWUiOiJKb2huIERvZSJ9.ApcqQJk9XwMhov7qj5OrTsQZpQLQNNgep4eBiJ5Y80FdxRTfV0YgMBDJQCbhLaUUAHQclG4tLWjaqFitdN3VGUBsqyv8ja1i7XWOfIo4r2qcSuJIdxtidJRwt8COdzwmkRr7BFnDGpGlW7Dt_PJT6V_5CmK4smmrS7lJBeyqQ-5BYv-TOQ61TA9uWgMh0ctX-7hRupLBlotMvHj54JTtXRDCnYXMZVePAJjYxVqQ-OwYWDyl6oQSPd-Znkug0erQ-brX8GYXXXshFAL0mnx8w7WgJKuEzrbKxsVk9h6gb4zSXNhX5VXFqA1Dqdg1jQoQtYpO4aoctNe_yZVkqEoaYVd4iEkYwPInhqw',
         refreshToken: 'eyJhbGciOiJIUzI1NiIsInR5cCIgOiAiSldUIiwia2lkIiA6ICJlMjZhMGM3ZC0yYmVhLTRhZjItOTJiYy1kNzExOGM4ZGY2OCJ9.eyJpYXQiOjE2OTQwODg2MDUsImp0aSI6ImI1MWRhYjk0LTNhZjctNGI4NS05MWQ3LTU4ZTQ2ZTZmZDY5OCIsImlzcyI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvZ2FsaWxlbyIsImF1ZCI6Imh0dHBzOi8vaWRtLm9wc2lsYWIuaXQvYXV0aC9yZWFsbXMvZ2FsaWxlbyIsInN1YiI6IjNmOWIxMzZlLWY1ZjEtNDFjNy05YjVjLWMyMTM4MGYwM2Q4IiwidHlwIjoiUmVmcmVzaCIsImF6cCI6InBvcnRhbCIsInNlc3Npb25fc3RhdGUiOiJmMGM1ODVhZi1hMmRjLTRmY2MtODQ4Ny03YjNjZDI2NmJhZmIiLCJzY29wZSI6Im9wZW5pZCBwcm9maWxlIGVtYWlsIiwic2lkIjoiZjBjNTg1YWYtYTJkYy00ZmNjLTg0ODctN2IzY2QyNjZiYWZiIn0.2cZQt_fj_Ymt2h2mCJcvBcvAwkbUXDG5CsvRb_CC7n4',
-        language: 'en',
+        language: currentLanguage,
         sideMenu: 'expanded'
     };
     
     const iframe = document.getElementById('childFrame');
     const iframeOrigin = new URL(iframe.src).origin;
     
-    // Function to try different message sending strategies
-    function trySendingMessage() {
+    // Function to send messages in rapid sequence
+    function sendMessagesInSequence() {
         try {
-            // 1. First try to send as a direct object with iframe's specific origin
+            // Send the first message
             iframe.contentWindow.postMessage(dashboardMessage, iframeOrigin);
-            console.log(`${logPrefix} EXACT dashboard message sent to ${iframeOrigin} as object`);
+            console.log(`${logPrefix} First EXACT dashboard message sent to ${iframeOrigin}`);
             
-            // 2. Try with wildcard origin (more permissive)
+            // Send the second message immediately after (50ms delay)
             setTimeout(() => {
-                iframe.contentWindow.postMessage(dashboardMessage, '*');
-                console.log(`${logPrefix} EXACT dashboard message sent with wildcard origin`);
-                
-                // 3. Also try sending as JSON string in case the application expects that
-                setTimeout(() => {
-                    iframe.contentWindow.postMessage(JSON.stringify(dashboardMessage), '*');
-                    console.log(`${logPrefix} EXACT dashboard message sent as JSON string with wildcard origin`);
-                }, 200);
-            }, 200);
+                iframe.contentWindow.postMessage(dashboardMessage, iframeOrigin);
+                console.log(`${logPrefix} Second EXACT dashboard message sent (rapid sequence)`);
+            }, 50);
         } catch (error) {
             console.error(`${logPrefix} Error sending message:`, error);
         }
@@ -203,15 +211,18 @@ function sendExactDashboardMessage(isAutomatic = false) {
     
     // If the iframe is still loading, wait for it to finish
     if (iframe.contentWindow && iframe.contentDocument && iframe.contentDocument.readyState === 'complete') {
-        trySendingMessage();
+        sendMessagesInSequence();
     } else {
         console.log(`${logPrefix} Iframe not fully loaded, waiting...`);
-        setTimeout(trySendingMessage, 1000);
+        setTimeout(sendMessagesInSequence, 50);
     }
 }
 
 function sendSSOMessage(language = 'en') {
     console.log('Parent: Preparing to send SSO message with language:', language);
+    
+    // Update the tracked language
+    updateCurrentLanguage(language);
     
     // Creating an SSO message that exactly matches the dashboard-dev.urbreath.tech format
     const ssoMessage = {
@@ -224,20 +235,22 @@ function sendSSOMessage(language = 'en') {
     
     const iframe = document.getElementById('childFrame');
     
-    // First try to send as a direct object (as the dashboard might do)
+    // Send the message twice in rapid sequence to mimic the main component behavior
     iframe.contentWindow.postMessage(ssoMessage, 'http://localhost:4200');
-    console.log('Parent: SSO message sent to iframe as object:', ssoMessage);
+    console.log('Parent: First SSO message sent to iframe as object');
     
-    // Also try sending as JSON string in case the application expects that format
-    // This can help with cross-origin postMessage issues
+    // Send the second message immediately after the first one
     setTimeout(() => {
         iframe.contentWindow.postMessage(ssoMessage, 'http://localhost:4200');
-        console.log('Parent: SSO message sent to iframe');
-    }, 1000);
+        console.log('Parent: Second SSO message sent to iframe (rapid sequence)');
+    }, 50); // Very short delay between messages
 }
 
 function sendLanguageChangeOnly(language) {
     console.log('Parent: Sending language change message:', language);
+    
+    // Update the tracked language
+    updateCurrentLanguage(language);
     
     // Create a language change message that maintains the same format as the SSO message
     // but only updates the language field
@@ -248,8 +261,16 @@ function sendLanguageChangeOnly(language) {
     };
     
     const iframe = document.getElementById('childFrame');
+    
+    // Send the message twice in rapid sequence to mimic the main component behavior
     iframe.contentWindow.postMessage(languageMessage, 'http://localhost:4200');
-    console.log('Parent: Language change message sent:', languageMessage);
+    console.log('Parent: First language change message sent');
+    
+    // Send the second message immediately after
+    setTimeout(() => {
+        iframe.contentWindow.postMessage(languageMessage, 'http://localhost:4200');
+        console.log('Parent: Second language change message sent (rapid sequence)');
+    }, 50); // Very short delay between messages
 }
 
 // Listen for messages from the iframe for debugging - with proper filtering
@@ -345,6 +366,9 @@ function reloadIframe() {
 function sendRawSSOMessage(language = 'en') {
     console.log('Parent: Preparing to send RAW JSON SSO message with language:', language);
     
+    // Update the tracked language
+    updateCurrentLanguage(language);
+    
     // Creating an SSO message that exactly matches the dashboard-dev.urbreath.tech format
     const ssoMessage = {
         embedded: true,
@@ -358,19 +382,73 @@ function sendRawSSOMessage(language = 'en') {
     const jsonString = JSON.stringify(ssoMessage);
     
     const iframe = document.getElementById('childFrame');
+    
+    // Send the message twice in rapid sequence
     iframe.contentWindow.postMessage(jsonString, 'http://localhost:4200');
-    console.log('Parent: Raw JSON SSO message sent to iframe:', jsonString);
+    console.log('Parent: First raw JSON SSO message sent');
+    
+    // Send the second message immediately after
+    setTimeout(() => {
+        iframe.contentWindow.postMessage(jsonString, 'http://localhost:4200');
+        console.log('Parent: Second raw JSON SSO message sent (rapid sequence)');
+    }, 50); // Very short delay between messages
 }
 
 // Automatically send the exact dashboard message when the iframe loads
 document.getElementById('childFrame').onload = function() {
     console.log('Parent: Iframe loaded - automatically sending exact dashboard message');
     
+    // Check if iframe has actual content (not about:blank)
+    const iframe = document.getElementById('childFrame');
+    if (iframe.src && iframe.src !== 'about:blank' && !iframe.src.includes('about:blank')) {
+        // Check for an sso_language in the iframe's localStorage (if same origin)
+        try {
+            // Try to read from iframe's localStorage if possible (same origin)
+            const iframeLanguage = iframe.contentWindow.localStorage.getItem('sso_language');
+            if (iframeLanguage) {
+                console.log('Parent: Detected language in iframe:', iframeLanguage);
+                updateCurrentLanguage(iframeLanguage);
+            }
+        } catch (e) {
+            // Cross-origin access error, can't read iframe's localStorage
+            console.log('Parent: Cannot access iframe localStorage (expected for cross-origin)');
+        }
+    }
+    
+    // Use a message event listener to receive language updates from the iframe
+    window.addEventListener('message', function languageSync(event) {
+        // Check if the message is from our iframe
+        if (event.source === iframe.contentWindow) {
+            // Check for language update messages
+            if (event.data && event.data.type === 'idra-language-update' && event.data.language) {
+                console.log('Parent: Received language update from iframe:', event.data.language);
+                updateCurrentLanguage(event.data.language);
+            }
+        }
+    });
+    
     // Short delay to ensure iframe is fully loaded
     setTimeout(() => {
         sendExactDashboardMessage(true);  // Pass true to indicate automatic sending
     }, 500);
 };
+
+// Add event listeners to the language buttons to update the currentLanguage
+document.addEventListener('DOMContentLoaded', function() {
+    const languageButtons = document.querySelectorAll('.button-group button');
+    languageButtons.forEach(button => {
+        button.addEventListener('click', function() {
+            // Extract language from button text or onclick attribute
+            const onclickAttr = this.getAttribute('onclick') || '';
+            const languageMatch = onclickAttr.match(/['"](en|it|sp|de)['"]/);
+            if (languageMatch) {
+                const language = languageMatch[1];
+                console.log('Parent: Language button clicked:', language);
+                updateCurrentLanguage(language);
+            }
+        });
+    });
+});
     </script>
 </body>
 </html>

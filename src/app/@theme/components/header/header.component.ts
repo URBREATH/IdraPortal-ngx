@@ -76,9 +76,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   
   ngOnInit() {
-    // Setup language listener FIRST before doing anything else
-    this.setupLanguageListener();
-
     // Check for stored SSO language first, otherwise default to 'en'
     const storedLanguage = localStorage.getItem('sso_language');
     this.idraUserLanguage = storedLanguage || 'en';
@@ -187,24 +184,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
     }
   }
 
-  private setupLanguageListener() {
-    window.addEventListener('embedded-language-changed', (event: any) => {
-      const language = event.detail.language;
-      if (language && language !== this.idraUserLanguage) {
-        this.idraUserLanguage = language;
-        this.translate.use(this.idraUserLanguage);
-      }
-    });
-
-    this.sharedService.onLanguageChange()
-      .pipe(takeUntil(this.destroy$))
-      .subscribe((language: string) => {
-        if (language && language !== this.idraUserLanguage) {
-          this.idraUserLanguage = language;
-          this.translate.use(this.idraUserLanguage);
-        }
-      });
-  }
 
   ngOnDestroy() {
     this.destroy$.next();
@@ -246,6 +225,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
   changeLang(event) {
     this.idraUserLanguage = event;
+    localStorage.setItem('sso_language', event); // Always persist language selection
     this.translate.use(event);
     this.sharedService.propagateDialogSelectedLanguage(event);
   }
@@ -253,9 +233,14 @@ export class HeaderComponent implements OnInit, OnDestroy {
   private clearAuthStorage(): void {
     try {
       // Clear all authentication-related items from storage
-      localStorage.clear();
-      sessionStorage.removeItem('idra_admin_redirect');
-      
+      const configKeys = [
+        'serviceToken',
+        'refreshToken',
+        'auth_app_token',
+        'admin_configuration',
+      ];
+      configKeys.forEach(key => localStorage.removeItem(key));
+
       // Reset the authentication state in SharedService
       this.sharedService.resetAuthState();
       

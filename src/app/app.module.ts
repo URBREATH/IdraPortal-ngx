@@ -47,7 +47,6 @@ import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { Observable } from 'rxjs';
 import { SharedModule } from './shared/shared.module';
-import { EmbeddedLanguageService } from './services/embedded-language.service';
 import { CustomOverlayContainerAdapter } from './custom-overlay-container';
 import { CustomOverlayContainer } from './custom-cdk-overlay';
 import { OverlayContainer } from '@angular/cdk/overlay';
@@ -279,9 +278,7 @@ export class CustomTranslateLoader implements TranslateLoader {
       useClass: NbAuthSimpleInterceptor,
       multi: true,
     },
-    JwtHelperService,
-    EmbeddedLanguageService,
-   
+    JwtHelperService
   ],
   bootstrap: [AppComponent],
 })

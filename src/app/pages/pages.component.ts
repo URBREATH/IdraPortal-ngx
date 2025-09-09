@@ -118,8 +118,9 @@ export class PagesComponent implements OnInit, OnDestroy {
   }
 
   authMenuItem(menuItem: MenuItem) {
-    this.translateService.use('en');
-    this.sharedService.propagateDialogSelectedLanguage("en");
+  const storedLanguage = localStorage.getItem('sso_language') || 'en';
+  this.translateService.use(storedLanguage);
+  this.sharedService.propagateDialogSelectedLanguage(storedLanguage);
     
     // Check for token - either in SharedService or localStorage
     const hasToken = this.sharedService.getSSOToken() || localStorage.getItem('serviceToken');
