@@ -110,7 +110,9 @@ export class CustomTranslateLoader implements TranslateLoader {
     CoreModule.forRoot(),
     ThemeModule.forRoot(),
     MarkdownModule.forRoot(),
-    CodeEditorModule.forRoot(),
+    CodeEditorModule.forRoot({
+      baseUrl: 'assets/monaco',
+    }),
     ConfigModule.forRoot({
       pathToConfig: 'assets/config.json',
       configType: GenericConfig
@@ -123,6 +125,7 @@ export class CustomTranslateLoader implements TranslateLoader {
         deps: [HttpClient],
       },
     }),
+    
 
     NbSecurityModule.forRoot({
       accessControl: {
