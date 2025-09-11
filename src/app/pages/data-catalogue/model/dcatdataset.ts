@@ -48,5 +48,6 @@ export class DCATDataset {
   legacyIdentifier?: string;
   distributionFormats?: Array<FormatCount>=[];
   versionNotes?:string[];
+  nodeName: any;
   constructor(){}
 }

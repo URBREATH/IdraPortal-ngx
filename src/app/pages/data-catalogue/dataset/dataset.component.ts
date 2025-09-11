@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfigService } from 'ngx-config-json';
@@ -12,19 +12,28 @@ import { ShowDataletsComponent } from '../show-datalets/show-datalets.component'
 import * as URLParse from 'url-parse';
 import { PreviewDialogComponent } from './preview-dialog/preview-dialog.component';
 import { GeoJsonDialogComponent } from './geojson-dialog/geojson-dialog.component';
-import { format } from 'path';
 import { RefreshService } from '../../services/refresh.service';
+import { DatasourceService } from '../../services/datasource.service';
+import { ModelsService } from '../../services/models.service';
+import { NgsiDatasetsService } from '../../services/ngsi-datasets.service';
+import * as L from 'leaflet';
+
 
 @Component({
   selector: 'ngx-dataset',
   templateUrl: './dataset.component.html',
   styleUrls: ['./dataset.component.scss']
 })
-export class DatasetComponent implements OnInit {
+export class DatasetComponent implements OnInit, OnDestroy {
 
   id:string;
   dataset:DCATDataset=new DCATDataset();
   loading=false;
+
+  ngsiDataset:any;
+  dataSource:any;
+  model:any={};
+  public map: L.Map;
 
   licenses:Array<any>=[];
 
@@ -44,7 +53,10 @@ export class DatasetComponent implements OnInit {
     private dialogService: NbDialogService,
     private configService: ConfigService<Record<string, any>>,
     private refreshService: RefreshService,
-    ) { 
+    private datasourceService: DatasourceService,
+    private modelsService: ModelsService,
+    private ngsiDatasetsService: NgsiDatasetsService
+    ) {
       this.dataletBaseUrl = this.configService.config["datalet_base_url"];
       this.enableDatalet = this.configService.config["enable_datalet"];
     }
@@ -62,6 +74,7 @@ export class DatasetComponent implements OnInit {
     this.route.paramMap.subscribe(params => {
       this.id = params.get('id'); 
       if (this.id) {
+        this.cleanupMap();
         this.getDataset();
       }else{
         this.loading=false;
@@ -70,14 +83,38 @@ export class DatasetComponent implements OnInit {
         queryParamsHandling: 'merge',
         });
       }
-    })
-  }
+        })
+      }
 
-  getDataset(){
-    this.loading=true;
-    this.restApi.getDatasetById(this.id).subscribe(
+      ngOnDestroy(): void {
+        this.cleanupMap();
+      }
+    
+      private cleanupMap(): void {
+        if (this.map) {
+          this.map.remove();
+          this.map = null;
+        }
+      }
+
+      getDataset(){
+        this.loading=true;
+        this.restApi.getDatasetById(this.id).subscribe(
       res=>{ 
         this.dataset=res;
+        switch(this.dataset.nodeName.replace(/\s/g, "").toLowerCase()){
+          case "datasources":
+            this.getDataSource();
+            break;
+          case "modelsandtools":
+            this.getModels();
+            break;
+          case "datasets":
+            this.getNgsiDataset();
+            break;
+        }
+        
+        console.log('Dataset: ', this.dataset);
         let tmpLic=[]
         this.dataset.distributions.forEach( x => {
           if(x.license!=undefined && x.license.name!='' && tmpLic.indexOf(x.license.name)<0){
@@ -96,6 +133,59 @@ export class DatasetComponent implements OnInit {
           });
        }
       )
+  }
+
+  
+  getDataSource(){
+    this.loading=true;
+    this.datasourceService.getSingleEntity(this.dataset.identifier).subscribe(
+      res=>{ 
+        this.dataSource=res;
+        console.log('DataSource: ', JSON.stringify(this.dataSource));
+        this.loading=false;
+        if (this.dataSource.spatial && this.dataSource.spatial.value) {
+          setTimeout(() => this.initMap(this.dataSource.spatial.value), 0);
+        }
+      },
+      err=>{
+        this.loading=false;
+        this.toastrService.danger(err.error.userMessage,"Error")
+      }
+    );
+  }
+
+  getModels(){
+    this.loading=true;
+    this.modelsService.getSingleEntity(this.dataset.identifier).subscribe(
+      res=>{ 
+        this.model=res;
+        console.log('Model: ', JSON.stringify(this.model));
+        this.loading=false;
+      },
+      err=>{
+        this.loading=false;
+        this.toastrService.danger(err.error.userMessage,"Error")
+      }
+    );
+  }
+
+  getNgsiDataset(){
+    this.loading=true;
+    this.ngsiDatasetsService.getSingleEntity(this.dataset.identifier).subscribe(
+      res=>{ 
+        this.ngsiDataset=res;
+        console.log('Dataset NGSI: ', this.ngsiDataset);
+        console.log('Dataset NGSI: ', JSON.stringify(this.ngsiDataset));
+        this.loading=false;
+        if (this.ngsiDataset.spatial && this.ngsiDataset.spatial.value) {
+          setTimeout(() => this.initMap(this.ngsiDataset.spatial.value), 0);
+        }
+      },
+      err=>{
+        this.loading=false;
+        this.toastrService.danger(err.error.userMessage,"Error")
+      }
+    );
   }
 
   openDistributionDetails(distribution:DCATDistribution){
@@ -282,6 +372,54 @@ export class DatasetComponent implements OnInit {
       return true;
     else
       return false;
+    }
+
+    private initMap(spatialData: any): void {
+      // Fix marker icon issue by setting the default icon using CDN URLs
+      const iconDefault = L.icon({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        iconSize: [25, 41],
+        iconAnchor: [12, 41],
+        popupAnchor: [1, -34],
+        tooltipAnchor: [16, -28],
+        shadowSize: [41, 41]
+      });
+      L.Marker.prototype.options.icon = iconDefault;
+  
+      const mapElement = document.getElementById('map');
+      if (!mapElement) {
+        return;
+      }
+      this.cleanupMap();
+      
+      // Initialize the map with OpenStreetMap tiles
+      this.map = L.map("map", {
+        center: [52, 12],
+        zoom: 3,
+        layers: [L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", {
+          maxZoom: 19,
+          attribution:
+            "&copy; <a href='http://www.openstreetmap.org/copyright'>OpenStreetMap</a>",
+        })],
+      });
+  
+      const geometry = new L.FeatureGroup();
+      
+      if (spatialData) {
+        const geojsonFeature = {
+          "type": "Feature",
+          "properties": {},
+          "geometry": spatialData
+        };
+  
+        const spatialLayer = L.geoJSON(geojsonFeature as any);
+        geometry.addLayer(spatialLayer);
+        this.map.fitBounds(geometry.getBounds());
+      }
+  
+      this.map.addLayer(geometry);
     }
 
 

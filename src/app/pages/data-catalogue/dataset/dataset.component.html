@@ -54,6 +54,74 @@
         </nb-card-header>
         <nb-card-body class="content-truncated">
 
+            <!-- NGSI Dataset -->
+            <div *ngIf="ngsiDataset">
+                <span *ngIf="ngsiDataset.creator?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Creator:</label>
+                    <p class="truncated">{{ngsiDataset.creator.value}}</p>
+                </span>
+                <span *ngIf="ngsiDataset.contactPoint?.value?.length > 0" class="d-flex flex-column mb-2">
+                    <label class="label">Contacts:</label>
+                    <p class="truncated">{{ngsiDataset.contactPoint.value.join(', ')}}</p>
+                </span>
+                <span *ngIf="ngsiDataset.frequency?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Frequency:</label>
+                    <p class="truncated">{{ngsiDataset.frequency.value}}</p>
+                </span>
+                <span *ngIf="ngsiDataset.publisher?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Publisher:</label>
+                    <p class="truncated">{{ngsiDataset.publisher.value}}</p>
+                </span>
+                <span *ngIf="ngsiDataset.version?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Version:</label>
+                    <p class="truncated">{{ngsiDataset.version.value}}</p>
+                </span>
+                <div *ngIf="ngsiDataset.spatial?.value" class="spatial-section mb-2">
+                    <label class="label">Location:</label>
+                    <div id="map" style="height: 300px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Data Source -->
+            <div *ngIf="dataSource">
+                <span *ngIf="dataSource.creator?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Creator:</label>
+                    <p class="truncated">{{dataSource.creator.value}}</p>
+                </span>
+                <span *ngIf="dataSource.contactPoint?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Contacts:</label>
+                    <p class="truncated">{{dataSource.contactPoint.value}}</p>
+                </span>
+                <span *ngIf="dataSource.publisher?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Publisher:</label>
+                    <p class="truncated">{{dataSource.publisher.value}}</p>
+                </span>
+                <div *ngIf="dataSource.spatial?.value" class="spatial-section mb-2">
+                    <label class="label">Location:</label>
+                    <div id="map" style="height: 300px; width: 100%;"></div>
+                </div>
+            </div>
+
+            <!-- Model -->
+            <div *ngIf="model">
+                <span *ngIf="model.creator?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Creator:</label>
+                    <p class="truncated">{{model.creator.value}}</p>
+                </span>
+                <span *ngIf="model.contactPoint?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Contacts:</label>
+                    <p class="truncated">{{model.contactPoint.value}}</p>
+                </span>
+                <span *ngIf="model.publisher?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Publisher:</label>
+                    <p class="truncated">{{model.publisher.value}}</p>
+                </span>
+                <span *ngIf="model.version?.value" class="d-flex flex-column mb-2">
+                    <label class="label">Version:</label>
+                    <p class="truncated">{{model.version.value}}</p>
+                </span>
+            </div>
+
             <span *ngIf="dataset.landingPage!=''" class="d-flex flex-column mb-2">
                 <label class="label">Landing Page:</label>
                 <p class="truncated" ><a [href]="dataset.landingPage" target="_blank">{{dataset.landingPage}}</a></p>
