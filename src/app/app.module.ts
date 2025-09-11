@@ -29,7 +29,6 @@ import {
   NbInputModule,
   NbSidebarService,
   NbLayoutModule,
-  NbOverlayContainerAdapter,
   NbGlobalLogicalPosition,
 } from '@nebular/theme';
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core';
@@ -47,9 +46,7 @@ import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
 import { Observable } from 'rxjs';
 import { SharedModule } from './shared/shared.module';
-import { CustomOverlayContainerAdapter } from './custom-overlay-container';
-import { CustomOverlayContainer } from './custom-cdk-overlay';
-import { OverlayContainer } from '@angular/cdk/overlay';
+
 class GenericConfig<T> {
   constructor(public config: T) {}
 }
@@ -261,16 +258,6 @@ export class CustomTranslateLoader implements TranslateLoader {
   ],
   providers: [
     NbSidebarService,
-    // Provide custom Nebular overlay container adapter
-    { 
-      provide: NbOverlayContainerAdapter,
-      useClass: CustomOverlayContainerAdapter
-    },
-    // Also provide custom CDK overlay container
-    {
-      provide: OverlayContainer,
-      useClass: CustomOverlayContainer
-    },
     {
       provide: HTTP_INTERCEPTORS,
       useClass: TokenInterceptor,

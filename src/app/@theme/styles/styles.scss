@@ -67,21 +67,6 @@
   }
 }
 
-/* Nebular Overlay Container Fix */
-.nb-global-overlay-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  pointer-events: none;
-  z-index: 1000;
-}
-
-.nb-global-overlay-container > * {
-  pointer-events: auto;
-}
-
 nb-layout-column router-outlet + * {
   display: block;
 }
@@ -94,19 +79,6 @@ nb-datepicker-container {
 /* Fix z-index for dialogs */
 .cdk-overlay-container {
   z-index: 1040 !important;
-}
-
-/* Custom overlay container fixes */
-.custom-overlay-container {
-  pointer-events: none !important;
-}
-
-.custom-overlay-container .cdk-overlay-backdrop {
-  pointer-events: auto !important;
-}
-
-.custom-overlay-container .cdk-overlay-pane {
-  pointer-events: auto !important;
 }
 
 /* Prevent body from shifting */
