@@ -157,7 +157,7 @@ export class SearchComponent implements OnInit {
     this.loading=true
     this.filtersTags=[];
 
-    console.log("Search Request before processing: ", this.searchRequest);
+    //console.log("Search Request before processing: ", this.searchRequest);
 
     // Clean up empty filters before making the request
     this.searchRequest.filters = this.searchRequest.filters.filter(filter => 
@@ -193,6 +193,7 @@ export class SearchComponent implements OnInit {
     this.restApi.searchDatasets(this.searchRequest).subscribe(
       res=>{
         this.searchResponse=res
+        this.searchResponse.count <= 10 && console.log(this.searchResponse);
         this.currentDatasets = this.searchResponse.count;  
         // Update totalDatasets on every search, not just the first one
         this.totalDatasets = this.searchResponse.count;  
@@ -290,8 +291,39 @@ export class SearchComponent implements OnInit {
     return dataset;
   }
 
+  nonEmptyThemes(themes):any[]{
+    if(themes==undefined) return [];
+    return themes.filter(x=> x.prefLabel!=undefined && x.prefLabel.length>0 && x.prefLabel[0].value.trim()!='');
+  }
+
   getColor(format:string):string{
     switch(format.toLowerCase()){
+      case 'agri':
+        return '#74cbec';
+      case 'econ':
+        return '#2db55d';
+      case 'educ':
+        return '#ef7100';
+      case 'envi':
+        return '#dfb100';
+      case 'ener':
+        return '#55a1ce';
+      case 'gove':
+        return '#2db55d';
+      case 'heal':
+        return '#686868';
+      case 'just':
+        return '#ec96be';
+      case 'intr':
+        return '#e0051e';
+      case 'regi':
+        return '#fd455f';
+      case 'soci':
+        return '#d00666';
+      case 'tech':
+        return '#fg4a52';
+      case 'tran':
+        return '#bfa500';
       case 'csv':
         return '#dfb100';
       case 'html':

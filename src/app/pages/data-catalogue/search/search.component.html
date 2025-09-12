@@ -65,6 +65,13 @@
           </nb-card-body>
           <nb-card-footer>
             <nb-tag-list size="small">
+                            <nb-tag *ngFor="let theme of nonEmptyThemes(dataset.theme)"
+                                [text]="theme.prefLabel[0].value"
+                                size="tiny" 
+                                [style.background]="getColor(theme.prefLabel[0].value)">
+                            </nb-tag>
+                      </nb-tag-list>
+            <nb-tag-list size="small">
               <nb-tag *ngFor="let tmp of dataset.distributionFormats" text="{{tmp.format}} ({{tmp.count}})" size="tiny" [style.background]="getColor(tmp.format)"></nb-tag>
             </nb-tag-list>
           </nb-card-footer>
