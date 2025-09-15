@@ -65,29 +65,6 @@
             </nb-option>
           </nb-select>
           
-          <!-- Custom format input -->
-          <div *ngIf="isOtherFormatSelected" class="mt-2">
-            <input nbInput 
-                   fullWidth
-                   type="text" 
-                   formControlName="otherFormat"
-                   placeholder="Specify format (max 10 characters)"
-                   maxlength="10">
-            
-            <!-- Validation error messages -->
-            <div *ngIf="distributionForm.get('otherFormat').touched && distributionForm.get('otherFormat').errors">
-              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.required">
-                Custom format is required
-              </small>
-              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.maxlength">
-                Format cannot exceed 10 characters
-              </small>
-              <small class="text-danger" *ngIf="distributionForm.get('otherFormat').errors.equalToOther">
-                Format cannot be 'Other'
-              </small>
-            </div>
-          </div>
-          
           <label for="license">{{'LICENSE' | translate}}</label>
           <input nbInput id="license" formControlName="license" type="text" maxlength="100" class="full-width-input" />
           

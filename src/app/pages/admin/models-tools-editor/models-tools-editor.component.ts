@@ -25,7 +25,6 @@ export class ModelsToolsEditorComponent implements OnInit {
   ];
 
   // Add this property to track if "Other" format is selected
-  isOtherFormatSelected: boolean = false;
 
 
   selectedStepIndex = 0;
@@ -113,10 +112,6 @@ export class ModelsToolsEditorComponent implements OnInit {
       id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required],
       format: [''],
-      otherFormat: ['', [
-        Validators.maxLength(10), 
-        this.notEqualToOtherValidator()
-      ]],
       description: [''],
       accessUrl: [''],
       downloadURL: ['', Validators.required], 
@@ -129,22 +124,9 @@ export class ModelsToolsEditorComponent implements OnInit {
       modifiedDate: ['']
     });
 
-    // Monitor format changes to toggle otherFormat field
+    // Format changes no longer need special handling
     this.distributionForm.get('format').valueChanges.subscribe(format => {
-      this.isOtherFormatSelected = format === 'Other';
-      
-      const otherFormatControl = this.distributionForm.get('otherFormat');
-      if (this.isOtherFormatSelected) {
-        otherFormatControl.enable();
-        otherFormatControl.setValidators([
-          Validators.maxLength(20),
-          this.notEqualToOtherValidator()
-        ]);
-      } else {
-        otherFormatControl.disable();
-        otherFormatControl.setValidators(null);
-      }
-      otherFormatControl.updateValueAndValidity();
+      // No special handling needed
     });
 
     // Add validator to dataset form with today's date as default for new datasets
@@ -162,18 +144,7 @@ export class ModelsToolsEditorComponent implements OnInit {
     });
   }
 
-  // Validator to ensure otherFormat isn't 'Other' (case insensitive)
-  notEqualToOtherValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) return null;
-      
-      // Check if the value equals "Other" (case-insensitive and ignoring spaces)
-      const normalized = control.value.replace(/\s+/g, '').toLowerCase();
-      return normalized === 'other' ? { equalToOther: true } : null;
-    };
-  }
-
-  // Add this method to edit a distribution
+    // Add this method to edit a distribution
   editDistribution(distribution: any): void {
     this.isEditingDistribution = true;
     this.currentEditingDistributionId = distribution.id;
@@ -183,7 +154,6 @@ export class ModelsToolsEditorComponent implements OnInit {
 
     // Check if this distribution has a format value
     let format = null;
-    let otherFormat = '';
     
     // Only process format if it exists and isn't empty
     if (distribution.format && distribution.format.trim() !== '') {
@@ -200,8 +170,7 @@ export class ModelsToolsEditorComponent implements OnInit {
         );
       } else {
         // It's a custom format
-        otherFormat = distribution.format;
-        format = 'Other';
+        format = distribution.format;
       }
     }
     
@@ -300,7 +269,6 @@ export class ModelsToolsEditorComponent implements OnInit {
       accessUrl: accessUrl,
       downloadURL: distribution.downloadURL,
       format: format,
-      otherFormat: otherFormat,
       byteSize: distribution.byteSize,
       checksum: distribution.checksum,
       rights: distribution.rights,
@@ -362,16 +330,8 @@ export class ModelsToolsEditorComponent implements OnInit {
 
     const formData = this.distributionForm.value;
 
-    // Specific format handling logic to handle empty values and optional otherFormat
-    let actualFormat = '';
-    if (formData.format) {
-      if (formData.format === 'Other') {
-        // Use otherFormat if provided, otherwise empty string
-        actualFormat = formData.otherFormat || '';
-      } else {
-        actualFormat = formData.format;
-      }
-    }
+    // Format value is used directly
+    const actualFormat = formData.format || '';
 
     // Title is required and must be unique
     if (!formData.title.trim()) {
@@ -753,8 +713,7 @@ export class ModelsToolsEditorComponent implements OnInit {
 
   cancelEditDistribution(): void {
     this.distributionForm.reset({
-      format: '',
-      otherFormat: ''
+      format: ''
     });
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;

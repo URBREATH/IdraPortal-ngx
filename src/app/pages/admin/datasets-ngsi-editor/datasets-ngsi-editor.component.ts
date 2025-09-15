@@ -228,10 +228,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       id: ['', [this.forbiddenCharsValidator()]],  // Apply validator
       title: ['', Validators.required],
       format: ['CSV'],
-      otherFormat: ['', [
-        Validators.maxLength(10), 
-        this.notEqualToOtherValidator()
-      ]],
       description: [''],
       accessUrl: [''],
       downloadURL: ['', Validators.required], 
@@ -247,20 +243,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Monitor format changes to toggle otherFormat field
     this.distributionForm.get('format').valueChanges.subscribe(format => {
       this.isOtherFormatSelected = format === 'Other';
-      
-      const otherFormatControl = this.distributionForm.get('otherFormat');
-      if (this.isOtherFormatSelected) {
-        otherFormatControl.enable();
-        otherFormatControl.setValidators([
-          Validators.required, 
-          Validators.maxLength(10),
-          this.notEqualToOtherValidator()
-        ]);
-      } else {
-        otherFormatControl.disable();
-        otherFormatControl.setValidators(null);
-      }
-      otherFormatControl.updateValueAndValidity();
     });
 
     // Add validator to dataset form with today's date as default for new datasets
@@ -278,17 +260,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     });
   }
 
-  // Validator to ensure otherFormat isn't 'Other' (case insensitive)
-  notEqualToOtherValidator(): ValidatorFn {
-    return (control: AbstractControl): ValidationErrors | null => {
-      if (!control.value) return null;
-      
-      // Check if the value equals "Other" (case-insensitive and ignoring spaces)
-      const normalized = control.value.replace(/\s+/g, '').toLowerCase();
-      return normalized === 'other' ? { equalToOther: true } : null;
-    };
-  }
-
   // Add this method to edit a distribution
   editDistribution(distribution: any): void {
     this.isEditingDistribution = true;
@@ -299,7 +270,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Check if this distribution has a custom format
     let format = distribution.format || 'CSV';
-    let otherFormat = '';
     
     // If format doesn't match any standard option (case insensitive and ignore spaces)
     const normalizedFormat = format.replace(/\s+/g, '').toLowerCase();
@@ -308,8 +278,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     );
     
     if (!isStandardFormat) {
-      otherFormat = format;
-      format = 'Other';
+      // Keep the format as is
+      // No need to set it to 'Other' and use otherFormat
     }
     
     // Convert arrays to single values for form fields
@@ -407,7 +377,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       accessUrl: accessUrl,
       downloadURL: distribution.downloadURL,
       format: format,
-      otherFormat: otherFormat,
       byteSize: distribution.byteSize,
       checksum: distribution.checksum,
       rights: distribution.rights,
@@ -469,8 +438,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     const formData = this.distributionForm.value;
     
-    // Use otherFormat value if format is 'Other'
-    const actualFormat = formData.format === 'Other' ? formData.otherFormat : formData.format;
+    // Use format value directly - no longer need to check for 'Other'
+    const actualFormat = formData.format;
 
     // Title is required and must be unique
     if (!formData.title.trim()) {
