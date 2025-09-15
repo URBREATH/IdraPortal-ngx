@@ -44,6 +44,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
   enableDatalet=true;
 
   samedomain=false;
+  isSpecialDatasetType: boolean = false;
 
   constructor(
     private router: Router,
@@ -105,12 +106,15 @@ export class DatasetComponent implements OnInit, OnDestroy {
         switch(this.dataset.nodeName.replace(/\s/g, "").toLowerCase()){
           case "datasources":
             this.getDataSource();
+            this.isSpecialDatasetType = true;
             break;
           case "modelsandtools":
             this.getModels();
+            this.isSpecialDatasetType = true;
             break;
           case "datasets":
             this.getNgsiDataset();
+            this.isSpecialDatasetType = true;
             break;
         }
         

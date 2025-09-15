@@ -30,13 +30,13 @@
                     <nb-card-header>
                         <div class="row w-100">
                             <div class="col-12 mb-1">
-                                <span class="text-wrap" *ngIf="distribution.format!=undefined && distribution.format!='undefined'">({{distribution.title}}&nbsp;{{distribution.format}})</span>
+                                <span class="text-wrap" *ngIf="distribution.format!=undefined && distribution.format!='undefined'">{{distribution.title}}&nbsp;{{distribution.format}}</span>
                             </div>
                             <div class="col-12">
                                 <nb-actions size="small" class="d-flex justify-content-start">
-                                    <nb-action icon="eye" nbTooltip="Preview File" [disabled]="!checkDistributionFormat(distribution.format)" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
-                                    <nb-action icon="file-text-outline" nbTooltip="View Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
-                                    <nb-action icon="bar-chart-outline" *ngIf="enableDatalet" nbTooltip="Create Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
+                                    <nb-action icon="eye" [nbTooltip]="!isSpecialDatasetType ? 'Preview File' : 'Preview/Access'" [disabled]="!checkDistributionFormat(distribution.format) || (ngsiDataset && distribution.format.toLowerCase() !== 'geojson' && distribution.format.toLowerCase() !== 'other')" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
+                                    <nb-action *ngIf="!isSpecialDatasetType" icon="file-text-outline" nbTooltip="View Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
+                                    <nb-action *ngIf="!isSpecialDatasetType && enableDatalet" icon="bar-chart-outline" nbTooltip="Create Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
                                     <nb-action icon="download-outline" [disabled]="checkDistributionDownload(distribution)" nbTooltip="Download" (click)="downloadUrl(distribution)"></nb-action>
                                     <nb-action icon="info" nbTooltip="Details" (click)="openDistributionDetails(distribution)"></nb-action>
                                 </nb-actions>
@@ -56,68 +56,81 @@
 
             <!-- NGSI Dataset -->
             <div *ngIf="ngsiDataset">
+                <span class="d-flex flex-column mb-2">
+                    <label class="label">{{ 'TYPE' | translate }}:</label>
+                    <p class="truncated">Dataset</p>
+                </span>
                 <span *ngIf="ngsiDataset.creator?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Creator:</label>
+                    <label class="label">{{ 'CREATOR' | translate }}:</label>
                     <p class="truncated">{{ngsiDataset.creator.value}}</p>
                 </span>
                 <span *ngIf="ngsiDataset.contactPoint?.value?.length > 0" class="d-flex flex-column mb-2">
-                    <label class="label">Contacts:</label>
+                    <label class="label">{{ 'CONTACTS' | translate }}:</label>
                     <p class="truncated">{{ngsiDataset.contactPoint.value.join(', ')}}</p>
                 </span>
                 <span *ngIf="ngsiDataset.frequency?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Frequency:</label>
+                    <label class="label">{{ 'FREQUENCY' | translate }}:</label>
                     <p class="truncated">{{ngsiDataset.frequency.value}}</p>
                 </span>
                 <span *ngIf="ngsiDataset.publisher?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Publisher:</label>
+                    <label class="label">{{ 'PUBLISHER' | translate }}:</label>
                     <p class="truncated">{{ngsiDataset.publisher.value}}</p>
                 </span>
                 <span *ngIf="ngsiDataset.version?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Version:</label>
+                    <label class="label">{{ 'VERSION' | translate }}:</label>
                     <p class="truncated">{{ngsiDataset.version.value}}</p>
                 </span>
                 <div *ngIf="ngsiDataset.spatial?.value" class="spatial-section mb-2">
-                    <label class="label">Location:</label>
+                    <label class="label">{{ 'LOCATION' | translate }}:</label>
                     <div id="map" style="height: 300px; width: 100%;"></div>
                 </div>
             </div>
 
             <!-- Data Source -->
             <div *ngIf="dataSource">
+                
+                <span class="d-flex flex-column mb-2">
+                    <label class="label">{{ 'TYPE' | translate }}:</label>
+                    <p class="truncated">Data Source</p>
+                </span>
                 <span *ngIf="dataSource.creator?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Creator:</label>
+                    <label class="label">{{ 'CREATOR' | translate }}:</label>
                     <p class="truncated">{{dataSource.creator.value}}</p>
                 </span>
                 <span *ngIf="dataSource.contactPoint?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Contacts:</label>
+                    <label class="label">{{ 'CONTACTS' | translate }}:</label>
                     <p class="truncated">{{dataSource.contactPoint.value}}</p>
                 </span>
                 <span *ngIf="dataSource.publisher?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Publisher:</label>
+                    <label class="label">{{ 'PUBLISHER' | translate }}:</label>
                     <p class="truncated">{{dataSource.publisher.value}}</p>
                 </span>
                 <div *ngIf="dataSource.spatial?.value" class="spatial-section mb-2">
-                    <label class="label">Location:</label>
+                    <label class="label">{{ 'LOCATION' | translate }}:</label>
                     <div id="map" style="height: 300px; width: 100%;"></div>
                 </div>
             </div>
 
             <!-- Model -->
             <div *ngIf="model">
+                <span class="d-flex flex-column mb-2">
+                    <label class="label">{{ 'TYPE' | translate }}:</label>
+                    <p class="truncated">Model/Tool</p>
+                </span>
                 <span *ngIf="model.creator?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Creator:</label>
+                    <label class="label">{{ 'CREATOR' | translate }}:</label>
                     <p class="truncated">{{model.creator.value}}</p>
                 </span>
                 <span *ngIf="model.contactPoint?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Contacts:</label>
+                    <label class="label">{{ 'CONTACTS' | translate }}:</label>
                     <p class="truncated">{{model.contactPoint.value}}</p>
                 </span>
                 <span *ngIf="model.publisher?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Publisher:</label>
+                    <label class="label">{{ 'PUBLISHER' | translate }}:</label>
                     <p class="truncated">{{model.publisher.value}}</p>
                 </span>
                 <span *ngIf="model.version?.value" class="d-flex flex-column mb-2">
-                    <label class="label">Version:</label>
+                    <label class="label">{{ 'VERSION' | translate }}:</label>
                     <p class="truncated">{{model.version.value}}</p>
                 </span>
             </div>
