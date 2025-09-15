@@ -15,8 +15,10 @@
     width: 80vw;
   }
 
+
   // Styles for endpoint display
   .endpoint-container {
+    padding: 1rem;
     display: flex;
     width: 100%;
     flex-direction: column;
@@ -26,6 +28,7 @@
 
   .endpoint-info {
     width: 100%;
+    max-width: 80vw;
     text-align: center;
   }
 
@@ -36,6 +39,7 @@
     margin: 1rem 0;
     text-align: left;
     overflow-x: auto;
+    width: 100%;
   }
 
   .endpoint-url {
@@ -43,4 +47,13 @@
     word-break: break-all;
     white-space: pre-wrap;
     font-family: monospace;
+  }
+  
+  .endpoint-url-input {
+    font-family: monospace;
+    font-size: 14px;
+    background-color: #e0e0e0;
+    border-radius: 4px;
+    width: 100%;
+    min-width: 800px;
   }
