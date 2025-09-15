@@ -321,7 +321,7 @@ nb-tag-list {
   }
   
   .left-column {
-    display: flex;
+    display: none; /* Change this to hide by default in mobile view */
     width: 100%;
     margin-bottom: 1rem;
     flex-direction: row;
@@ -355,6 +355,5 @@ nb-tag-list {
  #filter-toggle:checked + label + .left-column {
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
   }
 }
