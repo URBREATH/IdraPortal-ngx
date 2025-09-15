@@ -1,10 +1,22 @@
-<nb-card >
+<nb-card>
     <nb-card-header>{{ title }}</nb-card-header>
-    <nb-card-body >
-      <div class="card" [nbSpinner]="loading" nbSpinnerStatus="primary">
-        <div class="card-body" id="iframeBody">
+    <nb-card-body>
+      <!-- Special view for endpoints -->
+      <div *ngIf="isEndpoint" class="endpoint-container">
+        <div class="endpoint-info">
+          <div class="endpoint-url-container">
+            <pre class="endpoint-url">{{ endpointUrl }}</pre>
           </div>
+          <button nbButton status="primary" (click)="openEndpointInNewWindow()">
+            <nb-icon icon="external-link-outline"></nb-icon> Test Endpoint
+          </button>
+        </div>
+      </div>
+
+      <!-- Regular content for other types -->
+      <div *ngIf="!isEndpoint" class="card" [nbSpinner]="loading" nbSpinnerStatus="primary">
+        <div class="card-body" id="iframeBody">
+        </div>
       </div>
     </nb-card-body>
   </nb-card>
-  

@@ -34,10 +34,10 @@
                             </div>
                             <div class="col-12">
                                 <nb-actions size="small" class="d-flex justify-content-start">
-                                    <nb-action icon="file-text-outline" nbTooltip="Preview File" [disabled]="!checkDistributionFormat(distribution.format)" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
-                                    <nb-action icon="eye" nbTooltip="View Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
+                                    <nb-action icon="eye" nbTooltip="Preview File" [disabled]="!checkDistributionFormat(distribution.format)" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
+                                    <nb-action icon="file-text-outline" nbTooltip="View Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
                                     <nb-action icon="bar-chart-outline" *ngIf="enableDatalet" nbTooltip="Create Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
-                                    <nb-action icon="download-outline" nbTooltip="Dowload" (click)="downloadUrl(distribution)"></nb-action>
+                                    <nb-action icon="download-outline" [disabled]="checkDistributionDownload(distribution)" nbTooltip="Download" (click)="downloadUrl(distribution)"></nb-action>
                                     <nb-action icon="info" nbTooltip="Details" (click)="openDistributionDetails(distribution)"></nb-action>
                                 </nb-actions>
                             </div>

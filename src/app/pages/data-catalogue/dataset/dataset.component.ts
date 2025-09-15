@@ -191,9 +191,27 @@ export class DatasetComponent implements OnInit, OnDestroy {
   openDistributionDetails(distribution:DCATDistribution){
     this.dialogService.open(DistributionComponent, {
       context: {
-        distribution: distribution
+        distribution: distribution,
+        datasetType: this.dataset.nodeName // Pass the dataset type (datasources, modelsandtools, datasets)
       },
     });
+  }
+
+  checkDistributionDownload(distribution:DCATDistribution){
+    switch(distribution.format.replace(/\s/g, "").toLowerCase()){
+      //these are all model/tools formats that cannot be downloaded
+      case "videotutorial":
+      case "documentation":
+      case "endpoint":
+      case "guide":
+      case "userdocumentation":
+      case "apidocumentation":
+      case "coderepository":
+      case "other":
+      case "youtube":
+        return true;
+    }
+    return false;
   }
 
   downloadUrl(distribution:DCATDistribution){
@@ -326,6 +344,60 @@ export class DatasetComponent implements OnInit, OnDestroy {
 	handlePreviewFileOpenModal(distribution: DCATDistribution) {
     // check if the distribution format is one of the following: CSV,JSON,XML,GEOJSON,RDF,KML,PDF
     let formatLower = distribution.format.replace(/\s/g, "").toLowerCase();
+    
+    // For documentation, guides, API docs, code repositories, and other formats
+    // directly open the link in a new tab instead of showing the preview dialog
+    if (["documentation", "guide", "apidocumentation", "coderepository", "other"].includes(formatLower)) {
+      let url = distribution.downloadURL;
+      if (url) {
+        window.open(url, '_blank');
+        return;
+      }
+    }
+    
+    // Special handling for endpoints - show a simplified view with the URL and a Test button
+    if (formatLower === "endpoint") {
+      // Get the URL from either downloadURL or accessURL
+      let endpointUrl = distribution.downloadURL || distribution.accessURL || '';
+      if (endpointUrl) {
+        this.dialogService.open(PreviewDialogComponent, {
+          context: {
+            title: distribution.title,
+            isEndpoint: true,
+            endpointUrl: endpointUrl
+          },
+        });
+        return;
+      }
+    }
+    
+    // Check if the URL is a YouTube link - try both accessURL and downloadURL
+    const accessUrl = distribution.accessURL || '';
+    const downloadUrl = distribution.downloadURL || '';
+    
+    // First check if either URL is a YouTube link
+    if(this.isYouTubeUrl(accessUrl) || this.isYouTubeUrl(downloadUrl)) {
+      // Try to extract the YouTube video ID from both URLs
+      let youtubeVideoId = this.extractYouTubeVideoId(accessUrl);
+      
+      // If not found in accessURL, try downloadURL
+      if (!youtubeVideoId) {
+        youtubeVideoId = this.extractYouTubeVideoId(downloadUrl);
+      }
+      
+      if(youtubeVideoId) {
+        // Use youtube-nocookie.com for privacy-enhanced mode which reduces tracking errors
+        const embedUrl = `https://www.youtube-nocookie.com/embed/${youtubeVideoId}`;
+        this.dialogService.open(PreviewDialogComponent, {
+          context: {
+            title: distribution.title,
+            youtubeUrl: embedUrl,
+          },
+        });
+        return;
+      }
+    }
+    
     if(formatLower == "geojson" || formatLower == "kml"  || formatLower == "shp"){
       this.dialogService.open(GeoJsonDialogComponent, {
         context: {
@@ -365,14 +437,104 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 	}
 
-  checkDistributionFormat(format:string){
+  checkDistributionFormat(format: string) {
     // remove white spaces and convert to lower case
     let formatLower = format.replace(/\s/g, "").toLowerCase();
-    if(formatLower == "csv" || formatLower == "json" || formatLower == "xml" || formatLower == "geojson" || formatLower == "rdf" || formatLower == "kml" || formatLower == "pdf" || formatLower == "shp")
-      return true;
-    else
+    switch (formatLower) {
+      case "endpoint":
+      case "videotutorial":
+      case "documentation":
+      case "guide":
+      case "userdocumentation":
+      case "apidocumentation":
+      case "coderepository":
+      case "other":
+      case "youtube":
+      case "video":
+      case "csv":
+      case "json":
+      case "xml":
+      case "geojson":
+      case "rdf":
+      case "kml":
+      case "pdf":
+      case "shp":
+        return true;
+      default:
+        return false;
+    }
+  }
+
+  // Helper method to check if a URL is a YouTube link
+  isYouTubeUrl(url: string): boolean {
+    if (!url) return false;
+    
+    try {
+      const parsedUrl = new URLParse(url);
+      const hostname = parsedUrl.hostname;
+      
+      return hostname.includes('youtube.com') || 
+             hostname.includes('youtu.be') || 
+             hostname.includes('youtube-nocookie.com');
+    } catch (e) {
       return false;
     }
+  }
+
+  // Helper method to extract the YouTube video ID from a URL
+  extractYouTubeVideoId(url: string): string | null {
+    if (!url) return null;
+    
+    try {
+      // First try to match using regex patterns for common YouTube URL formats
+      const regexPatterns = [
+        // youtube.com/watch?v=VIDEO_ID
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([^&?\/]+)/i,
+        // youtube.com/v/VIDEO_ID
+        /youtube\.com\/v\/([^&?\/]+)/i,
+        // youtube.com/shorts/VIDEO_ID
+        /youtube\.com\/shorts\/([^&?\/]+)/i
+      ];
+      
+      for (const pattern of regexPatterns) {
+        const match = url.match(pattern);
+        if (match && match[1]) {
+          return match[1];
+        }
+      }
+      
+      // If regex didn't work, try URL parsing approach
+      const parsedUrl = new URLParse(url, true);
+      
+      // Handle youtube.com/watch?v=VIDEO_ID
+      if (parsedUrl.hostname.includes('youtube.com') && parsedUrl.pathname.includes('/watch')) {
+        return parsedUrl.query.v || null;
+      }
+      
+      // Handle youtu.be/VIDEO_ID
+      if (parsedUrl.hostname.includes('youtu.be')) {
+        const path = parsedUrl.pathname;
+        if (path && path.length > 1) {
+          return path.substring(1);
+        }
+      }
+      
+      // Handle youtube.com/embed/VIDEO_ID
+      if (parsedUrl.pathname.includes('/embed/')) {
+        const parts = parsedUrl.pathname.split('/');
+        for (let i = 0; i < parts.length; i++) {
+          if (parts[i] === 'embed' && i+1 < parts.length) {
+            return parts[i+1];
+          }
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      console.error('Error extracting YouTube video ID:', e);
+      return null;
+    }
+  }
 
     private initMap(spatialData: any): void {
       // Fix marker icon issue by setting the default icon using CDN URLs

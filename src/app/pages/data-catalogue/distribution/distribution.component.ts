@@ -11,7 +11,18 @@ import { SKOSConcept } from '../model/skosconcept';
 })
 export class DistributionComponent implements OnInit {
 
-  distribution:DCATDistribution;
+  @Input() distribution: DCATDistribution;
+  @Input() datasetType: string = ''; // New input parameter for dataset type
+
+  // Helper property to determine if the dataset is a special type (datasource, model/tool, ngsi)
+  get isSpecialDatasetType(): boolean {
+    if (!this.datasetType) return false;
+    
+    const type = this.datasetType.toLowerCase().replace(/\s/g, '');
+    return type === 'datasources' || 
+           type === 'modelsandtools' || 
+           type === 'datasets'; // 'datasets' here refers to NGSI datasets
+  }
 
   constructor(protected dialogRef: NbDialogRef<DistributionComponent>) { }
 

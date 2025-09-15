@@ -12,11 +12,43 @@ export class PreviewDialogComponent {
   url: string;
   loading: boolean;
   text: string;
+  youtubeUrl: string;
+  isEndpoint: boolean = false;
+  endpointUrl: string;
 
   constructor(protected ref: NbDialogRef<PreviewDialogComponent>) {}
 
   ngOnInit() {
-    if(this.text == undefined){
+    if (this.isEndpoint && this.endpointUrl) {
+      // Handle endpoint - nothing to do here, template will handle it
+      this.loading = false;
+    }
+    else if (this.youtubeUrl) {
+      // Handle YouTube embed
+      this.loading = true;
+      let iframe = document.createElement('iframe');
+      iframe.setAttribute('width', '560');
+      iframe.setAttribute('height', '315');
+      iframe.setAttribute('style', 'height: 70vh; width: 80vw; border: none;');
+      iframe.setAttribute('title', 'YouTube video player');
+      iframe.setAttribute('frameborder', '0');
+      // Use a limited set of permissions to reduce tracking-related errors
+      iframe.setAttribute('allow', 'encrypted-media; picture-in-picture');
+      iframe.setAttribute('loading', 'lazy');
+      iframe.setAttribute('allowfullscreen', 'true');
+      iframe.src = this.youtubeUrl;
+      
+      iframe.onload = (event: Event) => {
+        this.loading = false;
+      };
+      
+      iframe.onerror = (event: Event) => {
+        this.loading = false;
+      };
+      
+      document.getElementById('iframeBody').appendChild(iframe);
+    } 
+    else if(this.text == undefined){
       this.loading = true;
       let url = 'https://docs.google.com/gview?url='+this.url+'&embedded=true';
       let iframe = document.createElement('iframe');
@@ -43,6 +75,12 @@ export class PreviewDialogComponent {
       pre.textContent = this.text;
       document.getElementById('iframeBody').appendChild(pre);
       this.loading = false;
+    }
+  }
+
+  openEndpointInNewWindow() {
+    if (this.endpointUrl) {
+      window.open(this.endpointUrl, '_blank');
     }
   }
 }

@@ -14,3 +14,33 @@
     height: 70vh;
     width: 80vw;
   }
+
+  // Styles for endpoint display
+  .endpoint-container {
+    display: flex;
+    width: 100%;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .endpoint-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .endpoint-url-container {
+    background-color: #f5f5f5;
+    border-radius: 4px;
+    padding: 1rem;
+    margin: 1rem 0;
+    text-align: left;
+    overflow-x: auto;
+  }
+
+  .endpoint-url {
+    margin: 0;
+    word-break: break-all;
+    white-space: pre-wrap;
+    font-family: monospace;
+  }

@@ -14,15 +14,17 @@
             <p class="truncated">{{distribution.format}}</p>
         </span>
 
-        <span *ngIf="distribution.accessURL!=''" class="d-flex flex-column mb-2">
+        <!-- Only show accessURL for regular datasets (not for datasources, models/tools, or ngsi datasets) -->
+        <span *ngIf="distribution.accessURL!='' && !isSpecialDatasetType" class="d-flex flex-column mb-2">
             <label class="label">Access URL:</label>
             <p class="truncated">
                 <a [href]="distribution.accessURL" target="_blank">{{distribution.accessURL}}</a>
             </p>
         </span>
 
+        <!-- Rename downloadURL to just URL for special dataset types -->
         <span *ngIf="distribution.downloadURL!=''" class="d-flex flex-column mb-2">
-            <label class="label">Download URL:</label>
+            <label class="label">{{ isSpecialDatasetType ? 'URL' : 'Download URL' }}:</label>
             <p class="truncated">
                 <a [href]="distribution.downloadURL" target="_blank">{{distribution.downloadURL}}</a>
             </p>
@@ -74,7 +76,8 @@
             <p class="truncated">{{distribution.byteSize}} B</p>
         </span>
 
-        <span *ngIf="distribution.checksum!=undefined && distribution.checksum.algorithm!=''" class="d-flex flex-column mb-2">
+        <!-- Only show checksum information for regular datasets (not for datasources, models/tools, or ngsi datasets) -->
+        <span *ngIf="distribution.checksum!=undefined && distribution.checksum.algorithm!='' && !isSpecialDatasetType" class="d-flex flex-column mb-2">
             <label class="label">Checksum Algorithm:</label>
             <p class="truncated">{{distribution.checksum.algorithm}}</p>
         </span>
