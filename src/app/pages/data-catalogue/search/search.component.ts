@@ -129,6 +129,19 @@ export class SearchComponent implements OnInit {
     const searchParams = this.router.routerState.snapshot.root.queryParams;
     console.log("Received params in datasets component:", searchParams);
     
+    const lastSearch = localStorage.getItem('lastSearch');
+    if(lastSearch && lastSearch.trim() != ''){
+      const tags = lastSearch.split(',').filter(tag => tag.trim() !== '');
+      tags.forEach(tag => {
+        if (!this.filters.includes(tag)) {
+          this.filters.push(tag);
+        }
+      });
+      
+      this.searchRequest.filters.push(new SearchFilter('ALL', lastSearch));
+      this.searchDataset();
+    }
+
     if (searchParams['tags']) {
       console.log("Tags received:", searchParams['tags']);
       
@@ -139,6 +152,7 @@ export class SearchComponent implements OnInit {
       // Process the tags here
       // ...
     }
+
   }
 
   updateFilters(tags){
@@ -220,6 +234,8 @@ export class SearchComponent implements OnInit {
       }
     })
 
+    localStorage.setItem('lastSearch', this.filters.toString());
+
     this.searchDataset()
   }
 
@@ -247,7 +263,9 @@ export class SearchComponent implements OnInit {
           // Create a new 'ALL' filter if it doesn't exist
           this.searchRequest.filters.push(new SearchFilter('ALL', value));
         }
-      
+        
+        localStorage.setItem('lastSearch', this.filters.toString());
+
         this.searchDataset();
       }
     }, 50);
@@ -383,6 +401,7 @@ export class SearchComponent implements OnInit {
     if(this.searchRequest.filters[index].value==''){
       this.searchRequest.filters.splice(index,1);
     }
+    localStorage.setItem('lastSearch', this.searchRequest.filters.map(x => x.value.trim()).filter(v => v !== '').join(','));
     this.searchDataset();
   }
 
@@ -400,6 +419,13 @@ export class SearchComponent implements OnInit {
       filter.value=tmp.join(',');
       this.searchRequest.filters.push(filter);
     }
+    localStorage.setItem(
+      'lastSearch',
+      this.searchRequest.filters
+        .map(x => x.value.trim())
+        .filter(v => v !== '')
+        .join(',')
+    );
     this.searchDataset()
   }
 
