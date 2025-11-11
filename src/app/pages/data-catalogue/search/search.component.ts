@@ -46,6 +46,7 @@ export class SearchComponent implements OnInit {
   ngOnInit(): void { 
     this.searchResponse.facets = [];
     this.loading = true;
+    this.searchRequest.rows = this.pageSize;
     this.restApi.getCataloguesInfo().subscribe(infos => {
       this.cataloguesInfos = infos;
       this.searchRequest.nodes = infos.map(x => x.id);
@@ -163,6 +164,7 @@ export class SearchComponent implements OnInit {
   pageChanged($event: number): void {
     this.currentPage = $event;
     this.page = $event;
+    this.searchRequest.rows = this.pageSize;
     this.searchRequest.start = ($event - 1) * this.searchRequest.rows;
     this.searchDataset();
   }
@@ -236,6 +238,10 @@ export class SearchComponent implements OnInit {
 
     localStorage.setItem('lastSearch', this.filters.toString());
 
+    this.currentPage = 1;
+    this.page = 1;
+    this.searchRequest.start = 0;
+
     this.searchDataset()
   }
 
@@ -265,6 +271,10 @@ export class SearchComponent implements OnInit {
         }
         
         localStorage.setItem('lastSearch', this.filters.toString());
+
+        this.currentPage = 1;
+        this.page = 1;
+        this.searchRequest.start = 0;
 
         this.searchDataset();
       }

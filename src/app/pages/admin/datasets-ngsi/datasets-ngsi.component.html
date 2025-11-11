@@ -69,10 +69,10 @@
                           (checkedChange)="toggle(dataset.id)">
                         </nb-checkbox>
                         <button nbButton status="primary" (click)="editDataset(dataset.id)">
-                            <nb-icon icon="edit-2-outline"></nb-icon>
+                            <nb-icon nbTooltip="EDIT" icon="edit-2-outline"></nb-icon>
                         </button>
                         <button nbButton class="delete-button" (click)="deleteDataset(dataset.id)">
-                            <nb-icon icon="trash-2-outline"></nb-icon>
+                            <nb-icon nbTooltip="DELETE" icon="trash-2-outline"></nb-icon>
                         </button>
                       </span>
                     </nb-card-header>
