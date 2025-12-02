@@ -381,7 +381,6 @@ export class HomeComponent implements OnInit {
   }
 
   searchCategory(category:any){
-<<<<<<< HEAD
     this.router.navigate(['/pages/datasets'], {queryParams:category, queryParamsHandling: 'merge'})
   }
 
@@ -421,10 +420,6 @@ clearDateRange(type: number): void {
     this.releasedDate = undefined;
   } else {
     this.updatedDate = undefined;
-=======
-    console.log(category)
-    this.router.navigate(['/pages/datasets'], {queryParams:{search_value: category.text, text: category.value}})
->>>>>>> main
   }
 }
 
