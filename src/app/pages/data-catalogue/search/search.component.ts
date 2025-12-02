@@ -52,16 +52,9 @@ export class SearchComponent implements OnInit {
       this.searchRequest.nodes = infos.map(x => x.id);
       this.loading = false;
 
-<<<<<<< HEAD
       let searchParam = this.router.routerState.snapshot.root.queryParams;
       
       if(searchParam['advancedSearch'] == 'true') {
-=======
-      let searchParam = this.router.routerState.snapshot.root.queryParams
-
-      console.log(searchParam)
-      if(searchParam['advancedSearch'] == 'true'){
->>>>>>> main
         this.searchRequest = JSON.parse(searchParam['params']);
         
         // Process filters
@@ -95,7 +88,6 @@ export class SearchComponent implements OnInit {
         if (this.searchRequest.filters.length === 0) {
           this.searchRequest.filters.push({field: 'ALL', value: ''});
         }
-<<<<<<< HEAD
         
         // Create date range tags if dates exist
         this.createDateRangeTags();
@@ -105,12 +97,6 @@ export class SearchComponent implements OnInit {
         if(searchParam['type'] != undefined) {
           this.searchRequest.filters.push(new SearchFilter('catalogues', searchParam.search_value));
           this.searchDataset(true);
-=======
-        else if(searchParam['text']!=undefined){
-          // this.filtersTags.push(searchParam.value)
-          this.searchRequest.filters.push(new SearchFilter('datasetThemes',searchParam.search_value))
-          this.searchDataset(true)
->>>>>>> main
         }
         else if(searchParam['name'] != undefined) {
           this.searchRequest.filters.push(new SearchFilter('tags', searchParam.search_value));

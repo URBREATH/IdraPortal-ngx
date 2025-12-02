@@ -94,14 +94,9 @@ export class HeaderComponent implements OnInit, OnDestroy {
   authenticated: boolean = false;
   
   ngOnInit() {
-<<<<<<< HEAD
     // Check for stored SSO language first, otherwise default to 'en'
     const storedLanguage = localStorage.getItem('sso_language');
     this.idraUserLanguage = storedLanguage || 'en';
-=======
-    this.changeTheme(this.currentTheme);
-    this.idraUserLanguage = 'en';
->>>>>>> main
 
     let lan = this.configService.config['languages'];
 

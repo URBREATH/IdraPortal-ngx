@@ -14,14 +14,9 @@
             <p class="truncated">{{distribution.format}}</p>
         </span>
 
-<<<<<<< HEAD
         <!-- Only show accessURL for regular datasets (not for datasources, models/tools, or ngsi datasets) -->
         <span *ngIf="distribution.accessURL!='' && !isSpecialDatasetType" class="d-flex flex-column mb-2">
             <label class="label">Access URL:</label>
-=======
-        <span *ngIf="distribution.accessURL!=''" class="d-flex flex-column mb-2">
-            <label class="label">{{ 'ACCESS_URL' | translate }}:</label>
->>>>>>> main
             <p class="truncated">
                 <a [href]="distribution.accessURL" target="_blank">{{distribution.accessURL}}</a>
             </p>
@@ -29,11 +24,7 @@
 
         <!-- Rename downloadURL to just URL for special dataset types -->
         <span *ngIf="distribution.downloadURL!=''" class="d-flex flex-column mb-2">
-<<<<<<< HEAD
             <label class="label">{{ isSpecialDatasetType ? 'URL' : 'Download URL' }}:</label>
-=======
-            <label class="label">{{ 'DOWNLOAD_URL' | translate }}:</label>
->>>>>>> main
             <p class="truncated">
                 <a [href]="distribution.downloadURL" target="_blank">{{distribution.downloadURL}}</a>
             </p>
@@ -85,14 +76,9 @@
             <p class="truncated">{{distribution.byteSize}} B</p>
         </span>
 
-<<<<<<< HEAD
         <!-- Only show checksum information for regular datasets (not for datasources, models/tools, or ngsi datasets) -->
         <span *ngIf="distribution.checksum!=undefined && distribution.checksum.algorithm!='' && !isSpecialDatasetType" class="d-flex flex-column mb-2">
             <label class="label">Checksum Algorithm:</label>
-=======
-        <span *ngIf="distribution.checksum!=undefined && distribution.checksum.algorithm!=''" class="d-flex flex-column mb-2">
-            <label class="label">{{ 'CHECKSUM_ALGORITHM' | translate }}:</label>
->>>>>>> main
             <p class="truncated">{{distribution.checksum.algorithm}}</p>
         </span>
 

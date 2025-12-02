@@ -1,20 +1,7 @@
 <section class="jumbotron text-center">
     <div class="container mb-4 position-relative">
         <h2 class="jumbotron-heading">{{ 'HOME_SEARCH_TITLE' | translate }} {{totalDatasets}} {{ 'HOME_DATASETS_FROM' | translate }} {{cataloguesInfos.length}} {{ 'HOME_CATALOGUES' | translate }}!</h2>
-<<<<<<< HEAD
       <nb-card class="d-flex mb-2" id="advancedSearchCard">
-=======
-        <div class="d-flex flex-row justify-content-between align-items-center">
-          <nb-tag-list (tagRemove)="onTagRemove($event)">
-            <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
-            <input [disabled]="advancedSearch" type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydown($event)" fullWidth>
-          </nb-tag-list>
-          <nb-icon nbTooltip="{{ 'SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" class="ml-2"></nb-icon>
-          <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" class="ml-2"></nb-icon>
-        </div>
-      </div>
-      <nb-card class="d-flex mb-2" *ngIf="advancedSearch">
->>>>>>> main
         <nb-card-body  class="d-flex flex-column gap-1">
           <nb-icon [icon]="searchToggleIcon" class="ms-auto" (click)="toggleAdvancedSearch()"></nb-icon>
           <div class="row mb-1" *ngFor="let item of Filters; index as i">

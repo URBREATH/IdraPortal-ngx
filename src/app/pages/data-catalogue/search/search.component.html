@@ -20,7 +20,6 @@
         </nb-tag-list>
       </div>
   </div>
-<<<<<<< HEAD
   <div class="search-results-body" *ngIf="searchResponse.count>0">
     <input type="checkbox" id="search-filter-toggle" class="filter-toggle-input">
     <label for="search-filter-toggle" class="filter-toggle-label">
@@ -28,10 +27,6 @@
       <span>{{'TOGGLE_FILTERS' | translate }}</span>
     </label>
     <div class="left-column">
-=======
-  <div class="row" *ngIf="searchResponse.count>0">
-    <div class="col-md-3 col-12">
->>>>>>> main
       <nb-card *ngFor="let facet of searchResponse.facets" status="primary">
         <nb-card-header class="d-flex justify-content-between">
           {{facet.displayName}}
@@ -49,7 +44,6 @@
         </nb-card-body>
       </nb-card>
     </div>
-<<<<<<< HEAD
     <div class="right-column">
       <div class="datasets-card">
         <!-- Pagination controls at top -->
@@ -59,28 +53,6 @@
         <div class="row m-1">
           <nb-tag-list (tagRemove)="onFilterRemove($event)">
             <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
-=======
-    <div class="col-md-9 col-12">
-      <div class="row m-1">
-        <pagination-controls (pageChange)="pageChanged($event)"></pagination-controls>
-      </div>
-      <div class="row m-1">
-        <nb-tag-list (tagRemove)="onFilterRemove($event)">
-          <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
-        </nb-tag-list>
-      </div>
-      <!-- results -->
-      <nb-card *ngFor="let dataset of searchResponse.results | paginate: { itemsPerPage: 10, currentPage: 1, totalItems: 100 }" class="minicard">
-        <nb-card-header>
-          <a [routerLink]="[dataset.id]">{{dataset.title}}</a>
-        </nb-card-header>
-        <nb-card-body class="content-truncated">
-          <span class="truncated">{{dataset.description}}</span>
-        </nb-card-body>
-        <nb-card-footer>
-          <nb-tag-list size="small">
-            <nb-tag *ngFor="let tmp of dataset.distributionFormats" text="{{tmp.format}} ({{tmp.count}})" size="tiny" [style.background]="getColor(tmp.format)"></nb-tag>
->>>>>>> main
           </nb-tag-list>
         </div>
         <!-- results -->
