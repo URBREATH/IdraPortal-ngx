@@ -16,6 +16,8 @@ import { RefreshService } from '../services/refresh.service';
 })
 export class HomeComponent implements OnInit {
 
+  submitted: boolean = false;
+
   constructor(private restApi:DataCataglogueAPIService,
     private router: Router,
     public translation: TranslateService,
