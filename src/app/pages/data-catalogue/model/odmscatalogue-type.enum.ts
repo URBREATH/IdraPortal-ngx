@@ -8,4 +8,5 @@ export enum ODMSCatalogueType {
   ORION = "ORION",
   SPARQL = "SPARQL",
   ZENODO = "ZENODO",
+  GEONETWORK_ISO19139 = "GEONETWORK_ISO19139"
 }

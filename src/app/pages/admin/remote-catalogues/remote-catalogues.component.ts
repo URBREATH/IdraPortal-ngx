@@ -248,6 +248,9 @@ getLevel(nodeType: string): string {
 			case 'SPARQL':
 				//node.federationLevel='LEVEL_4';
 				return "4";
+			case 'GEONETWORK_ISO19139':
+				//node.federationLevel='LEVEL_2';
+				return "2";
 			default:
 				break;
 			}
