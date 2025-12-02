@@ -1,15 +1,8 @@
 .container {
-    width:1000px;
-  }
-  .left {
-    width:500px;
-    float:left;
-  }
-  .right {
-    width:500px;
-    float:right;
-  }
+  width: 1000px;
+}
 
+<<<<<<< HEAD
   .iframe{
     height: 70vh;
     width: 80vw;
@@ -57,3 +50,33 @@
     width: 100%;
     min-width: 800px;
   }
+=======
+.left {
+  width: 500px;
+  float: left;
+}
+
+.right {
+  width: 500px;
+  float: right;
+}
+
+.iframe {
+  height: 70vh;
+  width: 80vw;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  table-layout: fixed;
+}
+
+th,
+td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  word-wrap: break-word;
+}
+>>>>>>> main

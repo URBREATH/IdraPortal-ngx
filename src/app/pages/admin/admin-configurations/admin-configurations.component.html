@@ -1,165 +1,164 @@
- 
 <div class="row show-grid">
-		<div class="col-md-12">
-			<nb-accordion>
-
-			<nb-accordion-item>
-				<nb-accordion-item-header>{{ 'ADMIN_CATALOG_HEADER' | translate }}</nb-accordion-item-header>
-				<nb-accordion-item-body>
-				  <div class="row show-grid">
-					<div class="col-md-12">
-					  <nb-card class="minicard">
-						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
-						  <h6 class="jumbotron-heading">{{ 'ADMIN_CATALOG_REFRESH_PERIOD' | translate }}</h6>
-						  <nb-select placeholder="-" [(ngModel)]="refreshPeriod" [selected]="refreshPeriod">
-							<nb-option value="3600">{{ 'ADMIN_CATALOG_REFRESH_1H' | translate }}</nb-option>
-							<nb-option value="86400">{{ 'ADMIN_CATALOG_REFRESH_1D' | translate }}</nb-option>
-							<nb-option value="604800">{{ 'ADMIN_CATALOG_REFRESH_1W' | translate }}</nb-option>
-						  </nb-select>
-						  <div class="d-flex align-content-center mt-3">
-							<h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CATALOG_ENABLE_RDF' | translate }}</h6>
-							<nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfControls"></nb-checkbox>
-						  </div>
-						  <div class="d-flex align-content-center mt-3" *ngIf="rdfControls == true">
-							<h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CATALOG_ENABLE_RDF_SIZE' | translate }}</h6>
-							<nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfMaxSize"></nb-checkbox>
-						  </div>
-						  <h6 class="jumbotron-heading" *ngIf="rdfControls == true">{{ 'ADMIN_CATALOG_RDF_MAX' | translate }}</h6>
-						  <input type="number" nbInput status="primary" placeholder="{{ 'ADMIN_CATALOG_RDF_MAX_PLACEHOLDER' | translate }}" *ngIf="rdfControls == true" [(ngModel)]="rdfMaxNumber">
-						</nb-card-body>
-					  </nb-card>
-					</div>
-					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleClickCatalogues()">{{ 'ADMIN_CATALOG_UPDATE_BUTTON' | translate }}</button>
-					</div>
-				  </div>
-				</nb-accordion-item-body>
-			  </nb-accordion-item>
-			  
-			  <nb-accordion-item>
-				<nb-accordion-item-header>{{ 'ADMIN_SPARQL_HEADER' | translate }}</nb-accordion-item-header>
-				<nb-accordion-item-body>
-				  <div class="row show-grid">
-					<div class="col-md-12">
-					  <nb-card>
-						<nb-card-body>
-						  <div class="pb-20">
-							<label class="search-label" for="search">{{ 'ADMIN_SPARQL_SEARCH_LABEL' | translate }}</label>
-							<input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input" >
-						  </div>
-						  <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
-							<tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
-							<tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
-							<ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'ADMIN_SPARQL_COLUMN_1' | translate }}</th>
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
-							</ng-container>
-							<ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'ADMIN_SPARQL_COLUMN_2' | translate }}</th>
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
-							</ng-container>
-							<ng-container [nbTreeGridColumnDef]="iconColumn">
-							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef class="col-w-120">{{ 'ADMIN_SPARQL_ACTIONS' | translate }}</th>
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row">
-								<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixEdit(row.data.id, row.data[defaultColumns[0]], row.data[defaultColumns[1]])"></nb-icon>
-								<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixDelete(row.data.id)"></nb-icon>
-							  </td>
-							</ng-container>
-						  </table>
-						</nb-card-body>
-					  </nb-card>
-					</div>
-					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleSparqlPrefixOpenModal()">{{ 'ADMIN_SPARQL_ADD_PREFIX' | translate }}</button>
-					</div>
-				  </div>
-				</nb-accordion-item-body>
-			  </nb-accordion-item>
-			  
-			  <nb-accordion-item>
-				<nb-accordion-item-header>{{ 'ADMIN_UPDATE_PASSWORD_HEADER' | translate }}</nb-accordion-item-header>
-				<nb-accordion-item-body>
-				  <div class="row show-grid">
-					<div class="col-md-12">
-					  <nb-card class="minicard">
-						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
-						  <h6 class="jumbotron-heading">{{ 'ADMIN_UPDATE_PASSWORD_OLD' | translate }}</h6>
-						  <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'ADMIN_UPDATE_PASSWORD_OLD_PLACEHOLDER' | translate }}" [(ngModel)]="oldPassword">
-						  <h6 class="jumbotron-heading mt-3">{{ 'ADMIN_UPDATE_PASSWORD_NEW' | translate }}</h6>
-						  <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'ADMIN_UPDATE_PASSWORD_NEW_PLACEHOLDER' | translate }}" [(ngModel)]="newPassword">
-						  <h6 class="jumbotron-heading mt-3">{{ 'ADMIN_UPDATE_PASSWORD_CONFIRM' | translate }}</h6>
-						  <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'ADMIN_UPDATE_PASSWORD_CONFIRM_PLACEHOLDER' | translate }}" [(ngModel)]="confirmPassword">
-						</nb-card-body>
-					  </nb-card>
-					</div>
-					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleUpdatePassword()">{{ 'ADMIN_UPDATE_PASSWORD_BUTTON' | translate }}</button>
-					</div>
-				  </div>
-				</nb-accordion-item-body>
-			  </nb-accordion-item>
-			  <nb-accordion-item>
-				<nb-accordion-item-header>{{ 'ADMIN_REMOTE_CATALOG_HEADER' | translate }}</nb-accordion-item-header>
-				<nb-accordion-item-body>
-				  <div class="row show-grid">
-					<div class="col-md-12">
-					  <nb-card>
-						<nb-card-body>
-						  <div class="pb-20">
-							<label class="search-label" for="search">{{ 'ADMIN_REMOTE_CATALOG_SEARCH_LABEL' | translate }}</label>
-							<input fieldSize="small" nbInput [nbFilterInput]="dataSourceCat" id="search" class="search-input" >
-						  </div>
-						  <table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)" class="table-layout-container">
-							<tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsCat"></tr>
-							<tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsCat"></tr>
-							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[0]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[0] }}</th><!--class="col-w-200"-->
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumnsCat[0]] }}</td>
-							</ng-container>
-							<ng-container [nbTreeGridColumnDef]="defaultColumnsCat[1]">
-							  <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef>{{ defaultColumnsCat[1] }}</th><!--class="col-w-75"-->
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row" class="word-break-style">{{ row.data[defaultColumnsCat[1]] }}</td>
-							</ng-container>
-							<ng-container [nbTreeGridColumnDef]="iconColumnCat">
-							  <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef>{{ 'ADMIN_REMOTE_CATALOG_ACTIONS' | translate }}</th><!--class="col-w-120"-->
-							  <td nbTreeGridCell *nbTreeGridCellDef="let row">
-								<nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleEditRemoteCatalogueOpenModal(row.data)"></nb-icon>
-								<nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleRemoteCataloguDelete(row.data.id, row.data.index)"></nb-icon>
-							  </td>
-							</ng-container>
-						  </table>
-						</nb-card-body>
-					  </nb-card>
-					</div>
-					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleRemoteCatalogueOpenModal()">{{ 'ADMIN_REMOTE_CATALOG_ADD_BUTTON' | translate }}</button>
-					</div>
-				  </div>
-				</nb-accordion-item-body>
-			  </nb-accordion-item>
-			  
-			  <nb-accordion-item>
-				<nb-accordion-item-header>{{ 'ADMIN_CONTEXT_BROKER_HEADER' | translate }}</nb-accordion-item-header>
-				<nb-accordion-item-body>
-				  <div class="row show-grid">
-					<div class="col-md-12">
-					  <nb-card class="minicard">
-						<nb-card-body class="d-flex flex-column align-items-left justify-content-left">
-						  <div class="d-flex align-content-center">
-							<h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CONTEXT_BROKER_ENABLE' | translate }}</h6>
-							<nb-checkbox class="align-self-center ml-1" status="primary" [checked]="contextBrokerFederation" [(ngModel)]="contextBrokerFederation" (checkedChange)="handleContextBrokerFederation()"></nb-checkbox>
-						  </div>
-						  <h6 class="jumbotron-heading" *ngIf="contextBrokerFederation == true">{{ 'ADMIN_CONTEXT_BROKER_URL' | translate }}</h6>
-						  <input type="text" nbInput status="primary" fullWidth placeholder="{{ 'ADMIN_CONTEXT_BROKER_URL_PLACEHOLDER' | translate }}" [(ngModel)]="contextBrokerUrl" *ngIf="contextBrokerFederation == true">
-						</nb-card-body>
-					  </nb-card>
-					</div>
-					<div class="col-md-2">
-					  <button nbButton fullWidth hero status="primary" class="mt-2 btn-full-width" (click)="handleClickCatalogues()">{{ 'ADMIN_CONTEXT_BROKER_UPDATE_BUTTON' | translate }}</button>
-					</div>
-				  </div>
-				</nb-accordion-item-body>
-			  </nb-accordion-item>
-	   </nb-accordion>
-	</div>
+  <div class="col-md-12">
+    <nb-accordion>
+      <nb-accordion-item>
+        <nb-accordion-item-header>{{ 'Catalogues' | translate }}</nb-accordion-item-header>
+        <nb-accordion-item-body>
+          <div class="row show-grid">
+            <div class="col-md-12">
+              <nb-card class="minicard">
+                <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                  <h6 class="jumbotron-heading">{{ 'ADMIN_CATALOG_REFRESH_PERIOD' | translate }}</h6>
+                  <nb-select placeholder="-" [(ngModel)]="refreshPeriod" [selected]="refreshPeriod">
+                    <nb-option value="3600">{{ 'ADMIN_CATALOG_REFRESH_1H' | translate }}</nb-option>
+                    <nb-option value="86400">{{ 'ADMIN_CATALOG_REFRESH_1D' | translate }}</nb-option>
+                    <nb-option value="604800">{{ 'ADMIN_CATALOG_REFRESH_1W' | translate }}</nb-option>
+                  </nb-select>
+                  <div class="d-flex align-content-center mt-3">
+                    <h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CATALOG_ENABLE_RDF' | translate }}</h6>
+                    <nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfControls"></nb-checkbox>
+                  </div>
+                  <div class="d-flex align-content-center mt-3" *ngIf="rdfControls == true">
+                    <h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CATALOG_ENABLE_RDF_SIZE' | translate }}</h6>
+                    <nb-checkbox class="align-self-center ml-1" status="primary" [(ngModel)]="rdfMaxSize"></nb-checkbox>
+                  </div>
+                  <h6 class="jumbotron-heading" *ngIf="rdfControls == true">{{ 'ADMIN_CATALOG_RDF_MAX' | translate }}</h6>
+                  <input type="number" nbInput status="primary" placeholder="{{ 'ADMIN_CATALOG_RDF_MAX_PLACEHOLDER' | translate }}" *ngIf="rdfControls == true" [(ngModel)]="rdfMaxNumber">
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col-md-2">
+              <button nbButton hero status="primary" class="mt-2 btn-full-width" (click)="handleClickCatalogues()">{{ 'APPLY' | translate }}</button>
+            </div>
+          </div>
+        </nb-accordion-item-body>
+      </nb-accordion-item>
+      
+      <nb-accordion-item>
+        <nb-accordion-item-header>{{ 'ADMIN_SPARQL_HEADER' | translate }}</nb-accordion-item-header>
+        <nb-accordion-item-body>
+          <div class="row show-grid">
+            <div class="col-md-12">
+              <nb-card>
+                <nb-card-body>
+                  <div class="pb-20">
+                    <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
+                    <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
+                  </div>
+                  <table [nbTreeGrid]="dataSource" [nbSort]="dataSource" (sort)="updateSort($event)">
+                    <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumns"></tr>
+                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumns"></tr>
+                    <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
+                      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'ADMIN_SPARQL_COLUMN_1' | translate }}</th>
+                      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[0]] }}</td>
+                    </ng-container>
+                    <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
+                      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'ADMIN_SPARQL_COLUMN_2' | translate }}</th>
+                      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
+                    </ng-container>
+                    <ng-container [nbTreeGridColumnDef]="iconColumn">
+                      <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumn)" *nbTreeGridHeaderCellDef class="col-w-120">{{ 'ACTIONS' | translate }}</th>
+                      <td nbTreeGridCell *nbTreeGridCellDef="let row">
+                        <nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixEdit(row.data.id, row.data[defaultColumns[0]], row.data[defaultColumns[1]])"></nb-icon>
+                        <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleSparqlPrefixDelete(row.data.id)"></nb-icon>
+                      </td>
+                    </ng-container>
+                  </table>
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col-md-2">
+              <button nbButton hero status="primary" class="mt-2 btn-full-width" (click)="handleSparqlPrefixOpenModal()">{{ 'ADMIN_SPARQL_ADD_PREFIX' | translate }}</button>
+            </div>
+          </div>
+        </nb-accordion-item-body>
+      </nb-accordion-item>
+      
+      <nb-accordion-item>
+        <nb-accordion-item-header>{{ 'ADMIN_UPDATE_PASSWORD_HEADER' | translate }}</nb-accordion-item-header>
+        <nb-accordion-item-body>
+          <div class="row show-grid">
+            <div class="col-md-12">
+              <nb-card class="minicard">
+                <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                  <h6 class="jumbotron-heading">{{ 'ADMIN_UPDATE_PASSWORD_OLD' | translate }}</h6>
+                  <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'ADMIN_UPDATE_PASSWORD_OLD_PLACEHOLDER' | translate }}" [(ngModel)]="oldPassword">
+                  <h6 class="jumbotron-heading mt-3">{{ 'ADMIN_UPDATE_PASSWORD_NEW' | translate }}</h6>
+                  <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'ADMIN_UPDATE_PASSWORD_NEW_PLACEHOLDER' | translate }}" [(ngModel)]="newPassword">
+                  <h6 class="jumbotron-heading mt-3">{{ 'ADMIN_UPDATE_PASSWORD_CONFIRM' | translate }}</h6>
+                  <input type="text" nbInput fullWidth status="primary" placeholder="{{ 'ADMIN_UPDATE_PASSWORD_CONFIRM_PLACEHOLDER' | translate }}" [(ngModel)]="confirmPassword">
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col-md-2">
+              <button nbButton hero status="primary" class="mt-2 btn-full-width" (click)="handleUpdatePassword()">{{ 'APPLY' | translate }}</button>
+            </div>
+          </div>
+        </nb-accordion-item-body>
+      </nb-accordion-item>
+      
+      <nb-accordion-item>
+        <nb-accordion-item-header>{{ 'ADMIN_REMOTE_CATALOG_HEADER' | translate }}</nb-accordion-item-header>
+        <nb-accordion-item-body>
+          <div class="row show-grid">
+            <div class="col-md-12">
+              <nb-card>
+                <nb-card-body>
+                  <div class="pb-20">
+                    <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
+                    <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
+                  </div>
+                  <table [nbTreeGrid]="dataSourceCat" [nbSort]="dataSourceCat" (sort)="updateSort($event)">
+                    <tr nbTreeGridHeaderRow *nbTreeGridHeaderRowDef="allColumnsCat"></tr>
+                    <tr nbTreeGridRow *nbTreeGridRowDef="let row; columns: allColumnsCat"></tr>
+                    <ng-container [nbTreeGridColumnDef]="defaultColumnsCat[0]">
+                      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ defaultColumnsCat[0] }}</th>
+                      <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumnsCat[0]] }}</td>
+                    </ng-container>
+                    <ng-container [nbTreeGridColumnDef]="defaultColumnsCat[1]">
+                      <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ defaultColumnsCat[1] }}</th>
+                      <td nbTreeGridCell *nbTreeGridCellDef="let row" class="word-break-style">{{ row.data[defaultColumnsCat[1]] }}</td>
+                    </ng-container>
+                    <ng-container [nbTreeGridColumnDef]="iconColumnCat">
+                      <th nbTreeGridHeaderCell [nbSortHeader]="getSortDirection(iconColumnCat)" *nbTreeGridHeaderCellDef class="col-w-120">{{ 'ACTIONS' | translate }}</th>
+                      <td nbTreeGridCell *nbTreeGridCellDef="let row">
+                        <nb-icon icon="edit-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleEditRemoteCatalogueOpenModal(row.data)"></nb-icon>
+                        <nb-icon icon="close-outline" [options]="{ animation: { type: 'zoom' } }" (click)="handleRemoteCataloguDelete(row.data.id, row.data.index)"></nb-icon>
+                      </td>
+                    </ng-container>
+                  </table>
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col-md-2">
+              <button nbButton hero status="primary" class="mt-2 btn-full-width" (click)="handleRemoteCatalogueOpenModal()">{{ 'ADD_CATALOGUE' | translate }}</button>
+            </div>
+          </div>
+        </nb-accordion-item-body>
+      </nb-accordion-item>
+      
+      <nb-accordion-item>
+        <nb-accordion-item-header>{{ 'ADMIN_CONTEXT_BROKER_HEADER' | translate }}</nb-accordion-item-header>
+        <nb-accordion-item-body>
+          <div class="row show-grid">
+            <div class="col-md-12">
+              <nb-card class="minicard">
+                <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                  <div class="d-flex align-content-center">
+                    <h6 class="jumbotron-heading align-self-center">{{ 'ADMIN_CONTEXT_BROKER_ENABLE' | translate }}</h6>
+                    <nb-checkbox class="align-self-center ml-1" status="primary" [checked]="contextBrokerFederation" [(ngModel)]="contextBrokerFederation" (checkedChange)="handleContextBrokerFederation()"></nb-checkbox>
+                  </div>
+                  <h6 class="jumbotron-heading" *ngIf="contextBrokerFederation == true">{{ 'ADMIN_CONTEXT_BROKER_URL' | translate }}</h6>
+                  <input type="text" nbInput status="primary" fullWidth placeholder="{{ 'ADMIN_CONTEXT_BROKER_URL_PLACEHOLDER' | translate }}" [(ngModel)]="contextBrokerUrl" *ngIf="contextBrokerFederation == true">
+                </nb-card-body>
+              </nb-card>
+            </div>
+            <div class="col-md-2">
+              <button nbButton hero status="primary" class="mt-2 btn-full-width" (click)="handleClickCatalogues()">{{ 'APPLY' | translate }}</button>
+            </div>
+          </div>
+        </nb-accordion-item-body>
+      </nb-accordion-item>
+    </nb-accordion>
+  </div>
 </div>

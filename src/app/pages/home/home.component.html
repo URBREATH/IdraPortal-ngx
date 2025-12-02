@@ -1,7 +1,20 @@
 <section class="jumbotron text-center">
     <div class="container mb-4 position-relative">
         <h2 class="jumbotron-heading">{{ 'HOME_SEARCH_TITLE' | translate }} {{totalDatasets}} {{ 'HOME_DATASETS_FROM' | translate }} {{cataloguesInfos.length}} {{ 'HOME_CATALOGUES' | translate }}!</h2>
+<<<<<<< HEAD
       <nb-card class="d-flex mb-2" id="advancedSearchCard">
+=======
+        <div class="d-flex flex-row justify-content-between align-items-center">
+          <nb-tag-list (tagRemove)="onTagRemove($event)">
+            <nb-tag appearance="outline" status="primary" *ngFor="let filter of tagsFilter" [text]="filter" removable></nb-tag>
+            <input [disabled]="advancedSearch" type="text" nbTagInput placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}" (input)="tagInputKeydown($event)" fullWidth>
+          </nb-tag-list>
+          <nb-icon nbTooltip="{{ 'SEARCH' | translate }}" icon="search-outline" [options]="{ animation: { type: 'zoom' } }" (click)="advancedSearchReq()" class="ml-2"></nb-icon>
+          <nb-icon nbTooltip="{{ 'HOME_ADVANCED_SEARCH' | translate }}" [icon]="searchToggleIcon" [options]="{ animation: { type: 'zoom' } }" (click)="toggleAdvancedSearch()" class="ml-2"></nb-icon>
+        </div>
+      </div>
+      <nb-card class="d-flex mb-2" *ngIf="advancedSearch">
+>>>>>>> main
         <nb-card-body  class="d-flex flex-column gap-1">
           <nb-icon [icon]="searchToggleIcon" class="ms-auto" (click)="toggleAdvancedSearch()"></nb-icon>
           <div class="row mb-1" *ngFor="let item of Filters; index as i">
@@ -31,7 +44,7 @@
           <!-- Released Date row -->
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span class="minwidth-fit-content">{{ 'HOME_RELEASED_DATE' | translate }}</span>
+              <span class="minwidth-fit-content" >{{ 'HOME_RELEASED_DATE' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
               <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="releasedDate" [value]="getReleasedDateDisplay()">
@@ -46,7 +59,7 @@
           <!-- Updated Date row -->
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span class="minwidth-fit-content">{{ 'HOME_UPDATED_DATE' | translate }}</span>
+              <span class="minwidth-fit-content" >{{ 'HOME_UPDATED_DATE' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
               <input class="width-12" nbInput fieldSize="small" [nbDatepicker]="updatedDate" [value]="getUpdatedDateDisplay()">
@@ -59,12 +72,12 @@
           </div>
           <div class="row mb-1">
             <div class="col-2 d-flex align-items-center">
-              <span class="minwidth-fit-content">{{ 'HOME_CATALOGUES' | translate }}</span>
+              <span class="minwidth-fit-content" >{{ 'HOME_CATALOGUES' | translate }}</span>
             </div>
             <div class="col-10 d-flex align-items-center">
-              <nb-select class="max-width-webkitfill min-width-100" multiple [(selected)]="selectedCatalogues" (selectedChange)="handleCataloguesChange($event)" placeholder="{{ 'HOME_SELECT_CATALOGUE' | translate }}">
+              <nb-select class="max-width-webkitfill min-width-100"  multiple [(selected)]="selectedCatalogues" (selectedChange)="handleCataloguesChange($event)" placeholder="{{ 'HOME_SELECT_CATALOGUE' | translate }}">
                 <nb-option [value]="0">{{ 'HOME_ALL_SELECTED' | translate }}</nb-option>
-                <nb-option *ngFor="let catalogue of cataloguesInfos" [value]="catalogue.id">{{ catalogue.name }}</nb-option>
+                <nb-option *ngFor="let catalogue of cataloguesInfos || []" [value]="catalogue.id">{{ catalogue.name }}</nb-option>
               </nb-select>
             </div>
           </div>
@@ -74,7 +87,6 @@
             </div>
             <div class="col-2 d-flex align-items-center" *ngIf="multiLanguageChecked">
               <nb-select [(selected)]="sourceLanguage" placeholder="{{ 'HOME_SOURCE' | translate }}" class="width-150">
-                <nb-option *ngFor="let lang of languages" [value]="lang.value">{{ lang.text }}</nb-option>
               </nb-select>
             </div>
             <div class="col-8 d-flex align-items-center" *ngIf="multiLanguageChecked">
@@ -84,34 +96,42 @@
             </div>
           </div>
           <div class="row mb-1">
-            <div class="col-2 d-flex align-items-center">
-              <span class="minwidth-fit-content">{{ 'HOME_SORT_BY' | translate }}</span>
-            </div>
-            <div class="col-3 d-flex align-items-center">
+            <div class="col-md-3 col-12 d-flex align-items-center">
+              <span class="minwidth-fit-content mr-1" >{{ 'HOME_SORT_BY' | translate }}</span>
               <nb-select [(selected)]="sortyBy" placeholder="{{ 'HOME_SORT_BY' | translate }}" class="width-150">
                 <nb-option [value]="0">{{ 'HOME_RELEASE_DATE' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_UPDATE_DATE' | translate }}</nb-option>
                 <nb-option [value]="2">{{ 'HOME_CATALOGUES' | translate }}</nb-option>
-                <nb-option [value]="3">{{ 'HOME_PUBLISHER_NAME' | translate }}</nb-option>
+                <nb-option [value]="3">{{ 'PUBLISHER_NAME' | translate }}</nb-option>
                 <nb-option [value]="4">{{ 'HOME_TITLE' | translate }}</nb-option>
               </nb-select>
             </div>
-            <div class="col-3 d-flex align-items-center">
+            <div class="col-md-3 col-12 d-flex align-items-center">
+              <span class="minwidth-fit-content mr-1" >{{ 'HOME_ORDER' | translate }}</span>
               <nb-select [(selected)]="order" placeholder="{{ 'HOME_ORDER' | translate }}" class="width-150">
                 <nb-option [value]="0">{{ 'HOME_ASCENDENT' | translate }}</nb-option>
                 <nb-option [value]="1">{{ 'HOME_DESCENDENT' | translate }}</nb-option>
               </nb-select>
             </div>
-            <div class="col-2 d-flex align-items-center">
-              <span class="minwidth-fit-content">{{ 'HOME_MAX_RESULTS_PER_PAGE' | translate }}</span>
-            </div>
-            <div class="col-2 d-flex align-items-center">
+            <div class="col-md-3 col-12 d-flex align-items-center">
+              <span class="minwidth-fit-content mr-1" >{{ 'HOME_MAX_RESULTS_PER_PAGE' | translate }}</span>
               <nb-select [(selected)]="maxResultPerPage" placeholder="25" class="width-150">
                 <nb-option [value]="5">5</nb-option>
                 <nb-option [value]="10">10</nb-option>
                 <nb-option [value]="25">25</nb-option>
                 <nb-option [value]="50">50</nb-option>
               </nb-select>
+            </div>
+            <div class="col-md-2 col-12 d-flex align-items-center offset-md-1">
+              <button 
+                nbButton
+                fullWidth
+                status="primary"
+                size="small"
+                [class.btn-pulse]="submitted"
+                (click)="toggleAdvancedSearch()">
+                {{ 'SEARCH' | translate }}
+            </button>
             </div>
           </div>
           
@@ -169,7 +189,7 @@
           <div class="display-flex">
             <div class="justify-center">
               <div class="row">
-                <div class="col-4">
+                <div class="col-md-4 col-sm-6 col-12">
                   <nb-list>
                     <nb-list-item *ngFor="let category of dcatThemes | slice:0:4">
                       <button nbButton ghost status="primary" (click)="searchCategory(category)">
@@ -178,7 +198,7 @@
                     </nb-list-item>
                   </nb-list>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4 col-sm-6 col-12">
                   <nb-list>
                     <nb-list-item *ngFor="let category of dcatThemes | slice:4:8">
                       <button nbButton ghost status="primary" (click)="searchCategory(category)">
@@ -187,7 +207,7 @@
                     </nb-list-item>
                   </nb-list>
                 </div>
-                <div class="col-4">
+                <div class="col-md-4 col-sm-6 col-12">
                   <nb-list>
                     <nb-list-item *ngFor="let category of dcatThemes | slice:8:13">
                       <button nbButton ghost status="primary" (click)="searchCategory(category)">

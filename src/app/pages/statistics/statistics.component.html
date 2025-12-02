@@ -4,7 +4,7 @@
         <span>Catalogues</span>
         
     <nb-select multiple [(selected)]="selectedCatalogues" placeholder="Multiple Select" class="w-150" (selectedChange)="getStatistics()">
-        <nb-option [value]="0">All Selected</nb-option>
+        <nb-option [value]="0">{{ 'ALL_SELECTED' | translate }}</nb-option>
         <nb-option *ngFor="let catalogue of catalogueList" [value]="catalogue.id">{{catalogue.name}}</nb-option>
     </nb-select>
     </div>
@@ -13,7 +13,7 @@
     <div class="col-lg-6 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Top 10 Catalogues (No. Datasets)</h5>
+                <h5 class="card-title">{{ 'TOP_10_CATALOGUES' | translate }}</h5>
             </div>
             <div class="card-body">
                 <div echarts [options]="options" [merge]="dataTop10" class="demo-chart"></div>
@@ -23,11 +23,11 @@
     <div class="col-lg-6 col-12">
         <div class="card">
             <div class="card-header d-flex flex-row justify-content-between">
-                <h5 class="card-title">Most Active Catalogues</h5>
+                <h5 class="card-title">{{ 'MOST_ACTIVE_CATALOGUES' | translate }}</h5>
                 <nb-select placeholder="Select Showcase" [(selected)]="selectedInterval" (selectedChange)="getStatistics()">
-                  <nb-option [value]="0">Last Week</nb-option>
-                  <nb-option [value]="1">Last Month</nb-option>
-                  <nb-option [value]="2">Last Year</nb-option>
+                  <nb-option [value]="0">{{ 'LAST_WEEK' | translate }}</nb-option>
+                  <nb-option [value]="1">{{ 'LAST_MONTH' | translate }}</nb-option>
+                  <nb-option [value]="2">{{ 'LAST_YEAR' | translate }}</nb-option>
                 </nb-select>
             </div>
             <div class="card-body">
@@ -40,7 +40,7 @@
     <div class="col-lg-6 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Federated Catalogues Technologies</h5>
+                <h5 class="card-title">{{ 'FEDERATED_CATALOGUES_TECHNOLOGIES' | translate }}</h5>
             </div>
             <div class="card-body">
                 <div echarts [options]="optionsCircle" [merge]="dataTechnologies" [theme]="coolTheme" class="demo-chart"></div>
@@ -50,7 +50,7 @@
     <div class="col-lg-6 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">DCAT Themes' Datasets</h5>
+                <h5 class="card-title">{{ 'DCAT_THEMES_DATASETS' | translate }}</h5>
             </div>
             <div class="card-body">
                 <div echarts [options]="optionsCircle" [merge]="dataThemes" [theme]="coolTheme" class="demo-chart"></div>
@@ -62,7 +62,7 @@
     <div class="col-lg-6 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Most Used Distribution Formats</h5>
+                <h5 class="card-title">{{ 'MOST_USED_DISTRIBUTION_FORMATS' | translate }}</h5>
             </div>
             <div class="card-body">
                 <div echarts [options]="optionsCircle" [merge]="dataFormats" [theme]="coolTheme" class="demo-chart"></div>
@@ -72,7 +72,7 @@
     <div class="col-lg-6 col-12">
         <div class="card">
             <div class="card-header">
-                <h5 class="card-title">Most Used Distribution Licenses</h5>
+                <h5 class="card-title">{{ 'MOST_USED_DISTRIBUTION_LICENSES' | translate }}</h5>
             </div>
             <div class="card-body">
                 <div echarts [options]="optionsCircle" [merge]="dataLicenses" [theme]="coolTheme" class="demo-chart"></div>

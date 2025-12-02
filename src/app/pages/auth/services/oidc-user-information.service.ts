@@ -14,6 +14,7 @@ export class OidcUserInformationService {
 
   constructor(private http: HttpClient, private authService: NbAuthService) {
     this.authService.onTokenChange()
+<<<<<<< HEAD
       .subscribe((token: any) => { // Changed from OidcJWTToken to any
         if (token && token.isValid()) {
           
@@ -39,6 +40,12 @@ export class OidcUserInformationService {
          // console.log('OidcUserInformationService: Invalid or missing token');
           this.user = null;
           this.publishUser(null);
+=======
+      .subscribe((token: OidcJWTToken) => {
+        if (token.isValid() && token.getPayload){
+          this.user=token.getPayload()
+          this.publishUser(this.user)
+>>>>>>> main
         }
       });
   }

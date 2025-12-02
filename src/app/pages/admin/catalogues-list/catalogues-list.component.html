@@ -9,7 +9,7 @@
     <nb-card>
       <nb-card-body>
         <div class="pb-20">
-          <label class="search-label" for="search">{{ 'CATALOGUE_LIST_SEARCH_LABEL' | translate }}</label>
+          <label class="search-label" for="search">{{ 'SEARCH' | translate }}:</label>
           <input fieldSize="small" nbInput [nbFilterInput]="dataSource" id="search" class="search-input">
         </div>
   
@@ -25,19 +25,19 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[0]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'CATALOGUE_LIST_NAME' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-200">{{ 'NAME' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row"> 
-              <a href="{{row.data.catalogueUrl}}" target="_blank">{{ row.data[defaultColumns[0]] }}</a>
+              <a href="{{row.data.catalogueUrl}}" target="_blank" >{{ row.data[defaultColumns[0]] }}</a>
             </td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[1]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'CATALOGUE_LIST_COUNTRY' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-75">{{ 'COUNTRY' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[1]] }}</td>
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[2]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-150">{{ 'CATALOGUE_LIST_TYPE' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="col-w-150">{{ 'TYPE' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row">{{ row.data[defaultColumns[2]] }}</td>
           </ng-container>
   
@@ -75,7 +75,7 @@
           </ng-container>
   
           <ng-container [nbTreeGridColumnDef]="defaultColumns[8]">
-            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid col-w-75" >{{ 'CATALOGUE_LIST_ID' | translate }}</th>
+            <th nbTreeGridHeaderCell *nbTreeGridHeaderCellDef class="hid col-w-50">{{ 'CATALOGUE_LIST_ID' | translate }}</th>
             <td nbTreeGridCell *nbTreeGridCellDef="let row" class="hid">{{ row.data[defaultColumns[8]] }}</td>
           </ng-container>
   
