@@ -6,6 +6,24 @@
       </button>
     </nb-card-header>
     <nb-card-body>
+      <div class="dialog-map-search">
+        <input
+          #addressInput
+          nbInput
+          class="dialog-map-search__input"
+          type="text"
+          placeholder="Search address"
+          (keydown.enter)="searchAddress(addressInput.value)" />
+        <button
+          nbButton
+          status="basic"
+          size="small"
+          class="dialog-map-search__button"
+          type="button"
+          (click)="searchAddress(addressInput.value)">
+          <nb-icon icon="search-outline"></nb-icon>
+        </button>
+      </div>
       <div id="dialog-map" class="dialog-map"></div>
     </nb-card-body>
     <nb-card-footer>

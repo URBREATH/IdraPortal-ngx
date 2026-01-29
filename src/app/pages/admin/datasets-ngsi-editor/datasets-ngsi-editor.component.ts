@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, ValidatorFn, ValidationErrors } from '@angular/forms';
 import { NgsiDatasetsService } from '../../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
@@ -8,6 +9,11 @@ import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog
 import * as L from 'leaflet';
 import { MapDialogComponent } from '../../../shared/map-dialog/map-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
+
+interface LicenseOption {
+  value: string;
+  label: string;
+}
 
 @Component({
   selector: 'app-datasets-ngsi-editor',
@@ -30,6 +36,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Add this property to track if "Other" format is selected
   isOtherFormatSelected: boolean = false;
+  licenseOptions: LicenseOption[] = [];
+  readonly otherLicenseValue = '__other__';
+  isOtherLicenseSelected: boolean = false;
+  selectedUploadFile: File | null = null;
 
   selectedStepIndex = 0;
   
@@ -68,13 +78,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         private router: Router,
         private dialogService: NbDialogService,
         private toastrService: NbToastrService,
-        public translation: TranslateService
+        public translation: TranslateService,
+        private http: HttpClient
   ) { }
 
   ngOnInit(): void {
 
     // Initialize form
     this.initForms();
+    this.loadLicenseOptions();
     
     // Load existing dataset IDs for validation
     this.loadExistingDatasetIds();
@@ -230,12 +242,15 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       format: ['CSV'],
       description: [''],
       accessUrl: [''],
-      downloadURL: ['', Validators.required], 
+      resourceType: [null, Validators.required],
+      downloadURL: [''], 
+      uploadFile: [null],
       byteSize: [0],
       checksum: [''],
       rights: [''],
       mediaType: [''],
-      license: ['CC-BY'],
+      license: [null],
+      licenseOther: [''],
       releaseDate: [''],
       modifiedDate: ['']
     });
@@ -243,6 +258,44 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     // Monitor format changes to toggle otherFormat field
     this.distributionForm.get('format').valueChanges.subscribe(format => {
       this.isOtherFormatSelected = format === 'Other';
+    });
+    this.distributionForm.get('license').valueChanges.subscribe(license => {
+      this.isOtherLicenseSelected = license === this.otherLicenseValue;
+      if (!this.isOtherLicenseSelected) {
+        this.distributionForm.get('licenseOther').setValue('', { emitEvent: false });
+      }
+    });
+    this.distributionForm.get('resourceType').valueChanges.subscribe(type => {
+      const downloadControl = this.distributionForm.get('downloadURL');
+      const uploadControl = this.distributionForm.get('uploadFile');
+
+      if (type === 'url') {
+        downloadControl.setValidators([Validators.required]);
+        uploadControl.clearValidators();
+        uploadControl.setValue(null, { emitEvent: false });
+        this.selectedUploadFile = null;
+      } else if (type === 'file') {
+        uploadControl.setValidators([Validators.required]);
+        downloadControl.clearValidators();
+        downloadControl.setValue('', { emitEvent: false });
+      } else {
+        downloadControl.clearValidators();
+        uploadControl.clearValidators();
+      }
+
+      downloadControl.updateValueAndValidity({ emitEvent: false });
+      uploadControl.updateValueAndValidity({ emitEvent: false });
+    });
+    this.distributionForm.get('downloadURL').valueChanges.subscribe((url: string) => {
+      const detectedFormat = this.getFormatFromUrl(url);
+      const formatControl = this.distributionForm.get('format');
+      if (!detectedFormat || !formatControl) {
+        return;
+      }
+      if (formatControl.dirty && formatControl.value && formatControl.value !== detectedFormat) {
+        return;
+      }
+      formatControl.setValue(detectedFormat);
     });
 
     // Add validator to dataset form with today's date as default for new datasets
@@ -258,6 +311,39 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       frequency: [''],
       version: ['']
     });
+  }
+
+  private getFormatFromUrl(url: string): string | null {
+    if (!url) {
+      return null;
+    }
+
+    const cleanUrl = url.split('#')[0].split('?')[0].trim();
+    const lastDot = cleanUrl.lastIndexOf('.');
+    if (lastDot === -1 || lastDot === cleanUrl.length - 1) {
+      return null;
+    }
+
+    const extension = cleanUrl.slice(lastDot + 1).toLowerCase();
+    switch (extension) {
+      case 'csv':
+        return 'CSV';
+      case 'json':
+        return 'JSON';
+      case 'geojson':
+        return 'GeoJSON';
+      case 'xml':
+        return 'XML';
+      case 'txt':
+        return 'TXT';
+      case 'xlsx':
+      case 'xls':
+        return 'XLSX';
+      case 'pdf':
+        return 'PDF';
+      default:
+        return null;
+    }
   }
 
   // Add this method to edit a distribution
@@ -375,7 +461,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       title: distribution.title,
       description: distribution.description,
       accessUrl: accessUrl,
-      downloadURL: distribution.downloadURL,
+      resourceType: distribution.uploadFile ? 'file' : 'url',
+      downloadURL: distribution.uploadFile ? '' : distribution.downloadURL,
+      uploadFile: distribution.uploadFile ?? null,
       format: format,
       byteSize: distribution.byteSize,
       checksum: distribution.checksum,
@@ -385,6 +473,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       releaseDate: releaseDate,
       modifiedDate: modifiedDate
     });
+    this.selectedUploadFile = distribution.uploadFile ?? null;
+    this.normalizeLicenseSelection();
     
     // Only disable the ID field if this is a server-persisted distribution (not local-only)
     // Distributions created via API won't have isNew flag, those only in localStorage will
@@ -437,6 +527,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
 
     const formData = this.distributionForm.value;
+    const licenseValue = this.isOtherLicenseSelected
+      ? (formData.licenseOther || '')
+      : (formData.license || '');
     
     // Use format value directly - no longer need to check for 'Other'
     const actualFormat = formData.format;
@@ -496,12 +589,13 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       description: formData.description || '',
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
       downloadURL: formData.downloadURL,
+      uploadFile: this.selectedUploadFile || null,
       format: actualFormat || 'CSV',
       byteSize: formData.byteSize || 0,
       checksum: formData.checksum || '',
       rights: formData.rights || '',
       mediaType: formData.mediaType || '',
-      license: formData.license || '',
+      license: licenseValue,
       releaseDate: formData.releaseDate ? 
         moment(formData.releaseDate).format() : 
         moment().format(),
@@ -542,8 +636,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     
     // Reset form and editing state
     this.distributionForm.reset({
-      format: 'CSV'
+      format: 'CSV',
+      resourceType: null,
+      downloadURL: '',
+      uploadFile: null
     });
+    this.selectedUploadFile = null;
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
     this.distributionForm.get('id').enable();
@@ -686,7 +784,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     const distribution = this.pendingDistributions[index];
     
     // Remove the flags we added, which aren't needed for the API
-    const { isNew, isEdited, markedForDeletion, ...distToSend } = distribution;
+    const { isNew, isEdited, markedForDeletion, uploadFile, ...distToSend } = distribution;
     
     // Choose between create or update based on the isNew flag
     const operation = distribution.isNew 
@@ -824,8 +922,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   cancelEditDistribution(): void {
     this.distributionForm.reset({
       format: 'CSV',
-      otherFormat: ''
+      otherFormat: '',
+      resourceType: null,
+      downloadURL: '',
+      uploadFile: null
     });
+    this.selectedUploadFile = null;
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
     this.distributionForm.get('id').enable();
@@ -1302,6 +1404,90 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     if (index !== -1) {
       this.contactPointArray.splice(index, 1);
     }
+  }
+
+  onDistributionFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.selectedUploadFile = input?.files?.[0] ?? null;
+    if (!this.selectedUploadFile || !this.distributionForm) {
+      if (this.distributionForm) {
+        this.distributionForm.get('uploadFile')?.setValue(null);
+      }
+      return;
+    }
+    this.distributionForm.get('uploadFile')?.setValue(this.selectedUploadFile);
+
+    const fileName = this.selectedUploadFile.name || '';
+    const titleControl = this.distributionForm.get('title');
+    const formatControl = this.distributionForm.get('format');
+
+    if (titleControl && (!titleControl.value || !titleControl.dirty)) {
+      const baseName = fileName.includes('.')
+        ? fileName.slice(0, fileName.lastIndexOf('.'))
+        : fileName;
+      titleControl.setValue(baseName);
+    }
+
+    const detectedFormat = this.getFormatFromUrl(fileName);
+    if (detectedFormat && formatControl) {
+      if (!formatControl.dirty || formatControl.value === detectedFormat) {
+        formatControl.setValue(detectedFormat);
+      }
+    }
+  }
+
+  private loadLicenseOptions(): void {
+    this.http.get<Array<string | LicenseOption> | { licenses: Array<string | LicenseOption> }>('assets/licenses.json')
+      .subscribe({
+        next: (data) => {
+          const rawOptions = Array.isArray(data) ? data : (data?.licenses ?? []);
+          this.licenseOptions = (rawOptions ?? [])
+            .map((option) => {
+              if (typeof option === 'string') {
+                return { value: option, label: option };
+              }
+              return {
+                value: option?.value ?? '',
+                label: option?.label ?? option?.value ?? '',
+              };
+            })
+            .filter(option => option.value && option.label);
+          this.normalizeLicenseSelection();
+        },
+        error: () => {
+          this.licenseOptions = [];
+        },
+      });
+  }
+
+  private normalizeLicenseSelection(): void {
+    if (!this.distributionForm) return;
+    const licenseControl = this.distributionForm.get('license');
+    const otherControl = this.distributionForm.get('licenseOther');
+    const current = licenseControl?.value;
+
+    if (!current) {
+      this.isOtherLicenseSelected = false;
+      return;
+    }
+
+    if (current === this.otherLicenseValue) {
+      this.isOtherLicenseSelected = true;
+      return;
+    }
+
+    const matched = this.licenseOptions.find(option => option.value === current || option.label === current);
+    if (matched) {
+      if (matched.value !== current) {
+        licenseControl?.setValue(matched.value, { emitEvent: false });
+      }
+      this.isOtherLicenseSelected = false;
+      return;
+    }
+
+    licenseControl?.setValue(this.otherLicenseValue, { emitEvent: false });
+    otherControl?.setValue(current, { emitEvent: false });
+    this.isOtherLicenseSelected = true;
   }
 
   isDatasetFormValid(): boolean {

@@ -42,18 +42,57 @@
             {{distributionForm.get('description').value?.length || 0}}/500
           </span>
           
-          <label for="downloadURL" class="required-field">{{'DOWNLOAD_URL' | translate}}</label>
-          <input nbInput 
-                 id="downloadURL" 
-                 formControlName="downloadURL" 
-                 type="text"
-                 maxlength="200" 
-                 class="w-100"
-                 [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
-          <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
-            {{'DOWNLOAD_URL_REQUIRED' | translate}}
+          <label for="resourceType" class="required-field">Resource type</label>
+          <nb-select
+            id="resourceType"
+            formControlName="resourceType"
+            class="form-control"
+            placeholder="Select resource type">
+            <nb-option value="url">URL</nb-option>
+            <nb-option value="file">File</nb-option>
+          </nb-select>
+          <div *ngIf="isFieldInvalid('resourceType')" class="error-message">
+            Required
           </div>
-          
+
+          <ng-container *ngIf="distributionForm.get('resourceType')?.value === 'url'">
+            <label for="downloadURL" class="required-field">{{'DOWNLOAD_URL' | translate}}</label>
+            <div class="download input section">
+              <input nbInput 
+                     id="downloadURL" 
+                     formControlName="downloadURL" 
+                     type="text"
+                     maxlength="200" 
+                     class="download-url-input"
+                     [status]="isFieldInvalid('downloadURL') ? 'danger' : 'basic'" />
+            </div>
+            <div *ngIf="isFieldInvalid('downloadURL')" class="error-message">
+              {{'DOWNLOAD_URL_REQUIRED' | translate}}
+            </div>
+          </ng-container>
+
+          <ng-container *ngIf="distributionForm.get('resourceType')?.value === 'file'">
+            <label class="required-field">Upload file</label>
+            <div class="download input section">
+              <button nbButton type="button" status="basic" class="upload-button upload-button--full"
+                      (click)="uploadFileInput.click()"
+                      [nbTooltip]="selectedUploadFile?.name || 'Upload file'">
+                <nb-icon icon="upload-outline"></nb-icon>
+                <span>Upload file</span>
+              </button>
+              <input
+                #uploadFileInput
+                type="file"
+                class="d-none"
+                (change)="onDistributionFileChange($event)" />
+            </div>
+            <span *ngIf="selectedUploadFile" class="upload-filename">
+              {{ selectedUploadFile.name }}
+            </span>
+            <div *ngIf="isFieldInvalid('uploadFile')" class="error-message">
+              File required
+            </div>
+          </ng-container>
           
           <label for="format">{{'FORMAT' | translate}}</label>
           <nb-select 
@@ -64,9 +103,24 @@
               {{ option }}
             </nb-option>
           </nb-select>
-          
+
           <label for="license">{{'LICENSE' | translate}}</label>
-          <input nbInput id="license" formControlName="license" type="text" maxlength="100" class="full-width-input" />
+          <nb-select
+            id="license"
+            formControlName="license"
+            class="form-control"
+            placeholder="{{'LICENSE' | translate}}">
+            <nb-option *ngFor="let option of licenseOptions" [value]="option.value">
+              {{ option.label }}
+            </nb-option>
+            <nb-option [value]="otherLicenseValue">{{ 'OTHER' | translate }}</nb-option>
+          </nb-select>
+          <div *ngIf="isOtherLicenseSelected">
+            <label for="licenseOther">Other license</label>
+            <input nbInput id="licenseOther" formControlName="licenseOther" type="text" maxlength="100" class="full-width-input" />
+          </div>
+          
+          
           
           <label for="releaseDate">{{'RELEASE_DATE' | translate}}</label>
           <input nbInput placeholder="yyyy-MM-dd" id="releaseDate" formControlName="releaseDate" 
@@ -150,14 +204,30 @@
       <div class="dataset-distribution-step-content">
           <form [formGroup]="datasetForm" class="dataset-form">
             <div class="left-column">
-              <label for="title" class="required-field">{{'TITLE' | translate}}</label>
+              <label for="title" class="required-field">
+                {{'TITLE' | translate}}
+                <nb-icon
+                  icon="info-outline"
+                  status="primary"
+                  [nbTooltip]="'TITLE_TOOLTIP' | translate"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
               <input nbInput 
                      fullWidth 
                      id="title" 
                      formControlName="title"
                      maxlength="100">
                         
-              <label for="datasetId">{{'ID_OPTIONAL' | translate}}</label>
+              <label for="datasetId">
+                {{'ID_OPTIONAL' | translate}}
+                <nb-icon
+                  icon="info-outline"
+                  status="primary"
+                  [nbTooltip]="'ID_TOOLTIP' | translate"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
               <input nbInput 
                      fullWidth 
                      id="datasetId" 
@@ -171,7 +241,15 @@
                        
               <!-- Description with character counter -->
               <div class="form-group">
-                <label for="description">{{'DESCRIPTION' | translate}}</label>
+                <label for="description">
+                  {{'DESCRIPTION' | translate}}
+                  <nb-icon
+                    icon="info-outline"
+                    status="primary"
+                    [nbTooltip]="'DESCRIPTION_TOOLTIP' | translate"
+                    nbTooltipStatus="primary">
+                  </nb-icon>
+                </label>
                 <textarea nbInput 
                           id="description" 
                           formControlName="description"
@@ -260,7 +338,15 @@
                      fullWidth />
 
               <!-- list of contacts-->
-              <label>{{'CONTACT_POINTS' | translate}}</label>
+              <label>
+                {{'CONTACT_POINTS' | translate}}
+                <nb-icon
+                  icon="info-outline"
+                  status="primary"
+                  [nbTooltip]="'CONTACT_POINTS_TOOLTIP' | translate"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
               <div class="contact-points-container">
                 <!-- Display tags -->
                 <div class="contact-points-tags" *ngIf="contactPointArray.length > 0">
@@ -290,7 +376,14 @@
                 </div>
               </div>
               
-              <label for="publisher">{{'PUBLISHER' | translate}}</label>
+              <label for="publisher">{{'PUBLISHER' | translate}}
+                <nb-icon
+                  icon="info-outline"
+                  status="primary" 
+                  [nbTooltip]="'PUBLISHER_TOOLTIP' | translate"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
               <input nbInput 
                      id="publisher" 
                      formControlName="publisher" 
@@ -298,7 +391,14 @@
                      maxlength="100" 
                      fullWidth />
               
-              <label for="creator">{{'CREATOR' | translate}}</label>
+              <label for="creator">{{'CREATOR' | translate}}
+                <nb-icon
+                  icon="info-outline"
+                  status="primary" 
+                  [nbTooltip]="'CREATOR_TOOLTIP' | translate"
+                  nbTooltipStatus="primary">
+                </nb-icon>
+              </label>
               <input nbInput 
                      id="creator" 
                      formControlName="creator" 
@@ -307,7 +407,15 @@
                      fullWidth />
               
               <div class="form-group">
-                <label for="releaseDate" class="required-field">{{'RELEASE_DATE' | translate}}</label>
+                <label for="releaseDate" class="required-field">
+                  {{'RELEASE_DATE' | translate}}
+                  <nb-icon
+                    icon="info-outline"
+                    status="primary"
+                    [nbTooltip]="'RELEASE_DATE_TOOLTIP' | translate"
+                    nbTooltipStatus="primary">
+                  </nb-icon>
+                </label>
                 <input nbInput fullWidth id="releaseDate" formControlName="releaseDate"
                       [nbDatepicker]="datepicker">
                 <nb-datepicker #datepicker></nb-datepicker>

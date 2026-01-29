@@ -196,6 +196,55 @@ button[nbButton] {
   box-sizing: border-box;
 }
 
+.download.input.section {
+  display: flex;
+  flex-direction: row;
+  width: 75%;
+  justify-items: center;
+  justify-content: center;
+  align-items: center;
+}
+
+.download-url-input {
+  width: 85%;
+  height: 2.5rem;
+  margin: 0;
+  border-radius: 4px;
+}
+
+.upload-button {
+  width: 15%;
+  height: 2.5rem;
+  margin: 0;
+  box-sizing: border-box;
+  padding: 0;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+  background-color: $secondary !important;
+  color: #fff !important;
+}
+
+.upload-button--full {
+  width: 85%;
+  padding: 0 1rem;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.upload-button nb-icon {
+  color: #fff;
+}
+
+.upload-filename {
+  font-size: 0.9rem;
+  color: #2a2a2a;
+  width: 75%;
+  margin: 0 auto;
+}
+
 .required-field::after {
   content: " *";
   color: red;
@@ -229,6 +278,7 @@ input.ng-invalid.ng-touched {
   border: 1px solid #e0e0e0;
   border-radius: 4px;
 }
+
 
 /* Style for hidden map */
 #map.map-hidden {

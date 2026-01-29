@@ -1,9 +1,14 @@
 import { Component, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
 import { NbDialogRef, NbToastrService } from '@nebular/theme';
 import * as L from 'leaflet';
 import 'leaflet-draw';
 import { TranslateService } from '@ngx-translate/core';
-
+interface NominatimResult {
+  display_name?: string;
+  lat?: string;
+  lon?: string;
+}
 
 @Component({
   selector: 'ngx-map-dialog',
@@ -14,11 +19,13 @@ export class MapDialogComponent implements OnInit {
   map: L.Map;
   marker: L.Marker;
   editableLayers: L.FeatureGroup;
+  private searchMarker: L.Marker | null = null;
   
   constructor(
     private dialogRef: NbDialogRef<MapDialogComponent>,
     private toastrService: NbToastrService,
     public translation: TranslateService,
+    private http: HttpClient,
   ) { }
   
   ngOnInit() {
@@ -159,5 +166,52 @@ export class MapDialogComponent implements OnInit {
   
   close() {
     this.dialogRef.close();
+  }
+
+  searchAddress(rawQuery: string): void {
+    const query = (rawQuery || '').trim();
+    if (!query || !this.map) return;
+
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&q=${encodeURIComponent(query)}`;
+    this.http.get<NominatimResult[]>(url).subscribe({
+      next: (results) => {
+        if (!Array.isArray(results) || results.length === 0) {
+          this.toastrService.info('No results found', 'Info');
+          return;
+        }
+
+        this.applySearchResult(results[0]);
+      },
+      error: () => {
+        this.toastrService.warning('Search failed', 'Warning');
+      }
+    });
+  }
+
+  private applySearchResult(result: NominatimResult): void {
+    if (!this.map || !this.editableLayers) return;
+
+    const lat = parseFloat(result?.lat || '');
+    const lon = parseFloat(result?.lon || '');
+    if (Number.isNaN(lat) || Number.isNaN(lon)) return;
+
+    if (this.editableLayers && this.editableLayers.getLayers().length > 0) {
+      this.toastrService.warning(
+        'Cancella prima la geometria esistente',
+        'Attenzione',
+      );
+      return;
+    }
+
+    if (this.searchMarker) {
+      this.editableLayers.removeLayer(this.searchMarker);
+      this.searchMarker = null;
+    }
+
+    this.searchMarker = L.marker([lat, lon], { draggable: true }).addTo(this.editableLayers);
+    if (result?.display_name) {
+      this.searchMarker.bindPopup(result.display_name).openPopup();
+    }
+    this.map.setView([lat, lon], 14);
   }
 }

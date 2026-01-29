@@ -1,0 +1,14 @@
+[
+  { "value": "CC0 1.0", "label": "Creative Commons Zero 1.0 (CC0 1.0)" },
+  { "value": "CC BY 4.0", "label": "Creative Commons Attribution 4.0 (CC BY 4.0)" },
+  { "value": "CC BY-SA 4.0", "label": "Creative Commons Attribution-ShareAlike 4.0 (CC BY-SA 4.0)" },
+  { "value": "CC BY-ND 4.0", "label": "Creative Commons Attribution-NoDerivatives 4.0 (CC BY-ND 4.0)" },
+  { "value": "CC BY-NC 4.0", "label": "Creative Commons Attribution-NonCommercial 4.0 (CC BY-NC 4.0)" },
+  { "value": "CC BY-NC-SA 4.0", "label": "Creative Commons Attribution-NonCommercial-ShareAlike 4.0 (CC BY-NC-SA 4.0)" },
+  { "value": "CC BY-NC-ND 4.0", "label": "Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 (CC BY-NC-ND 4.0)" },
+  { "value": "ODC-By 1.0", "label": "Open Data Commons Attribution License 1.0 (ODC-By 1.0)" },
+  { "value": "ODbL 1.0", "label": "Open Data Commons Open Database License 1.0 (ODbL 1.0)" },
+  { "value": "PDDL 1.0", "label": "Public Domain Dedication and License 1.0 (PDDL 1.0)" },
+  { "value": "IODL 2.0", "label": "Italian Open Data License 2.0 (IODL 2.0)" },
+  { "value": "OGL 3.0", "label": "Open Government Licence 3.0 (OGL 3.0)" }
+]

@@ -6,7 +6,7 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { InjectionToken, NgModule } from '@angular/core';
-import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS, HttpHeaders } from '@angular/common/http';
+import { HttpClientModule, HttpClient, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { ConfigModule, ConfigService } from 'ngx-config-json';
 import { TranslateHttpLoader } from "@ngx-translate/http-loader";
 import { CoreModule } from './@core/core.module';
@@ -44,7 +44,6 @@ import { OidcJWTToken } from './pages/auth/oidc/oidc';
 import { TokenInterceptor } from './pages/auth/services/token.interceptor';
 import { JwtHelperService, JwtModule } from '@auth0/angular-jwt';
 import { NbAuthModuleCustom, NbAuthSimpleInterceptor, NbPasswordAuthStrategy } from './@theme/components/auth/public_api';
-import { Observable } from 'rxjs';
 import { SharedModule } from './shared/shared.module';
 
 class GenericConfig<T> {
@@ -53,23 +52,6 @@ class GenericConfig<T> {
 
 export function createTranslateLoader(http: HttpClient) {
   return new TranslateHttpLoader(http, './assets/i18n/', '.json');
-}
-const URL = 'https://raw.githubusercontent.com/BeOpen-project/IdraPortal-ngx-Translations';
-
-export class CustomTranslateLoader implements TranslateLoader {
-  contentHeader = new HttpHeaders({
-  });
-  constructor(private httpClient: HttpClient) { }
-
-  getTranslation(lang: string): Observable<any> {
-    const url = `${URL}/main/v1.0/${lang}.json`;
-    const extUrl = `${URL}/main/v1.1/ext/${lang}.json`;
-
-    // let idra = this.httpClient.get(url,{ withCredentials: true });
-    let idra = this.httpClient.get(url);
-    
-   return idra;
-  }
 }
 
 @NgModule({
@@ -118,7 +100,7 @@ export class CustomTranslateLoader implements TranslateLoader {
       defaultLanguage: 'en',
       loader: {
         provide: TranslateLoader,
-        useClass: CustomTranslateLoader,
+        useFactory: createTranslateLoader,
         deps: [HttpClient],
       },
     }),
