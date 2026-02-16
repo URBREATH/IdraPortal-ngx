@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TranslateModule } from '@ngx-translate/core';
 import { AdminRoutingModule } from './admin-routing.module';
 import { CataloguesListComponent } from './catalogues-list/catalogues-list.component';
-import { NbAccordionModule, NbActionsModule, NbCardModule, NbDialogModule, NbFormFieldModule, NbIconModule, NbInputModule, NbListModule, NbSelectModule, NbSpinnerModule, NbTagModule, NbToastrModule, NbTooltipModule, NbTreeGridModule, NbToggleModule, NbButtonModule, NbUserModule, NbTableModule, NbCheckboxModule, NbStepperModule, NbDatepickerModule } from '@nebular/theme';
+import { NbAccordionModule, NbActionsModule, NbCardModule, NbDialogModule, NbFormFieldModule, NbIconModule, NbInputModule, NbListModule, NbSelectModule, NbSpinnerModule, NbTagModule, NbToastrModule, NbTooltipModule, NbTreeGridModule, NbToggleModule, NbButtonModule, NbUserModule, NbTableModule, NbCheckboxModule, NbStepperModule, NbDatepickerModule, NbRadioModule } from '@nebular/theme';
 //import { AdminComponent } from './admin.component';
 import { NbEvaIconsModule } from '@nebular/eva-icons';
 import { AddCatalogueComponent } from './add-catalogue/add-catalogue.component';
@@ -25,6 +25,8 @@ import { RouterModule } from '@angular/router';
 import { ModelsToolsEditorComponent } from './models-tools-editor/models-tools-editor.component';
 import { DataSourcesEditorComponent } from './data-sources-editor/data-sources-editor.component';
 import { DatasetsNgsiEditorComponent } from './datasets-ngsi-editor/datasets-ngsi-editor.component';
+import { MinioBrowserDialogComponent } from './datasets-ngsi-editor/minio-browser-dialog/minio-browser-dialog.component';
+import { UploadProgressDialogComponent } from './datasets-ngsi-editor/upload-progress-dialog/upload-progress-dialog.component';
 import { DatasetsNgsiComponent } from './datasets-ngsi/datasets-ngsi.component';
 import { ModelsToolsComponent } from './models-tools/models-tools.component';
 import { DataSourcesComponent } from './data-sources/data-sources.component';
@@ -32,7 +34,7 @@ import { DataSourcesComponent } from './data-sources/data-sources.component';
 
 
 @NgModule({
-  declarations: [CataloguesListComponent, AddCatalogueComponent, RemoteCataloguesComponent, DataletsManagementComponent, ShowcaseDialogComponent, AdminConfigurationsComponent, PrefixDialogComponent, RemoteCatalogueDialogComponent, DataletDialogComponent, EditorDialogComponent, ModelsToolsEditorComponent, DataSourcesEditorComponent, DatasetsNgsiEditorComponent, DatasetsNgsiComponent, ModelsToolsComponent, DataSourcesComponent],
+  declarations: [CataloguesListComponent, AddCatalogueComponent, RemoteCataloguesComponent, DataletsManagementComponent, ShowcaseDialogComponent, AdminConfigurationsComponent, PrefixDialogComponent, RemoteCatalogueDialogComponent, DataletDialogComponent, EditorDialogComponent, ModelsToolsEditorComponent, DataSourcesEditorComponent, DatasetsNgsiEditorComponent, MinioBrowserDialogComponent, UploadProgressDialogComponent, DatasetsNgsiComponent, ModelsToolsComponent, DataSourcesComponent],
   
 imports: [
     CommonModule,
@@ -69,7 +71,8 @@ imports: [
     CodeEditorModule,
     NgxPaginationModule,
     NbStepperModule,
-    NbDatepickerModule
+    NbDatepickerModule,
+    NbRadioModule
   ]
 })
 export class AdminModule { 

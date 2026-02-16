@@ -1,0 +1,10 @@
+{
+  "minioEndpoint": "minio-api-dev.urbreath.tech",
+  "minioPort": 443,
+  "minioUseSSL": true,
+  "minioBucket": "urbreath-idra-public",
+  "minioBrowseBucket": "urbreath-public-repo",
+  "minioAccessKey": "9q7DFA0MTFT3ssPCfK0V",
+  "minioSecretKey": "Nv8Co9JHNa9VVR6n3ED7rwKPAdWvKcdEJDtiPwJy"
+}
+

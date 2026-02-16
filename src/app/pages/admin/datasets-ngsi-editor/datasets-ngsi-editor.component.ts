@@ -4,15 +4,39 @@ import { FormBuilder, FormGroup, FormArray, Validators, AbstractControl, Validat
 import { NgsiDatasetsService } from '../../services/ngsi-datasets.service';
 import { Router } from '@angular/router';
 import moment from 'moment';
-import { NbDialogService, NbToastrService } from '@nebular/theme';
+import { NbDialogRef, NbDialogService, NbToastrService } from '@nebular/theme';
 import { ConfirmationDialogComponent } from '../../../shared/confirmation-dialog/confirmation-dialog.component';
 import * as L from 'leaflet';
 import { MapDialogComponent } from '../../../shared/map-dialog/map-dialog.component';
 import { TranslateService } from '@ngx-translate/core';
+import { MinioBrowseService } from '../../services/minio-browse.service';
+import { MinioUploadService } from '../../services/minio-upload.service';
+import { MinioBrowserDialogComponent } from './minio-browser-dialog/minio-browser-dialog.component';
+import { UploadProgressDialogComponent } from './upload-progress-dialog/upload-progress-dialog.component';
+import { from, of, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
 
 interface LicenseOption {
   value: string;
   label: string;
+}
+
+interface PendingUpload {
+  id: string;
+  name: string;
+  type: string;
+  size: number;
+  dataUrl: string;
+  savedAt: string;
+}
+
+type UploadStatus = 'pending' | 'uploading' | 'done' | 'error';
+
+interface UploadQueueItem {
+  id: string;
+  name: string;
+  progress: number;
+  status: UploadStatus;
 }
 
 @Component({
@@ -21,6 +45,11 @@ interface LicenseOption {
   styleUrls: ['./datasets-ngsi-editor.component.scss']
 })
 export class DatasetsNgsiEditorComponent implements OnInit {
+  private readonly pendingUploadStorageKey = 'pending_minio_uploads';
+  pendingUploadId: string | null = null;
+  private pendingFileCache = new Map<string, File>();
+  uploadQueue: UploadQueueItem[] = [];
+  private uploadProgressDialogRef?: NbDialogRef<UploadProgressDialogComponent>;
 
   formatOptions: string[] = [
     'JSON',
@@ -40,6 +69,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   readonly otherLicenseValue = '__other__';
   isOtherLicenseSelected: boolean = false;
   selectedUploadFile: File | null = null;
+  isUploadingFile: boolean = false;
+  uploadErrorMessage: string | null = null;
+  uploadedPublicUrl: string | null = null;
+  selectedMinioObjectKey: string | null = null;
+  isListingMinioObjects: boolean = false;
 
   selectedStepIndex = 0;
   
@@ -79,7 +113,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         private dialogService: NbDialogService,
         private toastrService: NbToastrService,
         public translation: TranslateService,
-        private http: HttpClient
+        private http: HttpClient,
+        private minioUploadService: MinioUploadService,
+        private minioBrowseService: MinioBrowseService
   ) { }
 
   ngOnInit(): void {
@@ -125,6 +161,12 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
   // Add this method to handle stepper step changes
   onStepChange(stepperIndex: number): void {
+    if (stepperIndex === 1 && !this.hasActiveDistributions()) {
+      this.selectedStepIndex = 0;
+      this.showStepTwoBlockedWarning();
+      return;
+    }
+
     // Check if we're leaving step 2 (index 1) and clean up the map
     if (this.selectedStepIndex === 1 && stepperIndex !== 1) {
       this.cleanupMap();
@@ -139,6 +181,25 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.initMap();
       });
     }
+  }
+
+  goToDatasetStep(stepper: { next: () => void }): void {
+    if (!this.hasActiveDistributions()) {
+      this.showStepTwoBlockedWarning();
+      return;
+    }
+    stepper.next();
+  }
+
+  hasActiveDistributions(): boolean {
+    return this.distributions.some(dist => !dist.markedForDeletion);
+  }
+
+  private showStepTwoBlockedWarning(): void {
+    this.toastrService.warning(
+      this.translation.instant('DIALOG_NO_ACTIVE_DISTRIBUTIONS'),
+      this.translation.instant('DIALOG_CANNOT_PROCEED')
+    );
   }
 
   // Method to properly clean up the map
@@ -273,11 +334,35 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         downloadControl.setValidators([Validators.required]);
         uploadControl.clearValidators();
         uploadControl.setValue(null, { emitEvent: false });
+        if (this.pendingUploadId) {
+          this.removePendingUpload(this.pendingUploadId);
+          this.removeUploadQueueItem(this.pendingUploadId);
+          this.pendingUploadId = null;
+        }
         this.selectedUploadFile = null;
+        this.selectedMinioObjectKey = null;
+        this.uploadedPublicUrl = null;
+        this.uploadErrorMessage = null;
       } else if (type === 'file') {
         uploadControl.setValidators([Validators.required]);
         downloadControl.clearValidators();
         downloadControl.setValue('', { emitEvent: false });
+        this.selectedMinioObjectKey = null;
+        this.uploadedPublicUrl = null;
+        this.uploadErrorMessage = null;
+      } else if (type === 'minio') {
+        uploadControl.setValidators([this.minioSelectionValidator()]);
+        downloadControl.clearValidators();
+        downloadControl.setValue('', { emitEvent: false });
+        if (this.pendingUploadId) {
+          this.removePendingUpload(this.pendingUploadId);
+          this.removeUploadQueueItem(this.pendingUploadId);
+          this.pendingUploadId = null;
+        }
+        this.selectedUploadFile = null;
+        uploadControl.setValue(null, { emitEvent: false });
+        this.uploadedPublicUrl = null;
+        this.uploadErrorMessage = null;
       } else {
         downloadControl.clearValidators();
         uploadControl.clearValidators();
@@ -290,9 +375,6 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       const detectedFormat = this.getFormatFromUrl(url);
       const formatControl = this.distributionForm.get('format');
       if (!detectedFormat || !formatControl) {
-        return;
-      }
-      if (formatControl.dirty && formatControl.value && formatControl.value !== detectedFormat) {
         return;
       }
       formatControl.setValue(detectedFormat);
@@ -318,21 +400,33 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return null;
     }
 
-    const cleanUrl = url.split('#')[0].split('?')[0].trim();
-    const lastDot = cleanUrl.lastIndexOf('.');
-    if (lastDot === -1 || lastDot === cleanUrl.length - 1) {
+    const normalizedUrl = url.trim().toLowerCase();
+    if (
+      normalizedUrl.includes('service=wms') ||
+      normalizedUrl.includes('request=getmap') ||
+      normalizedUrl.endsWith('/wms')
+    ) {
+      return 'WMS';
+    }
+
+    const cleanUrl = normalizedUrl.split('#')[0].split('?')[0];
+    const fileName = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
+    const lastDot = fileName.lastIndexOf('.');
+    if (lastDot === -1 || lastDot === fileName.length - 1) {
       return null;
     }
 
-    const extension = cleanUrl.slice(lastDot + 1).toLowerCase();
+    const extension = fileName.slice(lastDot + 1);
     switch (extension) {
       case 'csv':
         return 'CSV';
       case 'json':
+      case 'jsonld':
         return 'JSON';
       case 'geojson':
         return 'GeoJSON';
       case 'xml':
+      case 'rdf':
         return 'XML';
       case 'txt':
         return 'TXT';
@@ -341,8 +435,10 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         return 'XLSX';
       case 'pdf':
         return 'PDF';
+      case 'wms':
+        return 'WMS';
       default:
-        return null;
+        return 'Other';
     }
   }
 
@@ -461,7 +557,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       title: distribution.title,
       description: distribution.description,
       accessUrl: accessUrl,
-      resourceType: distribution.uploadFile ? 'file' : 'url',
+      resourceType: distribution.resourceType || (distribution.uploadFile ? 'file' : 'url'),
       downloadURL: distribution.uploadFile ? '' : distribution.downloadURL,
       uploadFile: distribution.uploadFile ?? null,
       format: format,
@@ -474,6 +570,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       modifiedDate: modifiedDate
     });
     this.selectedUploadFile = distribution.uploadFile ?? null;
+    this.selectedMinioObjectKey = distribution.minioObjectKey ?? null;
+    this.pendingUploadId = distribution.pendingUploadId ?? null;
     this.normalizeLicenseSelection();
     
     // Only disable the ID field if this is a server-persisted distribution (not local-only)
@@ -511,6 +609,17 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       const isInvalid = forbidden.test(control.value);
       
       return isInvalid ? { forbiddenChars: { value: control.value } } : null;
+    };
+  }
+
+  private minioSelectionValidator(): ValidatorFn {
+    return (_control: AbstractControl): ValidationErrors | null => {
+      const hasMinioSelection = !!this.selectedMinioObjectKey;
+      const hasDownloadUrl = !!this.distributionForm?.get('downloadURL')?.value;
+      if (hasMinioSelection || hasDownloadUrl) {
+        return null;
+      }
+      return { required: true };
     };
   }
 
@@ -590,6 +699,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       accessUrl: formData.accessUrl ? [formData.accessUrl] : [''],
       downloadURL: formData.downloadURL,
       uploadFile: this.selectedUploadFile || null,
+      pendingUploadId: this.pendingUploadId || null,
+      minioObjectKey: this.selectedMinioObjectKey || null,
+      resourceType: formData.resourceType,
       format: actualFormat || 'CSV',
       byteSize: formData.byteSize || 0,
       checksum: formData.checksum || '',
@@ -642,6 +754,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       uploadFile: null
     });
     this.selectedUploadFile = null;
+    this.selectedMinioObjectKey = null;
+    this.uploadedPublicUrl = null;
+    this.pendingUploadId = null;
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
     this.distributionForm.get('id').enable();
@@ -699,6 +814,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   }
 
   private proceedWithDatasetCreation(): void {
+    this.isCreatingDataset = true;
+    this.buildUploadQueueForCreation();
+    this.openUploadProgressDialog();
     // Count active distributions (not marked for deletion)
     const activeDistributionsCount = this.distributions.filter(d => !d.markedForDeletion).length;
     
@@ -713,6 +831,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         },
       });
       this.isCreatingDataset = false;
+      this.closeUploadProgressDialog();
       return;
     }
     
@@ -743,6 +862,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       error: (error) => {
         console.error(`Error deleting distribution ${distributionId}:`, error);
         this.isCreatingDataset = false;
+        this.closeUploadProgressDialog();
         this.toastrService.danger(
           this.translation.instant('TOAST_DELETE_DISTRIBUTION_FAILED'),
           this.translation.instant('TOAST_DISTRIBUTION_DELETION_ERROR')
@@ -782,37 +902,66 @@ export class DatasetsNgsiEditorComponent implements OnInit {
     }
     
     const distribution = this.pendingDistributions[index];
-    
-    // Remove the flags we added, which aren't needed for the API
-    const { isNew, isEdited, markedForDeletion, uploadFile, ...distToSend } = distribution;
-    
-    // Choose between create or update based on the isNew flag
-    const operation = distribution.isNew 
-      ? this.ngsiDatasetsService.createDistribution(distToSend)
-      : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
-    
-    operation.subscribe({
-      next: () => {
-        // Process the next distribution
-        this.processNextDistribution(index + 1, onComplete);
+
+    this.uploadDistributionFileIfNeeded(distribution).subscribe({
+      next: (publicUrl) => {
+        if (publicUrl) {
+          distribution.downloadURL = publicUrl;
+        }
+
+        // Remove the flags we added, which aren't needed for the API
+        const {
+          isNew,
+          isEdited,
+          markedForDeletion,
+          uploadFile,
+          pendingUploadId,
+          minioObjectKey,
+          resourceType,
+          ...distToSend
+        } = distribution;
+
+        // Choose between create or update based on the isNew flag
+        const operation = distribution.isNew
+          ? this.ngsiDatasetsService.createDistribution(distToSend)
+          : this.ngsiDatasetsService.updateDistribution(distribution.id, distToSend);
+
+        operation.subscribe({
+          next: () => {
+            // Process the next distribution
+            this.processNextDistribution(index + 1, onComplete);
+          },
+          error: (error) => {
+            this.isCreatingDataset = false;
+            this.closeUploadProgressDialog();
+
+            // Handle 409 Conflict error specifically
+            if (error.status === 409) {
+              this.toastrService.danger(
+                this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION', { title: distribution.title }),
+                this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION_TITLE')
+              );
+            } else {
+              console.error(
+                `Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`,
+                error
+              );
+              this.toastrService.danger(
+                `Failed to ${distribution.isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
+                'Distribution Error'
+              );
+            }
+            // Do not proceed to dataset creation
+          }
+        });
       },
       error: (error) => {
         this.isCreatingDataset = false;
-        
-        // Handle 409 Conflict error specifically
-        if (error.status === 409) {
-          this.toastrService.danger(
-            this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION', {title: distribution.title}),
-            this.translation.instant('TOAST_DUPLICATE_DISTRIBUTION_TITLE')
-          );
-        } else {
-          console.error(`Error ${distribution.isNew ? 'creating' : 'updating'} distribution ${distribution.id}:`, error);
-          this.toastrService.danger(
-            `Failed to ${distribution.isNew ? 'create' : 'update'} distribution "${distribution.title}". Dataset creation aborted.`,
-            'Distribution Error'
-          );
-        }
-        // Do not proceed to dataset creation
+        this.closeUploadProgressDialog();
+        this.toastrService.danger(
+          error?.message || 'Unable to upload file to MinIO.',
+          this.translation.instant('TOAST_FORM_INVALID')
+        );
       }
     });
   }
@@ -897,6 +1046,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
         this.datasetForm.reset();
         this.distributions = [];
         this.isCreatingDataset = false;
+        this.closeUploadProgressDialog();
         this.router.navigate(['/pages/administration/datasets-ngsi'], 
           {
           queryParamsHandling: 'merge',
@@ -911,6 +1061,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       error: (error) => {
         console.error(`Error ${this.isEditing ? 'updating' : 'creating'} dataset:`, error);
         this.isCreatingDataset = false;
+        this.closeUploadProgressDialog();
         this.toastrService.danger(
           `Failed to ${this.isEditing ? 'update' : 'create'} dataset: ${error.message || 'Unknown error'}`,
           'Dataset Error'
@@ -928,6 +1079,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       uploadFile: null
     });
     this.selectedUploadFile = null;
+    this.selectedMinioObjectKey = null;
+    this.uploadedPublicUrl = null;
     this.isEditingDistribution = false;
     this.currentEditingDistributionId = null;
     this.distributionForm.get('id').enable();
@@ -948,10 +1101,11 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
+        this.clearPendingForDistribution(distributionToDelete);
         // If it's a new distribution (not yet persisted), just remove it from the list
         if (distributionToDelete.isNew) {
           this.distributions.splice(index, 1);
-          this.toastrService.info(
+          this.toastrService.success(
             this.translation.instant('TOAST_DISTRIBUTION_REMOVED', {title: distributionToDelete.title}),
             this.translation.instant('TOAST_DISTRIBUTION_REMOVED_TITLE')
           );
@@ -964,7 +1118,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
             this.distributionsToDelete.push(distributionToDelete.id);
           }
           
-          this.toastrService.info(
+          this.toastrService.success(
             this.translation.instant('TOAST_DISTRIBUTION_MARKED_DELETION', {title: distributionToDelete.title}),
             this.translation.instant('TOAST_DISTRIBUTION_MARKED_DELETION_TITLE')
           );
@@ -1012,15 +1166,27 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       },
     }).onClose.subscribe(confirmed => {
       if (confirmed) {
+        this.clearPendingForDistribution(distributionToRemove);
         // Rimuove la distribuzione solo dall'array locale senza chiamare l'API di eliminazione
         this.distributions.splice(index, 1);
         
-        this.toastrService.info(
+        this.toastrService.success(
           this.translation.instant('TOAST_DISTRIBUTION_REMOVED', {title: distributionToRemove.title}),
           this.translation.instant('TOAST_DISTRIBUTION_REMOVED_TITLE')
         );
       }
     });
+  }
+
+  private clearPendingForDistribution(distribution: any): void {
+    if (!distribution) {
+      return;
+    }
+    const pendingId = distribution.pendingUploadId;
+    if (pendingId) {
+      this.removePendingUpload(pendingId);
+      this.removeUploadQueueItem(pendingId);
+    }
   }
 
   onDateSelect(date: Date, controlName: string) {
@@ -1409,6 +1575,9 @@ export class DatasetsNgsiEditorComponent implements OnInit {
   onDistributionFileChange(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.selectedUploadFile = input?.files?.[0] ?? null;
+    this.selectedMinioObjectKey = null;
+    this.uploadErrorMessage = null;
+    this.uploadedPublicUrl = null;
     if (!this.selectedUploadFile || !this.distributionForm) {
       if (this.distributionForm) {
         this.distributionForm.get('uploadFile')?.setValue(null);
@@ -1416,8 +1585,430 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return;
     }
     this.distributionForm.get('uploadFile')?.setValue(this.selectedUploadFile);
+    this.distributionForm.get('downloadURL')?.setValue('');
+    // Ensure resource type is set to file when a file is selected.
+    if (this.distributionForm.get('resourceType')?.value !== 'file') {
+      this.distributionForm.get('resourceType')?.setValue('file');
+    }
 
     const fileName = this.selectedUploadFile.name || '';
+    this.applyFileNameMetadata(fileName);
+    this.distributionForm.get('uploadFile')?.updateValueAndValidity({ emitEvent: false });
+    this.queueFileForUpload(this.selectedUploadFile);
+  }
+
+  openMinioBrowser(): void {
+    if (this.isListingMinioObjects) {
+      return;
+    }
+    this.isListingMinioObjects = true;
+    this.openMinioBrowserDialog();
+  }
+
+  onMinioObjectSelected(objectKey: string): void {
+    if (!objectKey) {
+      this.selectedMinioObjectKey = null;
+      if (this.pendingUploadId) {
+        this.removePendingUpload(this.pendingUploadId);
+        this.removeUploadQueueItem(this.pendingUploadId);
+      }
+      this.pendingUploadId = null;
+      this.uploadedPublicUrl = null;
+      this.distributionForm.get('downloadURL')?.setValue('');
+      this.distributionForm.get('uploadFile')?.updateValueAndValidity({ emitEvent: false });
+      return;
+    }
+    this.selectedMinioObjectKey = objectKey;
+    this.selectedUploadFile = null;
+    if (this.pendingUploadId) {
+      this.removePendingUpload(this.pendingUploadId);
+      this.removeUploadQueueItem(this.pendingUploadId);
+    }
+    this.pendingUploadId = null;
+    this.uploadErrorMessage = null;
+    this.uploadedPublicUrl = null;
+    this.distributionForm.get('uploadFile')?.setValue(null, { emitEvent: false });
+    this.distributionForm.get('downloadURL')?.setValue('');
+    if (this.distributionForm.get('resourceType')?.value !== 'minio') {
+      this.distributionForm.get('resourceType')?.setValue('minio');
+    }
+
+    const fileName = objectKey.split('/').pop() || objectKey;
+    this.applyFileNameMetadata(fileName);
+
+    this.minioBrowseService.getPublicUrlForObject(objectKey).subscribe({
+      next: (url) => {
+        this.uploadedPublicUrl = url;
+        this.distributionForm.get('downloadURL')?.setValue(url);
+        this.distributionForm.get('uploadFile')?.updateValueAndValidity({ emitEvent: false });
+      },
+      error: (error) => {
+        this.uploadedPublicUrl = null;
+        this.uploadErrorMessage = 'Unable to build MinIO URL.';
+        console.error('MinIO URL build failed:', error);
+        this.distributionForm.get('uploadFile')?.updateValueAndValidity({ emitEvent: false });
+      },
+    });
+  }
+
+  clearSelectedFile(): void {
+    if (this.pendingUploadId) {
+      this.removePendingUpload(this.pendingUploadId);
+      this.removeUploadQueueItem(this.pendingUploadId);
+    }
+    this.pendingUploadId = null;
+    this.selectedUploadFile = null;
+    this.selectedMinioObjectKey = null;
+    this.uploadedPublicUrl = null;
+    this.uploadErrorMessage = null;
+    this.distributionForm.get('uploadFile')?.setValue(null, { emitEvent: false });
+    this.distributionForm.get('downloadURL')?.setValue('');
+    this.distributionForm.get('uploadFile')?.updateValueAndValidity({ emitEvent: false });
+    this.toastrService.success(
+      'Selection removed from storage.',
+      this.translation.instant('TOAST_SUCCESS')
+    );
+  }
+
+  private async queueFileForUpload(file: File): Promise<void> {
+    if (!file || this.isUploadingFile) {
+      return;
+    }
+
+    this.isUploadingFile = true;
+    this.uploadErrorMessage = null;
+
+    try {
+      if (this.pendingUploadId) {
+        this.removePendingUpload(this.pendingUploadId);
+        this.removeUploadQueueItem(this.pendingUploadId);
+      }
+      const pendingId = await this.storePendingUpload(file);
+      this.pendingUploadId = pendingId;
+      this.upsertUploadQueueItem(pendingId, file.name, {
+        progress: 0,
+        status: 'pending',
+      });
+      this.toastrService.success(
+        'File saved locally. It will be uploaded later.',
+        this.translation.instant('TOAST_SUCCESS')
+      );
+    } catch (error) {
+      this.uploadErrorMessage = 'Unable to save file locally.';
+      console.error('Local file save failed:', error);
+      this.toastrService.danger(
+        this.uploadErrorMessage,
+        this.translation.instant('TOAST_FORM_INVALID')
+      );
+    } finally {
+      this.isUploadingFile = false;
+    }
+  }
+
+  private uploadDistributionFileIfNeeded(distribution: any) {
+    if (!distribution) {
+      return of(null);
+    }
+
+    const existingUrl = (distribution.downloadURL || '').trim();
+    if (existingUrl) {
+      return of(null);
+    }
+
+    const uploadFile = distribution.uploadFile;
+    const queueId = distribution.pendingUploadId || distribution.id || '';
+
+    if (uploadFile instanceof File) {
+      if (queueId) {
+        this.upsertUploadQueueItem(queueId, uploadFile.name, {
+          status: 'uploading',
+          progress: 0,
+        });
+      }
+      return this.minioUploadService
+        .uploadFileWithProgress(uploadFile, (progress) => {
+          if (queueId) {
+            this.updateUploadQueueProgress(queueId, progress, 'uploading');
+          }
+        })
+        .pipe(
+          map((result) => {
+            if (distribution.pendingUploadId) {
+              this.removePendingUpload(distribution.pendingUploadId);
+              if (queueId) {
+                this.updateUploadQueueProgress(queueId, 100, 'done');
+              }
+            } else if (queueId) {
+              this.updateUploadQueueProgress(queueId, 100, 'done');
+            }
+            return result.publicUrl;
+          }),
+          catchError((error) => {
+            if (queueId) {
+              this.updateUploadQueueProgress(queueId, 0, 'error');
+            }
+            return throwError(() => error);
+          })
+        );
+    }
+
+    if (!distribution.pendingUploadId) {
+      return of(null);
+    }
+
+    if (queueId) {
+      const pending = this.getPendingUploadById(queueId);
+      this.upsertUploadQueueItem(queueId, pending?.name || 'Pending file', {
+        status: 'uploading',
+        progress: 0,
+      });
+    }
+
+    return from(this.resolvePendingFile(distribution.pendingUploadId)).pipe(
+      switchMap((file) =>
+        file
+          ? this.minioUploadService.uploadFileWithProgress(file, (progress) => {
+              if (queueId) {
+                this.updateUploadQueueProgress(queueId, progress, 'uploading');
+              }
+            })
+          : throwError(() => new Error('Pending file not found in session storage.'))
+      ),
+      map((result) => {
+        this.removePendingUpload(distribution.pendingUploadId);
+        if (queueId) {
+          this.updateUploadQueueProgress(queueId, 100, 'done');
+        }
+        return result.publicUrl;
+      }),
+      catchError((error) => {
+        if (queueId) {
+          this.updateUploadQueueProgress(queueId, 0, 'error');
+        }
+        return throwError(() => error);
+      })
+    );
+  }
+
+  private async storePendingUpload(file: File): Promise<string> {
+    const uploadId = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+    this.pendingFileCache.set(uploadId, file);
+
+    try {
+      const dataUrl = await this.readFileAsDataUrl(file);
+      const uploads = this.getPendingUploadsFromStorage();
+      uploads.push({
+        id: uploadId,
+        name: file.name,
+        type: file.type || 'application/octet-stream',
+        size: file.size,
+        dataUrl,
+        savedAt: new Date().toISOString(),
+      });
+      sessionStorage.setItem(this.pendingUploadStorageKey, JSON.stringify(uploads));
+      return uploadId;
+    } catch (error) {
+      this.pendingFileCache.delete(uploadId);
+      throw error;
+    }
+  }
+
+  private async resolvePendingFile(uploadId: string): Promise<File | null> {
+    const cached = this.pendingFileCache.get(uploadId);
+    if (cached) {
+      return cached;
+    }
+
+    const pending = this.getPendingUploadById(uploadId);
+    if (!pending) {
+      return null;
+    }
+
+    const file = this.dataUrlToFile(pending.dataUrl, pending.name, pending.type);
+    this.pendingFileCache.set(uploadId, file);
+    return file;
+  }
+
+  private getPendingUploadsFromStorage(): PendingUpload[] {
+    const raw = sessionStorage.getItem(this.pendingUploadStorageKey);
+    if (!raw) {
+      return [];
+    }
+    try {
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+      console.error('Failed to parse pending uploads from storage:', error);
+      return [];
+    }
+  }
+
+  private getPendingUploadById(uploadId: string): PendingUpload | null {
+    const uploads = this.getPendingUploadsFromStorage();
+    return uploads.find((upload) => upload.id === uploadId) ?? null;
+  }
+
+  private removePendingUpload(uploadId: string): void {
+    if (!uploadId) {
+      return;
+    }
+    this.pendingFileCache.delete(uploadId);
+    const uploads = this.getPendingUploadsFromStorage().filter(
+      (upload) => upload.id !== uploadId,
+    );
+    sessionStorage.setItem(this.pendingUploadStorageKey, JSON.stringify(uploads));
+  }
+
+  private readFileAsDataUrl(file: File): Promise<string> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(String(reader.result || ''));
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private dataUrlToFile(dataUrl: string, fileName: string, mimeType: string): File {
+    const [header, base64] = dataUrl.split(',');
+    const binary = atob(base64 || '');
+    const bytes = new Uint8Array(binary.length);
+    for (let i = 0; i < binary.length; i += 1) {
+      bytes[i] = binary.charCodeAt(i);
+    }
+    return new File([bytes], fileName, { type: mimeType || this.extractMimeType(header) });
+  }
+
+  private extractMimeType(header: string): string {
+    const match = header?.match(/data:(.*?);base64/);
+    return match?.[1] || 'application/octet-stream';
+  }
+
+  private buildUploadQueueForCreation(): void {
+    const activeDistributions = this.distributions.filter(
+      (dist) => !dist.markedForDeletion,
+    );
+
+    this.uploadQueue = activeDistributions
+      .filter((dist) => {
+        const hasPending = !!dist.pendingUploadId;
+        const hasFile = dist.uploadFile instanceof File;
+        const hasUrl = (dist.downloadURL || '').trim().length > 0;
+        return (hasPending || hasFile) && !hasUrl;
+      })
+      .map((dist) => {
+        const queueId = dist.pendingUploadId || dist.id;
+        if (!queueId) {
+          return null;
+        }
+        const pending = dist.pendingUploadId
+          ? this.getPendingUploadById(dist.pendingUploadId)
+          : null;
+        const name =
+          dist.uploadFile?.name ||
+          pending?.name ||
+          dist.title ||
+          'File';
+        return {
+          id: queueId,
+          name,
+          progress: 0,
+          status: 'pending' as UploadStatus,
+        };
+      })
+      .filter((item): item is UploadQueueItem => !!item);
+  }
+
+  private openUploadProgressDialog(): void {
+    if (!this.uploadQueue.length || this.uploadProgressDialogRef) {
+      return;
+    }
+    this.uploadProgressDialogRef = this.dialogService.open(UploadProgressDialogComponent, {
+      hasBackdrop: true,
+      closeOnBackdropClick: false,
+      closeOnEsc: false,
+      context: {
+        items: this.uploadQueue,
+      },
+    });
+  }
+
+  private closeUploadProgressDialog(): void {
+    if (!this.uploadProgressDialogRef) {
+      return;
+    }
+    this.uploadProgressDialogRef.close();
+    this.uploadProgressDialogRef = undefined;
+  }
+
+  private upsertUploadQueueItem(
+    id: string,
+    name: string,
+    patch: Partial<UploadQueueItem> = {},
+  ): void {
+    if (!id) {
+      return;
+    }
+    const existing = this.uploadQueue.find((item) => item.id === id);
+    if (existing) {
+      existing.name = name || existing.name;
+      Object.assign(existing, patch);
+      return;
+    }
+    this.uploadQueue.push({
+      id,
+      name,
+      progress: patch.progress ?? 0,
+      status: patch.status ?? 'pending',
+    });
+  }
+
+  private updateUploadQueueProgress(
+    id: string,
+    progress: number,
+    status?: UploadStatus,
+  ): void {
+    if (!id) {
+      return;
+    }
+    const entry = this.uploadQueue.find((item) => item.id === id);
+    if (!entry) {
+      return;
+    }
+    entry.progress = Math.max(0, Math.min(100, Math.round(progress)));
+    if (status) {
+      entry.status = status;
+    }
+  }
+
+  private removeUploadQueueItem(id: string): void {
+    if (!id) {
+      return;
+    }
+    this.uploadQueue = this.uploadQueue.filter((item) => item.id !== id);
+  }
+
+  private openMinioBrowserDialog(): void {
+    const dialogRef = this.dialogService.open(MinioBrowserDialogComponent, {
+      hasBackdrop: true,
+      closeOnBackdropClick: true,
+      closeOnEsc: true,
+      context: {
+        selectedKey: this.selectedMinioObjectKey,
+      },
+    });
+
+    dialogRef.onClose.subscribe((objectKey?: string) => {
+      this.isListingMinioObjects = false;
+      if (objectKey) {
+        this.onMinioObjectSelected(objectKey);
+      }
+    });
+  }
+
+  private applyFileNameMetadata(fileName: string): void {
+    if (!this.distributionForm) {
+      return;
+    }
     const titleControl = this.distributionForm.get('title');
     const formatControl = this.distributionForm.get('format');
 
@@ -1430,9 +2021,7 @@ export class DatasetsNgsiEditorComponent implements OnInit {
 
     const detectedFormat = this.getFormatFromUrl(fileName);
     if (detectedFormat && formatControl) {
-      if (!formatControl.dirty || formatControl.value === detectedFormat) {
-        formatControl.setValue(detectedFormat);
-      }
+      formatControl.setValue(detectedFormat);
     }
   }
 
@@ -1504,8 +2093,8 @@ export class DatasetsNgsiEditorComponent implements OnInit {
       return false;
     }
     
-    // Check if there are any distributions
-    return this.distributions.length > 0;
+    // Check if there are any active distributions
+    return this.hasActiveDistributions();
   }
 
   /**

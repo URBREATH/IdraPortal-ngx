@@ -1,7 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "types": ["google.maps"],
+    "types": ["google.maps", "node"],
     "importHelpers": true,
     "module": "es2020",
     "outDir": "./dist/out-tsc",
