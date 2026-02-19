@@ -170,17 +170,27 @@ export class DatasetsNgsiComponent implements OnInit {
     this.applyFilters();
   }
 
+  onTagInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ',' || event.keyCode === 13 || event.keyCode === 188) {
+      event.preventDefault();
+    }
+  }
+
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    setTimeout(() => {
-      if (input) {
-        input.nativeElement.value = '';
-      }
-      if (value && value.trim() !== '') {
-        this.filters.push(value.trim());
-        this.currentPage = 1;
-        this.applyFilters();
-      }
-    }, 50);
+    if (input?.nativeElement) {
+      input.nativeElement.value = '';
+    }
+
+    const trimmedValue = value?.trim();
+    if (!trimmedValue) {
+      return;
+    }
+
+    if (!this.filters.includes(trimmedValue)) {
+      this.filters.push(trimmedValue);
+    }
+    this.currentPage = 1;
+    this.applyFilters();
   }
 
 
@@ -199,6 +209,7 @@ export class DatasetsNgsiComponent implements OnInit {
 
    // Add filter removal method
    onFilterRemove(tagToRemove: NbTagComponent): void {
+    this.filters = this.filters.filter(tag => tag !== tagToRemove.text);
     this.filtersTags = this.filtersTags.filter(tag => tag !== tagToRemove.text);
     this.currentPage = 1;
     this.applyFilters();

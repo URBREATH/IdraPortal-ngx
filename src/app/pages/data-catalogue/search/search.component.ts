@@ -250,42 +250,48 @@ export class SearchComponent implements OnInit {
     this.searchDataset()
   }
 
+  onTagInputKeydown(event: KeyboardEvent): void {
+    if (event.key === 'Enter' || event.key === ',' || event.keyCode === 13 || event.keyCode === 188) {
+      event.preventDefault();
+    }
+  }
+
   onTagAdd({ value, input }: NbTagInputAddEvent): void {
-    setTimeout(() => {
-      if(input != undefined)
-        input.nativeElement.value = '';
-    
-      if (value) {
-        this.filters.push(value);
-      
-        // Check if there's a filter with field 'ALL'
-        let allFilter = this.searchRequest.filters.find(x => x.field == 'ALL');
-      
-        if (allFilter) {
-          // Update existing 'ALL' filter - always append to existing value
-          if (allFilter.value && allFilter.value.trim() !== '') {
-            let existingValues = allFilter.value.split(',').filter(v => v.trim() !== '');
-            existingValues.push(value);
-            allFilter.value = existingValues.join(',');
-          } else {
-            allFilter.value = value;
-          }
-        } else {
-          // Create a new 'ALL' filter if it doesn't exist
-          this.searchRequest.filters.push(new SearchFilter('ALL', value));
-        }
-        
-        localStorage.setItem('lastSearch', this.filters.toString());
+    if (input?.nativeElement) {
+      input.nativeElement.value = '';
+    }
 
-        this.currentPage = 1;
-        this.page = 1;
-        this.searchRequest.start = 0;
+    const trimmedValue = value?.trim();
+    if (!trimmedValue) {
+      return;
+    }
 
-        this.searchDataset();
+    this.filters.push(trimmedValue);
+  
+    // Check if there's a filter with field 'ALL'
+    let allFilter = this.searchRequest.filters.find(x => x.field == 'ALL');
+  
+    if (allFilter) {
+      // Update existing 'ALL' filter - always append to existing value
+      if (allFilter.value && allFilter.value.trim() !== '') {
+        let existingValues = allFilter.value.split(',').filter(v => v.trim() !== '');
+        existingValues.push(trimmedValue);
+        allFilter.value = existingValues.join(',');
+      } else {
+        allFilter.value = trimmedValue;
       }
-    }, 50);
-
+    } else {
+      // Create a new 'ALL' filter if it doesn't exist
+      this.searchRequest.filters.push(new SearchFilter('ALL', trimmedValue));
+    }
     
+    localStorage.setItem('lastSearch', this.filters.toString());
+
+    this.currentPage = 1;
+    this.page = 1;
+    this.searchRequest.start = 0;
+
+    this.searchDataset();
   }
 
 

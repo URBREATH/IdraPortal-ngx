@@ -14,8 +14,7 @@
       </span>
         <!-- Tag input for filtering -->
         <nb-tag-list (tagRemove)="onTagRemove($event)">
-            <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
-            <input id="tags_input" type="text" nbTagInput (tagAdd)="onTagAdd($event)" separatorKeys="[188,13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
+            <input id="tags_input" type="text" nbTagInput (keydown)="onTagInputKeydown($event)" (tagAdd)="onTagAdd($event)" [separatorKeys]="[188, 13]" fullWidth placeholder="{{ 'HOME_INSERT_KEYWORDS' | translate }}">
         </nb-tag-list>
         <span style="align-self: flex-start; margin-top: 0.3rem"><strong>{{ 'DATALET_DATASETS_FOUND' | translate }}:</strong> {{currentDatasets}}</span>
       </nb-card>
@@ -55,6 +54,7 @@
                 </div>
                 <div class="row m-1">
                     <nb-tag-list (tagRemove)="onFilterRemove($event)">
+                      <nb-tag appearance="outline" status="primary" *ngFor="let filter of filters" [text]="filter" removable></nb-tag>
                       <nb-tag appearance="outline" status="primary" *ngFor="let filter of filtersTags" [text]="filter" removable></nb-tag>
                     </nb-tag-list>
                   </div>
