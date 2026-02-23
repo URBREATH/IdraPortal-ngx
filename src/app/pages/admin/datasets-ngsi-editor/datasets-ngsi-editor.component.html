@@ -232,7 +232,8 @@
           nbButton
           [attr.aria-disabled]="!hasActiveDistributions()"
           [class.next-button-disabled]="!hasActiveDistributions()"
-          [nbTooltip]="!hasActiveDistributions() ? ('DIALOG_NO_ACTIVE_DISTRIBUTIONS' | translate) : ''"
+          [nbTooltip]="!hasActiveDistributions() ? ('DIALOG_NO_ACTIVE_DISTRIBUTIONS' | translate) : null"
+          [nbTooltipDisabled]="hasActiveDistributions()"
           [nbTooltipClass]="!hasActiveDistributions() ? 'next-disabled-tooltip' : ''"
           nbTooltipStatus="warning"
           (click)="goToDatasetStep(stepper)">
