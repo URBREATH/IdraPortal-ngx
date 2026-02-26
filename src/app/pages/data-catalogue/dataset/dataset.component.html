@@ -34,19 +34,11 @@
                             </div>
                             <div class="col-12">
                                 <nb-actions size="small" class="d-flex justify-content-start">
-<<<<<<< HEAD
                                     <nb-action icon="eye" [nbTooltip]="!isSpecialDatasetType ? 'Preview File' : 'Preview/Access'" [disabled]="!checkDistributionFormat(distribution.format) || (ngsiDataset && distribution.format.toLowerCase() !== 'geojson' && distribution.format.toLowerCase() !== 'other')" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
                                     <nb-action *ngIf="!isSpecialDatasetType" icon="file-text-outline" nbTooltip="View Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
                                     <nb-action *ngIf="!isSpecialDatasetType && enableDatalet" icon="bar-chart-outline" nbTooltip="Create Datalet" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
                                     <nb-action icon="download-outline" [disabled]="checkDistributionDownload(distribution)" nbTooltip="Download" (click)="downloadUrl(distribution)"></nb-action>
                                     <nb-action icon="info" nbTooltip="Details" (click)="openDistributionDetails(distribution)"></nb-action>
-=======
-                                    <nb-action icon="file-text-outline" nbTooltip="{{ 'PREVIEW_FILE' | translate }}" [disabled]="!checkDistributionFormat(distribution.format)" (click)="handlePreviewFileOpenModal(distribution)"></nb-action>
-                                    <nb-action icon="eye" nbTooltip="{{ 'VIEW_DATALET' | translate }}" [disabled]="!checkDistributionDatalet(distribution)" (click)="openExistingDatalet(distribution)"></nb-action>
-                                    <nb-action icon="bar-chart-outline" *ngIf="enableDatalet" nbTooltip="{{ 'CREATE_DATALET' | translate }}" [disabled]="!checkDistributionDatalet(distribution)" (click)="dataletCreate(distribution)"></nb-action>
-                                    <nb-action icon="download-outline" nbTooltip="{{ 'DOWNLOAD' | translate }}" (click)="downloadUrl(distribution)"></nb-action>
-                                    <nb-action icon="info" nbTooltip="{{ 'DETAILS' | translate }}" (click)="openDistributionDetails(distribution)"></nb-action>
->>>>>>> main
                                 </nb-actions>
                             </div>
                         </div>
