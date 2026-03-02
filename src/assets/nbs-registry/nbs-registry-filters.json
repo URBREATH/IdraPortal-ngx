@@ -1,0 +1,19 @@
+{
+  "pilots": [
+    { "id": 1, "label": "Athens" },
+    { "id": 2, "label": "Parma" },
+    { "id": 3, "label": "Madrid" },
+    { "id": 4, "label": "Aarhus" },
+    { "id": 5, "label": "Leuven" },
+    { "id": 6, "label": "Kajaani" },
+    { "id": 7, "label": "Tallin" },
+    { "id": 8, "label": "Cluj-Napoca" },
+    { "id": 9, "label": "Pilsen" }
+  ],
+  "climateZones": [
+    { "id": 1, "label": "Atlantic" },
+    { "id": 2, "label": "Boreal" },
+    { "id": 3, "label": "Continental" },
+    { "id": 4, "label": "Mediterranean" }
+  ]
+}

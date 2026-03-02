@@ -251,6 +251,9 @@ getLevel(nodeType: string): string {
 			case 'GEONETWORK_ISO19139':
 				//node.federationLevel='LEVEL_2';
 				return "2";
+			case 'NBS_REGISTRY':
+				//node.federationLevel='LEVEL_2';
+				return "2";
 			default:
 				break;
 			}

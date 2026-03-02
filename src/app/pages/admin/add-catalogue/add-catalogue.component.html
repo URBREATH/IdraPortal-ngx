@@ -83,7 +83,7 @@
 
                 <input type="url" nbInput fullWidth status="primary" placeholder="{{ 'API_ENDPOINT' | translate }}"
                 [(ngModel)]="node.host"
-                [disabled]="modifyId || node.nodeType === 'DCATDUMP'"
+                [disabled]="modifyId || node.nodeType === 'DCATDUMP' || node.nodeType === 'NBS_REGISTRY'"
                 [required]="node.nodeType !== 'DCATDUMP'"
                 *ngIf="node.nodeType != 'ZENODO'">
  
@@ -99,7 +99,7 @@
                                 {{ type.value }}
                             </option>
                         </select>
-                    </nb-card-body>
+                    </nb-card-body> 
                 </div>
 
                 <div class="col-md-4">
@@ -150,6 +150,66 @@
                                 <option value="LEVEL_4">LEVEL_4</option>
                             </select>
                         </nb-card-body>
+                    </div>
+
+                    <!-- NBS_REGISTRY -->
+                    <div class="row show-grid" *ngIf="node.nodeType === 'NBS_REGISTRY'">
+                    <div class="col-md-12">
+                        <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                        <h6 class="jumbotron-heading">NBS Registry</h6>
+
+                        <!-- Email -->
+                        <div class="mt-2">
+                            <h6 class="jumbotron-heading">Email</h6>
+                            <input nbInput fullWidth type="email"
+                                [(ngModel)]="nbsParams.auth.email"
+                                (ngModelChange)="writeNbsParamsIntoNodeConnectorParams()"
+                                placeholder="email">
+                        </div>
+
+                        <!-- Password -->
+                        <div class="mt-3">
+                            <h6 class="jumbotron-heading">Password</h6>
+                            <input nbInput fullWidth type="password"
+                                [(ngModel)]="nbsParams.auth.password"
+                                (ngModelChange)="writeNbsParamsIntoNodeConnectorParams()"
+                                placeholder="password">
+                        </div>
+
+                        <!-- Filter Mode -->
+                        <div class="col-md-6 mt-3">
+                        <label class="label">Filter Mode</label>
+                        <select class="form-control"
+                                [(ngModel)]="nbsParams.filter.mode"
+                                (change)="onNbsModeChange()">
+                            <option value="PILOT">PILOT</option>
+                            <option value="CLIMATE_ZONE">CLIMATE_ZONE</option>
+                        </select>
+                        </div>
+
+                        <!-- IDs -->
+                        <div class="col-md-6 mt-3">
+                        <label class="label">
+                            IDs
+                            <span class="text-muted" style="font-weight: normal;">
+                                ({{ nbsIsClimateZoneMode ? 'climate zones' : 'pilots' }})                            
+                            </span>
+                        </label>
+
+                        <select
+                            multiple
+                            class="form-control"
+                            size="6"
+                            [(ngModel)]="nbsParams.filter.ids"
+                            (ngModelChange)="writeNbsParamsIntoNodeConnectorParams()">
+                            <option *ngFor="let opt of nbsCurrentOptions" [value]="opt.id">
+                                {{ opt.label }}
+                            </option>
+                        </select>
+                        </div>
+                        
+                        </nb-card-body>
+                    </div>
                     </div>
 
                 <div class="col-md-6" *ngIf="node.nodeType == 'DCATDUMP'">

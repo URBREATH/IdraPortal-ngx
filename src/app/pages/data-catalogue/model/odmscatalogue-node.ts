@@ -21,6 +21,7 @@ export class ODMSCatalogueNode {
     description:string;
     APIKey: string;
     communities : string;
+    connectorParams : string;   //nbs params
     location:string;
     locationDescription:string;
     dcatProfile:string;

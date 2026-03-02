@@ -15,4 +15,5 @@ export const environment = {
   authProfile: "oidc",
   client_id: "beopen-dashboard",
   client_secret: "C6RnfcTCKZHyIn2F5zxmgaRCaJn9YHCp",
+  nbsApiBaseUrl: 'https://nbs.modapto.atc.gr'
 };

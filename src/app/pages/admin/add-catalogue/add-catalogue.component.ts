@@ -9,6 +9,8 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { RefreshService } from '../../services/refresh.service';
 import { PrefixDialogComponent } from '../admin-configurations/dialog/prefix-dialog/prefix-dialog.component';
 import { EditorDialogComponent } from './dialog/editor-dialog/editor-dialog.component';
+import { environment } from '../../../../environments/environment';
+import { HttpClient } from '@angular/common/http';
 
 export interface Node {
 	id : string ;
@@ -39,6 +41,7 @@ export interface Node {
 	description : string,
 	APIKey : string,
 	communities : string,
+	connectorParams : string,   //nbs params
 	location : string,
 	locationDescription : string,
 	dcatProfile : string,
@@ -71,8 +74,12 @@ export class AddCatalogueComponent implements OnInit {
 	ODMSCategories = [{text:'Municipality',value:'Municipality'},{text:'Province',value:'Province'},{text:'Private Institution',value:'Private Institution'},{text:'Public Body',value:'Public Body'},{text:'Region',value:'Region'}];
 	updatePeriods=[{text:'-',value:"1"},{text:'1 hour',value:"3600"},{text:'1 day',value:"86400"},{text:'1 week',value:"604800"}];    
 	activeMode = [{text:'Yes',value:true},{text:'No',value:false}];
-	nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'NGSILD_CB',value:'NGSILD_CB'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'},{text:'ZENODO',value:'ZENODO'},{text:'GEONETWORK_ISO19139',value:'GEONETWORK_ISO19139'}];
-  
+	nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'NGSILD_CB',value:'NGSILD_CB'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'},{text:'ZENODO',value:'ZENODO'},{text:'GEONETWORK_ISO19139',value:'GEONETWORK_ISO19139'}, {text:'NBS_REGISTRY',value:'NBS_REGISTRY'}];
+	
+	nbsParams: any = null;
+	nbsPilotOptions: Array<{ id: number; label: string }> = [];
+	nbsClimateZoneOptions: Array<{ id: number; label: string }> = [];
+
   	countries = [
 		{ code: "AF", code3: "AFG", name: "Afghanistan", number: "004" },
 		{ code: "AL", code3: "ALB", name: "Albania", number: "008" },
@@ -355,6 +362,7 @@ export class AddCatalogueComponent implements OnInit {
 		description:"",
 		APIKey: '',
 		communities : '',
+		connectorParams: '',  //nbs params
 		location:"",
 		locationDescription:"",
 		dcatProfile:'',
@@ -423,7 +431,8 @@ export class AddCatalogueComponent implements OnInit {
 		private toastrService: NbToastrService,
 		public translation: TranslateService,
 		private refreshService: RefreshService,
-		private dialogService: NbDialogService
+		private dialogService: NbDialogService,
+		private httpClient: HttpClient
 	) {}
 
 	receivedMode : string = "";
@@ -448,6 +457,89 @@ export class AddCatalogueComponent implements OnInit {
 		});
 	}
 
+	private initDefaultNbsParams() {
+	this.nbsParams = {
+		type: "NBS_REGISTRY",
+		auth: { email: "", password: "" },
+		filter: { mode: "PILOT", ids: [], onlyUrbreathNbs: false, languageCode: "en" },
+		paging: { pageSize: 50, sort: "title", direction: "asc" },
+		apiBaseUrl: environment?.nbsApiBaseUrl || ""
+	};
+
+	this.updateFakeHostForNbs();
+	}
+
+	private loadNbsParamsFromConnectorParams() {
+		try {
+			const parsed = JSON.parse(this.node.connectorParams || "");
+			if (parsed && String(parsed.type || "").toUpperCase() === "NBS_REGISTRY") {
+			this.nbsParams = parsed;
+
+			// normalizza mode
+			this.nbsParams.filter = this.nbsParams.filter || { mode: "PILOT", ids: [] };
+			this.nbsParams.filter.mode = String(this.nbsParams.filter.mode || "PILOT").toUpperCase();
+
+			// normalizza ids
+			const ids = this.nbsParams.filter.ids;
+			this.nbsParams.filter.ids = Array.isArray(ids)
+				? ids.map((x: any) => Number(x)).filter((n: number) => Number.isFinite(n))
+				: [];
+
+			// default apiBaseUrl se mancante
+			if (!this.nbsParams.apiBaseUrl) {
+				this.nbsParams.apiBaseUrl = environment?.nbsApiBaseUrl || "";
+			}
+
+			this.updateFakeHostForNbs();
+			return;
+			}
+			} catch (e) {
+				// ignore
+			}
+
+			this.initDefaultNbsParams();
+			this.node.connectorParams = JSON.stringify(this.nbsParams, null, 2);
+	}
+
+	private writeNbsParamsIntoNodeConnectorParams() {
+		if (!this.nbsParams) this.initDefaultNbsParams();
+
+		// normalizza mode/ids prima di serializzare
+		this.nbsParams.filter = this.nbsParams.filter || { mode: "PILOT", ids: [] };
+		this.nbsParams.filter.mode = String(this.nbsParams.filter.mode || "PILOT").toUpperCase();
+		this.nbsParams.filter.ids = Array.isArray(this.nbsParams.filter.ids)
+			? this.nbsParams.filter.ids.map((x: any) => Number(x)).filter((n: number) => Number.isFinite(n))
+			: [];
+
+		this.node.connectorParams = JSON.stringify(this.nbsParams, null, 2);
+		this.updateFakeHostForNbs();
+	}
+
+
+	private updateFakeHostForNbs() {
+		if (!this.nbsParams) return;
+
+		const base = String(this.nbsParams.apiBaseUrl || "").replace(/\/+$/, "");
+		const mode = String(this.nbsParams?.filter?.mode || "PILOT").toUpperCase();
+		const ids = Array.isArray(this.nbsParams?.filter?.ids) ? this.nbsParams.filter.ids : [];
+
+		// host fittizio ma valido e “diverso” per combinazione mode/ids
+		// (se ti serve unicità assoluta, qui puoi includere anche name o altro)
+		const idsPart = ids.length ? ids.join(",") : "none";
+
+		// esempio: https://nbs.modapto.atc.gr/PILOT/4
+		this.node.host = `${base}/${mode}/${idsPart}`;
+	}
+
+	get nbsIsClimateZoneMode(): boolean {
+		const mode = (this.nbsParams?.filter?.mode || 'PILOT');
+		return String(mode).toUpperCase() === 'CLIMATE_ZONE';
+	}
+
+	get nbsCurrentOptions(): Array<{ id: number; label: string }> {
+		return this.nbsIsClimateZoneMode ? this.nbsClimateZoneOptions : this.nbsPilotOptions;
+	}
+
     ngOnInit(): void {
 		this.refreshService.refreshPageOnce('admin-configuration');
 		this.refreshService.refreshPageOnce('admin-configuration');
@@ -459,9 +551,30 @@ export class AddCatalogueComponent implements OnInit {
 					console.log(data);
 					this.imageUrl = data.image.imageData;
 					this.node = data;
+
+					if (this.node.nodeType === "NBS_REGISTRY") {
+						this.loadNbsParamsFromConnectorParams();
+					}
 				});
 			}
-		});		
+		});	
+		this.httpClient.get<any>('assets/nbs-registry/nbs-registry-filters.json').subscribe({
+			next: (data) => {
+				this.nbsPilotOptions = Array.isArray(data?.pilots)
+					? data.pilots.map((x: any) => ({ id: Number(x.id), label: String(x.label) })).filter((x: any) => Number.isFinite(x.id))
+					: [];
+				this.nbsClimateZoneOptions = Array.isArray(data?.climateZones)
+					? data.climateZones.map((x: any) => ({ id: Number(x.id), label: String(x.label) })).filter((x: any) => Number.isFinite(x.id))
+					: [];
+				if (this.node?.nodeType === "NBS_REGISTRY" && this.nbsParams) {
+      			this.nbsParams.filter.mode = String(this.nbsParams.filter.mode || "PILOT").toUpperCase();
+    }
+			},
+			error: () => {
+				this.nbsPilotOptions = [];
+				this.nbsClimateZoneOptions = [];
+			}
+		});	
     }
 	public receiveMode($event){
 		this.receivedMode = $event; 
@@ -481,7 +594,15 @@ export class AddCatalogueComponent implements OnInit {
 
     public changedTypeHandler($event){
 		this.node.nodeType = $event;
-		
+
+		if (this.node.nodeType === "NBS_REGISTRY") {
+			if (this.node.connectorParams && this.node.connectorParams.trim() !== "") {
+				this.loadNbsParamsFromConnectorParams();
+			} else {
+				this.initDefaultNbsParams();
+			}
+			this.writeNbsParamsIntoNodeConnectorParams();
+		}
 	}
 	
 	public changedCountryHandler($event){
@@ -498,6 +619,18 @@ export class AddCatalogueComponent implements OnInit {
 			this.node.isActive = true;
 		else
 			this.node.isActive = false;
+	}
+
+	public onNbsIdsMultiChange(event: Event) {
+		if (!this.nbsParams) return;
+
+		const select = event.target as HTMLSelectElement;
+		const values = Array.from(select.selectedOptions).map(o => Number(o.value)).filter(n => Number.isFinite(n));
+
+		this.nbsParams.filter = this.nbsParams.filter || { mode: "PILOT", ids: [] };
+		this.nbsParams.filter.ids = values;
+
+		this.writeNbsParamsIntoNodeConnectorParams();
 	}
 
 	public resetNode(){
@@ -519,6 +652,7 @@ export class AddCatalogueComponent implements OnInit {
 			description:"",
 			APIKey: '',
 			communities : '',
+			connectorParams: '',  //nbs params
 			location:"",
 			locationDescription:"",
 			dcatProfile:'',
@@ -560,6 +694,10 @@ export class AddCatalogueComponent implements OnInit {
 
 	public async createNode(){
 		this.loading = true;
+
+		if (this.node.nodeType === "NBS_REGISTRY") {
+			this.writeNbsParamsIntoNodeConnectorParams();
+		}
 
 		this.node.nameInvalid = this.node.name.trim() === '' ? true : false;
 		this.node.pubNameInvalid = this.node.publisherName.trim() === '' ? true : false;
@@ -608,6 +746,28 @@ export class AddCatalogueComponent implements OnInit {
 			this.loading = false;
 			return;
 		}
+
+		// NBS_REGISTRY specific validation: connectorParams must be valid JSON
+		if (this.node.nodeType === 'NBS_REGISTRY') {
+			if (!this.node.connectorParams || this.node.connectorParams.trim() === '') {
+				this.toastrService.danger('NBS Registry params (JSON) required', 'Error');
+				this.loading = false;
+				return;
+			}
+			try {
+				const parsed = JSON.parse(this.node.connectorParams);
+				if (!parsed || String(parsed.type || '').toUpperCase() !== 'NBS_REGISTRY') {
+					this.toastrService.danger('connectorParams.type must be NBS_REGISTRY', 'Error');
+					this.loading = false;
+					return;
+				}
+			} catch (e) {
+				this.toastrService.danger('Invalid JSON in NBS Registry params', 'Error');
+				this.loading = false;
+				return;
+			}
+		}
+
 			
 		  // Validate URL format for homepage if provided
 		  if (!this.validateUrl(this.node.homepage)) {
@@ -652,6 +812,9 @@ export class AddCatalogueComponent implements OnInit {
 				this.node.federationLevel='LEVEL_4';
 				break;
 			case 'GEONETWORK_ISO19139':
+				this.node.federationLevel='LEVEL_2';
+				break;
+			case 'NBS_REGISTRY':
 				this.node.federationLevel='LEVEL_2';
 				break;
 			default:

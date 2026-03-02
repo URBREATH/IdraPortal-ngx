@@ -2,6 +2,7 @@
 export class ODMSCatalogueComplete {
     APIKey: string; 
     communities : string;
+    connectorParams : string;   //nbs params
     autoUpdate: number;
     category: string;
     country: string;
