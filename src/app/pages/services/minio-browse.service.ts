@@ -29,7 +29,7 @@ export interface MinioBrowseEntry {
   providedIn: 'root',
 })
 export class MinioBrowseService {
-  private readonly configPath = '/assets/minio.config.json';
+  private readonly configPath = 'assets/minio.config.json';
 
   constructor(private http: HttpClient) {}
 

@@ -23,7 +23,7 @@ export interface MinioUploadResult {
   providedIn: 'root',
 })
 export class MinioUploadService {
-  private readonly configPath = '/assets/minio.config.json';
+  private readonly configPath = 'assets/minio.config.json';
 
   constructor(private http: HttpClient) {}
 
