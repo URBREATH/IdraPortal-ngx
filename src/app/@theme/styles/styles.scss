@@ -96,3 +96,17 @@ html.nb-global-scrollblock {
     padding-right: 0 !important;
   }
 }
+
+/* Custom tooltip for disabled Next button in NGSI editor */
+.next-disabled-tooltip nb-tooltip {
+  background: #6f42c1 !important;
+  border-color: #6f42c1 !important;
+}
+
+.next-disabled-tooltip nb-tooltip .content {
+  color: #ffffff !important;
+}
+
+.next-disabled-tooltip nb-tooltip .arrow {
+  border-bottom-color: #6f42c1 !important;
+}

@@ -1,0 +1,17 @@
+<nb-card class="upload-progress-dialog">
+  <nb-card-header>Uploading files</nb-card-header>
+  <nb-card-body>
+    <div *ngIf="!items.length" class="upload-queue-empty">
+      No files queued for upload.
+    </div>
+    <div *ngFor="let item of items" class="upload-queue-item" [class.upload-queue-item--error]="item.status === 'error'">
+      <div class="upload-queue-row">
+        <span class="upload-queue-name">{{ item.name }}</span>
+        <span class="upload-queue-percent">{{ item.progress }}%</span>
+      </div>
+      <div class="upload-queue-bar">
+        <div class="upload-queue-bar-fill" [style.width.%]="item.progress" [class.upload-queue-bar-fill--done]="item.status === 'done'"></div>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

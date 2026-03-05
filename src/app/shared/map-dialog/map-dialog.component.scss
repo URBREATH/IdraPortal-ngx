@@ -4,6 +4,30 @@
   width: 80rem;
 }
 
+.dialog-map-search {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  background: transparent;
+  border-radius: 4px;
+  box-shadow: none;
+  overflow: hidden;
+  margin-bottom: 0.75rem;
+}
+
+.dialog-map-search__input {
+  width: 420px;
+  border: 1px solid #cfd3d8;
+  border-right: 0;
+  border-radius: 4px 0 0 4px;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.dialog-map-search__button {
+  border-radius: 0 4px 4px 0;
+}
+
 nb-card {
   width: 100%;
   margin: 0;

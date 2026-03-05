@@ -88,4 +88,10 @@ export class NgsiDatasetsService {
     });
   }
 
+  uploadDistributionFile(file: File, endpoint: string = '/api/datasetngsi/distribution/upload') {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post(endpoint, formData);
+  }
+
 }

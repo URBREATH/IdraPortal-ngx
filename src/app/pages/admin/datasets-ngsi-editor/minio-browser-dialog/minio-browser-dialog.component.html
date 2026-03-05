@@ -1,0 +1,50 @@
+<nb-card class="minio-browser-dialog">
+  <nb-card-header>Browse MinIO</nb-card-header>
+  <nb-card-body>
+    <div class="minio-toolbar">
+      <button
+        nbButton
+        size="small"
+        status="basic"
+        class="minio-action-button"
+        (click)="goUp()"
+        [disabled]="!currentPrefix"
+        nbTooltip="Up"
+        aria-label="Go up">
+        <nb-icon icon="arrow-back-outline"></nb-icon>
+      </button>
+      <span class="minio-path">{{ currentPrefix || '/' }}</span>
+    </div>
+    <div *ngIf="error" class="error-message">
+      {{ error }}
+    </div>
+    <div *ngIf="!error && !loading && !entries?.length" class="empty-message">
+      No objects found in this folder.
+    </div>
+    <div *ngIf="loading" class="loading-state">
+      <nb-spinner size="medium"></nb-spinner>
+    </div>
+    <nb-list *ngIf="!error && !loading && entries?.length" class="minio-list">
+      <nb-list-item
+        *ngFor="let entry of entries"
+        (click)="onEntryClick(entry)"
+        [class.selected]="entry.key === selectedKey"
+        [class.folder]="entry.type === 'folder'">
+        <div class="minio-item">
+          <div class="minio-item-main">
+            <nb-icon
+              [icon]="entry.type === 'folder' ? 'folder-outline' : 'file-outline'">
+            </nb-icon>
+            <span class="minio-item-key">{{ displayName(entry) }}</span>
+          </div>
+          <span *ngIf="entry.type === 'object'" class="minio-item-size">
+            {{ entry.size }} B
+          </span>
+        </div>
+      </nb-list-item>
+    </nb-list>
+  </nb-card-body>
+  <nb-card-footer class="dialog-footer">
+    <button nbButton status="basic" class="minio-action-button" (click)="close()">Close</button>
+  </nb-card-footer>
+</nb-card>
