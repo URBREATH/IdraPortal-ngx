@@ -8,7 +8,7 @@ import { SearchRequest } from '../model/search-request';
 import { SearchResult } from '../model/search-result';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
 import { Router } from '@angular/router';
-import { Observable } from 'rxjs';
+import { forkJoin, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
 @Component({
@@ -23,6 +23,7 @@ export class SearchComponent implements OnInit {
   searchRequest:SearchRequest=new SearchRequest();
 
   cataloguesInfos: Array<ODMSCatalogueInfo>=[]
+  catalogueDatasetCounts: Record<string, number> = {};
 
   constructor(private restApi:DataCataglogueAPIService,
     public router: Router,
@@ -47,113 +48,146 @@ export class SearchComponent implements OnInit {
     this.searchResponse.facets = [];
     this.loading = true;
     this.searchRequest.rows = this.pageSize;
-    this.restApi.getCataloguesInfo().subscribe(infos => {
+    forkJoin({
+      infos: this.restApi.getCataloguesInfo(),
+      cataloguesResponse: this.restApi.getCatalogues(),
+    }).subscribe(({ infos, cataloguesResponse }) => {
       this.cataloguesInfos = infos;
+      this.catalogueDatasetCounts = this.buildCatalogueDatasetCounts(cataloguesResponse.catalogues);
       this.searchRequest.nodes = infos.map(x => x.id);
       this.loading = false;
 
-      let searchParam = this.router.routerState.snapshot.root.queryParams;
-      
-      if(searchParam['advancedSearch'] == 'true') {
-        this.searchRequest = JSON.parse(searchParam['params']);
-        
-        // Process filters
-        if (this.searchRequest.filters && this.searchRequest.filters.length > 0) {
-          this.searchRequest.filters.forEach(filter => {
-            if (filter.field === 'ALL') {
-              const values = filter.value.split(',');
-              values.forEach(value => {
-                if (value.trim() !== '') {
-                  this.filters.push(value.trim());
-                }
-              });
-            } else if (filter.field && filter.value) {
-              // For specific field filters, add them to the filtersTags array
-              const values = filter.value.split(',');
-              values.forEach(value => {
-                if (value.trim() !== '') {
-                  this.filtersTags.push(`${filter.field}: ${value.trim()}`);
-                }
-              });
-            }
-          });
-        }
-        
-        // Clean up empty filters
-        this.searchRequest.filters = this.searchRequest.filters.filter(filter => 
-          filter.value && filter.value.trim() !== ''
-        );
-        
-        // If no filters remain after cleanup, add default empty ALL filter
-        if (this.searchRequest.filters.length === 0) {
-          this.searchRequest.filters.push({field: 'ALL', value: ''});
-        }
-        
-        // Create date range tags if dates exist
-        this.createDateRangeTags();
-        
-        this.searchDataset(true);
-      } else {
-        if(searchParam['type'] != undefined) {
-          this.searchRequest.filters.push(new SearchFilter('catalogues', searchParam.search_value));
-          this.searchDataset(true);
-        }
-        else if(searchParam['name'] != undefined) {
-          this.searchRequest.filters.push(new SearchFilter('tags', searchParam.search_value));
-          this.searchDataset(true);
-        }
-        else if(searchParam['text'] != undefined) {
-          this.searchRequest.filters.push(new SearchFilter('datasetThemes', searchParam.value));
-          this.searchDataset(true);
-        }
-        else if(searchParam['tags'] != undefined) {
-          let tags = searchParam.tags.split(',');
-          
-          // Add the tags to the filters array for display in the UI
-          tags.forEach(element => {
-            this.filters.push(element);
-          });
-          
-          // Create a search filter for the tags
-          this.searchRequest.filters.push(new SearchFilter('ALL', searchParam.tags));
-          this.searchDataset(true);
-        } else {
-          this.searchDataset(true);
-        }
-      }
+      const searchParams = this.router.routerState.snapshot.root.queryParams;
+      const lastSearch = localStorage.getItem('lastSearch');
+
+      this.initializeSearchState(searchParams, lastSearch);
+      this.searchDataset(true);
     }, err => {
       console.log(err);
       this.loading = false;
     });
+  }
 
-    // Add these debug logs
-    const searchParams = this.router.routerState.snapshot.root.queryParams;
-    console.log("Received params in datasets component:", searchParams);
-    
-    const lastSearch = localStorage.getItem('lastSearch');
-    if(lastSearch && lastSearch.trim() != ''){
-      const tags = lastSearch.split(',').filter(tag => tag.trim() !== '');
-      tags.forEach(tag => {
-        if (!this.filters.includes(tag)) {
-          this.filters.push(tag);
-        }
-      });
-      
-      this.searchRequest.filters.push(new SearchFilter('ALL', lastSearch));
-      this.searchDataset();
+  private buildCatalogueDatasetCounts(catalogues: any[] = []): Record<string, number> {
+    return catalogues.reduce<Record<string, number>>((counts, catalogue) => {
+      if (catalogue?.name) {
+        counts[this.normalizeCatalogueKey(catalogue.name)] = catalogue.datasetCount ?? 0;
+      }
+      return counts;
+    }, {});
+  }
+
+  private normalizeCatalogueKey(value: string): string {
+    return value?.trim().toLowerCase() ?? '';
+  }
+
+  private cleanFacetLabel(value?: string): string {
+    return value?.replace(/\s*\(\d+\)\s*$/, '') ?? '';
+  }
+
+  getFacetLabel(searchParameter: string, item: SearchFacet): string {
+    if (searchParameter !== 'catalogues') {
+      return item.facet ?? '';
     }
 
-    if (searchParams['tags']) {
-      console.log("Tags received:", searchParams['tags']);
-      
-      // Make sure to split by comma and handle empty values
+    const baseLabel = item.search_value || this.cleanFacetLabel(item.facet);
+    const datasetCount = this.catalogueDatasetCounts[this.normalizeCatalogueKey(baseLabel)];
+
+    if (datasetCount === undefined) {
+      return item.facet || baseLabel;
+    }
+
+    return `${baseLabel} (${datasetCount})`;
+  }
+
+  private initializeSearchState(searchParams: any, lastSearch: string | null): void {
+    const nodes = this.searchRequest.nodes ? [...this.searchRequest.nodes] : [];
+
+    this.searchRequest = new SearchRequest();
+    this.searchRequest.rows = this.pageSize;
+    this.searchRequest.nodes = nodes;
+    this.filters = [];
+    this.filtersTags = [];
+
+    if (searchParams['advancedSearch'] === 'true' && searchParams['params']) {
+      this.searchRequest = JSON.parse(searchParams['params']);
+      this.searchRequest.rows = this.pageSize;
+      this.searchRequest.start = this.searchRequest.start ?? 0;
+      this.searchRequest.nodes = this.searchRequest.nodes?.length ? this.searchRequest.nodes : nodes;
+      this.processSearchRequestFilters();
+      return;
+    }
+
+    if (searchParams['type'] != undefined) {
+      this.searchRequest.filters = [new SearchFilter('catalogues', searchParams.search_value)];
+      return;
+    }
+
+    if (searchParams['name'] != undefined) {
+      this.searchRequest.filters = [new SearchFilter('tags', searchParams.search_value)];
+      return;
+    }
+
+    if (searchParams['text'] != undefined) {
+      this.searchRequest.filters = [new SearchFilter('datasetThemes', searchParams.value)];
+      return;
+    }
+
+    if (searchParams['tags'] != undefined) {
       const tags = searchParams['tags'].split(',').filter(tag => tag.trim() !== '');
-      console.log("Parsed tags:", tags);
-      
-      // Process the tags here
-      // ...
+      this.filters = [...tags];
+      this.searchRequest.filters = [new SearchFilter('ALL', tags.join(','))];
+      return;
     }
 
+    if (lastSearch && lastSearch.trim() !== '') {
+      const tags = lastSearch.split(',').filter(tag => tag.trim() !== '');
+      this.filters = [...tags];
+      this.searchRequest.filters = [new SearchFilter('ALL', tags.join(','))];
+      return;
+    }
+
+    this.searchRequest.filters = [new SearchFilter('ALL', '')];
+  }
+
+  private processSearchRequestFilters(): void {
+    if (!this.searchRequest.filters || this.searchRequest.filters.length === 0) {
+      this.searchRequest.filters = [new SearchFilter('ALL', '')];
+      return;
+    }
+
+    this.searchRequest.filters.forEach(filter => {
+      if (filter.field === 'ALL') {
+        const values = filter.value.split(',');
+        values.forEach(value => {
+          const trimmedValue = value.trim();
+          if (trimmedValue !== '') {
+            this.filters.push(trimmedValue);
+          }
+        });
+        return;
+      }
+
+      if (filter.field && filter.value) {
+        const values = filter.value.split(',');
+        values.forEach(value => {
+          const trimmedValue = value.trim();
+          if (trimmedValue !== '') {
+            this.filtersTags.push(`${filter.field}: ${trimmedValue}`);
+          }
+        });
+      }
+    });
+
+    this.searchRequest.filters = this.searchRequest.filters.filter(filter =>
+      filter.value && filter.value.trim() !== ''
+    );
+
+    if (this.searchRequest.filters.length === 0) {
+      this.searchRequest.filters = [new SearchFilter('ALL', '')];
+    }
+
+    this.createDateRangeTags();
   }
 
   updateFilters(tags){

@@ -1,5 +1,5 @@
 {   
-        "enableAuthentication":true,
+    "enableAuthentication":true,
     "authenticationMethod":"keycloak",
     "idmBaseURL":"http://localhost:8081",
     "keyCloakBaseURL": "https://keycloak-dev.urbreath.tech/",

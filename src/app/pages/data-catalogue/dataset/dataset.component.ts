@@ -113,6 +113,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
             this.isSpecialDatasetType = true;
             break;
           case "datasets":
+          default:
             this.getNgsiDataset();
             this.isSpecialDatasetType = true;
             break;

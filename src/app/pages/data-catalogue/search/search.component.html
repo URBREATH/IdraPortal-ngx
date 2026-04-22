@@ -37,7 +37,7 @@
         <nb-card-body>
           <nb-list class="no-border">
             <nb-list-item *ngFor="let item of filterFacets(facet.search_parameter,facet.values) | slice:0:getFacetsLimit(facet.displayName.toLowerCase())" class="p-1 no-border">
-              <a href="javascript:void(0)" (click)="getDatasetByFacet(facet.search_parameter,item.search_value)">{{item.facet}}</a>
+              <a href="javascript:void(0)" (click)="getDatasetByFacet(facet.search_parameter,item.search_value)">{{getFacetLabel(facet.search_parameter, item)}}</a>
             </nb-list-item>
           </nb-list>
         </nb-card-body>
