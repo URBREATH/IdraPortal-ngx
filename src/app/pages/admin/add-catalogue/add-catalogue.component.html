@@ -1,4 +1,4 @@
- 
+
 <nb-card class="minicard">
     <nb-card-body class="d-flex flex-column align-items-left justify-content-left" (messageEvent)="receiveMode($event)">
         <label>{{ receivedMode }}</label>
@@ -83,10 +83,10 @@
 
                 <input type="url" nbInput fullWidth status="primary" placeholder="{{ 'API_ENDPOINT' | translate }}"
                 [(ngModel)]="node.host"
-                [disabled]="modifyId || node.nodeType === 'DCATDUMP' || node.nodeType === 'NBS_REGISTRY'"
+                [disabled]="modifyId || node.nodeType === 'DCATDUMP' || node.nodeType === 'NBS_REGISTRY' || node.nodeType === 'COPERNICUS_STAC'"
                 [required]="node.nodeType !== 'DCATDUMP'"
                 *ngIf="node.nodeType != 'ZENODO'">
- 
+
             </nb-card-body>
 
             <div class="row show-grid">
@@ -152,6 +152,62 @@
                         </nb-card-body>
                     </div>
 
+                    <div class="col-md-12" *ngIf="node.nodeType == 'COPERNICUS_STAC'">
+                        <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                            <h6 class="jumbotron-heading">STAC Endpoint</h6>
+                            <input
+                                type="url"
+                                nbInput
+                                fullWidth
+                                status="primary"
+                                [(ngModel)]="copernicusStacEndpoint"
+                                (ngModelChange)="writeCopernicusParamsIntoNodeConnectorParams()">
+                        </nb-card-body>
+                    </div>
+
+                    <div class="col-md-4" *ngIf="node.nodeType == 'COPERNICUS_STAC'">
+                        <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                            <h6 class="jumbotron-heading">Region Bounding Box</h6>
+                            <input
+                                type="text"
+                                nbInput
+                                fullWidth
+                                status="primary"
+                                placeholder="bbox"
+                                [(ngModel)]="copernicusBbox"
+                                (ngModelChange)="writeCopernicusParamsIntoNodeConnectorParams()">
+                            <small class="text-muted">Format: minLon,minLat,maxLon,maxLat</small>
+                        </nb-card-body>
+                    </div>
+
+                    <div class="col-md-4" *ngIf="node.nodeType == 'COPERNICUS_STAC'">
+                        <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                            <h6 class="jumbotron-heading">Start Date</h6>
+                            <input
+                                type="date"
+                                nbInput
+                                fullWidth
+                                status="primary"
+                                [(ngModel)]="copernicusStartDate"
+                                (ngModelChange)="writeCopernicusParamsIntoNodeConnectorParams()">
+                            <small class="text-muted">Start of temporal filter</small>
+                        </nb-card-body>
+                    </div>
+
+                    <div class="col-md-4" *ngIf="node.nodeType == 'COPERNICUS_STAC'">
+                        <nb-card-body class="d-flex flex-column align-items-left justify-content-left">
+                            <h6 class="jumbotron-heading">End Date</h6>
+                            <input
+                                type="date"
+                                nbInput
+                                fullWidth
+                                status="primary"
+                                [(ngModel)]="copernicusEndDate"
+                                (ngModelChange)="writeCopernicusParamsIntoNodeConnectorParams()">
+                            <small class="text-muted">End of temporal filter</small>
+                        </nb-card-body>
+                    </div>
+
                     <!-- NBS_REGISTRY -->
                     <div class="row show-grid" *ngIf="node.nodeType === 'NBS_REGISTRY'">
                     <div class="col-md-12">
@@ -209,7 +265,7 @@
                         </div>
                         
                         </nb-card-body>
-                    </div>
+                        </div>
                     </div>
 
                 <div class="col-md-6" *ngIf="node.nodeType == 'DCATDUMP'">

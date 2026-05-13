@@ -74,11 +74,17 @@ export class AddCatalogueComponent implements OnInit {
 	ODMSCategories = [{text:'Municipality',value:'Municipality'},{text:'Province',value:'Province'},{text:'Private Institution',value:'Private Institution'},{text:'Public Body',value:'Public Body'},{text:'Region',value:'Region'}];
 	updatePeriods=[{text:'-',value:"1"},{text:'1 hour',value:"3600"},{text:'1 day',value:"86400"},{text:'1 week',value:"604800"}];    
 	activeMode = [{text:'Yes',value:true},{text:'No',value:false}];
-	nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'NGSILD_CB',value:'NGSILD_CB'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'},{text:'ZENODO',value:'ZENODO'},{text:'GEONETWORK_ISO19139',value:'GEONETWORK_ISO19139'}, {text:'NBS_REGISTRY',value:'NBS_REGISTRY'}];
+nodeType = [{text:'CKAN',value:'CKAN'},{text:'SOCRATA',value:'SOCRATA'},{text:'NATIVE',value:'NATIVE'},{text:'NGSILD_CB',value:'NGSILD_CB'},{text:'WEB',value:'WEB'},{text:'DCATDUMP',value:'DCATDUMP'},{text:'DKAN',value:'DKAN'},{text:'JUNAR',value:'JUNAR'},{text:'OPENDATASOFT',value:'OPENDATASOFT'},{text:'ORION',value:'ORION'},{text:'SPARQL',value:'SPARQL'},{text:'SPOD',value:'SPOD'},{text:'ZENODO',value:'ZENODO'},{text:'GEONETWORK_ISO19139',value:'GEONETWORK_ISO19139'}, {text:'NBS_REGISTRY',value:'NBS_REGISTRY'}, {text:'COPERNICUS_STAC',value:'COPERNICUS_STAC'}];
 	
 	nbsParams: any = null;
 	nbsPilotOptions: Array<{ id: number; label: string }> = [];
 	nbsClimateZoneOptions: Array<{ id: number; label: string }> = [];
+
+	copernicusBbox = '';
+	copernicusStartDate = '';
+	copernicusEndDate = '';
+	copernicusStacEndpoint = '';
+	private readonly copernicusDefaultStacEndpoint = 'https://stac.dataspace.copernicus.eu/v1';
 
   	countries = [
 		{ code: "AF", code3: "AFG", name: "Afghanistan", number: "004" },
@@ -540,6 +546,205 @@ export class AddCatalogueComponent implements OnInit {
 		return this.nbsIsClimateZoneMode ? this.nbsClimateZoneOptions : this.nbsPilotOptions;
 	}
 
+	private loadCopernicusParamsFromConnectorParams() {
+		try {
+			const parsed = JSON.parse(this.node.connectorParams || '{}');
+			this.copernicusStacEndpoint =
+				this.normalizeCopernicusStacEndpoint(parsed?.stacEndpoint) || this.copernicusDefaultStacEndpoint;
+
+			const bbox = parsed?.bbox;
+			if (Array.isArray(bbox) && bbox.length === 4) {
+			this.copernicusBbox = bbox.join(',');
+			} else {
+			this.copernicusBbox = '';
+			}
+
+			this.copernicusStartDate = this.toHtmlDateValue(parsed?.startDate || '');
+			this.copernicusEndDate = this.toHtmlDateValue(parsed?.endDate || '');
+
+			return;
+		} catch (e) {
+			// ignore malformed connectorParams
+		}
+
+		this.copernicusBbox = '';
+		this.copernicusStartDate = '';
+		this.copernicusEndDate = '';
+		this.copernicusStacEndpoint = this.copernicusDefaultStacEndpoint;
+	}
+
+	private normalizeCopernicusStacEndpoint(value: string): string {
+		return String(value || '').trim().replace(/\/+$/, '');
+	}
+
+	private toHtmlDateValue(value: string): string {
+		const raw = String(value || '').trim();
+		if (!raw) {
+			return '';
+		}
+
+		// Converts ISO datetime to YYYY-MM-DD for input type="date"
+		const match = raw.match(/^(\d{4}-\d{2}-\d{2})/);
+		return match ? match[1] : raw;
+	}
+
+	private writeCopernicusParamsIntoNodeConnectorParams() {
+		const parsedBbox = this.parseCopernicusBbox(this.copernicusBbox);
+		const stacEndpoint = this.normalizeCopernicusStacEndpoint(this.copernicusStacEndpoint);
+
+		const payload: any = {};
+
+		if (stacEndpoint) {
+			payload.stacEndpoint = stacEndpoint;
+		}
+
+		if (parsedBbox) {
+			payload.bbox = parsedBbox;
+		}
+
+		if (this.copernicusStartDate && this.copernicusStartDate.trim() !== '') {
+			payload.startDate = this.normalizeCopernicusStartDate(this.copernicusStartDate);
+		}
+
+		if (this.copernicusEndDate && this.copernicusEndDate.trim() !== '') {
+			payload.endDate = this.normalizeCopernicusEndDate(this.copernicusEndDate);
+		}
+
+		this.node.connectorParams =
+			Object.keys(payload).length > 0
+			? JSON.stringify(payload, null, 2)
+			: '';
+	}
+
+	private normalizeCopernicusStartDate(value: string): string {
+		const trimmed = String(value || '').trim();
+
+		if (!trimmed) {
+			return '';
+		}
+
+		if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+			return `${trimmed}T00:00:00Z`;
+		}
+
+		return trimmed;
+		}
+
+		private normalizeCopernicusEndDate(value: string): string {
+		const trimmed = String(value || '').trim();
+
+		if (!trimmed) {
+			return '';
+		}
+
+		if (/^\d{4}-\d{2}-\d{2}$/.test(trimmed)) {
+			return `${trimmed}T23:59:59Z`;
+		}
+
+		return trimmed;
+	}
+	private parseCopernicusBbox(raw: string): number[] | null {
+		if (!raw || raw.trim() === '') {
+			return null;
+		}
+
+		const parts = raw
+			.split(',')
+			.map(part => part.trim())
+			.filter(part => part !== '');
+
+		if (parts.length !== 4) {
+			return null;
+		}
+
+		const values = parts.map(part => Number(part));
+		const allFinite = values.every(value => Number.isFinite(value));
+
+		return allFinite ? values : null;
+	}
+
+	private validateCopernicusParams(): boolean {
+		if (this.node.nodeType !== 'COPERNICUS') {
+			return true;
+		}
+
+		const stacEndpoint = this.normalizeCopernicusStacEndpoint(this.copernicusStacEndpoint);
+		if (!stacEndpoint) {
+			this.toastrService.danger(
+				'STAC Endpoint required',
+				'Error'
+			);
+			return false;
+		}
+
+		if (!this.validateUrl(stacEndpoint)) {
+			this.toastrService.danger(
+				'Please insert a valid STAC Endpoint url',
+				'Error'
+			);
+			return false;
+		}
+
+		if (this.copernicusBbox?.trim()) {
+			const parsedBbox = this.parseCopernicusBbox(this.copernicusBbox);
+			if (!parsedBbox) {
+			this.toastrService.danger(
+				'Bounding box must be in the format: minX,minY,maxX,maxY',
+				'Error'
+			);
+			return false;
+			}
+		}
+
+		if (!this.copernicusStartDate?.trim() && !this.copernicusEndDate?.trim()) {
+			this.toastrService.danger(
+			'Please select at least a start or end date for COPERNICUS harvesting',
+			'Error'
+			);
+			return false;
+		}
+
+		if (this.copernicusStartDate?.trim() && this.copernicusEndDate?.trim()) {
+			const startTime = new Date(this.normalizeCopernicusStartDate(this.copernicusStartDate)).getTime();
+			const endTime = new Date(this.normalizeCopernicusEndDate(this.copernicusEndDate)).getTime();
+
+			if (Number.isFinite(startTime) && Number.isFinite(endTime) && startTime > endTime) {
+			this.toastrService.danger(
+				'Start date must be before end date',
+				'Error'
+			);
+			return false;
+			}
+		}
+
+		this.writeCopernicusParamsIntoNodeConnectorParams();
+		return true;
+	}
+
+	private buildCopernicusStoredEndpoint(): string {
+		const baseEndpoint = this.normalizeCopernicusStacEndpoint(this.copernicusStacEndpoint);
+		const rawName = String(this.node.name || '').trim();
+
+		const slug = rawName
+			.toLowerCase()
+			.normalize('NFD')
+			.replace(/[\u0300-\u036f]/g, '')
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '');
+
+		return slug
+			? `${baseEndpoint}/${slug}`
+			: baseEndpoint;
+	}
+
+	private updateCopernicusStoredEndpoint(): void {
+		if (this.node.nodeType !== 'COPERNICUS_STAC') {
+			return;
+	}
+
+  this.node.host = this.buildCopernicusStoredEndpoint();
+}
+
     ngOnInit(): void {
 		this.refreshService.refreshPageOnce('admin-configuration');
 		this.refreshService.refreshPageOnce('admin-configuration');
@@ -554,6 +759,9 @@ export class AddCatalogueComponent implements OnInit {
 
 					if (this.node.nodeType === "NBS_REGISTRY") {
 						this.loadNbsParamsFromConnectorParams();
+					}
+					if (this.node.nodeType === "COPERNICUS_STAC") {
+						this.loadCopernicusParamsFromConnectorParams();
 					}
 				});
 			}
@@ -602,6 +810,16 @@ export class AddCatalogueComponent implements OnInit {
 				this.initDefaultNbsParams();
 			}
 			this.writeNbsParamsIntoNodeConnectorParams();
+		}
+
+		if (this.node.nodeType === "COPERNICUS") {
+			this.loadCopernicusParamsFromConnectorParams();
+			this.updateCopernicusStoredEndpoint();
+		} else {
+			this.copernicusBbox = '';
+			this.copernicusStartDate = '';
+			this.copernicusEndDate = '';
+			this.copernicusStacEndpoint = this.copernicusDefaultStacEndpoint;
 		}
 	}
 	
@@ -686,6 +904,10 @@ export class AddCatalogueComponent implements OnInit {
 			};
 			this.imageUrl = this.node.image.imageData;
 			document.getElementById('fileName').innerHTML = 'Choose file';
+			this.copernicusBbox = '';
+			this.copernicusStartDate = '';
+			this.copernicusEndDate = '';
+			this.copernicusStacEndpoint = this.copernicusDefaultStacEndpoint;
 	}
 	
 	public changedRefreshHandler($event){
@@ -697,6 +919,14 @@ export class AddCatalogueComponent implements OnInit {
 
 		if (this.node.nodeType === "NBS_REGISTRY") {
 			this.writeNbsParamsIntoNodeConnectorParams();
+		}
+		if (!this.validateCopernicusParams()) {
+			this.loading = false;
+			return;
+		}
+
+		if (this.node.nodeType === "COPERNICUS_STAC") {
+			this.updateCopernicusStoredEndpoint();
 		}
 
 		this.node.nameInvalid = this.node.name.trim() === '' ? true : false;
@@ -815,6 +1045,9 @@ export class AddCatalogueComponent implements OnInit {
 				this.node.federationLevel='LEVEL_2';
 				break;
 			case 'NBS_REGISTRY':
+				this.node.federationLevel='LEVEL_2';
+				break;
+			case 'COPERNICUS_STAC':
 				this.node.federationLevel='LEVEL_2';
 				break;
 			default:

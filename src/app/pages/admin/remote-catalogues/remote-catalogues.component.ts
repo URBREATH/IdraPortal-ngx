@@ -254,6 +254,9 @@ getLevel(nodeType: string): string {
 			case 'NBS_REGISTRY':
 				//node.federationLevel='LEVEL_2';
 				return "2";
+			case 'COPERNICUS_STAC':
+				//node.federationLevel='LEVEL_2';
+				return "2";
 			default:
 				break;
 			}
