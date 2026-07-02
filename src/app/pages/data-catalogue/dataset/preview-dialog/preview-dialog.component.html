@@ -2,7 +2,85 @@
     <nb-card-header>{{ title }}</nb-card-header>
     <nb-card-body>
       <div class="card" [nbSpinner]="loading" nbSpinnerStatus="primary">
+        <div *ngIf="jsonText || jsonMessage || jsonHeaders.length" class="json-preview">
+          <div *ngIf="jsonMessage" class="json-message">{{ jsonMessage }}</div>
+          <div *ngIf="jsonHeaders.length" class="json-table-wrapper">
+            <table class="json-table">
+              <thead>
+                <tr>
+                  <th *ngFor="let header of jsonHeaders">{{ header }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of jsonRows">
+                  <td *ngFor="let value of row">{{ value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <pre *ngIf="jsonText" class="json-pre">{{ jsonText }}</pre>
+        </div>
+        <div *ngIf="csvHeaders.length || csvMessage" class="csv-preview">
+          <div *ngIf="csvDistribution || csvText !== undefined" class="csv-toolbar">
+            <label for="csvEncoding">Encoding</label>
+            <select
+              id="csvEncoding"
+              [ngModel]="csvEncoding"
+              (ngModelChange)="onCsvEncodingChange($event)"
+            >
+              <option *ngFor="let encoding of csvEncodings" [value]="encoding.value">
+                {{ encoding.label }}
+              </option>
+            </select>
+            <span *ngIf="csvDetectedEncoding">Detected: {{ csvDetectedEncoding }}</span>
+            <label for="csvRows">Rows</label>
+            <input
+              id="csvRows"
+              type="number"
+              min="1"
+              [ngModel]="csvPreviewRows"
+              (ngModelChange)="onCsvPreviewRowsChange($event)"
+            />
+          </div>
+          <div *ngIf="csvMessage" class="csv-message">{{ csvMessage }}</div>
+          <div *ngIf="csvHeaders.length" class="csv-table-wrapper">
+            <table class="csv-table">
+              <thead>
+                <tr>
+                  <th *ngFor="let header of csvHeaders">{{ header }}</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let row of csvRows">
+                  <td *ngFor="let value of row">{{ value }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
         <div class="card-body" id="iframeBody">
+          <iframe
+            *ngIf="safeHtmlUrl"
+            class="html-preview-frame"
+            [src]="safeHtmlUrl"
+            title="HTML preview"
+          ></iframe>
+          <div *ngIf="imageUrl" class="image-preview-wrapper">
+            <img
+              *ngIf="imageType !== 'tiff'"
+              class="image-preview"
+              [src]="imageUrl"
+              [alt]="title || 'Image preview'"
+            />
+            <object
+              *ngIf="imageType === 'tiff'"
+              class="image-preview-object"
+              [data]="safeImageUrl"
+              type="image/tiff"
+            >
+              <a [href]="imageUrl" target="_blank" rel="noopener">Open image</a>
+            </object>
+          </div>
         </div>
         <div *ngIf="isEndpoint" class="endpoint-container">
           <div class="endpoint-info">

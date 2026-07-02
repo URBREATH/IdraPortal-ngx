@@ -2,9 +2,122 @@
   width: 1000px;
 }
 
+  .json-preview {
+    width: 80vw;
+    max-width: 100%;
+  }
+
+  .json-message {
+    padding: 0.75rem 1rem;
+    color: #6c757d;
+  }
+
+  .json-pre {
+    height: 70vh;
+    overflow: auto;
+    margin: 0;
+    padding: 1rem;
+    background: #f8f9fa;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    color: #212529;
+    font-family: Consolas, Monaco, "Courier New", monospace;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    white-space: pre;
+  }
+
+  .json-table-wrapper {
+    height: 70vh;
+    overflow: auto;
+  }
+
+  .json-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .json-table th,
+  .json-table td {
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .json-table th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+    font-weight: 600;
+  }
+
+  .csv-preview {
+    width: 80vw;
+    max-width: 100%;
+  }
+
+  .csv-message {
+    padding: 0.75rem 1rem;
+    color: #6c757d;
+  }
+
+  .csv-table-wrapper {
+    height: 70vh;
+    overflow: auto;
+  }
+
+  .csv-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .csv-table th,
+  .csv-table td {
+    border: 1px solid #dee2e6;
+    padding: 0.5rem;
+    text-align: left;
+    vertical-align: top;
+    white-space: nowrap;
+  }
+
+  .csv-table th {
+    position: sticky;
+    top: 0;
+    background: #f8f9fa;
+    z-index: 1;
+    font-weight: 600;
+  }
+
   .iframe{
     height: 70vh;
     width: 80vw;
+  }
+
+  .html-preview-frame {
+    height: 70vh;
+    width: 80vw;
+    border: 0;
+  }
+
+  .image-preview-wrapper {
+    height: 70vh;
+    width: 80vw;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: auto;
+    background: #f8f9fa;
+  }
+
+  .image-preview,
+  .image-preview-object {
+    max-height: 100%;
+    max-width: 100%;
   }
 
 

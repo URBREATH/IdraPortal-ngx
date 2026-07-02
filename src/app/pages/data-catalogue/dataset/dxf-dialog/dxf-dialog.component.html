@@ -1,0 +1,82 @@
+<nb-card>
+  <nb-card-header>{{ title }}</nb-card-header>
+  <nb-card-body>
+    <div class="dxf-card">
+      <div class="dxf-toolbar">
+        <div class="dxf-control">
+          <label for="manualDxfFile">Open file</label>
+          <input
+            id="manualDxfFile"
+            type="file"
+            accept=".dxf,.zip,application/zip"
+            (change)="onManualFileSelected($event)"
+          >
+        </div>
+        <div *ngIf="zipEntries.length > 0" class="dxf-control">
+          <label for="dxfZipEntry">DXF in ZIP</label>
+          <nb-select
+            id="dxfZipEntry"
+            size="small"
+            [selected]="selectedZipEntryName"
+            (selectedChange)="selectZipEntry($event)"
+          >
+            <nb-option *ngFor="let entry of zipEntries" [value]="entry.name">
+              {{ entry.name }}
+            </nb-option>
+          </nb-select>
+        </div>
+        <div class="dxf-control dxf-zoom-controls">
+          <button nbButton size="tiny" status="basic" type="button" (click)="zoomOut()">-</button>
+          <span>{{ zoomLevel | number:'1.0-2' }}x</span>
+          <button nbButton size="tiny" status="basic" type="button" (click)="zoomIn()">+</button>
+          <button nbButton size="tiny" status="basic" type="button" (click)="resetZoom()">Reset</button>
+        </div>
+      </div>
+      <div class="dxf-preview-wrapper" [nbSpinner]="loading" nbSpinnerStatus="primary">
+        <div *ngIf="message" class="dxf-message">{{ message }}</div>
+        <svg
+          class="dxf-preview"
+          [attr.viewBox]="viewBox"
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <g class="dxf-geometry">
+            <line
+              *ngFor="let shape of lineShapes"
+              [attr.x1]="shape.points[0].x"
+              [attr.y1]="shape.points[0].y"
+              [attr.x2]="shape.points[1].x"
+              [attr.y2]="shape.points[1].y"
+            ></line>
+            <polyline
+              *ngFor="let shape of polylineShapes"
+              [attr.points]="getPolylinePoints(shape)"
+            ></polyline>
+            <circle
+              *ngFor="let shape of circleShapes"
+              [attr.cx]="shape.x"
+              [attr.cy]="shape.y"
+              [attr.r]="shape.r"
+            ></circle>
+            <path
+              *ngFor="let shape of arcShapes"
+              [attr.d]="getArcPath(shape)"
+            ></path>
+            <circle
+              *ngFor="let shape of pointShapes"
+              class="dxf-point"
+              [attr.cx]="shape.x"
+              [attr.cy]="shape.y"
+              [attr.r]="shape.r"
+            ></circle>
+            <text
+              *ngFor="let shape of textShapes"
+              [attr.x]="shape.x"
+              [attr.y]="shape.y"
+              [attr.font-size]="shape.height"
+            >{{ shape.text }}</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </nb-card-body>
+</nb-card>

@@ -12,6 +12,7 @@ import { ShowDataletsComponent } from '../show-datalets/show-datalets.component'
 import * as URLParse from 'url-parse';
 import { PreviewDialogComponent } from './preview-dialog/preview-dialog.component';
 import { GeoJsonDialogComponent } from './geojson-dialog/geojson-dialog.component';
+import { DxfDialogComponent } from './dxf-dialog/dxf-dialog.component';
 import { RefreshService } from '../../services/refresh.service';
 import { DatasourceService } from '../../services/datasource.service';
 import { ModelsService } from '../../services/models.service';
@@ -103,6 +104,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
         this.restApi.getDatasetById(this.id).subscribe(
       res=>{ 
         this.dataset=res;
+        this.dataset.distributions = this.filterDisplayDistributions(this.dataset.distributions || []);
         switch(this.dataset.nodeName.replace(/\s/g, "").toLowerCase()){
           case "datasources":
             this.getDataSource();
@@ -140,6 +142,140 @@ export class DatasetComponent implements OnInit, OnDestroy {
       )
   }
 
+  private filterDisplayDistributions(distributions: DCATDistribution[]): DCATDistribution[] {
+    let filteredDistributions = distributions;
+
+    const gmlDistributions = distributions.filter(distribution => this.isGmlLikeDistribution(distribution));
+    if (gmlDistributions.length > 1) {
+      const validCandidates = gmlDistributions.filter(distribution => !this.isNonFeatureGmlDistribution(distribution));
+      const preferred = validCandidates.find(distribution => this.isGetFeatureDistribution(distribution)) ||
+        validCandidates[validCandidates.length - 1] ||
+        gmlDistributions[gmlDistributions.length - 1];
+
+      filteredDistributions = filteredDistributions.filter(distribution =>
+        !this.isGmlLikeDistribution(distribution) ||
+        distribution === preferred
+      );
+    }
+
+    const wmsDistributions = filteredDistributions.filter(distribution => this.isWmsLikeDistribution(distribution));
+    if (wmsDistributions.length > 1) {
+      const preferred = wmsDistributions.find(distribution => this.isGetCapabilitiesDistribution(distribution)) ||
+        wmsDistributions[0];
+
+      filteredDistributions = filteredDistributions.filter(distribution =>
+        !this.isWmsLikeDistribution(distribution) ||
+        distribution === preferred
+      );
+    }
+
+    return filteredDistributions;
+  }
+
+  private isGmlLikeDistribution(distribution: DCATDistribution): boolean {
+    const format = this.getDistributionFormat(distribution);
+    const rawFormat = this.normalizeDistributionFormat(distribution && distribution.format);
+    const mediaType = this.normalizeDistributionFormat(distribution && distribution.mediaType);
+    const value = [
+      distribution && distribution.title,
+      distribution && distribution.downloadURL,
+      distribution && distribution.accessURL,
+    ].join(' ').toLowerCase();
+
+    return format === 'gml' ||
+      rawFormat.indexOf('gml') >= 0 ||
+      mediaType.indexOf('gml') >= 0 ||
+      value.indexOf('gml') >= 0;
+  }
+
+  private isNonFeatureGmlDistribution(distribution: DCATDistribution): boolean {
+    const url = distribution && (distribution.downloadURL || distribution.accessURL || '');
+    const lowerValue = [
+      distribution && distribution.title,
+      distribution && distribution.description,
+      url,
+    ].join(' ').toLowerCase();
+
+    if (lowerValue.indexOf('getcapabilities') >= 0 ||
+      lowerValue.indexOf('describefeaturetype') >= 0 ||
+      lowerValue.indexOf('schema') >= 0 ||
+      lowerValue.indexOf('.xsd') >= 0) {
+      return true;
+    }
+
+    try {
+      const parsedUrl = new URLParse(url, true);
+      const request = this.getQueryParamValue(parsedUrl.query || {}, 'request').toLowerCase();
+      return request === 'getcapabilities' || request === 'describefeaturetype';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private isGetFeatureDistribution(distribution: DCATDistribution): boolean {
+    const url = distribution && (distribution.downloadURL || distribution.accessURL || '');
+    const lowerValue = [
+      distribution && distribution.title,
+      distribution && distribution.description,
+      url,
+    ].join(' ').toLowerCase();
+
+    if (lowerValue.indexOf('getfeature') >= 0 ||
+      lowerValue.indexOf('featurecollection') >= 0) {
+      return true;
+    }
+
+    try {
+      const parsedUrl = new URLParse(url, true);
+      return this.getQueryParamValue(parsedUrl.query || {}, 'request').toLowerCase() === 'getfeature';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private isWmsLikeDistribution(distribution: DCATDistribution): boolean {
+    const format = this.getDistributionFormat(distribution);
+    const rawFormat = this.normalizeDistributionFormat(distribution && distribution.format);
+    const mediaType = this.normalizeDistributionFormat(distribution && distribution.mediaType);
+    const value = [
+      distribution && distribution.title,
+      distribution && distribution.downloadURL,
+      distribution && distribution.accessURL,
+    ].join(' ').toLowerCase();
+
+    return format === 'wms' ||
+      rawFormat.indexOf('wms') >= 0 ||
+      mediaType.indexOf('wms') >= 0 ||
+      value.indexOf('service=wms') >= 0 ||
+      value.indexOf('request=getcapabilities') >= 0;
+  }
+
+  private isGetCapabilitiesDistribution(distribution: DCATDistribution): boolean {
+    const url = distribution && (distribution.downloadURL || distribution.accessURL || '');
+    const lowerValue = [
+      distribution && distribution.title,
+      distribution && distribution.description,
+      url,
+    ].join(' ').toLowerCase();
+
+    if (lowerValue.indexOf('getcapabilities') >= 0) {
+      return true;
+    }
+
+    try {
+      const parsedUrl = new URLParse(url, true);
+      return this.getQueryParamValue(parsedUrl.query || {}, 'request').toLowerCase() === 'getcapabilities';
+    } catch (e) {
+      return false;
+    }
+  }
+
+  private getQueryParamValue(query: any, name: string): string {
+    const foundKey = Object.keys(query || {}).find(key => key.toLowerCase() === name.toLowerCase());
+    const value = foundKey ? query[foundKey] : '';
+    return value === undefined || value === null ? '' : String(value);
+  }
+
   
   getDataSource(){
     this.loading=true;
@@ -154,7 +290,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
       },
       err=>{
         this.loading=false;
-        this.toastrService.danger(err.error.userMessage,"Error")
+        console.warn('Could not load datasource details', err);
       }
     );
   }
@@ -169,7 +305,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
       },
       err=>{
         this.loading=false;
-        this.toastrService.danger(err.error.userMessage,"Error")
+        console.warn('Could not load model details', err);
       }
     );
   }
@@ -188,7 +324,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
       },
       err=>{
         this.loading=false;
-        this.toastrService.danger(err.error.userMessage,"Error")
+        console.warn('Could not load NGSI dataset details', err);
       }
     );
   }
@@ -347,8 +483,12 @@ export class DatasetComponent implements OnInit, OnDestroy {
 
 
 	handlePreviewFileOpenModal(distribution: DCATDistribution) {
+    if (!this.canPreviewDistribution(distribution)) {
+      return;
+    }
+
     // check if the distribution format is one of the following: CSV,JSON,XML,GEOJSON,RDF,KML,PDF
-    let formatLower = distribution.format.replace(/\s/g, "").toLowerCase();
+    let formatLower = this.getDistributionFormat(distribution);
     
     // For documentation, guides, API docs, code repositories, and other formats
     // directly open the link in a new tab instead of showing the preview dialog
@@ -403,7 +543,7 @@ export class DatasetComponent implements OnInit, OnDestroy {
       }
     }
     
-    if(formatLower == "geojson" || formatLower == "kml"  || formatLower == "shp"){
+    if(formatLower == "geojson" || formatLower == "kml" || formatLower == "gml" || formatLower == "wms" || formatLower == "shp"){
       this.dialogService.open(GeoJsonDialogComponent, {
         context: {
           title: distribution.title,
@@ -413,8 +553,17 @@ export class DatasetComponent implements OnInit, OnDestroy {
       })
       return;
     }
+    if(formatLower == "dxf"){
+      this.dialogService.open(DxfDialogComponent, {
+        context: {
+          title: distribution.title,
+          distribution: distribution,
+        },
+      })
+      return;
+    }
     else{
-      if(this.checkDistributionFormat(distribution.format)){
+      if(this.checkDistributionFormat(formatLower)){
         if(formatLower == "rdf"){
           this.restApi.downloadRDFfromUrl(distribution).subscribe(
             (res : string) => {
@@ -430,11 +579,40 @@ export class DatasetComponent implements OnInit, OnDestroy {
               this.toastrService.danger("Could not load the file", "Error");
             }
           )
+        } else if (formatLower == "csv") {
+          this.dialogService.open(PreviewDialogComponent, {
+            context: {
+              title: distribution.title,
+              csvDistribution: distribution,
+            },
+          })
+        } else if (formatLower == "json") {
+          this.dialogService.open(PreviewDialogComponent, {
+            context: {
+              title: distribution.title,
+              jsonDistribution: distribution,
+            },
+          })
+        } else if (formatLower == "html") {
+          this.dialogService.open(PreviewDialogComponent, {
+            context: {
+              title: distribution.title,
+              htmlUrl: distribution.accessURL || distribution.downloadURL,
+            },
+          })
+        } else if (this.isImagePreviewFormat(formatLower)) {
+          this.dialogService.open(PreviewDialogComponent, {
+            context: {
+              title: distribution.title,
+              imageUrl: distribution.accessURL || distribution.downloadURL,
+              imageType: formatLower,
+            },
+          })
         } else {
           this.dialogService.open(PreviewDialogComponent, {
             context: {
               title: distribution.title,
-              url: distribution.accessURL,
+              url: distribution.accessURL || distribution.downloadURL,
             },
           })
         }
@@ -442,9 +620,62 @@ export class DatasetComponent implements OnInit, OnDestroy {
     }
 	}
 
+  canPreviewDistribution(distribution: DCATDistribution): boolean {
+    if (!distribution) {
+      return false;
+    }
+
+    const formatLower = this.getDistributionFormat(distribution);
+    const accessUrl = distribution.accessURL || '';
+    const downloadUrl = distribution.downloadURL || '';
+    const hasAnyUrl = !!(accessUrl || downloadUrl);
+
+    if (!formatLower || !this.checkDistributionFormat(formatLower)) {
+      return false;
+    }
+
+    if (this.isYouTubeUrl(accessUrl) || this.isYouTubeUrl(downloadUrl)) {
+      return true;
+    }
+
+    switch (formatLower) {
+      case 'endpoint':
+      case 'videotutorial':
+      case 'documentation':
+      case 'guide':
+      case 'userdocumentation':
+      case 'apidocumentation':
+      case 'coderepository':
+      case 'other':
+      case 'youtube':
+      case 'video':
+      case 'csv':
+      case 'json':
+      case 'xml':
+      case 'html':
+      case 'jpeg':
+      case 'jpg':
+      case 'png':
+      case 'tiff':
+      case 'tif':
+      case 'dxf':
+      case 'pdf':
+      case 'kml':
+      case 'gml':
+      case 'wms':
+      case 'geojson':
+        return hasAnyUrl;
+      case 'rdf':
+      case 'shp':
+        return !!downloadUrl;
+      default:
+        return false;
+    }
+  }
+
   checkDistributionFormat(format: string) {
     // remove white spaces and convert to lower case
-    let formatLower = format.replace(/\s/g, "").toLowerCase();
+    let formatLower = this.normalizeDistributionFormat(format);
     switch (formatLower) {
       case "endpoint":
       case "videotutorial":
@@ -457,17 +688,124 @@ export class DatasetComponent implements OnInit, OnDestroy {
       case "youtube":
       case "video":
       case "csv":
+      case "text/csv":
       case "json":
+      case "application/json":
+      case "text/json":
       case "xml":
+      case "application/xml":
+      case "text/xml":
+      case "html":
+      case "text/html":
+      case "jpeg":
+      case "jpg":
+      case "image/jpeg":
+      case "png":
+      case "image/png":
+      case "tiff":
+      case "tif":
+      case "image/tiff":
+      case "dxf":
+      case "application/dxf":
+      case "application/x-dxf":
+      case "image/vnd.dxf":
       case "geojson":
       case "rdf":
+      case "application/rdf+xml":
       case "kml":
+      case "wms":
+      case "ogc:wms":
+      case "application/vnd.ogc.wms_xml":
+      case "application/vnd.ogc.wms":
+      case "gml":
+      case "application/gml+xml":
+      case "application/vnd.ogc.gml":
+      case "application/vnd.ogc.gml/3.2":
       case "pdf":
       case "shp":
         return true;
       default:
         return false;
     }
+  }
+
+  private getDistributionFormat(distribution: DCATDistribution): string {
+    const format = this.normalizeDistributionFormat(distribution && distribution.format);
+    if (format) {
+      return this.normalizePreviewFormat(format);
+    }
+
+    const mediaType = this.normalizeDistributionFormat(distribution && distribution.mediaType);
+    if (mediaType) {
+      return this.normalizePreviewFormat(mediaType);
+    }
+
+    const url = distribution && (distribution.downloadURL || distribution.accessURL);
+    if (!url) {
+      return '';
+    }
+
+    try {
+      const parsedUrl = new URLParse(url, true);
+      const serviceKey = Object.keys(parsedUrl.query || {}).find(key => key.toLowerCase() === 'service');
+      if (serviceKey && String(parsedUrl.query[serviceKey]).toLowerCase() === 'wms') {
+        return 'wms';
+      }
+    } catch (e) {}
+
+    const cleanUrl = url.split('#')[0].split('?')[0];
+    const fileName = cleanUrl.substring(cleanUrl.lastIndexOf('/') + 1);
+    const lastDot = fileName.lastIndexOf('.');
+    return lastDot >= 0 ? this.normalizePreviewFormat(this.normalizeDistributionFormat(fileName.slice(lastDot + 1))) : '';
+  }
+
+  private normalizeDistributionFormat(format: string): string {
+    return (format || '').replace(/\s/g, "").toLowerCase();
+  }
+
+  private normalizePreviewFormat(format: string): string {
+    switch (format) {
+      case 'application/json':
+      case 'text/json':
+        return 'json';
+      case 'text/csv':
+        return 'csv';
+      case 'application/xml':
+      case 'text/xml':
+        return 'xml';
+      case 'text/html':
+        return 'html';
+      case 'image/jpeg':
+        return 'jpeg';
+      case 'image/png':
+        return 'png';
+      case 'image/tiff':
+        return 'tiff';
+      case 'application/dxf':
+      case 'application/x-dxf':
+      case 'image/vnd.dxf':
+        return 'dxf';
+      case 'application/rdf+xml':
+      case 'rdf+xml':
+        return 'rdf';
+      case 'application/gml+xml':
+      case 'application/vnd.ogc.gml':
+      case 'application/vnd.ogc.gml/3.2':
+        return 'gml';
+      case 'ogc:wms':
+      case 'application/vnd.ogc.wms_xml':
+      case 'application/vnd.ogc.wms':
+        return 'wms';
+      default:
+        if (format.indexOf('wms') >= 0) {
+          return 'wms';
+        }
+        return format;
+    }
+  }
+
+  private isImagePreviewFormat(format: string): boolean {
+    return ['jpeg', 'jpg', 'png', 'tiff', 'tif'].indexOf(format) >= 0;
   }
 
   // Helper method to check if a URL is a YouTube link

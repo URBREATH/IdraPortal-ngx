@@ -14,10 +14,11 @@ import { DataletIframeComponent } from './datalet-iframe/datalet-iframe.componen
 import { ShowDataletsComponent } from './show-datalets/show-datalets.component';
 import { PreviewDialogComponent } from './dataset/preview-dialog/preview-dialog.component';
 import { GeoJsonDialogComponent } from './dataset/geojson-dialog/geojson-dialog.component';
+import { DxfDialogComponent } from './dataset/dxf-dialog/dxf-dialog.component';
 import { NgxPaginationModule } from 'ngx-pagination';
 import { TranslateModule } from '@ngx-translate/core';
 @NgModule({
-  declarations: [DataCatalogueComponent, SearchComponent, DatasetComponent, DistributionComponent, DataletIframeComponent, ShowDataletsComponent, PreviewDialogComponent, GeoJsonDialogComponent],
+  declarations: [DataCatalogueComponent, SearchComponent, DatasetComponent, DistributionComponent, DataletIframeComponent, ShowDataletsComponent, PreviewDialogComponent, GeoJsonDialogComponent, DxfDialogComponent],
   imports: [
     NgxPaginationModule,
     ThemeModule,

@@ -7,7 +7,7 @@ import { SearchFilter } from '../model/search-filter';
 import { SearchRequest } from '../model/search-request';
 import { SearchResult } from '../model/search-result';
 import { DataCataglogueAPIService } from '../services/data-cataglogue-api.service';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { forkJoin, Observable } from 'rxjs';
 import { TranslateService } from '@ngx-translate/core';
 
@@ -18,6 +18,7 @@ import { TranslateService } from '@ngx-translate/core';
 })
 export class SearchComponent implements OnInit {
 
+  private readonly searchStateKey = 'dataCatalogueSearchState';
 
   searchResponse:SearchResult=new SearchResult();
   searchRequest:SearchRequest=new SearchRequest();
@@ -27,6 +28,7 @@ export class SearchComponent implements OnInit {
 
   constructor(private restApi:DataCataglogueAPIService,
     public router: Router,
+    private route: ActivatedRoute,
     public translation: TranslateService,
   ) { }
 
@@ -102,6 +104,8 @@ export class SearchComponent implements OnInit {
 
   private initializeSearchState(searchParams: any, lastSearch: string | null): void {
     const nodes = this.searchRequest.nodes ? [...this.searchRequest.nodes] : [];
+    const searchParamKeys = ['advancedSearch', 'type', 'name', 'text', 'tags', 'search_value', 'value'];
+    const hasSearchParams = searchParamKeys.some(key => searchParams[key] !== undefined);
 
     this.searchRequest = new SearchRequest();
     this.searchRequest.rows = this.pageSize;
@@ -137,6 +141,11 @@ export class SearchComponent implements OnInit {
       const tags = searchParams['tags'].split(',').filter(tag => tag.trim() !== '');
       this.filters = [...tags];
       this.searchRequest.filters = [new SearchFilter('ALL', tags.join(','))];
+      return;
+    }
+
+    if (!hasSearchParams && this.restoreSearchState()) {
+      this.searchRequest.nodes = this.searchRequest.nodes?.length ? this.searchRequest.nodes : nodes;
       return;
     }
 
@@ -200,6 +209,7 @@ export class SearchComponent implements OnInit {
     this.page = $event;
     this.searchRequest.rows = this.pageSize;
     this.searchRequest.start = ($event - 1) * this.searchRequest.rows;
+    this.saveSearchState();
     this.searchDataset();
   }
 
@@ -226,24 +236,7 @@ export class SearchComponent implements OnInit {
 
     console.log("Search Request: ", this.searchRequest);
 
-    // Process regular filters
-    this.searchRequest.filters.forEach(x=>{
-      if(x.field=='ALL' && x.value!=''){
-        let values = x.value.split(',')
-        values.forEach(y=> this.filtersTags.push(y))
-      } else if(x.value!=''){
-        let values = x.value.split(',')
-        let name=x.field;
-        let index = this.searchResponse.facets.findIndex(x=> x.search_parameter===name)
-        if(index>=0){
-          name=this.searchResponse.facets[index].displayName;
-        }
-        values.forEach(y=> this.filtersTags.push(name+": "+y))
-      }
-    })
-
-    // Add date range tags
-    this.createDateRangeTags();
+    this.buildFilterTags();
 
     this.restApi.searchDatasets(this.searchRequest).subscribe(
       res=>{
@@ -253,6 +246,8 @@ export class SearchComponent implements OnInit {
         // Update totalDatasets on every search, not just the first one
         this.totalDatasets = this.searchResponse.count;  
         this.searchResponse.results.map((x:DCATDataset)=>{ this.processDataset(x) })
+        this.buildFilterTags();
+        this.saveSearchState();
         this.loading=false;
       },
       err=>{
@@ -275,7 +270,7 @@ export class SearchComponent implements OnInit {
       }
     })
 
-    localStorage.setItem('lastSearch', this.filters.toString());
+    this.saveSearchState();
 
     this.currentPage = 1;
     this.page = 1;
@@ -319,7 +314,7 @@ export class SearchComponent implements OnInit {
       this.searchRequest.filters.push(new SearchFilter('ALL', trimmedValue));
     }
     
-    localStorage.setItem('lastSearch', this.filters.toString());
+    this.saveSearchState();
 
     this.currentPage = 1;
     this.page = 1;
@@ -456,12 +451,16 @@ export class SearchComponent implements OnInit {
     if(this.searchRequest.filters[index].value==''){
       this.searchRequest.filters.splice(index,1);
     }
-    localStorage.setItem('lastSearch', this.searchRequest.filters.map(x => x.value.trim()).filter(v => v !== '').join(','));
+    this.currentPage = 1;
+    this.page = 1;
+    this.searchRequest.start = 0;
+    this.saveSearchState();
     this.searchDataset();
   }
 
   getDatasetByFacet(search_parameter,newValue){
     this.page=1;
+    this.currentPage=1;
     this.searchRequest.start=0;
     let index = this.searchRequest.filters.findIndex(x=> x.field===search_parameter);
     if(index<0){
@@ -474,14 +473,96 @@ export class SearchComponent implements OnInit {
       filter.value=tmp.join(',');
       this.searchRequest.filters.push(filter);
     }
-    localStorage.setItem(
-      'lastSearch',
-      this.searchRequest.filters
-        .map(x => x.value.trim())
-        .filter(v => v !== '')
-        .join(',')
-    );
+    this.saveSearchState();
     this.searchDataset()
+  }
+
+  private saveSearchState(): void {
+    const hasFilters = this.searchRequest.filters && this.searchRequest.filters.some(filter => filter.value && filter.value.trim() !== '');
+    if (!hasFilters) {
+      sessionStorage.removeItem(this.searchStateKey);
+      localStorage.removeItem('lastSearch');
+      this.clearSearchQueryParams();
+      return;
+    }
+
+    sessionStorage.setItem(this.searchStateKey, JSON.stringify({
+      searchRequest: this.searchRequest,
+      filters: this.filters,
+      page: this.page,
+      currentPage: this.currentPage,
+    }));
+    localStorage.removeItem('lastSearch');
+    this.clearSearchQueryParams();
+  }
+
+  private clearSearchQueryParams(): void {
+    const queryParams = this.router.routerState.snapshot.root.queryParams;
+    const searchParamKeys = ['advancedSearch', 'params', 'type', 'name', 'text', 'tags', 'search_value', 'value'];
+    const hasSearchParams = searchParamKeys.some(key => queryParams[key] !== undefined);
+
+    if (!hasSearchParams) {
+      return;
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: searchParamKeys.reduce((params, key) => {
+        params[key] = null;
+        return params;
+      }, {}),
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    });
+  }
+
+  private restoreSearchState(): boolean {
+    const rawState = sessionStorage.getItem(this.searchStateKey);
+    if (!rawState) {
+      localStorage.removeItem('lastSearch');
+      return false;
+    }
+
+    try {
+      const state = JSON.parse(rawState);
+      if (!state.searchRequest) {
+        return false;
+      }
+
+      this.searchRequest = state.searchRequest;
+      this.filters = Array.isArray(state.filters) ? state.filters : [];
+      this.page = state.page || 1;
+      this.currentPage = state.currentPage || this.page;
+      this.searchRequest.rows = this.pageSize;
+      this.searchRequest.start = (this.currentPage - 1) * this.searchRequest.rows;
+      localStorage.removeItem('lastSearch');
+      return true;
+    } catch (e) {
+      sessionStorage.removeItem(this.searchStateKey);
+      localStorage.removeItem('lastSearch');
+      return false;
+    }
+  }
+
+  private buildFilterTags(): void {
+    this.filtersTags = [];
+
+    this.searchRequest.filters.forEach(filter => {
+      if(filter.field == 'ALL' && filter.value != ''){
+        let values = filter.value.split(',');
+        values.forEach(value => this.filtersTags.push(value));
+      } else if(filter.value != ''){
+        let values = filter.value.split(',');
+        let name = filter.field;
+        let index = this.searchResponse.facets.findIndex(facet => facet.search_parameter === name);
+        if(index >= 0){
+          name = this.searchResponse.facets[index].displayName;
+        }
+        values.forEach(value => this.filtersTags.push(name + ": " + value));
+      }
+    });
+
+    this.createDateRangeTags();
   }
 
   displayFacet(search_parameter,value){
