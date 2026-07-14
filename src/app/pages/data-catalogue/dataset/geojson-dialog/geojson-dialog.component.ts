@@ -40,6 +40,10 @@ export class GeoJsonDialogComponent {
   loading: boolean;
   type: string;
   convertedGeoJson: any;
+  private icons: { [key: string]: string } = {};
+  private markerIcons: { [key: string]: L.Icon } = {};
+  private readonly remoteIconsUrl = 'https://raw.githubusercontent.com/OPSILab/Icon_config/main/noto_emoji.json';
+  private readonly localIconsUrl = 'assets/noto_emoji.json';
 
   constructor(protected ref: NbDialogRef<GeoJsonDialogComponent>,
     private restApi: DataCataglogueAPIService,
@@ -51,7 +55,7 @@ export class GeoJsonDialogComponent {
 
   ngOnInit() {
     this.loading = true;
-    this.openMap(this.distribution);
+    this.loadIcons().finally(() => this.openMap(this.distribution));
   }
 
   map: any;
@@ -96,6 +100,9 @@ export class GeoJsonDialogComponent {
     }).addTo(this.map);
 
     const geoJsonLayer = L.geoJSON(geoJsonData, {
+      pointToLayer: (feature, latlng) => L.marker(latlng, {
+        icon: this.getMarkerIconForFeature(feature)
+      }),
       onEachFeature: this.onEachFeature
     }).addTo(this.map);
 
@@ -194,6 +201,87 @@ export class GeoJsonDialogComponent {
       default:
         return false;
     }
+  }
+
+  private async loadIcons(): Promise<void> {
+    try {
+      this.icons = await this.http.get<{ [key: string]: string }>(this.remoteIconsUrl).toPromise() || {};
+    } catch (e) {
+      try {
+        this.icons = await this.http.get<{ [key: string]: string }>(this.localIconsUrl).toPromise() || {};
+      } catch (fallbackError) {
+        this.icons = {};
+      }
+    }
+  }
+
+  private getMarkerIconForFeature(feature: any): any {
+    const iconName = this.getFeatureIconName(feature);
+    const iconUrl = this.icons[iconName] || this.icons.default;
+
+    if (!iconUrl) {
+      return new L.Icon.Default();
+    }
+
+    if (!this.markerIcons[iconUrl]) {
+      this.markerIcons[iconUrl] = L.icon({
+        iconUrl,
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+        popupAnchor: [0, -32]
+      });
+    }
+
+    return this.markerIcons[iconUrl];
+  }
+
+  private getFeatureIconName(feature: any): string {
+    const properties = feature && feature.properties ? feature.properties : {};
+    const subfilters = properties.subfilters || properties.subFilters || properties.subfilter || properties.subFilter ||
+      feature && (feature.subfilters || feature.subFilters || feature.subfilter || feature.subFilter);
+
+    const rawIconName = this.getThirdSubfilterValue(subfilters);
+    const iconName = typeof rawIconName === 'string' ? rawIconName.trim().toLowerCase() : '';
+
+    return iconName && this.icons[iconName] ? iconName : 'default';
+  }
+
+  private getThirdSubfilterValue(subfilters: any): string {
+    if (!subfilters) {
+      return '';
+    }
+
+    if (Array.isArray(subfilters)) {
+      return this.getSubfilterValue(subfilters[2]);
+    }
+
+    if (typeof subfilters === 'object') {
+      const values = Object.keys(subfilters).map(key => subfilters[key]);
+      return this.getSubfilterValue(values[2]);
+    }
+
+    if (typeof subfilters === 'string') {
+      const values = subfilters.split(',').map(value => value.trim());
+      return values[2] || '';
+    }
+
+    return '';
+  }
+
+  private getSubfilterValue(subfilter: any): string {
+    if (!subfilter) {
+      return '';
+    }
+
+    if (typeof subfilter === 'string') {
+      return subfilter;
+    }
+
+    if (typeof subfilter === 'object') {
+      return subfilter.value || subfilter.name || subfilter.icon || subfilter.label || '';
+    }
+
+    return String(subfilter);
   }
 
   private normalizeGeoJsonText(text: string): string {
@@ -2238,13 +2326,9 @@ export class GeoJsonDialogComponent {
 
     geoJsonArray.forEach(geoJson => {
       L.geoJSON(geoJson, {
-        // pointToLayer: function (feature, latlng) {
-        // return new L.CircleMarker(latlng, {radius: 5, 
-        //     fillOpacity: 1, 
-        //     color: 'black', 
-        //     fillColor: 'blue', 
-        //     weight: 1,});
-        // },
+        pointToLayer: (feature, latlng) => L.marker(latlng, {
+          icon: this.getMarkerIconForFeature(feature)
+        }),
         onEachFeature: this.onEachFeature
     }
       ).addTo(this.map);

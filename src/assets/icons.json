@@ -1,0 +1,21 @@
+{
+  "default": "https://upload.wikimedia.org/wikipedia/commons/8/88/Map_marker.svg",
+  "bench": "https://cdn-icons-png.flaticon.com/512/5962/5962925.png",
+  "bin": "https://cdn-icons-png.flaticon.com/512/5733/5733606.png",
+  "caution": "https://cdn-icons-png.flaticon.com/512/5087/5087907.png",
+  "cone": "https://cdn-icons-png.flaticon.com/512/7899/7899459.png",
+  "danger": "https://cdn-icons-png.flaticon.com/512/6069/6069788.png",
+  "escalators": "https://cdn-icons-png.flaticon.com/512/5761/5761074.png",
+  "flowers": "https://cdn-icons-png.flaticon.com/512/8650/8650660.png",
+  "hazard": "https://cdn-icons-png.flaticon.com/512/5732/5732835.png",
+  "heart": "https://cdn-icons-png.flaticon.com/512/5750/5750255.png",
+  "hydrant": "https://cdn-icons-png.flaticon.com/512/6269/6269344.png",
+  "leaf": "https://cdn-icons-png.flaticon.com/512/7672/7672367.png",
+  "litter": "https://cdn-icons-png.flaticon.com/512/5013/5013751.png",
+  "park": "https://cdn-icons-png.flaticon.com/512/5739/5739461.png",
+  "road": "https://cdn-icons-png.flaticon.com/512/6015/6015923.png",
+  "tap": "https://cdn-icons-png.flaticon.com/512/6017/6017725.png",
+  "tree": "https://cdn-icons-png.flaticon.com/512/6015/6015592.png",
+  "toilet": "https://cdn-icons-png.flaticon.com/512/6217/6217476.png",
+  "visibility": "https://cdn-icons-png.flaticon.com/512/5444/5444292.png"
+}
